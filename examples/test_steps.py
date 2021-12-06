@@ -26,10 +26,14 @@ duplicate.outputs.artifacts = {"bar": OutputArtifact(path="/tmp/bar.txt")}
 
 wf = Workflow(name="hhh")
 hello0 = Step(name="hello0", template=hello)
+# This step will give output parameter "msg" with value 1, and output artifact "bar" which contains "Hello"
 wf.add(hello0)
+# This step use the output parameter "msg" of step "hello0" as input parameter "msg", and the output artifact "bar" of step "hello0" as input artifact "foo"
 hello1 = Step(name="hello1", template=duplicate, parameters={"msg": hello0.outputs.parameters["msg"]}, artifacts={"foo": hello0.outputs.artifacts["bar"]})
+# This step will give output parameter "msg" with value 2, and output artifact "bar" which contains "HelloHello"
 wf.add(hello1)
 hello2 = Step(name="hello2", template=duplicate, parameters={"msg": hello1.outputs.parameters["msg"]}, artifacts={"foo": hello1.outputs.artifacts["bar"]})
 hello3 = Step(name="hello3", template=duplicate, parameters={"msg": hello1.outputs.parameters["msg"]}, artifacts={"foo": hello1.outputs.artifacts["bar"]})
 wf.add([hello2, hello3]) # parallel steps
+# These steps will give output parameter "msg" with value 4, and output artifact "bar" which contains "HelloHelloHelloHello"
 wf.submit()
