@@ -10,4 +10,4 @@ from .io import (
     OutputParameter
 )
 from .steps import Steps
-from .op_template import OPTemplate, ContainerOPTemplate
+from .op_template import OPTemplate, ContainerOPTemplate, ScriptOPTemplate

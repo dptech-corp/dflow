@@ -8,10 +8,16 @@ setup(
     license="LGPLv3",
     package_dir={'': 'src'},
     packages=[
-        "clframe"
+        "clframe",
+        "clframe/python_op"
     ],
     python_requires='>=3.7',
     install_requires=[
+        "six",
+        "python-dateutil",
+        "urllib3",
+        "certifi",
+        "typeguard",
         "argo-workflows"
     ]
 )

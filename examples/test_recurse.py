@@ -21,6 +21,8 @@ steps = Steps(name="iter", inputs=Inputs(parameters={"iter": InputParameter(valu
 hello = Step(name="hello", template=plus1, parameters={"iter": steps.inputs.parameters["iter"]})
 steps.add(hello)
 next = Step(name="next", template=steps, parameters={"iter": hello.outputs.parameters["iter"]}, when="{{%s}} < {{%s}}" % (hello.outputs.parameters["iter"], steps.inputs.parameters["limit"]))
+# This step use steps as its template (note that Steps is a subclass of OPTemplate), meanwhile the steps it used contains this step,
+# which gives a recursion. The recursion will stop when the "when" condition is satisfied (after 10 loops in this example)
 steps.add(next)
 
 wf = Workflow("recurse", steps=steps)
