@@ -9,7 +9,7 @@ setup(
     package_dir={'': 'src'},
     packages=[
         "clframe",
-        "clframe/python_op"
+        "clframe/python"
     ],
     python_requires='>=3.7',
     install_requires=[

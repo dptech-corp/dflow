@@ -22,11 +22,14 @@ class PythonOPTemplate(ScriptOPTemplate):
         for art in output_artifact_sign:
             outputs.artifacts[art] = OutputArtifact(path="/tmp/outputs/artifacts/" + art)
 
-        script = "import os, shutil\n"
-        script += "from typing import Tuple, Set\n"
-        script += "from pathlib import Path\n"
-        script += "from clframe.python_op import OP, OPParameter, OPParameterSign, OPArtifact, OPArtifactSign, handle_output\n"
-        script += inspect.getsource(op_class)
+        script = ""
+        if op_class.__module__ == "__main__":
+            source_lines, start_line = inspect.getsourcelines(op_class)
+            pre_lines = open(inspect.getsourcefile(op_class), "r").readlines()[:start_line-1]
+            script += "\n".join(pre_lines + source_lines) + "\n"
+
+        script += "from clframe.python import OPParameter, OPArtifact, handle_output\n"
+        script += "from %s import %s\n\n" % (op_class.__module__, name)
         script += "op_obj = %s()\n" % name
         script += "input_parameter = OPParameter({"
         items = []
