@@ -8,7 +8,7 @@ from clframe import (
     Workflow,
     Step
 )
-from clframe.python_op import (
+from clframe.python import (
     PythonOPTemplate,
     OP,
     OPParameter,
@@ -60,17 +60,9 @@ class Duplicate(OP):
         ret_artifact = OPArtifact({"bar": "output.txt"})
         return ret_parameter, ret_artifact
 
-hello = ContainerOPTemplate(name='Hello',
-            image="alpine:latest",
-            command=["sh", "-c"],
-            args=["echo Hello > /tmp/bar.txt && echo Hello > /tmp/result.txt"])
-hello.outputs.parameters = {"msg": OutputParameter(value_from_path="/tmp/result.txt")}
-hello.outputs.artifacts = {"bar": OutputArtifact(path="/tmp/bar.txt")}
-
-wf = Workflow(name="hello")
-s0 = Step(name="step0", template=hello)
-wf.add(s0)
-s1 = Step(name="step1", template=PythonOPTemplate(Duplicate, image="clframe:v1.0"), parameters={"msg": s0.outputs.parameters["msg"], "num": 3}, artifacts={"foo": s0.outputs.artifacts["bar"]})
-# This step will give output parameter "msg" with value "HelloHelloHello", and output artifact "bar" which contains "Hello\nHello\nHello\n"
-wf.add(s1)
-wf.submit()
+if __name__ == "__main__":
+    wf = Workflow(name="hello")
+    step = Step(name="step", template=PythonOPTemplate(Duplicate, image="clframe:v1.0"), parameters={"msg": "Hello", "num": 3}, artifacts={"foo": "Hi"})
+    # This step will give output parameter "msg" with value "HelloHelloHello", and output artifact "bar" which contains "HiHiHi"
+    wf.add(step)
+    wf.submit()

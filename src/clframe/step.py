@@ -3,7 +3,8 @@ from argo.workflows.client import (
     V1alpha1WorkflowStep,
     V1alpha1Arguments,
     V1alpha1Parameter,
-    V1alpha1Artifact
+    V1alpha1Artifact,
+    V1alpha1RawArtifact
 )
 from .io import (
     InputArtifact,
@@ -44,15 +45,24 @@ class Step:
         for k, v in artifacts.items():
             if isinstance(v, InputArtifact) or isinstance(v, OutputArtifact):
                 self.inputs.artifacts[k].source = "{{" + str(v) + "}}"
-            else:
-                self.inputs.artifacts[k].source = v
+            elif isinstance(v, str):
+                self.inputs.artifacts[k].raw = v
 
     def convert_to_argo(self):
+        argo_parameters = []
+        for k, v in self.inputs.parameters.items():
+            argo_parameters.append(V1alpha1Parameter(name=k, value=v.value))
+
+        argo_artifacts = []
+        for k, v in self.inputs.artifacts.items():
+            if v.source is not None:
+                argo_artifacts.append(V1alpha1Artifact(name=k, _from=v.source))
+            elif v.raw is not None:
+                argo_artifacts.append(V1alpha1Artifact(name=k, raw=V1alpha1RawArtifact(data=v.raw)))
+    
         return V1alpha1WorkflowStep(
             name=self.name, template=self.template.name, arguments=V1alpha1Arguments(
-                parameters=[V1alpha1Parameter(
-                    name=k, value=v.value) for k, v in self.inputs.parameters.items()],
-                artifacts=[V1alpha1Artifact(
-                    name=k, _from=v.source) for k, v in self.inputs.artifacts.items()]
+                parameters=argo_parameters,
+                artifacts=argo_artifacts
             ), when=self.when
         )

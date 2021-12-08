@@ -75,12 +75,13 @@ class InputParameter:
         return ""
 
 class InputArtifact:
-    def __init__(self, path, name=None, step_id=None, type=None, source=None):
+    def __init__(self, path, name=None, step_id=None, type=None, source=None, raw=None):
         self.path = path
         self.name = name
         self.step_id = step_id
         self.type = type
         self.source = source
+        self.raw = raw
     
     def __repr__(self):
         if self.name is not None:
