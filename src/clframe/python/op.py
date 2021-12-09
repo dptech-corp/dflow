@@ -5,7 +5,6 @@ from enum import Enum
 from pathlib import Path
 from typeguard import check_type
 from .opio import OPIO, OPIOSign
-#from .context import Context
 from .op_parameter import OPParameterSign, OPParameter
 from .op_artifact import OPArtifactSign, OPArtifact
 
@@ -25,13 +24,10 @@ class OP(ABC):
     """
     def __init__(
             self,
-            context,
+            *args,
+            **kwargs,
     )->None:
-        self._context = context
-
-    @property
-    def context(self):
-        return self._context
+        pass
     
     @property
     def status(self):
