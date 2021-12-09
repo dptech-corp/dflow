@@ -18,6 +18,7 @@ setup(
         "urllib3",
         "certifi",
         "typeguard",
-        "argo-workflows"
+        "argo-workflows",
+        "jsonpickle",
     ]
 )
