@@ -1,5 +1,4 @@
 from clframe import (
-    ContainerOPTemplate,
     InputParameter,
     OutputParameter,
     Inputs,

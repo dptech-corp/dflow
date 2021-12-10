@@ -1,3 +1,4 @@
+from argo.workflows.client import V1alpha1Template
 from .op_template import OPTemplate
 
 class Steps(OPTemplate):
@@ -14,3 +15,21 @@ class Steps(OPTemplate):
     def add(self, step):
         self.steps.append(step)
 
+    def convert_to_argo(self):
+        argo_steps = []
+        templates = []
+        for step in self.steps:
+            # each step of steps should be a list of parallel steps, if not, create a sigleton
+            if not isinstance(step, list):
+                step = [step]
+            argo_parallel_steps = []
+            for ps in step:
+                templates.append(ps.template)
+                argo_parallel_steps.append(ps.convert_to_argo())
+            argo_steps.append(argo_parallel_steps)
+
+        argo_template = V1alpha1Template(name=self.name,
+                steps=argo_steps,
+                inputs=self.inputs.convert_to_argo(),
+                outputs=self.outputs.convert_to_argo())
+        return argo_template, templates

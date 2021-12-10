@@ -1,5 +1,5 @@
 from clframe import (
-    ContainerOPTemplate,
+    ShellOPTemplate,
     InputParameter,
     OutputParameter,
     InputArtifact,
@@ -9,17 +9,15 @@ from clframe import (
 )
 
 if __name__ == "__main__":
-    hello = ContainerOPTemplate(name='Hello',
+    hello = ShellOPTemplate(name='Hello',
             image="alpine:latest",
-            command=["sh", "-c"],
-            args=["echo Hello > /tmp/bar.txt && echo 1 > /tmp/result.txt"])
+            script="echo Hello > /tmp/bar.txt && echo 1 > /tmp/result.txt")
     hello.outputs.parameters = {"msg": OutputParameter(value_from_path="/tmp/result.txt")}
     hello.outputs.artifacts = {"bar": OutputArtifact(path="/tmp/bar.txt")}
 
-    duplicate = ContainerOPTemplate(name='Duplicate',
+    duplicate = ShellOPTemplate(name='Duplicate',
                 image="alpine:latest",
-                command=["sh", "-c"],
-                args=["cat /tmp/foo.txt /tmp/foo.txt > /tmp/bar.txt && echo $(({{inputs.parameters.msg}}*2)) > /tmp/result.txt"])
+                script="cat /tmp/foo.txt /tmp/foo.txt > /tmp/bar.txt && echo $(({{inputs.parameters.msg}}*2)) > /tmp/result.txt")
     duplicate.inputs.parameters = {"msg": InputParameter()}
     duplicate.outputs.parameters = {"msg": OutputParameter(value_from_path="/tmp/result.txt")}
     duplicate.inputs.artifacts = {"foo": InputArtifact(path="/tmp/foo.txt")}

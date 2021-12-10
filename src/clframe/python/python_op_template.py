@@ -1,10 +1,10 @@
 import inspect
 from typing import Set
 from pathlib import Path
-from ..op_template import ScriptOPTemplate
+from ..op_template import PythonScriptOPTemplate
 from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact
 
-class PythonOPTemplate(ScriptOPTemplate):
+class PythonOPTemplate(PythonScriptOPTemplate):
     def __init__(self, op_class, image=None, command=None):
         name = op_class.__name__
         input_parameter_sign = op_class.get_input_parameter_sign()

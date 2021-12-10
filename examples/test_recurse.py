@@ -1,5 +1,5 @@
 from clframe import (
-    ContainerOPTemplate,
+    ShellOPTemplate,
     InputParameter,
     OutputParameter,
     Inputs,
@@ -11,10 +11,9 @@ from clframe import (
 )
 
 if __name__ == "__main__":
-    plus1 = ContainerOPTemplate(name='plus1',
+    plus1 = ShellOPTemplate(name='plus1',
                 image="alpine:latest",
-                command=["sh", "-c"],
-                args=["echo 'This is iter {{inputs.parameters.iter}}' && echo $(({{inputs.parameters.iter}}+1)) > /tmp/result.txt"])
+                script="echo 'This is iter {{inputs.parameters.iter}}' && echo $(({{inputs.parameters.iter}}+1)) > /tmp/result.txt")
     plus1.inputs.parameters = {"iter": InputParameter()}
     plus1.outputs.parameters = {"iter": OutputParameter(value_from_path="/tmp/result.txt")}
 
