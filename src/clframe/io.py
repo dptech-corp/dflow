@@ -146,8 +146,9 @@ class OutputArtifact:
         self.name = name
         self.step_id = step_id
         self.type = type
+        if save is None:
+            save = []
         self.save = save
-        self.asyn = False
 
     def __repr__(self):
         if self.name is not None:
@@ -156,14 +157,16 @@ class OutputArtifact:
             return "outputs.artifacts.%s" % self.name
         return ""
     
-    def asynchronize(self):
-        self.asyn = True
-        return AsyncArtifact(self.step_id, self.name)
+    def pvc(self):
+        pvc = PVC("public", self.step_id, self.name)
+        self.save.append(pvc)
+        return pvc
     
     def convert_to_argo(self):
         return V1alpha1Artifact(name=self.name, path=self.path)
 
-class AsyncArtifact:
-    def __init__(self, step_id, name):
-        self.step_id = step_id
+class PVC:
+    def __init__(self, pvcname, relpath, name):
+        self.pvcname = pvcname
+        self.relpath = relpath
         self.name = name

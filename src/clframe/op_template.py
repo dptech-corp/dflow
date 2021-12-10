@@ -1,6 +1,7 @@
 from argo.workflows.client import (
     V1alpha1Template,
-    V1alpha1ScriptTemplate
+    V1alpha1ScriptTemplate,
+    V1VolumeMount
 )
 from .io import Inputs, Outputs
 
@@ -17,31 +18,37 @@ class OPTemplate:
             self.outputs = Outputs()
 
 class ShellOPTemplate(OPTemplate):
-    def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None):
+    def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, mounts=None):
         super().__init__(name=name, inputs=inputs, outputs=outputs)
         self.image = image
         if command is None:
             command = ["sh"]
         self.command = command
         self.script = script
-    
+        if mounts is None:
+            mounts = []
+        self.mounts = mounts
+
     def convert_to_argo(self):
         return V1alpha1Template(name=self.name,
             inputs=self.inputs.convert_to_argo(),
             outputs=self.outputs.convert_to_argo(),
-            script=V1alpha1ScriptTemplate(image=self.image, command=self.command, source=self.script))
+            script=V1alpha1ScriptTemplate(image=self.image, command=self.command, source=self.script, volume_mounts=self.mounts))
 
 class PythonScriptOPTemplate(OPTemplate):
-    def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None):
+    def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, mounts=None):
         super().__init__(name=name, inputs=inputs, outputs=outputs)
         self.image = image
         if command is None:
             command = ["python"]
         self.command = command
         self.script = script
+        if mounts is None:
+            mounts = []
+        self.mounts = mounts
 
     def convert_to_argo(self):
         return V1alpha1Template(name=self.name,
             inputs=self.inputs.convert_to_argo(),
             outputs=self.outputs.convert_to_argo(),
-            script=V1alpha1ScriptTemplate(image=self.image, command=self.command, source=self.script))
+            script=V1alpha1ScriptTemplate(image=self.image, command=self.command, source=self.script, volume_mounts=self.mounts))

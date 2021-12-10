@@ -4,7 +4,10 @@ from argo.workflows.client import (
     V1alpha1Workflow,
     V1alpha1WorkflowCreateRequest,
     V1alpha1WorkflowSpec,
-    V1ObjectMeta
+    V1ObjectMeta,
+    V1PersistentVolumeClaim,
+    V1PersistentVolumeClaimSpec,
+    V1ResourceRequirements
 )
 from .steps import Steps
 
@@ -35,7 +38,16 @@ class Workflow:
             spec=V1alpha1WorkflowSpec(
                 service_account_name='argo',
                 entrypoint=self.entrypoint.name,
-                templates=list(self.argo_templates.values())))
+                templates=list(self.argo_templates.values()),
+                volume_claim_templates=[V1PersistentVolumeClaim(
+                    metadata=V1ObjectMeta(name="public"),
+                    spec=V1PersistentVolumeClaimSpec(
+                        access_modes=["ReadWriteOnce"],
+                        resources=V1ResourceRequirements(
+                            requests={"storage": "1Gi"}
+                        )
+                    )
+        )]))
 
         api_response = api_instance.create_workflow(
             namespace='argo',
