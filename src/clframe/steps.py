@@ -24,8 +24,8 @@ class Steps(OPTemplate):
                 step = [step]
             argo_parallel_steps = []
             for ps in step:
-                templates.append(ps.template)
                 argo_parallel_steps.append(ps.convert_to_argo())
+                templates.append(ps.template) # template may change after conversion
             argo_steps.append(argo_parallel_steps)
 
         argo_template = V1alpha1Template(name=self.name,
