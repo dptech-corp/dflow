@@ -1,16 +1,7 @@
 from copy import deepcopy
 from argo.workflows.client import (
     V1alpha1WorkflowStep,
-    V1alpha1Arguments,
-    V1alpha1Parameter,
-    V1alpha1Artifact,
-    V1alpha1RawArtifact
-)
-from .io import (
-    InputArtifact,
-    InputParameter,
-    OutputArtifact,
-    OutputParameter
+    V1alpha1Arguments
 )
 
 class Step:
@@ -36,30 +27,21 @@ class Step:
     
     def set_parameters(self, parameters):
         for k, v in parameters.items():
-            if isinstance(v, InputParameter) or isinstance(v, OutputParameter):
-                self.inputs.parameters[k].value = "{{" + str(v) + "}}"
-            else:
-                self.inputs.parameters[k].value = v
+            self.inputs.parameters[k].value = v
     
     def set_artifacts(self, artifacts):
         for k, v in artifacts.items():
-            if isinstance(v, InputArtifact) or isinstance(v, OutputArtifact):
-                self.inputs.artifacts[k].source = "{{" + str(v) + "}}"
-            elif isinstance(v, str):
-                self.inputs.artifacts[k].raw = v
+            self.inputs.artifacts[k].source = v
 
     def convert_to_argo(self):
         argo_parameters = []
-        for k, v in self.inputs.parameters.items():
-            argo_parameters.append(V1alpha1Parameter(name=k, value=v.value))
+        for par in self.inputs.parameters.values():
+            argo_parameters.append(par.convert_to_argo())
 
         argo_artifacts = []
-        for k, v in self.inputs.artifacts.items():
-            if v.source is not None:
-                argo_artifacts.append(V1alpha1Artifact(name=k, _from=v.source))
-            elif v.raw is not None:
-                argo_artifacts.append(V1alpha1Artifact(name=k, raw=V1alpha1RawArtifact(data=v.raw)))
-    
+        for art in self.inputs.artifacts.values():
+            argo_artifacts.append(art.convert_to_argo())
+
         return V1alpha1WorkflowStep(
             name=self.name, template=self.template.name, arguments=V1alpha1Arguments(
                 parameters=argo_parameters,
