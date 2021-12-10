@@ -21,8 +21,8 @@ if __name__ == "__main__":
 
     wf = Workflow(name="async")
     step0 = Step(name="hello", template=hello)
-    # This step will give output artifact "bar" which contains "Hello"
+    # This step will give output artifact "bar" which contains "Hello" after 60 seconds
     step1 = Step(name="echo", template=echo, artifacts={"foo": step0.outputs.artifacts["bar"].pvc()})
-    # This step will print message "Hello"
+    # This step will wait the last step to finish and then print its output artifact
     wf.add([step0, step1])
     wf.submit()
