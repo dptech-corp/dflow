@@ -34,7 +34,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "input_parameter = OPParameter({"
         items = []
         for par, sign in input_parameter_sign.items():
-            if sign == int:
+            if sign in [int, float]:
                 items.append("'%s': {{inputs.parameters.%s}}" % (par, par))
             else:
                 items.append("'%s': '{{inputs.parameters.%s}}'" % (par, par))
