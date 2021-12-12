@@ -22,6 +22,8 @@ class OP(ABC):
     `get_output`. The action of the OP is activated by `execute`.
 
     """
+    progress_total = 1
+    progress_current = 0
     def __init__(
             self,
             *args,
@@ -29,6 +31,12 @@ class OP(ABC):
     )->None:
         pass
     
+    def __setattr__(self, key, value):
+        super().__setattr__(key, value)
+        if key in ["progress_total", "progress_current"]:
+            with open(os.environ.get("ARGO_PROGRESS_FILE", "ARGO_PROGRESS_FILE"), "w") as f:
+                f.write("%s/%s" % (self.progress_current, self.progress_total))
+
     @property
     def status(self):
         return self._status

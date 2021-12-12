@@ -59,4 +59,4 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         else:
             self.command = ["python"]
         self.script = script
-
+        self.init_progress = "%s/%s" % (op_class.progress_current, op_class.progress_total)
