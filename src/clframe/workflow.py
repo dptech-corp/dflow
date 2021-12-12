@@ -21,6 +21,7 @@ class Workflow:
         else:
             self.entrypoint = Steps(self.name)
         self.argo_templates = {}
+        self.pvcs = {}
 
     def add(self, step):
         self.entrypoint.add(step)
@@ -33,21 +34,26 @@ class Workflow:
         api_client = ApiClient(configuration)
         api_instance = WorkflowServiceApi(api_client)
 
-        manifest = V1alpha1Workflow(
-            metadata=V1ObjectMeta(generate_name=self.name + '-'),
-            spec=V1alpha1WorkflowSpec(
-                service_account_name='argo',
-                entrypoint=self.entrypoint.name,
-                templates=list(self.argo_templates.values()),
-                volume_claim_templates=[V1PersistentVolumeClaim(
-                    metadata=V1ObjectMeta(name="public"),
+        argo_pvcs = []
+        for k, v in self.pvcs.items():
+            if v == "":
+                argo_pvcs.append(V1PersistentVolumeClaim(
+                    metadata=V1ObjectMeta(name=k),
                     spec=V1PersistentVolumeClaimSpec(
                         access_modes=["ReadWriteOnce"],
                         resources=V1ResourceRequirements(
                             requests={"storage": "1Gi"}
                         )
                     )
-        )]))
+                ))
+
+        manifest = V1alpha1Workflow(
+            metadata=V1ObjectMeta(generate_name=self.name + '-'),
+            spec=V1alpha1WorkflowSpec(
+                service_account_name='argo',
+                entrypoint=self.entrypoint.name,
+                templates=list(self.argo_templates.values()),
+                volume_claim_templates=argo_pvcs))
 
         api_response = api_instance.create_workflow(
             namespace='argo',
@@ -64,3 +70,6 @@ class Workflow:
                     self.handle_template(template)
             else:
                 self.argo_templates[template.name] = template.convert_to_argo()
+                for mount in template.mounts:
+                    if mount.name not in self.pvcs:
+                        self.pvcs[mount.name] = ""
