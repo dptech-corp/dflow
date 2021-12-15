@@ -33,3 +33,11 @@ class Steps(OPTemplate):
                 inputs=self.inputs.convert_to_argo(),
                 outputs=self.outputs.convert_to_argo())
         return argo_template, templates
+
+    def run(self):
+        for step in self:
+            if isinstance(step, list):
+                for ps in step:
+                    ps.run(self)
+            else:
+                step.run(self)
