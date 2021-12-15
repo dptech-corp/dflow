@@ -139,13 +139,13 @@ class Step:
                 expr = expr[:i] + str(value).strip() + expr[j+2:]
                 i = expr.find("{{")
 
-            result = os.popen("sh -c 'echo $((%s))'" % expr).read().strip()
+            result = os.popen("sh -c 'if [[ %s ]]; then echo 1; else echo 0; fi'" % expr).read().strip()
             if result == "1":
                 pass
             elif result == "0":
                 return
             else:
-                raise RuntimeError("Evaluate expression failed: ", result)
+                raise RuntimeError("Evaluate expression failed: ", expr)
 
         if isinstance(self.template, Steps):
             steps = copy(self.template) # shallow copy to avoid changing each step
