@@ -26,7 +26,10 @@ class Workflow:
     def add(self, step):
         self.entrypoint.add(step)
 
-    def submit(self):
+    def submit(self, backend="argo"):
+        if backend == "debug":
+            return self.entrypoint.run()
+
         self.handle_template(self.entrypoint)
 
         configuration = Configuration(host="https://%s:%s" % (self.ip, self.port))

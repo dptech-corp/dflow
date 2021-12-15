@@ -26,7 +26,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         if op_class.__module__ == "__main__":
             source_lines, start_line = inspect.getsourcelines(op_class)
             pre_lines = open(inspect.getsourcefile(op_class), "r").readlines()[:start_line-1]
-            script += "\n".join(pre_lines + source_lines) + "\n"
+            script += "".join(pre_lines + source_lines) + "\n"
 
         script += "from clframe.python import OPParameter, OPArtifact, handle_output\n"
         script += "from %s import %s\n\n" % (op_class.__module__, name)

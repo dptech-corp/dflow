@@ -103,3 +103,152 @@ class Step:
                 artifacts=argo_artifacts
             ), when=self.when
         )
+
+    def run(self, context):
+        import os
+        import shutil
+        import uuid
+        from .io import InputParameter, OutputParameter, InputArtifact, OutputArtifact
+        from .steps import Steps
+        from copy import copy
+
+        expr = self.when
+        if expr is not None:
+            # render variables
+            i = expr.find("{{")
+            while i >= 0:
+                j = expr.find("}}", i+2)
+                var = expr[i+2:j]
+                fields = var.split(".")
+                if fields[0] == "inputs" and fields[1] == "parameters":
+                    name = fields[2]
+                    value = context.inputs.parameters[name].value
+                elif fields[0] == "steps" and fields[2] == "outputs" and fields[3] == "parameters":
+                    step_name = fields[1]
+                    name = fields[4]
+                    value = None
+                    for step in context.steps:
+                        if step.name == step_name:
+                            value = step.outputs.parameters[name].value
+                            break
+                    if value is None:
+                        raise RuntimeError("Parse failed: ", var)
+                else:
+                    raise RuntimeError("Not supported: ", var)
+
+                expr = expr[:i] + str(value).strip() + expr[j+2:]
+                i = expr.find("{{")
+
+            result = os.popen("sh -c 'echo $((%s))'" % expr).read().strip()
+            if result == "1":
+                pass
+            elif result == "0":
+                return
+            else:
+                raise RuntimeError("Evaluate expression failed: ", result)
+
+        if isinstance(self.template, Steps):
+            steps = copy(self.template) # shallow copy to avoid changing each step
+            steps.inputs = deepcopy(self.template.inputs)
+
+            # override default inputs with arguments
+            for name, par in self.inputs.parameters.items():
+                if isinstance(par.value, (InputParameter, OutputParameter)):
+                    steps.inputs.parameters[name].value = par.value.value
+                else:
+                    steps.inputs.parameters[name].value = par.value
+
+            for name, art in self.inputs.artifacts.items():
+                steps.inputs.artifacts[name].source = art.source
+
+            steps.run()
+            return
+
+        workdir = self.name + str(uuid.uuid4())
+        os.makedirs(workdir, exist_ok=True)
+        os.chdir(workdir)
+
+        # render artifacts
+        os.makedirs("inputs/artifacts", exist_ok=True)
+        for art in self.inputs.artifacts.values():
+            if isinstance(art.source, (InputArtifact, OutputArtifact)):
+                os.symlink(art.source.local_path, "inputs/artifacts/%s" % art.name)
+            elif isinstance(art.source, str):
+                with open("inputs/artifacts/%s" % art.name, "w") as f:
+                    f.write(art.source)
+            else:
+                raise RuntimeError("Not supported: ", art.source)
+            os.makedirs(os.path.dirname(os.path.abspath(art.path)), exist_ok=True)
+            backup(art.path)
+            os.symlink(os.path.abspath("inputs/artifacts/%s" % art.name), art.path)
+
+        # clean output path
+        for art in self.outputs.artifacts.values():
+            backup(art.path)
+
+        # render parameters
+        os.makedirs("inputs/parameters", exist_ok=True)
+        parameters = deepcopy(self.inputs.parameters)
+        for par in parameters.values():
+            value = par.value
+            if isinstance(value, (InputParameter, OutputParameter)):
+                if value.step_id is None: # obtain steps parameters from context
+                    par.value = context.inputs.parameters[value.name].value
+                else:
+                    par.value = value.value
+            with open("inputs/parameters/%s" % par.name, "w") as f:
+                f.write(str(par.value))
+
+        script = self.template.script
+        # render variables in the script
+        i = script.find("{{")
+        while i >= 0:
+            j = script.find("}}", i+2)
+            var = script[i+2:j]
+            fields = var.split(".")
+            if fields[0] == "inputs" and fields[1] == "parameters":
+                par = fields[2]
+                value = parameters[par].value
+                script = script[:i] + str(value) + script[j+2:]
+            else:
+                raise RuntimeError("Not supported: ", var)
+            i = script.find("{{")
+        with open("script", "w") as f:
+            f.write(script)
+
+        os.system(" ".join(self.template.command) + " script")
+
+        # save parameters
+        os.makedirs("outputs/parameters", exist_ok=True)
+        for par in self.outputs.parameters.values():
+            with open(par.value_from_path, "r") as f:
+                par.value = f.read()
+            with open("outputs/parameters/%s" % par.name, "w") as f:
+                f.write(par.value)
+
+        # save artifacts
+        os.makedirs("outputs/artifacts", exist_ok=True)
+        for art in self.outputs.artifacts.values():
+            create_hard_link(art.path, "outputs/artifacts/%s" % art.name)
+            art.local_path = os.path.abspath("outputs/artifacts/%s" % art.name)
+
+        os.chdir("..")
+
+def backup(path):
+    import os, shutil
+    cnt = 0
+    bk = path
+    while os.path.exists(bk) or os.path.islink(bk):
+        cnt += 1
+        bk = path + ".bk%s" % cnt
+    if bk != path:
+        shutil.move(path, bk)
+
+def create_hard_link(src, dst):
+    import os, shutil
+    if os.path.isdir(src):
+        shutil.copytree(src, dst, copy_function=os.link)
+    elif os.path.isfile(src):
+        os.link(src, dst)
+    else:
+        raise RuntimeError("File %s not found" % src)

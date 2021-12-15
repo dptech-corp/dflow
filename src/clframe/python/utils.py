@@ -9,6 +9,19 @@ def handle_output(output_parameter, output_artifact):
         os.makedirs('/tmp/outputs/artifacts/' + name, exist_ok=True)
         if isinstance(value, set):
             for path in value:
-                os.system("cp -lr --parents %s /tmp/outputs/artifacts/%s" % (path, name))
+                target = "/tmp/outputs/artifacts/%s/%s" % (name, path) # --parents
+                os.makedirs(os.path.dirname(target), exist_ok=True)
+                create_hard_link(path, target)
         else:
-            os.system("cp -lr --parents %s /tmp/outputs/artifacts/%s" % (value, name))
+            target = "/tmp/outputs/artifacts/%s/%s" % (name, value)
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            create_hard_link(value, target)
+
+def create_hard_link(src, dst):
+    import os, shutil
+    if os.path.isdir(src):
+        shutil.copytree(src, dst, copy_function=os.link)
+    elif os.path.isfile(src):
+        os.link(src, dst)
+    else:
+        raise RuntimeError("File %s not found" % src)
