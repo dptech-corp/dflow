@@ -10,10 +10,9 @@ from clframe import (
 from clframe.python import (
     PythonOPTemplate,
     OP,
-    OPParameter,
-    OPParameterSign,
-    OPArtifact,
-    OPArtifactSign
+    OPIO,
+    OPIOSign,
+    ArtifactPath
 )
 from typing import Tuple, Set
 from pathlib import Path
@@ -23,41 +22,29 @@ class Duplicate(OP):
         pass
 
     @classmethod
-    def get_input_parameter_sign(cls):
-        return OPParameterSign({
+    def get_input_sign(cls):
+        return OPIOSign({
             'msg' : str,
-            'num' : int
+            'num' : int,
+            'foo' : Set[ArtifactPath],
         })
 
     @classmethod
-    def get_output_parameter_sign(cls):
-        return OPParameterSign({
+    def get_output_sign(cls):
+        return OPIOSign({
             'msg' : str,
-        })
-    
-    @classmethod
-    def get_input_artifact_sign(cls):
-        return OPArtifactSign({
-            'foo' : Path
-        })
-    
-    @classmethod
-    def get_output_artifact_sign(cls):
-        return OPArtifactSign({
-            'bar' : Path
+            'bar' : Set[ArtifactPath],
         })
 
     @OP.exec_sign_check
     def execute(
             self,
-            op_parameter : OPParameter,
-            op_artifact : OPArtifact,
-    ) -> Tuple[OPParameter, OPArtifact]:
-        ret_parameter = OPParameter({"msg": op_parameter["msg"] * op_parameter["num"]})
-        content = open(op_artifact["foo"], "r").read()
-        open("output.txt", "w").write(content * op_parameter["num"])
-        ret_artifact = OPArtifact({"bar": "output.txt"})
-        return ret_parameter, ret_artifact
+            op_in : OPIO,
+    ) -> OPIO:
+        content = open(list(op_in["foo"])[0], "r").read()
+        open("output.txt", "w").write(content * op_in["num"])
+        op_out = OPIO({"msg": op_in["msg"] * op_in["num"], "bar": set(["output.txt"])})
+        return op_out
 
 if __name__ == "__main__":
     wf = Workflow(name="hello")

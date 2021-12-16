@@ -1,4 +1,5 @@
 from copy import deepcopy
+import jsonpickle
 from argo.workflows.client import (
     V1alpha1Inputs,
     V1alpha1Outputs,
@@ -95,8 +96,10 @@ class InputParameter:
             return V1alpha1Parameter(name=self.name)
         elif isinstance(self.value, InputParameter) or isinstance(self.value, OutputParameter):
             return V1alpha1Parameter(name=self.name, value="{{%s}}" % self.value)
+        elif isinstance(self.value, str):
+            return V1alpha1Parameter(name=self.name, value=self.value)
         else:
-            return V1alpha1Parameter(name=self.name, value=str(self.value))
+            return V1alpha1Parameter(name=self.name, value=jsonpickle.dumps(self.value))
 
 class InputArtifact:
     def __init__(self, path, name=None, step_id=None, type=None, source=None):

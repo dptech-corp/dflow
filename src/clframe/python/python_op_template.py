@@ -1,26 +1,26 @@
 import inspect
 from typing import Set
-from pathlib import Path
+from .opio import ArtifactPath
 from ..op_template import PythonScriptOPTemplate
 from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact
 
 class PythonOPTemplate(PythonScriptOPTemplate):
     def __init__(self, op_class, image=None, command=None):
-        name = op_class.__name__
-        input_parameter_sign = op_class.get_input_parameter_sign()
-        input_artifact_sign = op_class.get_input_artifact_sign()
-        output_parameter_sign = op_class.get_output_parameter_sign()
-        output_artifact_sign = op_class.get_output_artifact_sign()
+        class_name = op_class.__name__
+        input_sign = op_class.get_input_sign()
+        output_sign = op_class.get_output_sign()
         inputs = Inputs()
         outputs = Outputs()
-        for par in input_parameter_sign:
-            inputs.parameters[par] = InputParameter()
-        for art in input_artifact_sign:
-            inputs.artifacts[art] = InputArtifact(path="/tmp/inputs/artifacts/" + art)
-        for par in output_parameter_sign:
-            outputs.parameters[par] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + par)
-        for art in output_artifact_sign:
-            outputs.artifacts[art] = OutputArtifact(path="/tmp/outputs/artifacts/" + art)
+        for name, sign in input_sign.items():
+            if sign in [ArtifactPath, Set[ArtifactPath]]:
+                inputs.artifacts[name] = InputArtifact(path="/tmp/inputs/artifacts/" + name)
+            else:
+                inputs.parameters[name] = InputParameter()
+        for name, sign in output_sign.items():
+            if sign in [ArtifactPath, Set[ArtifactPath]]:
+                outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/" + name)
+            else:
+                outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name)
 
         script = ""
         if op_class.__module__ == "__main__":
@@ -28,31 +28,28 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             pre_lines = open(inspect.getsourcefile(op_class), "r").readlines()[:start_line-1]
             script += "".join(pre_lines + source_lines) + "\n"
 
-        script += "from clframe.python import OPParameter, OPArtifact, handle_output\n"
-        script += "from %s import %s\n\n" % (op_class.__module__, name)
-        script += "op_obj = %s()\n" % name
-        script += "input_parameter = OPParameter({"
+        script += "import jsonpickle\n"
+        script += "from clframe.python import OPIO, handle_output\n"
+        script += "from pathlib import Path\n"
+        script += "from %s import %s\n\n" % (op_class.__module__, class_name)
+        script += "op_obj = %s()\n" % class_name
+        script += "input = OPIO({"
         items = []
-        for par, sign in input_parameter_sign.items():
-            if sign in [int, float]:
-                items.append("'%s': {{inputs.parameters.%s}}" % (par, par))
+        for name, sign in input_sign.items():
+            if sign == ArtifactPath:
+                items.append("'%s': Path('/tmp/inputs/artifacts/%s')" % (name, name))
+            elif sign == Set[ArtifactPath]:
+                items.append("'%s': set([Path('/tmp/inputs/artifacts/%s')])" % (name, name))
+            elif sign == str:
+                items.append("'%s': '{{inputs.parameters.%s}}'" % (name, name))
             else:
-                items.append("'%s': '{{inputs.parameters.%s}}'" % (par, par))
+                items.append("'%s': jsonpickle.loads('{{inputs.parameters.%s}}')" % (name, name))
         script += ", ".join(items)
         script += "})\n"
-        script += "input_artifact = OPArtifact({"
-        items = []
-        for art, sign in input_artifact_sign.items():
-            if sign == Set[Path]:
-                items.append("'%s': set(['/tmp/inputs/artifacts/%s'])" % (art, art))
-            else:
-                items.append("'%s': '/tmp/inputs/artifacts/%s'" % (art, art))
-        script += ", ".join(items)
-        script += "})\n"
-        script += "output_parameter, output_artifact = op_obj.execute(input_parameter, input_artifact)\n"
-        script += "handle_output(output_parameter, output_artifact)\n"
+        script += "output = op_obj.execute(input)\n"
+        script += "handle_output(output, %s.get_output_sign())\n" % class_name
 
-        super().__init__(name=name, inputs=inputs, outputs=outputs)
+        super().__init__(name=class_name, inputs=inputs, outputs=outputs)
         self.image = image
         if command is not None:
             self.command = command

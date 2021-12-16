@@ -1,8 +1,8 @@
-import os,pathlib
-from abc import ABC
-from pathlib import Path
-from typing import Iterable, Set, Union, Any, get_args, get_origin
+from pathlib import Path, PurePath
+from typing import Union, Any
 from collections.abc import MutableMapping
+
+ArtifactPath = Union[str, PurePath, Path]
 
 class OPIOSign(MutableMapping):
     """The signature of OPIO.
@@ -24,6 +24,15 @@ class OPIOSign(MutableMapping):
         """
         return self._data[key]
 
+    def __setitem__(
+            self,
+            key : str,
+            value : Any,
+    ) -> None:
+        """Set the type hint of the key
+        """
+        self._data[key] = value
+
     def __delitem__(
             self,
             key : str,
@@ -39,34 +48,28 @@ class OPIOSign(MutableMapping):
     def __repr__(self):
         return str(self._data)
 
-    @staticmethod
-    def check_type_hint(
-            value : Any,
-            hint : Any,
-    ):
-        if get_origin(value) is Union:
-            check_list = [ii for ii in get_args(value)]
-        else:
-            check_list = [value]
-        for ii in check_list:
-            if not (ii in get_args(hint)):
-                raise RuntimeError(f'{ii} is not an allowed OP signature. '
-                                   f'hint: all allowed signatures: {" ".join([str(ii) for ii in get_args(hint)])}')
-
 
 class OPIO(MutableMapping):
-    """Essentially a set of Path objects
-    """    
     def __init__(
             self,
             *args,
             **kwargs
     ):
         self._data = {}
-        self.tmp_data = dict(*args, **kwargs)
-        for kk in self.tmp_data:
-            self[kk] = self.tmp_data[kk]
+        self._data = dict(*args, **kwargs)
 
+    def __getitem__(
+            self,
+            key : str,
+    ) -> Any:
+        return self._data[key]
+
+    def __setitem__(
+            self,
+            key : str,
+            value : Any,
+    ) -> None:
+        self._data[key] = value
 
     def __delitem__(
             self,
@@ -82,8 +85,3 @@ class OPIO(MutableMapping):
 
     def __repr__(self):
         return str(self._data)
-
-    def keys(self):
-        return self._data.keys()
-
-    

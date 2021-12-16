@@ -1,4 +1,5 @@
 from copy import deepcopy
+import jsonpickle
 from argo.workflows.client import (
     V1alpha1WorkflowStep,
     V1alpha1Arguments,
@@ -136,16 +137,12 @@ class Step:
                 else:
                     raise RuntimeError("Not supported: ", var)
 
-                expr = expr[:i] + str(value).strip() + expr[j+2:]
+                value = value if isinstance(value, str) else jsonpickle.dumps(value)
+                expr = expr[:i] + value.strip() + expr[j+2:]
                 i = expr.find("{{")
 
-            result = os.popen("sh -c 'if [[ %s ]]; then echo 1; else echo 0; fi'" % expr).read().strip()
-            if result == "1":
-                pass
-            elif result == "0":
+            if not eval_bool_expr(expr):
                 return
-            else:
-                raise RuntimeError("Evaluate expression failed: ", expr)
 
         if isinstance(self.template, Steps):
             steps = copy(self.template) # shallow copy to avoid changing each step
@@ -197,7 +194,7 @@ class Step:
                 else:
                     par.value = value.value
             with open("inputs/parameters/%s" % par.name, "w") as f:
-                f.write(str(par.value))
+                f.write(par.value if isinstance(par.value, str) else jsonpickle.dumps(par.value))
 
         script = self.template.script
         # render variables in the script
@@ -209,7 +206,7 @@ class Step:
             if fields[0] == "inputs" and fields[1] == "parameters":
                 par = fields[2]
                 value = parameters[par].value
-                script = script[:i] + str(value) + script[j+2:]
+                script = script[:i] + (value if isinstance(value, str) else jsonpickle.dumps(value)) + script[j+2:]
             else:
                 raise RuntimeError("Not supported: ", var)
             i = script.find("{{")
@@ -233,6 +230,21 @@ class Step:
             art.local_path = os.path.abspath("outputs/artifacts/%s" % art.name)
 
         os.chdir("..")
+
+def eval_bool_expr(expr):
+    # For the original evaluator in argo, please refer to https://github.com/antonmedv/expr
+    import os
+    expr = expr.replace("<=", "-le")
+    expr = expr.replace(">=", "-ge")
+    expr = expr.replace("<", "-lt")
+    expr = expr.replace(">", "-gt")
+    result = os.popen("sh -c 'if [[ %s ]]; then echo 1; else echo 0; fi'" % expr).read().strip()
+    if result == "1":
+        return True
+    elif result == "0":
+        return False
+    else:
+        raise RuntimeError("Evaluate expression failed: ", expr)
 
 def backup(path):
     import os, shutil
