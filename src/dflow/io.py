@@ -1,4 +1,5 @@
 from copy import deepcopy
+from collections import UserDict
 import jsonpickle
 from argo.workflows.client import (
     V1alpha1Inputs,
@@ -6,16 +7,11 @@ from argo.workflows.client import (
     V1alpha1Parameter,
     V1alpha1ValueFrom,
     V1alpha1Artifact,
-    V1alpha1RawArtifact
+    V1alpha1RawArtifact,
+    V1alpha1S3Artifact
 )
 
-class AutonamedDict(dict):
-    def __init__(self, d=None):
-        super().__init__()
-        if isinstance(d, dict):
-            for key, value in d.items():
-                self.__setitem__(key, value)
-
+class AutonamedDict(UserDict):
     def __setitem__(self, key, value):
         value = deepcopy(value)
         value.name = key
@@ -121,6 +117,8 @@ class InputArtifact:
             return V1alpha1Artifact(name=self.name, path=self.path)
         if isinstance(self.source, InputArtifact) or isinstance(self.source, OutputArtifact):
             return V1alpha1Artifact(name=self.name, path=self.path, _from="{{%s}}" % self.source)
+        elif isinstance(self.source, V1alpha1S3Artifact):
+            return V1alpha1Artifact(name=self.name, path=self.path, s3=self.source)
         elif isinstance(self.source, str):
             return V1alpha1Artifact(name=self.name, path=self.path, raw=V1alpha1RawArtifact(data=self.source))
         else:

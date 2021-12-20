@@ -29,7 +29,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "".join(pre_lines + source_lines) + "\n"
 
         script += "import jsonpickle\n"
-        script += "from clframe.python import OPIO, handle_output\n"
+        script += "from dflow.python import OPIO, handle_output\n"
         script += "from pathlib import Path\n"
         script += "from %s import %s\n\n" % (op_class.__module__, class_name)
         script += "op_obj = %s()\n" % class_name
