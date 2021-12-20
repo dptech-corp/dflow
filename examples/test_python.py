@@ -1,13 +1,15 @@
-from clframe import (
+from dflow import (
     InputParameter,
     OutputParameter,
     Inputs,
     InputArtifact,
     OutputArtifact,
     Workflow,
-    Step
+    Step,
+    upload_artifact,
+    download_artifact
 )
-from clframe.python import (
+from dflow.python import (
     PythonOPTemplate,
     OP,
     OPIO,
@@ -16,6 +18,7 @@ from clframe.python import (
 )
 from typing import Tuple, Set
 from pathlib import Path
+import time
 
 class Duplicate(OP):
     def __init__(self):
@@ -48,7 +51,18 @@ class Duplicate(OP):
 
 if __name__ == "__main__":
     wf = Workflow(name="hello")
-    step = Step(name="step", template=PythonOPTemplate(Duplicate, image="clframe:v1.0"), parameters={"msg": "Hello", "num": 3}, artifacts={"foo": "Hi"})
+    with open("foo.txt", "w") as f:
+        f.write("Hi")
+    artifact = upload_artifact("foo.txt")
+    step = Step(name="step", template=PythonOPTemplate(Duplicate, image="dflow:v1.0"), parameters={"msg": "Hello", "num": 3}, artifacts={"foo": artifact})
     # This step will give output parameter "msg" with value "HelloHelloHello", and output artifact "bar" which contains "HiHiHi"
     wf.add(step)
     wf.submit()
+
+    while wf.query_status() in ["Pending", "Running"]:
+        time.sleep(1)
+
+    assert(wf.query_status() == "Succeeded")
+    step = wf.query_step(name="step")[0]
+    assert(step.phase == "Succeeded")
+    download_artifact(step.outputs.artifacts["bar"])

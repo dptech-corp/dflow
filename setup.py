@@ -1,15 +1,15 @@
 from setuptools import setup
 
 setup(
-    name='clframe',
+    name='dflow',
     version='1.0.0',
     description='Hera is a concurrent learning framework based on Argo Workflows.',
     author="Xinijian Liu",
     license="LGPLv3",
     package_dir={'': 'src'},
     packages=[
-        "clframe",
-        "clframe/python"
+        "dflow",
+        "dflow/python"
     ],
     python_requires='>=3.7',
     install_requires=[
@@ -20,5 +20,6 @@ setup(
         "typeguard",
         "argo-workflows",
         "jsonpickle",
+        "minio",
     ]
 )

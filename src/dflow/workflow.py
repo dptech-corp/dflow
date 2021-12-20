@@ -10,18 +10,29 @@ from argo.workflows.client import (
     V1ResourceRequirements
 )
 from .steps import Steps
+from .argo_objects import ArgoWorkflow
 
 class Workflow:
-    def __init__(self, name, steps=None, ip="127.0.0.1", port=2746):
+    def __init__(self, name="workflow", steps=None, ip="127.0.0.1", port=2746, id=None):
         self.ip = ip
         self.port = port
-        self.name = name
-        if steps is not None:
-            self.entrypoint = steps
+
+        configuration = Configuration(host="https://%s:%s" % (self.ip, self.port))
+        configuration.verify_ssl = False
+        api_client = ApiClient(configuration)
+        self.api_instance = WorkflowServiceApi(api_client)
+
+        if id is not None:
+            self.id = id
         else:
-            self.entrypoint = Steps(self.name)
-        self.argo_templates = {}
-        self.pvcs = {}
+            self.name = name
+            if steps is not None:
+                self.entrypoint = steps
+            else:
+                self.entrypoint = Steps(self.name)
+            self.argo_templates = {}
+            self.pvcs = {}
+            self.id = None
 
     def add(self, step):
         self.entrypoint.add(step)
@@ -31,11 +42,6 @@ class Workflow:
             return self.entrypoint.run()
 
         self.handle_template(self.entrypoint)
-
-        configuration = Configuration(host="https://%s:%s" % (self.ip, self.port))
-        configuration.verify_ssl = False
-        api_client = ApiClient(configuration)
-        api_instance = WorkflowServiceApi(api_client)
 
         argo_pvcs = []
         for k, v in self.pvcs.items():
@@ -58,11 +64,14 @@ class Workflow:
                 templates=list(self.argo_templates.values()),
                 volume_claim_templates=argo_pvcs))
 
-        api_response = api_instance.create_workflow(
-            namespace='argo',
-            body=V1alpha1WorkflowCreateRequest(workflow=manifest))
-        print(api_response)
-        return api_response
+        response = self.api_instance.api_client.call_api('/api/v1/workflows/argo', 'POST',
+                body=V1alpha1WorkflowCreateRequest(workflow=manifest), response_type=object,
+                _return_http_data_only=True)
+        workflow = ArgoWorkflow(response)
+
+        self.id = workflow.metadata.name
+        print("Workflow has been submitted (ID: %s)" % self.id)
+        return workflow
 
     def handle_template(self, template):
         if template.name not in self.argo_templates:
@@ -76,3 +85,21 @@ class Workflow:
                 for mount in template.mounts:
                     if mount.name not in self.pvcs:
                         self.pvcs[mount.name] = ""
+
+    def query(self):
+        if self.id is None:
+            raise RuntimeError("Workflow ID is None")
+        response = self.api_instance.api_client.call_api('/api/v1/workflows/argo/%s' % self.id,
+                'GET', response_type=object, _return_http_data_only=True)
+        workflow = ArgoWorkflow(response)
+        return workflow
+
+    def query_status(self):
+        workflow = self.query()
+        if "phase" not in workflow.status:
+            return "Pending"
+        else:
+            return workflow.status.phase
+
+    def query_step(self, name=None):
+        return self.query().get_step(name=name)
