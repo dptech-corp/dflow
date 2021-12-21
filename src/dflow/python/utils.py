@@ -11,13 +11,11 @@ def handle_output(output, sign):
         if sign == ArtifactPath:
             os.makedirs('/tmp/outputs/artifacts/' + name, exist_ok=True)
             target = "/tmp/outputs/artifacts/%s/%s" % (name, value)
-            os.makedirs(os.path.dirname(target), exist_ok=True)
             create_hard_link(value, target)
         elif sign == Set[ArtifactPath]:
             os.makedirs('/tmp/outputs/artifacts/' + name, exist_ok=True)
             for path in value:
                 target = "/tmp/outputs/artifacts/%s/%s" % (name, path) # --parents
-                os.makedirs(os.path.dirname(target), exist_ok=True)
                 create_hard_link(path, target)
         elif sign == str:
             open('/tmp/outputs/parameters/' + name, 'w').write(value)
@@ -26,6 +24,7 @@ def handle_output(output, sign):
 
 def create_hard_link(src, dst):
     import os, shutil
+    os.makedirs(os.path.abspath(os.path.dirname(dst)), exist_ok=True)
     if os.path.isdir(src):
         shutil.copytree(src, dst, copy_function=os.link)
     elif os.path.isfile(src):
