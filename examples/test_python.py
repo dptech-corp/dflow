@@ -18,6 +18,7 @@ from dflow.python import (
 )
 from typing import Tuple, Set
 from pathlib import Path
+import os
 import time
 
 class Duplicate(OP):
@@ -29,14 +30,14 @@ class Duplicate(OP):
         return OPIOSign({
             'msg' : str,
             'num' : int,
-            'foo' : Set[ArtifactPath],
+            'foo' : ArtifactPath,
         })
 
     @classmethod
     def get_output_sign(cls):
         return OPIOSign({
             'msg' : str,
-            'bar' : Set[ArtifactPath],
+            'bar' : ArtifactPath,
         })
 
     @OP.exec_sign_check
@@ -44,16 +45,17 @@ class Duplicate(OP):
             self,
             op_in : OPIO,
     ) -> OPIO:
-        content = open(list(op_in["foo"])[0], "r").read()
+        content = open(op_in["foo"] / "foo.txt", "r").read()
         open("output.txt", "w").write(content * op_in["num"])
-        op_out = OPIO({"msg": op_in["msg"] * op_in["num"], "bar": set(["output.txt"])})
+        op_out = OPIO({"msg": op_in["msg"] * op_in["num"], "bar": "output.txt"})
         return op_out
 
 if __name__ == "__main__":
     wf = Workflow(name="hello")
-    with open("foo.txt", "w") as f:
+    os.makedirs("inputs", exist_ok=True)
+    with open("inputs/foo.txt", "w") as f:
         f.write("Hi")
-    artifact = upload_artifact("foo.txt")
+    artifact = upload_artifact("inputs")
     step = Step(name="step", template=PythonOPTemplate(Duplicate, image="dflow:v1.0"), parameters={"msg": "Hello", "num": 3}, artifacts={"foo": artifact})
     # This step will give output parameter "msg" with value "HelloHelloHello", and output artifact "bar" which contains "HiHiHi"
     wf.add(step)
@@ -65,4 +67,4 @@ if __name__ == "__main__":
     assert(wf.query_status() == "Succeeded")
     step = wf.query_step(name="step")[0]
     assert(step.phase == "Succeeded")
-    download_artifact(step.outputs.artifacts["bar"])
+    print(download_artifact(step.outputs.artifacts["bar"]))
