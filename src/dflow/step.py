@@ -7,6 +7,7 @@ from argo.workflows.client import (
 )
 from .io import PVC
 from .op_template import ShellOPTemplate, PythonScriptOPTemplate
+from .python.utils import create_hard_link
 
 class Step:
     def __init__(self, name, template, parameters=None, artifacts=None, when=None):
@@ -255,12 +256,3 @@ def backup(path):
         bk = path + ".bk%s" % cnt
     if bk != path:
         shutil.move(path, bk)
-
-def create_hard_link(src, dst):
-    import os, shutil
-    if os.path.isdir(src):
-        shutil.copytree(src, dst, copy_function=os.link)
-    elif os.path.isfile(src):
-        os.link(src, dst)
-    else:
-        raise RuntimeError("File %s not found" % src)
