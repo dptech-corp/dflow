@@ -31,6 +31,7 @@ class Duplicate(OP):
             'msg' : str,
             'num' : int,
             'foo' : ArtifactPath,
+            'idir' : ArtifactPath,
         })
 
     @classmethod
@@ -38,6 +39,7 @@ class Duplicate(OP):
         return OPIOSign({
             'msg' : str,
             'bar' : ArtifactPath,
+            'odir' : ArtifactPath,
         })
 
     @OP.exec_sign_check
@@ -45,19 +47,48 @@ class Duplicate(OP):
             self,
             op_in : OPIO,
     ) -> OPIO:
-        content = open(op_in["foo"] / "foo.txt", "r").read()
+        op_out = OPIO({
+            "msg": op_in["msg"] * op_in["num"], 
+            "bar": Path("output.txt"),
+            "odir" : Path("todir"),
+        })
+
+        content = open(op_in['foo'], "r").read()
         open("output.txt", "w").write(content * op_in["num"])
-        op_out = OPIO({"msg": op_in["msg"] * op_in["num"], "bar": "output.txt"})
+
+        Path(op_out['odir']).mkdir()
+        for ii in ['f1', 'f2']:
+            (op_out['odir']/ii).write_text(op_in['num'] * (op_in['idir']/ii).read_text())
+
         return op_out
+
+
+def make_idir():
+    idir = Path("tidir")
+    idir.mkdir(exist_ok=True)
+    (idir / "f1").write_text("foo")
+    (idir / "f2").write_text("bar")
+
 
 if __name__ == "__main__":
     wf = Workflow(name="hello")
-    os.makedirs("inputs", exist_ok=True)
-    with open("inputs/foo.txt", "w") as f:
+
+    with open("foo.txt", "w") as f:
         f.write("Hi")
-    artifact = upload_artifact("inputs")
-    step = Step(name="step", template=PythonOPTemplate(Duplicate, image="dflow:v1.0"), parameters={"msg": "Hello", "num": 3}, artifacts={"foo": artifact})
+    make_idir()
+
+    artifact0 = upload_artifact("foo.txt")
+    artifact1 = upload_artifact("tidir")
+    print(artifact0)
+    print(artifact1)
+    step = Step(
+        name="step", 
+        template=PythonOPTemplate(Duplicate, image="dflow:v1.0"), 
+        parameters={"msg": "Hello", "num": 3}, 
+        artifacts={"foo": artifact0, "idir": artifact1},
+    )
     # This step will give output parameter "msg" with value "HelloHelloHello", and output artifact "bar" which contains "HiHiHi"
+    # output artifact "odir/f1" contains foofoofoo and "odir/f2" contains barbarbar
     wf.add(step)
     wf.submit()
 
@@ -67,4 +98,6 @@ if __name__ == "__main__":
     assert(wf.query_status() == "Succeeded")
     step = wf.query_step(name="step")[0]
     assert(step.phase == "Succeeded")
+
     print(download_artifact(step.outputs.artifacts["bar"]))
+    print(download_artifact(step.outputs.artifacts["odir"]))
