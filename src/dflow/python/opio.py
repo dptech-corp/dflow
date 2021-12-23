@@ -2,7 +2,11 @@ from pathlib import Path, PurePath
 from typing import Union, Any
 from collections.abc import MutableMapping
 
-ArtifactPath = Union[str, PurePath, Path]
+class Artifact:
+    def __init__(self, type, archive="tar", save=None):
+        self.type = type
+        self.archive = archive
+        self.save = save
 
 class OPIOSign(MutableMapping):
     """The signature of OPIO.

@@ -2,7 +2,10 @@ from collections import UserDict, UserList
 
 class ArgoObjectDict(UserDict):
     def __getattr__(self, key):
-        return self.__getitem__(key)
+        try:
+            return self.__getitem__(key)
+        except KeyError as e:
+            raise AttributeError(e)
 
     def __getitem__(self, key):
         value = super().__getitem__(key)

@@ -3,12 +3,15 @@ import uuid
 import shutil
 import tarfile
 from minio import Minio
-from argo.workflows.client.configuration import Configuration
-from argo.workflows.client import V1alpha1S3Artifact
+from .io import S3Artifact
 
 def download_artifact(artifact, extract=True, **kwargs):
     if hasattr(artifact, "s3"):
-        path = download_s3(key=artifact.s3.key, **kwargs)
+        if hasattr(artifact, "archive") and hasattr(artifact.archive, "none") and artifact.archive.none is not None:
+            path = download_s3(key=artifact.s3.key, recursive=True, flat_first_dir=True, **kwargs)
+            return path
+
+        path = download_s3(key=artifact.s3.key, recursive=False, **kwargs)
         if path[-4:] == ".tgz" and extract:
             tf = tarfile.open(path, "r:gz")
             tmpdir = os.path.join(os.path.dirname(path), "tmp-%s" % uuid.uuid4())
@@ -42,17 +45,31 @@ def upload_artifact(path, **kwargs):
 
     key = upload_s3(path=path, **kwargs)
     if isdir: os.remove(path)
-    config = Configuration()
-    config.client_side_validation = False
-    return V1alpha1S3Artifact(key=key, local_vars_configuration=config)
+    return S3Artifact(key=key)
 
-def download_s3(key, path=None, endpoint="127.0.0.1:9000", access_key="admin", secret_key="password",
-            secure=False, bucket_name="my-bucket", **kwargs):
+def download_s3(key, path=None, recursive=True, flat_first_dir=True, endpoint="127.0.0.1:9000",
+            access_key="admin", secret_key="password", secure=False, bucket_name="my-bucket", **kwargs):
     if path is None:
         path = "."
-    path = os.path.join(path, os.path.basename(key))
     client = Minio(endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
-    client.fget_object(bucket_name=bucket_name, object_name=key, file_path=path)
+    if recursive:
+        name_list = [obj.object_name for obj in client.list_objects(bucket_name=bucket_name, prefix=key, recursive=True)]
+        if flat_first_dir:
+            rel_path = name_list[0][len(key):]
+            i = rel_path.find("/", 1)
+            if i != -1:
+                first_dir = key + rel_path[:i+1]
+                if all(map(lambda x: x[:len(first_dir)] == first_dir, name_list)):
+                    key = first_dir
+
+        for obj_name in name_list:
+            rel_path = obj_name[len(key):]
+            if rel_path[0] == "/": rel_path = rel_path[1:]
+            file_path = os.path.join(path, rel_path)
+            client.fget_object(bucket_name=bucket_name, object_name=obj_name, file_path=file_path)
+    else:
+        path = os.path.join(path, os.path.basename(key))
+        client.fget_object(bucket_name=bucket_name, object_name=key, file_path=path)
     return path
 
 def upload_s3(path, key=None, endpoint="127.0.0.1:9000", access_key="admin", secret_key="password",

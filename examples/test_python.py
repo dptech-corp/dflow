@@ -14,7 +14,7 @@ from dflow.python import (
     OP,
     OPIO,
     OPIOSign,
-    ArtifactPath
+    Artifact
 )
 from typing import Tuple, Set
 from pathlib import Path
@@ -30,16 +30,16 @@ class Duplicate(OP):
         return OPIOSign({
             'msg' : str,
             'num' : int,
-            'foo' : ArtifactPath,
-            'idir' : ArtifactPath,
+            'foo' : Artifact(Path),
+            'idir' : Artifact(Path),
         })
 
     @classmethod
     def get_output_sign(cls):
         return OPIOSign({
             'msg' : str,
-            'bar' : ArtifactPath,
-            'odir' : ArtifactPath,
+            'bar' : Artifact(Path),
+            'odir' : Artifact(Path),
         })
 
     @OP.exec_sign_check

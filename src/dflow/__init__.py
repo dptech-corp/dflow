@@ -7,7 +7,8 @@ from .io import (
     InputParameter,
     Outputs,
     OutputArtifact,
-    OutputParameter
+    OutputParameter,
+    S3Artifact
 )
 from .steps import Steps
 from .op_template import OPTemplate, ShellOPTemplate, PythonScriptOPTemplate

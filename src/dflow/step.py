@@ -5,12 +5,12 @@ from argo.workflows.client import (
     V1alpha1Arguments,
     V1VolumeMount
 )
-from .io import PVC
+from .io import InputParameter, OutputParameter, PVC
 from .op_template import ShellOPTemplate, PythonScriptOPTemplate
 from .python.utils import create_hard_link
 
 class Step:
-    def __init__(self, name, template, parameters=None, artifacts=None, when=None):
+    def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None):
         self.name = name
         self.id = "steps.%s" % self.name
         self.template = template
@@ -26,6 +26,7 @@ class Step:
             self.set_artifacts(artifacts)
 
         self.when = when
+        self.with_param = with_param
 
     def __repr__(self):
         return self.id
@@ -99,11 +100,14 @@ class Step:
         if new_template is not None:
             self.template = new_template
 
+        if isinstance(self.with_param, (InputParameter, OutputParameter)):
+            self.with_param = "{{%s}}" % self.with_param
+
         return V1alpha1WorkflowStep(
             name=self.name, template=self.template.name, arguments=V1alpha1Arguments(
                 parameters=argo_parameters,
                 artifacts=argo_artifacts
-            ), when=self.when
+            ), when=self.when, with_param=self.with_param
         )
 
     def run(self, context):
