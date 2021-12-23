@@ -1,6 +1,7 @@
 import inspect
 from typing import Set
-from .opio import ArtifactPath
+from pathlib import Path
+from .opio import Artifact
 from ..op_template import PythonScriptOPTemplate
 from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact
 
@@ -12,13 +13,14 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         inputs = Inputs()
         outputs = Outputs()
         for name, sign in input_sign.items():
-            if sign in [ArtifactPath, Set[ArtifactPath]]:
+            if isinstance(sign, Artifact):
                 inputs.artifacts[name] = InputArtifact(path="/tmp/inputs/artifacts/" + name)
             else:
                 inputs.parameters[name] = InputParameter()
         for name, sign in output_sign.items():
-            if sign in [ArtifactPath, Set[ArtifactPath]]:
-                outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/" + name)
+            if isinstance(sign, Artifact):
+                outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/" + name,
+                    archive=sign.archive, save=sign.save)
             else:
                 outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name)
 
@@ -36,10 +38,17 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "input = OPIO({"
         items = []
         for name, sign in input_sign.items():
-            if sign == ArtifactPath:
-                items.append("'%s': Path('/tmp/inputs/artifacts/%s')" % (name, name))
-            elif sign == Set[ArtifactPath]:
-                items.append("'%s': set([Path('/tmp/inputs/artifacts/%s')])" % (name, name))
+            if isinstance(sign, Artifact):
+                if sign.type == str:
+                    items.append("'%s': '/tmp/inputs/artifacts/%s'" % (name, name))
+                elif sign.type == Path:
+                    items.append("'%s': Path('/tmp/inputs/artifacts/%s')" % (name, name))
+                elif sign.type == Set[str]:
+                    items.append("'%s': set(['/tmp/inputs/artifacts/%s'])" % (name, name))
+                elif sign.type == Set[Path]:
+                    items.append("'%s': set([Path('/tmp/inputs/artifacts/%s')])" % (name, name))
+                else:
+                    raise RuntimeError("Artifact type %s not supported" % sign.type)
             elif sign == str:
                 items.append("'%s': '{{inputs.parameters.%s}}'" % (name, name))
             else:

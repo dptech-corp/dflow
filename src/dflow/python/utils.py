@@ -1,18 +1,19 @@
 import os, shutil
 import jsonpickle
 from typing import Set
-from .opio import ArtifactPath
+from pathlib import Path
+from .opio import Artifact
 
 def handle_output(output, sign):
     os.makedirs('/tmp/outputs/parameters', exist_ok=True)
     os.makedirs('/tmp/outputs/artifacts', exist_ok=True)
     for name, sign in sign.items():
         value = output[name]
-        if sign == ArtifactPath:
+        if isinstance(sign, Artifact) and sign.type in [str, Path]:
             os.makedirs('/tmp/outputs/artifacts/' + name, exist_ok=True)
             target = "/tmp/outputs/artifacts/%s/%s" % (name, value)
             create_hard_link(value, target)
-        elif sign == Set[ArtifactPath]:
+        elif isinstance(sign, Artifact) and sign.type in [Set[str], Set[Path]]:
             os.makedirs('/tmp/outputs/artifacts/' + name, exist_ok=True)
             for path in value:
                 target = "/tmp/outputs/artifacts/%s/%s" % (name, path) # --parents

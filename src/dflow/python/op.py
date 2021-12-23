@@ -1,7 +1,7 @@
 import abc,os,functools
 from abc import ABC
 from typeguard import check_type
-from .opio import OPIO, OPIOSign
+from .opio import Artifact, OPIO, OPIOSign
 
 class OP(ABC):
     progress_total = 1
@@ -62,6 +62,8 @@ class OP(ABC):
                 raise RuntimeError(f'key {ii} in OPIO is not in its signature')
             io = opio[ii]
             ss = sign[ii]
+            if isinstance(ss, Artifact):
+                ss = ss.type
             # skip type checking if the variable is None
             if io is not None:
                 check_type(ii, io, ss)
