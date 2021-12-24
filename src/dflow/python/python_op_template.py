@@ -1,6 +1,4 @@
 import inspect
-from typing import Set
-from pathlib import Path
 from .opio import Artifact
 from ..op_template import PythonScriptOPTemplate
 from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact
@@ -31,30 +29,19 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "".join(pre_lines + source_lines) + "\n"
 
         script += "import jsonpickle\n"
-        script += "from dflow.python import OPIO, handle_output\n"
-        script += "from pathlib import Path\n"
+        script += "from dflow.python import OPIO\n"
+        script += "from dflow.python.utils import handle_input_artifacts, handle_output\n"
         script += "from %s import %s\n\n" % (op_class.__module__, class_name)
         script += "op_obj = %s()\n" % class_name
-        script += "input = OPIO({"
-        items = []
+        script += "input = OPIO()\n"
+        script += "handle_input_artifacts(input, %s.get_input_sign())\n" % class_name
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
-                if sign.type == str:
-                    items.append("'%s': '/tmp/inputs/artifacts/%s'" % (name, name))
-                elif sign.type == Path:
-                    items.append("'%s': Path('/tmp/inputs/artifacts/%s')" % (name, name))
-                elif sign.type == Set[str]:
-                    items.append("'%s': set(['/tmp/inputs/artifacts/%s'])" % (name, name))
-                elif sign.type == Set[Path]:
-                    items.append("'%s': set([Path('/tmp/inputs/artifacts/%s')])" % (name, name))
-                else:
-                    raise RuntimeError("Artifact type %s not supported" % sign.type)
+                pass
             elif sign == str:
-                items.append("'%s': '{{inputs.parameters.%s}}'" % (name, name))
+                script += "input['%s'] = '{{inputs.parameters.%s}}'\n" % (name, name)
             else:
-                items.append("'%s': jsonpickle.loads('{{inputs.parameters.%s}}')" % (name, name))
-        script += ", ".join(items)
-        script += "})\n"
+                script += "input['%s'] = jsonpickle.loads('{{inputs.parameters.%s}}')\n" % (name, name)
         script += "output = op_obj.execute(input)\n"
         script += "handle_output(output, %s.get_output_sign())\n" % class_name
 
