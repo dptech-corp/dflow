@@ -1,12 +1,19 @@
-from pathlib import Path, PurePath
-from typing import Union, Any
+from pathlib import Path
+from typing import Union, Any, Set, List
 from collections.abc import MutableMapping
+
+ArtifactAllowedTypes = [str, Path, Set[str], Set[Path], List[str], List[Path]]
 
 class Artifact:
     def __init__(self, type, archive="tar", save=None):
         self.type = type
         self.archive = archive
         self.save = save
+
+    def __setattr__(self, key, value):
+        if key == "type":
+            assert (value in ArtifactAllowedTypes), "%s is not allowed artifact type, only %s are allowed." % (value, ArtifactAllowedTypes)
+        super().__setattr__(key, value)
 
 class OPIOSign(MutableMapping):
     """The signature of OPIO.

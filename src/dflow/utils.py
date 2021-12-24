@@ -29,6 +29,9 @@ def download_artifact(artifact, extract=True, **kwargs):
                 merge_dir(tmpdir, path)
             shutil.rmtree(tmpdir)
 
+            if os.path.isfile(os.path.join(path, ".dflow")):
+                os.remove(os.path.join(path, ".dflow"))
+
         return path
     else:
         raise NotImplementedError()
@@ -54,10 +57,11 @@ def download_s3(key, path=None, recursive=True, endpoint="127.0.0.1:9000",
     client = Minio(endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
     if recursive:
         for obj in client.list_objects(bucket_name=bucket_name, prefix=key, recursive=True):
-            rel_path = obj.obj_name[len(key):]
+            rel_path = obj.object_name[len(key):]
             if rel_path[0] == "/": rel_path = rel_path[1:]
+            if rel_path == ".dflow": continue
             file_path = os.path.join(path, rel_path)
-            client.fget_object(bucket_name=bucket_name, object_name=obj.obj_name, file_path=file_path)
+            client.fget_object(bucket_name=bucket_name, object_name=obj.object_name, file_path=file_path)
     else:
         path = os.path.join(path, os.path.basename(key))
         client.fget_object(bucket_name=bucket_name, object_name=key, file_path=path)
