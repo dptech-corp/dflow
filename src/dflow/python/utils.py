@@ -36,14 +36,12 @@ def handle_output(output, sign):
             path_list = []
             if sign.type in [str, Path]:
                 os.makedirs('/tmp/outputs/artifacts/' + name, exist_ok=True)
-                target = "/tmp/outputs/artifacts/%s/%s" % (name, value)
-                create_hard_link(value, target)
+                copy_results(value, name)
                 path_list.append(str(value))
             elif sign.type in [List[str], List[Path], Set[str], Set[Path]]:
                 os.makedirs('/tmp/outputs/artifacts/' + name, exist_ok=True)
                 for path in value:
-                    target = "/tmp/outputs/artifacts/%s/%s" % (name, path) # --parents
-                    create_hard_link(path, target)
+                    copy_results(path, name)
                     path_list.append(str(path))
             with open("/tmp/outputs/artifacts/%s/.dflow" % name, "w") as f:
                 f.write(jsonpickle.dumps({"path_list": path_list}))
@@ -52,12 +50,21 @@ def handle_output(output, sign):
         else:
             open('/tmp/outputs/parameters/' + name, 'w').write(jsonpickle.dumps(value))
 
-def create_hard_link(src, dst):
-    import os, shutil
+def copy_results(source, name):
+    source = str(source)
+    if source.find("/tmp/inputs/artifacts/") == 0: # if refer to input artifact
+        rel_path = source[source.find("/", len("/tmp/inputs/artifacts/"))+1:] # retain original directory structure
+        target = "/tmp/outputs/artifacts/%s/%s" % (name, rel_path)
+        copy_file(source, target, shutil.copy)
+    else:
+        target = "/tmp/outputs/artifacts/%s/%s" % (name, source)
+        copy_file(source, target, os.link)
+
+def copy_file(src, dst, func=os.link):
     os.makedirs(os.path.abspath(os.path.dirname(dst)), exist_ok=True)
     if os.path.isdir(src):
-        shutil.copytree(src, dst, copy_function=os.link)
+        shutil.copytree(src, dst, copy_function=func)
     elif os.path.isfile(src):
-        os.link(src, dst)
+        func(src, dst)
     else:
         raise RuntimeError("File %s not found" % src)

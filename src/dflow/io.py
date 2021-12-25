@@ -133,8 +133,9 @@ class InputArtifact:
             raise RuntimeError("Cannot handle here")
 
 class OutputParameter:
-    def __init__(self, value_from_path=None, name=None, step_id=None, type=None):
+    def __init__(self, value_from_path=None, value_from_parameter=None, name=None, step_id=None, type=None):
         self.value_from_path = value_from_path
+        self.value_from_parameter = value_from_parameter
         self.name = name
         self.step_id = step_id
         self.type = type
@@ -147,11 +148,19 @@ class OutputParameter:
         return ""
     
     def convert_to_argo(self):
-        return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(path=self.value_from_path))
+        if self.value_from_path is not None:
+            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(path=self.value_from_path))
+        elif self.value_from_parameter is not None:
+            if isinstance(self.value_from_parameter, (InputParameter, OutputParameter)):
+                self.value_from_parameter = "{{%s}}" % self.value_from_parameter
+            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(parameter=self.value_from_parameter))
+        else:
+            raise RuntimeError("Output parameter %s is not specified" % self)
 
 class OutputArtifact:
-    def __init__(self, path=None, name=None, step_id=None, type=None, save=None, archive="tar"):
+    def __init__(self, path=None, _from=None, name=None, step_id=None, type=None, save=None, archive="tar"):
         self.path = path
+        self._from = _from
         self.name = name
         self.step_id = step_id
         self.type = type
@@ -196,7 +205,14 @@ class OutputArtifact:
                     if s3.key[-1] != "/": s3.key += "/"
                     s3.key += s3._sub_path
 
-        return V1alpha1Artifact(name=self.name, path=self.path, archive=archive, s3=s3)
+        if self.path is not None:
+            return V1alpha1Artifact(name=self.name, path=self.path, archive=archive, s3=s3)
+        elif self._from is not None:
+            if isinstance(self._from, (InputArtifact, OutputArtifact)):
+                self._from = "{{%s}}" % self._from
+            return V1alpha1Artifact(name=self.name, _from=self._from, archive=archive, s3=s3)
+        else:
+            raise RuntimeError("Output artifact %s is not specified" % self)
 
 class PVC:
     def __init__(self, pvcname, relpath, name):

@@ -7,7 +7,7 @@ from argo.workflows.client import (
 )
 from .io import InputParameter, OutputParameter, PVC
 from .op_template import ShellOPTemplate, PythonScriptOPTemplate
-from .python.utils import create_hard_link
+from .python.utils import copy_file
 
 class Step:
     def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None):
@@ -231,7 +231,7 @@ class Step:
         # save artifacts
         os.makedirs("outputs/artifacts", exist_ok=True)
         for art in self.outputs.artifacts.values():
-            create_hard_link(art.path, "outputs/artifacts/%s" % art.name)
+            copy_file(art.path, "outputs/artifacts/%s" % art.name)
             art.local_path = os.path.abspath("outputs/artifacts/%s" % art.name)
 
         os.chdir("..")
