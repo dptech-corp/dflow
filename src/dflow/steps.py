@@ -18,6 +18,7 @@ class Steps(OPTemplate):
     def convert_to_argo(self):
         argo_steps = []
         templates = []
+        assert len(self.steps) > 0, "Steps %s is empty" % self.name
         for step in self.steps:
             # each step of steps should be a list of parallel steps, if not, create a sigleton
             if not isinstance(step, list):
