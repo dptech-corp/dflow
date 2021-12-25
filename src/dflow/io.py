@@ -100,7 +100,7 @@ class InputParameter:
             return V1alpha1Parameter(name=self.name, value=jsonpickle.dumps(self.value))
 
 class InputArtifact:
-    def __init__(self, path, name=None, step_id=None, type=None, source=None):
+    def __init__(self, path=None, name=None, step_id=None, type=None, source=None):
         self.path = path
         self.name = name
         self.step_id = step_id
@@ -133,7 +133,7 @@ class InputArtifact:
             raise RuntimeError("Cannot handle here")
 
 class OutputParameter:
-    def __init__(self, value_from_path, name=None, step_id=None, type=None):
+    def __init__(self, value_from_path=None, name=None, step_id=None, type=None):
         self.value_from_path = value_from_path
         self.name = name
         self.step_id = step_id
@@ -150,7 +150,7 @@ class OutputParameter:
         return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(path=self.value_from_path))
 
 class OutputArtifact:
-    def __init__(self, path, name=None, step_id=None, type=None, save=None, archive="tar"):
+    def __init__(self, path=None, name=None, step_id=None, type=None, save=None, archive="tar"):
         self.path = path
         self.name = name
         self.step_id = step_id
