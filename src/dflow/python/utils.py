@@ -8,6 +8,9 @@ def handle_input_artifacts(input, sign):
     for name, sign in sign.items():
         if isinstance(sign, Artifact):
             art_path = '/tmp/inputs/artifacts/%s' % name
+            if not os.path.exists(art_path):
+                input[name] = None
+                return
             path_list = [art_path]
             if os.path.exists('%s/.dflow' % art_path):
                 with open('%s/.dflow' % art_path, 'r') as f:

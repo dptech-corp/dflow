@@ -100,10 +100,11 @@ class InputParameter:
             return V1alpha1Parameter(name=self.name, value=jsonpickle.dumps(self.value))
 
 class InputArtifact:
-    def __init__(self, path=None, name=None, step_id=None, type=None, source=None):
+    def __init__(self, path=None, name=None, step_id=None, optional=False, type=None, source=None):
         self.path = path
         self.name = name
         self.step_id = step_id
+        self.optional = optional
         self.type = type
         self.source = source
         self._sub_path = None
@@ -122,13 +123,13 @@ class InputArtifact:
 
     def convert_to_argo(self):
         if self.source is None:
-            return V1alpha1Artifact(name=self.name, path=self.path)
+            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional)
         if isinstance(self.source, InputArtifact) or isinstance(self.source, OutputArtifact):
-            return V1alpha1Artifact(name=self.name, path=self.path, _from="{{%s}}" % self.source, sub_path=self.source._sub_path)
+            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, _from="{{%s}}" % self.source, sub_path=self.source._sub_path)
         elif isinstance(self.source, S3Artifact):
-            return V1alpha1Artifact(name=self.name, path=self.path, s3=self.source, sub_path=self.source._sub_path)
+            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, s3=self.source, sub_path=self.source._sub_path)
         elif isinstance(self.source, str):
-            return V1alpha1Artifact(name=self.name, path=self.path, raw=V1alpha1RawArtifact(data=self.source))
+            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, raw=V1alpha1RawArtifact(data=self.source))
         else:
             raise RuntimeError("Cannot handle here")
 
