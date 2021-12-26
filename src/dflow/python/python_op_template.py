@@ -12,7 +12,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         outputs = Outputs()
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
-                inputs.artifacts[name] = InputArtifact(path="/tmp/inputs/artifacts/" + name)
+                inputs.artifacts[name] = InputArtifact(path="/tmp/inputs/artifacts/" + name, optional=sign.optional)
             else:
                 inputs.parameters[name] = InputParameter()
         for name, sign in output_sign.items():
