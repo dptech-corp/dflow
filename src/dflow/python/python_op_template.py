@@ -10,6 +10,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         output_sign = op_class.get_output_sign()
         inputs = Inputs()
         outputs = Outputs()
+        dflow_vars = {}
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 inputs.artifacts[name] = InputArtifact(path="/tmp/inputs/artifacts/" + name, optional=sign.optional)
@@ -30,14 +31,27 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
         script += "import jsonpickle\n"
         script += "from dflow.python import OPIO\n"
-        script += "from dflow.python.utils import handle_input_artifacts, handle_output\n"
+        script += "from dflow.python.utils import handle_input_artifact, handle_output\n"
         script += "from %s import %s\n\n" % (op_class.__module__, class_name)
         script += "op_obj = %s()\n" % class_name
         script += "input = OPIO()\n"
-        script += "handle_input_artifacts(input, %s.get_input_sign())\n" % class_name
+        script += "input_sign = %s.get_input_sign()\n" % class_name
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
-                pass
+                if sign.slices is not None:
+                    i = sign.slices.find("{{item")
+                    while i >= 0:
+                        j = sign.slices.find("}}", i+2)
+                        var = sign.slices[i:j+2]
+                        if var not in dflow_vars:
+                            var_name = "dflow_var_%s" % len(dflow_vars)
+                            inputs.parameters[var_name] = InputParameter(value=var)
+                            dflow_vars[var] = var_name
+                        else:
+                            var_name = dflow_vars[var]
+                        sign.slices = sign.slices.replace(var, "{{inputs.parameters.%s}}" % var_name)
+                        i = sign.slices.find("{{item")
+                script += "input['%s'] = handle_input_artifact('%s', input_sign['%s'], %s)\n" % (name, name, name, sign.slices)
             elif sign == str:
                 script += "input['%s'] = '{{inputs.parameters.%s}}'\n" % (name, name)
             else:

@@ -29,8 +29,9 @@ def download_artifact(artifact, extract=True, **kwargs):
                 merge_dir(tmpdir, path)
             shutil.rmtree(tmpdir)
 
-            if os.path.isfile(os.path.join(path, ".dflow")):
-                os.remove(os.path.join(path, ".dflow"))
+            for f in os.listdir(path):
+                if f[:6] == ".dflow":
+                    os.remove(os.path.join(path, f))
 
         return path
     else:
@@ -59,7 +60,7 @@ def download_s3(key, path=None, recursive=True, endpoint="127.0.0.1:9000",
         for obj in client.list_objects(bucket_name=bucket_name, prefix=key, recursive=True):
             rel_path = obj.object_name[len(key):]
             if rel_path[0] == "/": rel_path = rel_path[1:]
-            if rel_path == ".dflow": continue
+            if rel_path[:6] == ".dflow": continue
             file_path = os.path.join(path, rel_path)
             client.fget_object(bucket_name=bucket_name, object_name=obj.object_name, file_path=file_path)
     else:
