@@ -9,6 +9,28 @@ from .io import InputParameter, OutputParameter, PVC
 from .op_template import ShellOPTemplate, PythonScriptOPTemplate
 from .python.utils import copy_file
 
+def argo_range(*args):
+    start = 0
+    step = 1
+    if len(args) == 1:
+        end = args[0]
+    elif len(args) == 2:
+        start = args[0]
+        end = args[1]
+    elif len(args) == 3:
+        start = args[0]
+        end = args[1]
+        step = args[2]
+    else:
+        raise TypeError("Expected 1-3 arguments, got %s" % len(args))
+    if isinstance(start, (InputParameter, OutputParameter)):
+        start = "sprig.atoi(%s)" % start
+    if isinstance(step, (InputParameter, OutputParameter)):
+        step = "sprig.atoi(%s)" % step
+    if isinstance(end, (InputParameter, OutputParameter)):
+        end = "sprig.atoi(%s)" % end
+    return "{{=toJson(sprig.untilStep(%s, %s, %s))}}" % (start, end, step)
+
 class Step:
     def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None):
         self.name = name

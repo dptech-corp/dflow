@@ -4,10 +4,20 @@ from ..op_template import PythonScriptOPTemplate
 from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact
 
 class PythonOPTemplate(PythonScriptOPTemplate):
-    def __init__(self, op_class, image=None, command=None):
+    def __init__(self, op_class, image=None, command=None, input_artifact_slices=None, output_artifact_save=None,
+                 output_artifact_archive=None):
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
         output_sign = op_class.get_output_sign()
+        if input_artifact_slices is not None:
+            for name, slices in input_artifact_slices.items():
+                input_sign[name].slices = slices
+        if output_artifact_save is not None:
+            for name, save in output_artifact_save.items():
+                output_sign[name].save = save
+        if output_artifact_archive is not None:
+            for name, archive in output_artifact_archive.items():
+                output_sign[name].archive = archive
         inputs = Inputs()
         outputs = Outputs()
         dflow_vars = {}
