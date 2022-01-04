@@ -1,9 +1,4 @@
 from dflow import (
-    InputParameter,
-    OutputParameter,
-    Inputs,
-    InputArtifact,
-    OutputArtifact,
     Workflow,
     Step,
     upload_artifact,
@@ -16,9 +11,7 @@ from dflow.python import (
     OPIOSign,
     Artifact
 )
-from typing import Tuple, Set
 from pathlib import Path
-import os
 import time
 
 class Duplicate(OP):
