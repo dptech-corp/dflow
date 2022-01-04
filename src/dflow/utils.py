@@ -23,7 +23,7 @@ def download_artifact(artifact, extract=True, **kwargs):
 
             # if the artifact contains only one directory, merge the directory with the target directory
             ld = os.listdir(tmpdir)
-            if len(ld) == 1:
+            if len(ld) == 1 and os.path.isdir(os.path.join(tmpdir, ld[0])):
                 merge_dir(os.path.join(tmpdir, ld[0]), path)
             else:
                 merge_dir(tmpdir, path)

@@ -7,8 +7,10 @@ from dflow import (
     OutputArtifact,
     Workflow,
     Steps,
-    Step
+    Step,
+    download_artifact
 )
+import time
 
 if __name__ == "__main__":
     plus1 = ShellOPTemplate(name='plus1',
@@ -17,7 +19,7 @@ if __name__ == "__main__":
     plus1.inputs.parameters = {"iter": InputParameter()}
     plus1.outputs.parameters = {"iter": OutputParameter(value_from_path="/tmp/result.txt")}
 
-    steps = Steps(name="iter", inputs=Inputs(parameters={"iter": InputParameter(value=0), "limit": InputParameter(value=10)}))
+    steps = Steps(name="iter", inputs=Inputs(parameters={"iter": InputParameter(value=0), "limit": InputParameter(value=3)}))
     hello = Step(name="hello", template=plus1, parameters={"iter": steps.inputs.parameters["iter"]})
     steps.add(hello)
     next = Step(name="next", template=steps, parameters={"iter": hello.outputs.parameters["iter"]}, when="{{%s}} < {{%s}}" % (hello.outputs.parameters["iter"], steps.inputs.parameters["limit"]))
@@ -27,3 +29,8 @@ if __name__ == "__main__":
 
     wf = Workflow("recurse", steps=steps)
     wf.submit()
+
+    while wf.query_status() in ["Pending", "Running"]:
+        time.sleep(1)
+
+    assert(wf.query_status() == "Succeeded")

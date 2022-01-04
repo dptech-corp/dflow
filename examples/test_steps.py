@@ -5,8 +5,10 @@ from dflow import (
     InputArtifact,
     OutputArtifact,
     Workflow,
-    Step
+    Step,
+    download_artifact
 )
+import time
 
 if __name__ == "__main__":
     hello = ShellOPTemplate(name='Hello',
@@ -36,3 +38,13 @@ if __name__ == "__main__":
     wf.add([hello2, hello3]) # parallel steps
     # These steps will give output parameter "msg" with value 4, and output artifact "bar" which contains "HelloHelloHelloHello"
     wf.submit()
+
+    while wf.query_status() in ["Pending", "Running"]:
+        time.sleep(1)
+
+    assert(wf.query_status() == "Succeeded")
+    step = wf.query_step(name="hello3")[0]
+    assert(step.phase == "Succeeded")
+    assert(step.outputs.parameters["msg"].value == "4")
+    download_artifact(step.outputs.artifacts["bar"])
+    assert(open("bar.txt", "r").read() == "Hello\nHello\nHello\nHello\n")

@@ -1,12 +1,11 @@
 from dflow import (
     ShellOPTemplate,
-    InputParameter,
-    OutputParameter,
     InputArtifact,
     OutputArtifact,
     Workflow,
     Step
 )
+import time
 
 if __name__ == "__main__":
     hello = ShellOPTemplate(name='Hello',
@@ -26,3 +25,8 @@ if __name__ == "__main__":
     # This step will wait the last step to finish and then print its output artifact
     wf.add([step0, step1])
     wf.submit()
+
+    while wf.query_status() in ["Pending", "Running"]:
+        time.sleep(1)
+
+    assert(wf.query_status() == "Succeeded")

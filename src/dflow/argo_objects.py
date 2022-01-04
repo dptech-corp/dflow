@@ -32,8 +32,9 @@ class ArgoObjectList(UserList):
 class ArgoWorkflow(ArgoObjectDict):
     def get_step(self, name=None):
         step_list = []
-        for step in self.status.nodes.values():
-            if name is not None and re.match(name, step["displayName"]) is None:
-                continue
-            step_list.append(step)
+        if hasattr(self.status, "nodes"):
+            for step in self.status.nodes.values():
+                if name is not None and re.match(name, step["displayName"]) is None:
+                    continue
+                step_list.append(step)
         return step_list
