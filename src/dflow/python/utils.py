@@ -10,11 +10,12 @@ def handle_input_artifact(name, sign, slices=None):
     if not os.path.exists(art_path):
         return None
     path_list = [art_path]
-    catalog = list(filter(lambda x: x[:6] == ".dflow", os.listdir(art_path)))
-    if len(catalog) == 1:
-        with open('%s/%s' % (art_path, catalog[0]), 'r') as f:
-            path_list = jsonpickle.loads(f.read())['path_list']
-            path_list = list(map(lambda x: os.path.join(art_path, x), path_list))
+    if os.path.isdir(art_path):
+        catalog = list(filter(lambda x: x[:6] == ".dflow", os.listdir(art_path)))
+        if len(catalog) == 1:
+            with open('%s/%s' % (art_path, catalog[0]), 'r') as f:
+                path_list = jsonpickle.loads(f.read())['path_list']
+                path_list = list(map(lambda x: os.path.join(art_path, x), path_list))
     if slices is not None:
         slices = slices if isinstance(slices, list) else [slices]
         path_list = [path_list[i] for i in slices]
