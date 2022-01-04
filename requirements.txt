@@ -1,0 +1,9 @@
+numpy
+six
+python-dateutil
+urllib3
+certifi
+typeguard
+argo-workflows
+jsonpickle
+minio
