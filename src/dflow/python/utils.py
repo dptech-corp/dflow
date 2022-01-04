@@ -16,10 +16,8 @@ def handle_input_artifact(name, sign, slices=None):
             path_list = jsonpickle.loads(f.read())['path_list']
             path_list = list(map(lambda x: os.path.join(art_path, x), path_list))
     if slices is not None:
-        if isinstance(slices, list):
-            path_list = [path_list[i] for i in slices]
-        else:
-            path_list = [path_list[slices]]
+        slices = slices if isinstance(slices, list) else [slices]
+        path_list = [path_list[i] for i in slices]
     if sign.type == str:
         if len(path_list) == 1:
             return path_list[0]
@@ -38,6 +36,21 @@ def handle_input_artifact(name, sign, slices=None):
         return list(map(Path, path_list))
     elif sign.type == Set[Path]:
         return set(map(Path, path_list))
+
+def handle_input_parameter(name, value, sign, slices=None):
+    if sign == str and slices is None:
+        return value
+    else:
+        obj = jsonpickle.loads(value)
+
+    if slices is not None:
+        assert isinstance(obj, list), "Only parameters of type list can be sliced, while %s is not list" % obj
+        if isinstance(slices, list):
+            obj = [obj[i] for i in slices]
+        else:
+            obj = obj[slices]
+
+    return obj
 
 def handle_output(output, sign):
     os.makedirs('/tmp/outputs/parameters', exist_ok=True)
