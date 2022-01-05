@@ -5,12 +5,11 @@ from collections.abc import MutableMapping
 ArtifactAllowedTypes = [str, Path, Set[str], Set[Path], List[str], List[Path]]
 
 class Artifact:
-    def __init__(self, type, archive="tar", save=None, optional=False, slices=None):
+    def __init__(self, type, archive="tar", save=None, optional=False):
         self.type = type
         self.archive = archive
         self.save = save
         self.optional = optional
-        self.slices = slices
 
     def __setattr__(self, key, value):
         if key == "type":
