@@ -7,15 +7,9 @@ from .opio import Artifact
 
 def handle_input_artifact(name, sign, slices=None):
     art_path = '/tmp/inputs/artifacts/%s' % name
-    if not os.path.exists(art_path):
+    if not os.path.exists(art_path): # for optional artifact
         return None
-    path_list = [art_path]
-    if os.path.isdir(art_path):
-        catalog = list(filter(lambda x: x[:6] == ".dflow", os.listdir(art_path)))
-        if len(catalog) == 1:
-            with open('%s/%s' % (art_path, catalog[0]), 'r') as f:
-                path_list = jsonpickle.loads(f.read())['path_list']
-                path_list = list(map(lambda x: os.path.join(art_path, x), path_list))
+    path_list = assemble_path_list(art_path)
     if slices is not None:
         slices = slices if isinstance(slices, list) else [slices]
         path_list = [path_list[i] for i in slices]
@@ -39,8 +33,13 @@ def handle_input_artifact(name, sign, slices=None):
         return set(map(Path, path_list))
 
 def handle_input_parameter(name, value, sign, slices=None):
-    if sign == str and slices is None:
-        return value
+    if "dflow_list_item" in value:
+        dflow_list = []
+        for item in jsonpickle.loads(value):
+            dflow_list += jsonpickle.loads(item)
+        obj = convert_dflow_list(dflow_list)
+    elif sign == str and slices is None:
+        obj = value
     else:
         obj = jsonpickle.loads(value)
 
@@ -53,26 +52,38 @@ def handle_input_parameter(name, value, sign, slices=None):
 
     return obj
 
-def handle_output(output, sign):
-    os.makedirs('/tmp/outputs/parameters', exist_ok=True)
-    os.makedirs('/tmp/outputs/artifacts', exist_ok=True)
-    for name, sign in sign.items():
-        value = output[name]
-        if isinstance(sign, Artifact):
-            path_list = []
-            if sign.type in [str, Path]:
-                os.makedirs('/tmp/outputs/artifacts/' + name, exist_ok=True)
-                path_list.append(copy_results(value, name))
-            elif sign.type in [List[str], List[Path], Set[str], Set[Path]]:
-                os.makedirs('/tmp/outputs/artifacts/' + name, exist_ok=True)
-                for path in value:
-                    path_list.append(copy_results(path, name))
-            with open("/tmp/outputs/artifacts/%s/.dflow.%s" % (name, uuid.uuid4()), "w") as f:
-                f.write(jsonpickle.dumps({"path_list": path_list}))
-        elif sign == str:
-            open('/tmp/outputs/parameters/' + name, 'w').write(value)
+def handle_output_artifact(name, value, sign, slices=None):
+    path_list = []
+    if sign.type in [str, Path]:
+        os.makedirs('/tmp/outputs/artifacts/' + name, exist_ok=True)
+        if slices is not None:
+            assert isinstance(slices, int)
         else:
-            open('/tmp/outputs/parameters/' + name, 'w').write(jsonpickle.dumps(value))
+            slices = 0
+        path_list.append({"dflow_list_item": copy_results(value, name), "order": slices})
+    elif sign.type in [List[str], List[Path], Set[str], Set[Path]]:
+        os.makedirs('/tmp/outputs/artifacts/' + name, exist_ok=True)
+        if slices is not None:
+            assert isinstance(slices, list) and len(slices) == len(value)
+        else:
+            slices = list(range(len(value)))
+        for path, s in zip(value, slices):
+            path_list.append({"dflow_list_item": copy_results(path, name), "order": s})
+    with open("/tmp/outputs/artifacts/%s/.dflow.%s" % (name, uuid.uuid4()), "w") as f:
+        f.write(jsonpickle.dumps({"path_list": path_list}))
+
+def handle_output_parameter(name, value, sign, slices=None):
+    if slices is not None:
+        if isinstance(slices, list):
+            assert isinstance(value, list) and len(slices) == len(value)
+            res = [{"dflow_list_item": v, "order": s} for v, s in zip(value, slices)]
+        else:
+            res = [{"dflow_list_item": value, "order": slices}]
+        open('/tmp/outputs/parameters/' + name, 'w').write(jsonpickle.dumps(res))
+    elif sign == str:
+        open('/tmp/outputs/parameters/' + name, 'w').write(value)
+    else:
+        open('/tmp/outputs/parameters/' + name, 'w').write(jsonpickle.dumps(value))
 
 def copy_results(source, name):
     source = str(source)
@@ -94,3 +105,18 @@ def copy_file(src, dst, func=os.link):
         func(src, dst)
     else:
         raise RuntimeError("File %s not found" % src)
+
+def convert_dflow_list(dflow_list):
+    dflow_list.sort(key=lambda x: x['order'])
+    return list(map(lambda x: x['dflow_list_item'], dflow_list))
+
+def assemble_path_list(art_path):
+    path_list = [art_path]
+    if os.path.isdir(art_path):
+        dflow_list = []
+        for f in os.listdir(art_path):
+            if f[:6] == ".dflow":
+                dflow_list += jsonpickle.loads(open('%s/%s' % (art_path, f), 'r').read())['path_list']
+        if len(dflow_list) > 0:
+            path_list = list(map(lambda x: os.path.join(art_path, x), convert_dflow_list(dflow_list)))
+    return path_list
