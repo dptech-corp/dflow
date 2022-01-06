@@ -3,7 +3,6 @@ import uuid
 import jsonpickle
 from typing import Set, List
 from pathlib import Path
-from .opio import Artifact
 
 def handle_input_artifact(name, sign, slices=None):
     art_path = '/tmp/inputs/artifacts/%s' % name

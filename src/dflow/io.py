@@ -125,6 +125,9 @@ class InputArtifact:
         if self.source is None:
             return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional)
         if isinstance(self.source, InputArtifact) or isinstance(self.source, OutputArtifact):
+            for save in self.source.save:
+                if isinstance(save, S3Artifact):
+                    return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, s3=save, sub_path=self.source._sub_path)
             return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, _from="{{%s}}" % self.source, sub_path=self.source._sub_path)
         elif isinstance(self.source, S3Artifact):
             return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, s3=self.source, sub_path=self.source._sub_path)

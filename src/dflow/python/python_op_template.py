@@ -1,7 +1,7 @@
-import inspect
+import inspect, uuid
 from .opio import Artifact
 from ..op_template import PythonScriptOPTemplate
-from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact
+from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact, S3Artifact
 
 class PythonOPTemplate(PythonScriptOPTemplate):
     def __init__(self, op_class, image=None, command=None, input_artifact_slices=None, output_artifact_save=None,
@@ -10,18 +10,23 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
         output_sign = op_class.get_output_sign()
+        if slices is not None:
+            assert isinstance(slices, Slices)
+            if slices.input_artifact is not None: input_artifact_slices = {name: slices.slices for name in slices.input_artifact}
+            if slices.input_parameter is not None: input_parameter_slices = {name: slices.slices for name in slices.input_parameter}
+            if slices.output_artifact is not None:
+                output_artifact_slices = {}
+                for name in slices.output_artifact:
+                    output_artifact_slices[name] = slices.slices
+                    output_sign[name].save = S3Artifact(key=str(uuid.uuid4())) # stack slices to a S3Artifact for default
+                    output_sign[name].archive = None # not archive for default
+            if slices.output_parameter is not None: output_parameter_slices = {name: slices.slices for name in slices.output_parameter}
         if output_artifact_save is not None:
             for name, save in output_artifact_save.items():
                 output_sign[name].save = save
         if output_artifact_archive is not None:
             for name, archive in output_artifact_archive.items():
                 output_sign[name].archive = archive
-        if slices is not None:
-            assert isinstance(slices, Slices)
-            input_artifact_slices = {name: slices.slices for name in slices.input_artifact} if slices.input_artifact is not None else None
-            input_parameter_slices = {name: slices.slices for name in slices.input_parameter} if slices.input_parameter is not None else None
-            output_artifact_slices = {name: slices.slices for name in slices.output_artifact} if slices.output_artifact is not None else None
-            output_parameter_slices = {name: slices.slices for name in slices.output_parameter} if slices.output_parameter is not None else None
         super().__init__(name=class_name, inputs=Inputs(), outputs=Outputs())
         self.dflow_vars = {}
         for name, sign in input_sign.items():
@@ -42,7 +47,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             pre_lines = open(inspect.getsourcefile(op_class), "r").readlines()[:start_line-1]
             script += "".join(pre_lines + source_lines) + "\n"
 
-        script += "import jsonpickle\n"
+        script += "import os, jsonpickle\n"
         script += "from dflow.python import OPIO\n"
         script += "from dflow.python.utils import handle_input_artifact, handle_input_parameter\n"
         script += "from dflow.python.utils import handle_output_artifact, handle_output_parameter\n"
