@@ -1,16 +1,10 @@
 from dflow import (
     InputParameter,
-    OutputParameter,
     Inputs,
-    InputArtifact,
-    Outputs,
-    OutputArtifact,
     Workflow,
     Step,
     Steps,
-    upload_artifact,
     download_artifact,
-    S3Artifact,
     argo_range
 )
 from dflow.python import (
@@ -18,10 +12,11 @@ from dflow.python import (
     OP,
     OPIO,
     OPIOSign,
-    Artifact
+    Artifact,
+    Slices
 )
-import os, uuid, time
-from typing import Tuple, List
+import os, time
+from typing import List
 from pathlib import Path
 
 class MakePoscar(OP):
@@ -122,6 +117,7 @@ class RunVasp(OP):
     def get_output_sign(cls):
         return OPIOSign({
             'outcar' : Artifact(Path),
+            'log' : Artifact(Path),
         })
     
     @OP.exec_sign_check
@@ -146,43 +142,41 @@ class RunVasp(OP):
         # write output, assume POSCAR, POTCAR, OUTCAR are in the same dir (task_subdir)
         ofile = Path('OUTCAR')
         ofile.write_text('\n'.join([ Path('POSCAR').read_text() , Path('POTCAR').read_text() ]))
+        # write log
+        logfile = Path('log')
+        logfile.write_text('\n'.join([ 'this is log', Path('POSCAR').read_text() , Path('POTCAR').read_text() ]))
         # chdir
         os.chdir(cwd)
         # output of the OP
         op_out = OPIO({
             "outcar": task_subdir / ofile,
+            "log": task_subdir / logfile,
         })
         return op_out
 
 
-class CollectResult(OP):
+class ShowResult(OP):
     @classmethod
     def get_input_sign(cls):
         return OPIOSign({
-            'task_subdirs': List[str],
-            'output_common' : Artifact(Path)
+            'outcar' : Artifact(List[Path]),
+            'log' : Artifact(List[Path]),
         })
 
     @classmethod
     def get_output_sign(cls):
-        return OPIOSign({
-            'outcar' : Artifact(List[Path]),
-        })
+        return OPIOSign()
 
     @OP.exec_sign_check
     def execute(
             self,
             op_in : OPIO,
     ) -> OPIO:
-        task_subdirs = op_in['task_subdirs']
-        output_common = op_in['output_common']
-        olist = []
-        for ii in task_subdirs:
-            ofile = output_common / ii / 'OUTCAR'
-            olist.append(ofile)
-        return OPIO({
-            'outcar': olist
-        })
+        outcar_common = op_in['outcar']
+        print(outcar_common)
+        log_common = op_in['log']
+        print(log_common)
+        return OPIO()
 
 
 def run_vasp(numb_vasp = 3):    
@@ -216,24 +210,15 @@ def run_vasp(numb_vasp = 3):
                        )    
     vasp_steps.add([make_poscar, make_potcar])
 
-    output_common = S3Artifact(key=str(uuid.uuid4()))
     vasp_run = Step(name="vasp-run",
                     template=PythonOPTemplate(
                         RunVasp,
                         image="dflow:v1.0",
-                        input_parameter_slices={
-                            "task_subdir": "{{item}}",
-                        },
-                        input_artifact_slices={
-                            "poscar": "{{item}}",
-                            "potcar": "{{item}}"
-                        },
-                        output_artifact_save={
-                            "outcar": output_common,
-                        },
-                        output_artifact_archive={
-                            "outcar": None
-                        }),
+                        slices=Slices("{{item}}", 
+                                      input_parameter=["task_subdir"],
+                                      input_artifact=["poscar", "potcar"], 
+                                      output_artifact=["outcar", "log"]),
+                    ),
                     parameters = {
                         "task_subdir": make_poscar.outputs.parameters["task_subdirs"],
                     },
@@ -246,12 +231,10 @@ def run_vasp(numb_vasp = 3):
     vasp_steps.add(vasp_run)
 
     vasp_res = Step(name='vasp-res',
-                    template=PythonOPTemplate(CollectResult, image='dflow:v1.0'),
-                    parameters={
-                        'task_subdirs': make_poscar.outputs.parameters["task_subdirs"],
-                    },
+                    template=PythonOPTemplate(ShowResult, image='dflow:v1.0'),
                     artifacts={
-                        'output_common' : output_common
+                        'outcar' : vasp_run.outputs.artifacts["outcar"],
+                        'log' : vasp_run.outputs.artifacts["log"],
                     },
                     )
     vasp_steps.add(vasp_res)
@@ -268,13 +251,19 @@ if __name__ == "__main__":
         time.sleep(4)
 
     assert(wf.query_status() == "Succeeded")
-    step = wf.query_step(name="vasp-res")[0]
+    step = wf.query_step(name="vasp-run")[0]
     assert(step.phase == "Succeeded")
-    print(download_artifact(step.outputs.artifacts["outcar"]))
+    download_artifact(step.outputs.artifacts["outcar"])
+    download_artifact(step.outputs.artifacts["log"])
 
     # downloaded artifact: 
     # task.0000/OUTCAR task.0001/OUTCAR task.0002/OUTCAR
+    # task.0000/log task.0001/log task.0002/log
     # task.000?/OUTCAR has content
+    # This is poscar ?
+    # This is potcar ?
+    # task.000?/log has content
+    # this is log
     # This is poscar ?
     # This is potcar ?
     
