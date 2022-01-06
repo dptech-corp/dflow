@@ -2,6 +2,7 @@ import os
 import uuid
 import shutil
 import tarfile
+import jsonpickle
 from minio import Minio
 from .io import S3Artifact
 
@@ -38,17 +39,38 @@ def download_artifact(artifact, extract=True, **kwargs):
         raise NotImplementedError()
 
 def upload_artifact(path, archive="tar", **kwargs):
-    assert os.path.exists(path), "File or directory %s not found" % path
-    arch = False
-    if os.path.isdir(path) and archive == "tar":
-        tf = tarfile.open(path + ".tgz", "w:gz")
-        tf.add(path, arcname=os.path.basename(path))
-        tf.close()
-        path = path + ".tgz"
-        arch = True
+    if not isinstance(path, list):
+        path = [path]
+    cwd = os.getcwd()
+    tmpdir = "tmp-%s" % uuid.uuid4()
+    os.makedirs(tmpdir)
+    path_list = []
+    for i, p in enumerate(path):
+        if not os.path.exists(p):
+            shutil.rmtree(tmpdir)
+            raise RuntimeError("File or directory %s not found" % p)
+        abspath = os.path.abspath(p)
+        if abspath.find(cwd) == 0:
+            relpath = abspath[len(cwd)+1:]
+        else:
+            relpath = abspath[1:]
+        target = os.path.join(tmpdir, relpath)
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        os.symlink(abspath, target)
+        path_list.append({"dflow_list_item": relpath, "order": i})
+    with open(os.path.join(tmpdir, ".dflow.%s" % uuid.uuid4()), "w") as f:
+        f.write(jsonpickle.dumps({"path_list": path_list}))
 
-    key = upload_s3(path=path, **kwargs)
-    if arch: os.remove(path)
+    if archive == "tar":
+        tf = tarfile.open(tmpdir + ".tgz", "w:gz", dereference=True)
+        tf.add(tmpdir)
+        tf.close()
+        key = upload_s3(path=tmpdir + ".tgz", **kwargs)
+        os.remove(tmpdir + ".tgz")
+    else:
+        key = upload_s3(path=tmpdir, **kwargs)
+
+    shutil.rmtree(tmpdir)
     return S3Artifact(key=key)
 
 def download_s3(key, path=None, recursive=True, endpoint="127.0.0.1:9000",
@@ -58,10 +80,14 @@ def download_s3(key, path=None, recursive=True, endpoint="127.0.0.1:9000",
     client = Minio(endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
     if recursive:
         for obj in client.list_objects(bucket_name=bucket_name, prefix=key, recursive=True):
+            print(obj.object_name)
             rel_path = obj.object_name[len(key):]
-            if rel_path[0] == "/": rel_path = rel_path[1:]
+            if rel_path[:1] == "/": rel_path = rel_path[1:]
             if rel_path[:6] == ".dflow": continue
-            file_path = os.path.join(path, rel_path)
+            if rel_path == "":
+                file_path = os.path.join(path, os.path.basename(key))
+            else:
+                file_path = os.path.join(path, rel_path)
             client.fget_object(bucket_name=bucket_name, object_name=obj.object_name, file_path=file_path)
     else:
         path = os.path.join(path, os.path.basename(key))
@@ -76,7 +102,7 @@ def upload_s3(path, key=None, endpoint="127.0.0.1:9000", access_key="admin", sec
     if os.path.isfile(path):
         client.fput_object(bucket_name=bucket_name, object_name=key, file_path=path)
     elif os.path.isdir(path):
-        for dn, ds, fs in os.walk(path):
+        for dn, ds, fs in os.walk(path, followlinks=True):
             rel_path = dn[len(path):]
             if rel_path == "":
                 pass
