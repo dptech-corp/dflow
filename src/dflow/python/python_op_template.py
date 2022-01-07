@@ -2,11 +2,12 @@ import inspect, uuid
 from .opio import Artifact
 from ..op_template import PythonScriptOPTemplate
 from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact, S3Artifact
+from ..utils import upload_artifact
 
 class PythonOPTemplate(PythonScriptOPTemplate):
     def __init__(self, op_class, image=None, command=None, input_artifact_slices=None, output_artifact_save=None,
                  output_artifact_archive=None, input_parameter_slices=None, output_artifact_slices=None,
-                 output_parameter_slices=None, output_artifact_global_name=None, slices=None):
+                 output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None):
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
         output_sign = op_class.get_output_sign()
@@ -46,6 +47,12 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name)
 
         script = ""
+        if python_packages is not None:
+            self.inputs.artifacts["dflow_python_packages"] = InputArtifact(path="/tmp/inputs/artifacts/dflow_python_packages",
+                    source=upload_artifact(python_packages))
+            script += "from dflow.python.utils import handle_python_packages\n"
+            script += "handle_python_packages()\n"
+
         if op_class.__module__ == "__main__":
             source_lines, start_line = inspect.getsourcelines(op_class)
             pre_lines = open(inspect.getsourcefile(op_class), "r").readlines()[:start_line-1]
