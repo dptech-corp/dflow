@@ -6,7 +6,7 @@ from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact
 class PythonOPTemplate(PythonScriptOPTemplate):
     def __init__(self, op_class, image=None, command=None, input_artifact_slices=None, output_artifact_save=None,
                  output_artifact_archive=None, input_parameter_slices=None, output_artifact_slices=None,
-                 output_parameter_slices=None, slices=None):
+                 output_parameter_slices=None, output_artifact_global_name=None, slices=None):
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
         output_sign = op_class.get_output_sign()
@@ -20,6 +20,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     output_artifact_slices[name] = slices.slices
                     output_sign[name].save = S3Artifact(key=str(uuid.uuid4())) # stack slices to a S3Artifact for default
                     output_sign[name].archive = None # not archive for default
+                    output_sign[name].global_name = class_name + "-" + name # set global name for default
             if slices.output_parameter is not None: output_parameter_slices = {name: slices.slices for name in slices.output_parameter}
         if output_artifact_save is not None:
             for name, save in output_artifact_save.items():
@@ -27,6 +28,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         if output_artifact_archive is not None:
             for name, archive in output_artifact_archive.items():
                 output_sign[name].archive = archive
+        if output_artifact_global_name is not None:
+            for name, global_name in output_artifact_global_name.items():
+                output_sign[name].global_name = global_name
         super().__init__(name=class_name, inputs=Inputs(), outputs=Outputs())
         self.dflow_vars = {}
         for name, sign in input_sign.items():
@@ -37,7 +41,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 self.outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/" + name,
-                    archive=sign.archive, save=sign.save)
+                    archive=sign.archive, save=sign.save, global_name=sign.global_name)
             else:
                 self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name)
 

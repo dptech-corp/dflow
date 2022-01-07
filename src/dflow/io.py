@@ -124,12 +124,7 @@ class InputArtifact:
     def convert_to_argo(self):
         if self.source is None:
             return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional)
-        if isinstance(self.source, InputArtifact):
-            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, _from="{{%s}}" % self.source, sub_path=self.source._sub_path)
-        elif isinstance(self.source, OutputArtifact):
-            for save in self.source.save:
-                if isinstance(save, S3Artifact):
-                    return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, s3=save, sub_path=self.source._sub_path)
+        if isinstance(self.source, (InputArtifact, OutputArtifact)):
             return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, _from="{{%s}}" % self.source, sub_path=self.source._sub_path)
         elif isinstance(self.source, S3Artifact):
             return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, s3=self.source, sub_path=self.source._sub_path)
@@ -164,7 +159,7 @@ class OutputParameter:
             raise RuntimeError("Output parameter %s is not specified" % self)
 
 class OutputArtifact:
-    def __init__(self, path=None, _from=None, name=None, step_id=None, type=None, save=None, archive="tar"):
+    def __init__(self, path=None, _from=None, name=None, step_id=None, type=None, save=None, archive="tar", global_name=None):
         self.path = path
         self._from = _from
         self.name = name
@@ -177,6 +172,7 @@ class OutputArtifact:
         self.save = save
         self.archive = archive
         self._sub_path = None
+        self.global_name = global_name
 
     def sub_path(self, path):
         artifact = deepcopy(self)
@@ -184,7 +180,9 @@ class OutputArtifact:
         return artifact
 
     def __repr__(self):
-        if self.name is not None:
+        if self.global_name is not None:
+            return "workflow.outputs.artifacts.%s" % (self.global_name)
+        elif self.name is not None:
             if self.step_id is not None:
                 return "%s.outputs.artifacts.%s" % (self.step_id, self.name)
             return "outputs.artifacts.%s" % self.name
@@ -212,11 +210,11 @@ class OutputArtifact:
                     s3.key += s3._sub_path
 
         if self.path is not None:
-            return V1alpha1Artifact(name=self.name, path=self.path, archive=archive, s3=s3)
+            return V1alpha1Artifact(name=self.name, path=self.path, archive=archive, s3=s3, global_name=self.global_name)
         elif self._from is not None:
             if isinstance(self._from, (InputArtifact, OutputArtifact)):
                 self._from = "{{%s}}" % self._from
-            return V1alpha1Artifact(name=self.name, _from=self._from, archive=archive, s3=s3)
+            return V1alpha1Artifact(name=self.name, _from=self._from, archive=archive, s3=s3, global_name=self.global_name)
         else:
             raise RuntimeError("Output artifact %s is not specified" % self)
 
