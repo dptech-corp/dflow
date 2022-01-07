@@ -80,7 +80,6 @@ def download_s3(key, path=None, recursive=True, endpoint="127.0.0.1:9000",
     client = Minio(endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
     if recursive:
         for obj in client.list_objects(bucket_name=bucket_name, prefix=key, recursive=True):
-            print(obj.object_name)
             rel_path = obj.object_name[len(key):]
             if rel_path[:1] == "/": rel_path = rel_path[1:]
             if rel_path[:6] == ".dflow": continue
