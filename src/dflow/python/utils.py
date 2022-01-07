@@ -1,8 +1,9 @@
-import os, shutil
+import os, shutil, sys
 import uuid
 import jsonpickle
 from typing import Set, List
 from pathlib import Path
+from .opio import Artifact
 
 def handle_input_artifact(name, sign, slices=None):
     art_path = '/tmp/inputs/artifacts/%s' % name
@@ -119,3 +120,8 @@ def assemble_path_list(art_path):
         if len(dflow_list) > 0:
             path_list = list(map(lambda x: os.path.join(art_path, x), convert_dflow_list(dflow_list)))
     return path_list
+
+def handle_python_packages():
+    python_packages = handle_input_artifact('dflow_python_packages', Artifact(List[str]), None)
+    for package in python_packages:
+        sys.path.append(os.path.dirname(package))
