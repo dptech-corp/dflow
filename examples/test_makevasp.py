@@ -1,6 +1,8 @@
 from dflow import (
-    InputParameter,
     Inputs,
+    InputParameter,
+    Outputs,
+    OutputArtifact,
     Workflow,
     Step,
     Steps,
@@ -184,7 +186,12 @@ def run_vasp(numb_vasp = 3):
                        inputs=Inputs(
                            parameters={
                                "numb_vasp": InputParameter(value=numb_vasp, type=int)
-                           })
+                           }),
+                       outputs=Outputs(
+                           artifacts={
+                               "outcar" : OutputArtifact(),
+                               "log" : OutputArtifact(),
+                           }),
                        )
     make_poscar = Step(name="make-poscar",
                        template=PythonOPTemplate(MakePoscar,
@@ -239,19 +246,22 @@ def run_vasp(numb_vasp = 3):
                     )
     vasp_steps.add(vasp_res)
 
+    vasp_steps.outputs.artifacts['outcar']._from = vasp_run.outputs.artifacts['outcar']
+    vasp_steps.outputs.artifacts['log']._from = vasp_run.outputs.artifacts['log']
+
     return vasp_steps
                         
 
 if __name__ == "__main__":
     vasp_steps = run_vasp()
-    wf = Workflow(name="vasp", steps=vasp_steps)
+    wf = Workflow(name='vasp', steps=vasp_steps)
     wf.submit()
 
     while wf.query_status() in ["Pending", "Running"]:
         time.sleep(4)
 
     assert(wf.query_status() == "Succeeded")
-    step = wf.query_step(name="vasp-run")[0]
+    step = wf.query_step(name="vasp")[0]
     assert(step.phase == "Succeeded")
     download_artifact(step.outputs.artifacts["outcar"])
     download_artifact(step.outputs.artifacts["log"])
