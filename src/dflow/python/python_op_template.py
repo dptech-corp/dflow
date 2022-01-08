@@ -3,11 +3,13 @@ from .opio import Artifact
 from ..op_template import PythonScriptOPTemplate
 from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact, S3Artifact
 from ..utils import upload_artifact
+from ..client import V1alpha1RetryStrategy
 
 class PythonOPTemplate(PythonScriptOPTemplate):
     def __init__(self, op_class, image=None, command=None, input_artifact_slices=None, output_artifact_save=None,
                  output_artifact_archive=None, input_parameter_slices=None, output_artifact_slices=None,
-                 output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None):
+                 output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None,
+                 timeout=None, retry_on_transient_error=None):
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
         output_sign = op_class.get_output_sign()
@@ -33,6 +35,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             for name, global_name in output_artifact_global_name.items():
                 output_sign[name].global_name = global_name
         super().__init__(name=class_name, inputs=Inputs(), outputs=Outputs())
+        if timeout is not None: self.timeout = "%ss" % timeout
+        if retry_on_transient_error is not None: self.retry_strategy = V1alpha1RetryStrategy(limit=retry_on_transient_error, expression="asInt(lastRetry.exitCode) == 2")
         self.dflow_vars = {}
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
@@ -58,8 +62,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             pre_lines = open(inspect.getsourcefile(op_class), "r").readlines()[:start_line-1]
             script += "".join(pre_lines + source_lines) + "\n"
 
-        script += "import os, jsonpickle\n"
-        script += "from dflow.python import OPIO\n"
+        script += "import os, sys, traceback, jsonpickle\n"
+        script += "from dflow.python import OPIO, TransientError\n"
         script += "from dflow.python.utils import handle_input_artifact, handle_input_parameter\n"
         script += "from dflow.python.utils import handle_output_artifact, handle_output_parameter\n"
         script += "from %s import %s\n\n" % (op_class.__module__, class_name)
@@ -74,7 +78,11 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 slices = self.get_slices(input_parameter_slices, name)
                 script += "input['%s'] = handle_input_parameter('%s', r'{{inputs.parameters.%s}}', input_sign['%s'], %s)\n" % (name, name, name, name, slices)
 
-        script += "output = op_obj.execute(input)\n"
+        script += "try:\n"
+        script += "    output = op_obj.execute(input)\n"
+        script += "except TransientError:\n"
+        script += "    traceback.print_exc()\n"
+        script += "    sys.exit(2)\n"
 
         script += "os.makedirs('/tmp/outputs/parameters', exist_ok=True)\n"
         script += "os.makedirs('/tmp/outputs/artifacts', exist_ok=True)\n"
@@ -126,3 +134,6 @@ class Slices:
         self.input_artifact = input_artifact
         self.output_parameter = output_parameter
         self.output_artifact = output_artifact
+
+class TransientError(Exception):
+    pass
