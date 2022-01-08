@@ -9,7 +9,8 @@ setup(
     package_dir={'': 'src'},
     packages=[
         "dflow",
-        "dflow/python"
+        "dflow/python",
+        "dflow/client"
     ],
     python_requires='>=3.7',
     install_requires=[
