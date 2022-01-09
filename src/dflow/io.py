@@ -134,13 +134,15 @@ class InputArtifact:
             raise RuntimeError("Cannot handle here")
 
 class OutputParameter:
-    def __init__(self, value_from_path=None, value_from_parameter=None, name=None, step_id=None, type=None):
+    def __init__(self, value_from_path=None, value_from_parameter=None, name=None, step_id=None, type=None, default=None, global_name=None):
         self.value_from_path = value_from_path
         self.value_from_parameter = value_from_parameter
         self.name = name
         self.step_id = step_id
         self.type = type
-    
+        self.default = default
+        self.global_name = global_name
+
     def __repr__(self):
         if self.name is not None:
             if self.step_id is not None:
@@ -150,11 +152,11 @@ class OutputParameter:
     
     def convert_to_argo(self):
         if self.value_from_path is not None:
-            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(path=self.value_from_path))
+            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(path=self.value_from_path, default=self.default), global_name=self.global_name)
         elif self.value_from_parameter is not None:
             if isinstance(self.value_from_parameter, (InputParameter, OutputParameter)):
                 self.value_from_parameter = "{{%s}}" % self.value_from_parameter
-            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(parameter=self.value_from_parameter))
+            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(parameter=self.value_from_parameter, default=self.default), global_name=self.global_name)
         else:
             raise RuntimeError("Output parameter %s is not specified" % self)
 

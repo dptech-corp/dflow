@@ -3,9 +3,10 @@ import jsonpickle
 from argo.workflows.client import (
     V1alpha1WorkflowStep,
     V1alpha1Arguments,
-    V1VolumeMount
+    V1VolumeMount,
+    V1alpha1ContinueOn
 )
-from .io import InputParameter, OutputParameter, PVC
+from .io import Inputs, InputParameter, OutputParameter, PVC
 from .op_template import ShellOPTemplate, PythonScriptOPTemplate
 from .python.utils import copy_file
 
@@ -32,7 +33,8 @@ def argo_range(*args):
     return "{{=toJson(sprig.untilStep(%s, %s, %s))}}" % (start, end, step)
 
 class Step:
-    def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None):
+    def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None, continue_on_failed=False,
+            continue_on_num_success=None):
         self.name = name
         self.id = "steps.%s" % self.name
         self.template = template
@@ -40,6 +42,9 @@ class Step:
         self.outputs = deepcopy(self.template.outputs)
         self.inputs.set_step_id(self.id)
         self.outputs.set_step_id(self.id)
+        self.continue_on_failed = continue_on_failed
+        self.continue_on_num_success = continue_on_num_success
+        self.check_step = None
 
         if parameters is not None:
             self.set_parameters(parameters)
@@ -119,8 +124,41 @@ class Step:
             else:
                 raise RuntimeError("Unsupported type of OPTemplate to mount PVC")
 
+        if self.continue_on_num_success is not None:
+            self.continue_on_failed = True
+            if new_template is None:
+                new_template = deepcopy(self.template)
+                new_template.name = self.template.name + "-" + self.name
+            if (isinstance(new_template, ShellOPTemplate)):
+                new_template.outputs.parameters["dflow_success_tag"] = OutputParameter(value_from_path="/tmp/success_tag", default="0")
+                new_template.script += "\n"
+                new_template.script += "echo 1 > /tmp/success_tag\n"
+            elif (isinstance(new_template, PythonScriptOPTemplate)):
+                new_template.outputs.parameters["dflow_success_tag"] = OutputParameter(value_from_path="/tmp/success_tag", default="0")
+                new_template.script += "\n"
+                new_template.script += "open('/tmp/success_tag', 'w').write('1')\n"
+            else:
+                raise RuntimeError("Unsupported type of OPTemplate for continue_on_num_success")
+
         if new_template is not None:
             self.template = new_template
+            self.inputs = deepcopy(self.template.inputs)
+            self.outputs = deepcopy(self.template.outputs)
+            self.inputs.set_step_id(self.id)
+            self.outputs.set_step_id(self.id)
+
+        if self.continue_on_num_success is not None:
+            script = "succ=`echo {{inputs.parameters.success}} | grep -o 1 | wc -l`\n"
+            script += "exit $(( $succ < {{inputs.parameters.threshold}} ))"
+            check_template = ShellOPTemplate("check-num-success", inputs=Inputs(parameters={"success": InputParameter(), "threshold": InputParameter()}),
+                    image=self.template.image, command=["sh"], script=script)
+            self.check_step = Step(
+                name="%s-check-num-success" % self.name, template=check_template,
+                parameters={
+                    "success": self.outputs.parameters["dflow_success_tag"],
+                    "threshold": self.continue_on_num_success
+                }
+            )
 
         if isinstance(self.with_param, (InputParameter, OutputParameter)):
             self.with_param = "{{%s}}" % self.with_param
@@ -129,7 +167,7 @@ class Step:
             name=self.name, template=self.template.name, arguments=V1alpha1Arguments(
                 parameters=argo_parameters,
                 artifacts=argo_artifacts
-            ), when=self.when, with_param=self.with_param
+            ), when=self.when, with_param=self.with_param, continue_on=V1alpha1ContinueOn(failed=self.continue_on_failed)
         )
 
     def run(self, context):
