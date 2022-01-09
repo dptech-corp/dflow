@@ -28,6 +28,9 @@ class Steps(OPTemplate):
                 argo_parallel_steps.append(ps.convert_to_argo())
                 templates.append(ps.template) # template may change after conversion
             argo_steps.append(argo_parallel_steps)
+            if len(step) == 1 and step[0].check_step is not None:
+                argo_steps.append([step[0].check_step.convert_to_argo()])
+                templates.append(step[0].check_step.template)
 
         argo_template = V1alpha1Template(name=self.name,
                 steps=argo_steps,

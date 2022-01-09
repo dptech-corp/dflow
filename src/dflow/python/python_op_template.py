@@ -1,4 +1,4 @@
-import inspect, uuid
+import inspect, uuid, jsonpickle
 from .opio import Artifact
 from ..op_template import PythonScriptOPTemplate
 from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact, S3Artifact
@@ -9,7 +9,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
     def __init__(self, op_class, image=None, command=None, input_artifact_slices=None, output_artifact_save=None,
                  output_artifact_archive=None, input_parameter_slices=None, output_artifact_slices=None,
                  output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None,
-                 timeout=None, retry_on_transient_error=None):
+                 timeout=None, retry_on_transient_error=None, output_parameter_default=None, output_parameter_global_name=None):
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
         output_sign = op_class.get_output_sign()
@@ -36,7 +36,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 output_sign[name].global_name = global_name
         super().__init__(name=class_name, inputs=Inputs(), outputs=Outputs())
         if timeout is not None: self.timeout = "%ss" % timeout
-        if retry_on_transient_error is not None: self.retry_strategy = V1alpha1RetryStrategy(limit=retry_on_transient_error, expression="asInt(lastRetry.exitCode) == 2")
+        if retry_on_transient_error is not None: self.retry_strategy = V1alpha1RetryStrategy(limit=retry_on_transient_error, expression="asInt(lastRetry.exitCode) == 1")
         self.dflow_vars = {}
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
@@ -48,7 +48,16 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 self.outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/" + name,
                     archive=sign.archive, save=sign.save, global_name=sign.global_name)
             else:
-                self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name)
+                default = None
+                if output_parameter_default is not None and name in output_parameter_default:
+                    if sign == str:
+                        default = output_parameter_default[name]
+                    else:
+                        default = jsonpickle.dumps(output_parameter_default[name])
+                global_name = None
+                if output_parameter_global_name is not None and name in output_parameter_global_name:
+                    global_name = output_parameter_global_name[name]
+                self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name, default=default, global_name=global_name)
 
         script = ""
         if python_packages is not None:
@@ -63,7 +72,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "".join(pre_lines + source_lines) + "\n"
 
         script += "import os, sys, traceback, jsonpickle\n"
-        script += "from dflow.python import OPIO, TransientError\n"
+        script += "from dflow.python import OPIO, TransientError, FatalError\n"
         script += "from dflow.python.utils import handle_input_artifact, handle_input_parameter\n"
         script += "from dflow.python.utils import handle_output_artifact, handle_output_parameter\n"
         script += "from %s import %s\n\n" % (op_class.__module__, class_name)
@@ -81,6 +90,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "try:\n"
         script += "    output = op_obj.execute(input)\n"
         script += "except TransientError:\n"
+        script += "    traceback.print_exc()\n"
+        script += "    sys.exit(1)\n"
+        script += "except FatalError:\n"
         script += "    traceback.print_exc()\n"
         script += "    sys.exit(2)\n"
 
@@ -136,4 +148,7 @@ class Slices:
         self.output_artifact = output_artifact
 
 class TransientError(Exception):
+    pass
+
+class FatalError(Exception):
     pass
