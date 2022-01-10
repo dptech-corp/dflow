@@ -6,9 +6,10 @@ from argo.workflows.client import (
     V1VolumeMount,
     V1alpha1ContinueOn
 )
-from .io import Inputs, InputParameter, OutputParameter, PVC
+from .io import InputParameter, OutputParameter, PVC
 from .op_template import ShellOPTemplate, PythonScriptOPTemplate
 from .python.utils import copy_file
+from .util_ops import CheckNumSuccess, CheckSuccessRatio
 
 def argo_range(*args):
     start = 0
@@ -34,7 +35,7 @@ def argo_range(*args):
 
 class Step:
     def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None, continue_on_failed=False,
-            continue_on_num_success=None):
+            continue_on_num_success=None, continue_on_success_ratio=None):
         self.name = name
         self.id = "steps.%s" % self.name
         self.template = template
@@ -44,6 +45,7 @@ class Step:
         self.outputs.set_step_id(self.id)
         self.continue_on_failed = continue_on_failed
         self.continue_on_num_success = continue_on_num_success
+        self.continue_on_success_ratio = continue_on_success_ratio
         self.check_step = None
 
         if parameters is not None:
@@ -124,7 +126,7 @@ class Step:
             else:
                 raise RuntimeError("Unsupported type of OPTemplate to mount PVC")
 
-        if self.continue_on_num_success is not None:
+        if self.continue_on_num_success  or self.continue_on_success_ratio is not None:
             self.continue_on_failed = True
             if new_template is None:
                 new_template = deepcopy(self.template)
@@ -138,7 +140,7 @@ class Step:
                 new_template.script += "\n"
                 new_template.script += "open('/tmp/success_tag', 'w').write('1')\n"
             else:
-                raise RuntimeError("Unsupported type of OPTemplate for continue_on_num_success")
+                raise RuntimeError("Unsupported type of OPTemplate for continue_on_num_success or continue_on_success_ratio")
 
         if new_template is not None:
             self.template = new_template
@@ -148,15 +150,19 @@ class Step:
             self.outputs.set_step_id(self.id)
 
         if self.continue_on_num_success is not None:
-            script = "succ=`echo {{inputs.parameters.success}} | grep -o 1 | wc -l`\n"
-            script += "exit $(( $succ < {{inputs.parameters.threshold}} ))"
-            check_template = ShellOPTemplate("check-num-success", inputs=Inputs(parameters={"success": InputParameter(), "threshold": InputParameter()}),
-                    image=self.template.image, command=["sh"], script=script)
             self.check_step = Step(
-                name="%s-check-num-success" % self.name, template=check_template,
+                name="%s-check-num-success" % self.name, template=CheckNumSuccess(image=self.template.image),
                 parameters={
                     "success": self.outputs.parameters["dflow_success_tag"],
                     "threshold": self.continue_on_num_success
+                }
+            )
+        elif self.continue_on_success_ratio is not None:
+            self.check_step = Step(
+                name="%s-check-success-ratio" % self.name, template=CheckSuccessRatio(image=self.template.image),
+                parameters={
+                    "success": self.outputs.parameters["dflow_success_tag"],
+                    "threshold": self.continue_on_success_ratio
                 }
             )
 
