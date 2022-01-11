@@ -4,6 +4,7 @@ from ..op_template import PythonScriptOPTemplate
 from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact, S3Artifact
 from ..utils import upload_artifact
 from ..client import V1alpha1RetryStrategy
+upload_packages = []
 
 class PythonOPTemplate(PythonScriptOPTemplate):
     def __init__(self, op_class, image=None, command=None, input_artifact_slices=None, output_artifact_save=None,
@@ -65,8 +66,15 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     global_name = output_parameter_global_name[name]
                 self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name, default=default, global_name=global_name)
 
+        if python_packages is None:
+            python_packages = upload_packages
+        elif isinstance(python_packages, list):
+            python_packages = upload_packages + python_packages
+        else:
+            python_packages = upload_packages + [python_packages]
+
         script = ""
-        if python_packages is not None:
+        if python_packages:
             self.inputs.artifacts["dflow_python_packages"] = InputArtifact(path="/tmp/inputs/artifacts/dflow_python_packages",
                     source=upload_artifact(python_packages))
             script += "from dflow.python.utils import handle_python_packages\n"

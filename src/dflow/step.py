@@ -6,10 +6,11 @@ from argo.workflows.client import (
     V1VolumeMount,
     V1alpha1ContinueOn
 )
-from .io import InputParameter, OutputParameter, PVC
+from .io import InputParameter, OutputParameter, PVC, ArgoVar
 from .op_template import ShellOPTemplate, PythonScriptOPTemplate
-from .python.utils import copy_file
+from .utils import copy_file
 from .util_ops import CheckNumSuccess, CheckSuccessRatio
+from .client import V1alpha1Sequence
 
 def argo_range(*args):
     start = 0
@@ -33,9 +34,21 @@ def argo_range(*args):
         end = "sprig.atoi(%s)" % end
     return "{{=toJson(sprig.untilStep(%s, %s, %s))}}" % (start, end, step)
 
+def argo_sequence(count=None, start=None, end=None, format=None):
+    if isinstance(count, ArgoVar):
+        count = "{{=%s}}" % count
+    if isinstance(start, ArgoVar):
+        start = "{{=%s}}" % start
+    if isinstance(end, ArgoVar):
+        end = "{{=%s}}" % end
+    return V1alpha1Sequence(count=count, start=start, end=end, format=format)
+
+def argo_len(param):
+    return ArgoVar("len(sprig.fromJson(%s))" % param)
+
 class Step:
     def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None, continue_on_failed=False,
-            continue_on_num_success=None, continue_on_success_ratio=None):
+            continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None):
         self.name = name
         self.id = "steps.%s" % self.name
         self.template = template
@@ -56,6 +69,7 @@ class Step:
 
         self.when = when
         self.with_param = with_param
+        self.with_sequence = with_sequence
 
     def __repr__(self):
         return self.id
@@ -173,7 +187,8 @@ class Step:
             name=self.name, template=self.template.name, arguments=V1alpha1Arguments(
                 parameters=argo_parameters,
                 artifacts=argo_artifacts
-            ), when=self.when, with_param=self.with_param, continue_on=V1alpha1ContinueOn(failed=self.continue_on_failed)
+            ), when=self.when, with_param=self.with_param, with_sequence=self.with_sequence,
+            continue_on=V1alpha1ContinueOn(failed=self.continue_on_failed)
         )
 
     def run(self, context):

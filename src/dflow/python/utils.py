@@ -4,6 +4,7 @@ import jsonpickle
 from typing import Set, List
 from pathlib import Path
 from .opio import Artifact
+from ..utils import copy_file
 
 def handle_input_artifact(name, sign, slices=None):
     art_path = '/tmp/inputs/artifacts/%s' % name
@@ -96,15 +97,6 @@ def copy_results(source, name):
         target = "/tmp/outputs/artifacts/%s/%s" % (name, source)
         copy_file(source, target, os.link)
         return source
-
-def copy_file(src, dst, func=os.link):
-    os.makedirs(os.path.abspath(os.path.dirname(dst)), exist_ok=True)
-    if os.path.isdir(src):
-        shutil.copytree(src, dst, copy_function=func)
-    elif os.path.isfile(src):
-        func(src, dst)
-    else:
-        raise RuntimeError("File %s not found" % src)
 
 def convert_dflow_list(dflow_list):
     dflow_list.sort(key=lambda x: x['order'])
