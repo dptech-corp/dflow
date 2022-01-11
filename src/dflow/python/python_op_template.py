@@ -9,7 +9,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
     def __init__(self, op_class, image=None, command=None, input_artifact_slices=None, output_artifact_save=None,
                  output_artifact_archive=None, input_parameter_slices=None, output_artifact_slices=None,
                  output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None,
-                 timeout=None, retry_on_transient_error=None, output_parameter_default=None, output_parameter_global_name=None):
+                 timeout=None, retry_on_transient_error=None, output_parameter_default=None, output_parameter_global_name=None,
+                 timeout_as_transient_error=False):
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
         output_sign = op_class.get_output_sign()
@@ -36,7 +37,12 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 output_sign[name].global_name = global_name
         super().__init__(name=class_name, inputs=Inputs(), outputs=Outputs())
         if timeout is not None: self.timeout = "%ss" % timeout
-        if retry_on_transient_error is not None: self.retry_strategy = V1alpha1RetryStrategy(limit=retry_on_transient_error, expression="asInt(lastRetry.exitCode) == 1")
+        if retry_on_transient_error is not None:
+            if timeout_as_transient_error:
+                expr = "asInt(lastRetry.exitCode) != 2"
+            else:
+                expr = "asInt(lastRetry.exitCode) == 1"
+            self.retry_strategy = V1alpha1RetryStrategy(limit=retry_on_transient_error, expression=expr)
         self.dflow_vars = {}
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
