@@ -1,1 +1,2 @@
 from .v1alpha1_retry_strategy import V1alpha1RetryStrategy
+from .v1alpha1_sequence import V1alpha1Sequence

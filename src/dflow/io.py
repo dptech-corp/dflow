@@ -75,7 +75,14 @@ class Outputs:
         return V1alpha1Outputs(parameters=[par.convert_to_argo() for par in self.parameters.values()],
                 artifacts=[art.convert_to_argo() for art in self.artifacts.values()])
 
-class InputParameter:
+class ArgoVar:
+    def __init__(self, expr=None):
+        self.expr = expr
+
+    def __repr__(self):
+        return self.expr
+
+class InputParameter(ArgoVar):
     def __init__(self, name=None, step_id=None, type=None, value=None):
         self.name = name
         self.step_id = step_id
@@ -99,7 +106,7 @@ class InputParameter:
         else:
             return V1alpha1Parameter(name=self.name, value=jsonpickle.dumps(self.value))
 
-class InputArtifact:
+class InputArtifact(ArgoVar):
     def __init__(self, path=None, name=None, step_id=None, optional=False, type=None, source=None):
         self.path = path
         self.name = name
@@ -133,7 +140,7 @@ class InputArtifact:
         else:
             raise RuntimeError("Cannot handle here")
 
-class OutputParameter:
+class OutputParameter(ArgoVar):
     def __init__(self, value_from_path=None, value_from_parameter=None, name=None, step_id=None, type=None, default=None, global_name=None):
         self.value_from_path = value_from_path
         self.value_from_parameter = value_from_parameter
@@ -160,7 +167,7 @@ class OutputParameter:
         else:
             raise RuntimeError("Output parameter %s is not specified" % self)
 
-class OutputArtifact:
+class OutputArtifact(ArgoVar):
     def __init__(self, path=None, _from=None, name=None, step_id=None, type=None, save=None, archive="tar", global_name=None):
         self.path = path
         self._from = _from
