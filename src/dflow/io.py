@@ -30,19 +30,19 @@ class Inputs:
             self.artifacts = artifacts
         else:
             self.artifacts = AutonamedDict()
-    
+
     def __setattr__(self, key, value):
         if key in ["parameters", "artifacts"] and isinstance(value, dict):
             super().__setattr__(key, AutonamedDict(value))
         else:
             super().__setattr__(key, value)
-    
+
     def set_step_id(self, step_id):
         for par in self.parameters.values():
             par.step_id = step_id
         for art in self.artifacts.values():
             art.step_id = step_id
-    
+
     def convert_to_argo(self):
         return V1alpha1Inputs(parameters=[par.convert_to_argo() for par in self.parameters.values()],
                 artifacts=[art.convert_to_argo() for art in self.artifacts.values()])
@@ -58,13 +58,13 @@ class Outputs:
             self.artifacts = artifacts
         else:
             self.artifacts = AutonamedDict()
-    
+
     def __setattr__(self, key, value):
         if key in ["parameters", "artifacts"] and isinstance(value, dict):
             super().__setattr__(key, AutonamedDict(value))
         else:
             super().__setattr__(key, value)
-    
+
     def set_step_id(self, step_id):
         for par in self.parameters.values():
             par.step_id = step_id
@@ -88,25 +88,34 @@ class InputParameter(ArgoVar):
         self.step_id = step_id
         self.type = type
         self.value = value
-    
+
+    def __getattr__(self, key):
+        if key == "expr":
+            if self.name is not None:
+                if self.step_id is not None:
+                    return "steps['%s'].inputs.parameters['%s']" % (self.step_id, self.name)
+                return "inputs.parameters['%s']" % self.name
+            return ""
+        return super().__getattr__(key)
+
     def __repr__(self):
         if self.name is not None:
             if self.step_id is not None:
-                return "%s.inputs.parameters.%s" % (self.step_id, self.name)
-            return "inputs.parameters.%s" % self.name
+                return "{{steps.%s.inputs.parameters.%s}}" % (self.step_id, self.name)
+            return "{{inputs.parameters.%s}}" % self.name
         return ""
-    
+
     def convert_to_argo(self):
         if self.value is None:
             return V1alpha1Parameter(name=self.name)
-        elif isinstance(self.value, InputParameter) or isinstance(self.value, OutputParameter):
-            return V1alpha1Parameter(name=self.name, value="{{%s}}" % self.value)
+        elif isinstance(self.value, ArgoVar):
+            return V1alpha1Parameter(name=self.name, value="{{=%s}}" % self.value.expr)
         elif isinstance(self.value, str):
             return V1alpha1Parameter(name=self.name, value=self.value)
         else:
             return V1alpha1Parameter(name=self.name, value=jsonpickle.dumps(self.value))
 
-class InputArtifact(ArgoVar):
+class InputArtifact:
     def __init__(self, path=None, name=None, step_id=None, optional=False, type=None, source=None):
         self.path = path
         self.name = name
@@ -115,12 +124,12 @@ class InputArtifact(ArgoVar):
         self.type = type
         self.source = source
         self._sub_path = None
-    
+
     def __repr__(self):
         if self.name is not None:
             if self.step_id is not None:
-                return "%s.inputs.artifacts.%s" % (self.step_id, self.name)
-            return "inputs.artifacts.%s" % self.name
+                return "{{steps.%s.inputs.artifacts.%s}}" % (self.step_id, self.name)
+            return "{{inputs.artifacts.%s}}" % self.name
         return ""
 
     def sub_path(self, path):
@@ -132,7 +141,7 @@ class InputArtifact(ArgoVar):
         if self.source is None:
             return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional)
         if isinstance(self.source, (InputArtifact, OutputArtifact)):
-            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, _from="{{%s}}" % self.source, sub_path=self.source._sub_path)
+            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, _from=str(self.source), sub_path=self.source._sub_path)
         elif isinstance(self.source, S3Artifact):
             return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, s3=self.source, sub_path=self.source._sub_path)
         elif isinstance(self.source, str):
@@ -150,24 +159,31 @@ class OutputParameter(ArgoVar):
         self.default = default
         self.global_name = global_name
 
+    def __getattr__(self, key):
+        if key == "expr":
+            if self.name is not None:
+                if self.step_id is not None:
+                    return "steps['%s'].outputs.parameters['%s']" % (self.step_id, self.name)
+                return "outputs.parameters['%s']" % self.name
+            return ""
+        return super().__getattr__(key)
+
     def __repr__(self):
         if self.name is not None:
             if self.step_id is not None:
-                return "%s.outputs.parameters.%s" % (self.step_id, self.name)
-            return "outputs.parameters.%s" % self.name
+                return "{{steps.%s.outputs.parameters.%s}}" % (self.step_id, self.name)
+            return "{{outputs.parameters.%s}}" % self.name
         return ""
-    
+
     def convert_to_argo(self):
         if self.value_from_path is not None:
             return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(path=self.value_from_path, default=self.default), global_name=self.global_name)
         elif self.value_from_parameter is not None:
-            if isinstance(self.value_from_parameter, (InputParameter, OutputParameter)):
-                self.value_from_parameter = "{{%s}}" % self.value_from_parameter
-            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(parameter=self.value_from_parameter, default=self.default), global_name=self.global_name)
+            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(parameter=str(self.value_from_parameter), default=self.default), global_name=self.global_name)
         else:
             raise RuntimeError("Output parameter %s is not specified" % self)
 
-class OutputArtifact(ArgoVar):
+class OutputArtifact:
     def __init__(self, path=None, _from=None, name=None, step_id=None, type=None, save=None, archive="tar", global_name=None):
         self.path = path
         self._from = _from
@@ -190,18 +206,18 @@ class OutputArtifact(ArgoVar):
 
     def __repr__(self):
         if self.global_name is not None:
-            return "workflow.outputs.artifacts.%s" % (self.global_name)
+            return "{{workflow.outputs.artifacts.%s}}" % (self.global_name)
         elif self.name is not None:
             if self.step_id is not None:
-                return "%s.outputs.artifacts.%s" % (self.step_id, self.name)
-            return "outputs.artifacts.%s" % self.name
+                return "{{steps.%s.outputs.artifacts.%s}}" % (self.step_id, self.name)
+            return "{{outputs.artifacts.%s}}" % self.name
         return ""
-    
+
     def pvc(self):
         pvc = PVC("public", self.step_id, self.name)
         self.save.append(pvc)
         return pvc
-    
+
     def convert_to_argo(self):
         if self.archive is None:
             archive = V1alpha1ArchiveStrategy(_none={})
@@ -221,9 +237,7 @@ class OutputArtifact(ArgoVar):
         if self.path is not None:
             return V1alpha1Artifact(name=self.name, path=self.path, archive=archive, s3=s3, global_name=self.global_name)
         elif self._from is not None:
-            if isinstance(self._from, (InputArtifact, OutputArtifact)):
-                self._from = "{{%s}}" % self._from
-            return V1alpha1Artifact(name=self.name, _from=self._from, archive=archive, s3=s3, global_name=self.global_name)
+            return V1alpha1Artifact(name=self.name, _from=str(self._from), archive=archive, s3=s3, global_name=self.global_name)
         else:
             raise RuntimeError("Output artifact %s is not specified" % self)
 
