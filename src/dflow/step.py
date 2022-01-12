@@ -27,30 +27,30 @@ def argo_range(*args):
     else:
         raise TypeError("Expected 1-3 arguments, got %s" % len(args))
     if isinstance(start, (InputParameter, OutputParameter)):
-        start = "sprig.atoi(%s)" % start
+        start = "sprig.atoi(%s)" % start.expr
     if isinstance(step, (InputParameter, OutputParameter)):
-        step = "sprig.atoi(%s)" % step
+        step = "sprig.atoi(%s)" % step.expr
     if isinstance(end, (InputParameter, OutputParameter)):
-        end = "sprig.atoi(%s)" % end
-    return "{{=toJson(sprig.untilStep(%s, %s, %s))}}" % (start, end, step)
+        end = "sprig.atoi(%s)" % end.expr
+    return ArgoVar("toJson(sprig.untilStep(%s, %s, %s))" % (start, end, step))
 
 def argo_sequence(count=None, start=None, end=None, format=None):
     if isinstance(count, ArgoVar):
-        count = "{{=%s}}" % count
+        count = "{{=%s}}" % count.expr
     if isinstance(start, ArgoVar):
-        start = "{{=%s}}" % start
+        start = "{{=%s}}" % start.expr
     if isinstance(end, ArgoVar):
-        end = "{{=%s}}" % end
+        end = "{{=%s}}" % end.expr
     return V1alpha1Sequence(count=count, start=start, end=end, format=format)
 
 def argo_len(param):
-    return ArgoVar("len(sprig.fromJson(%s))" % param)
+    return ArgoVar("len(sprig.fromJson(%s))" % param.expr)
 
 class Step:
     def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None, continue_on_failed=False,
             continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None):
         self.name = name
-        self.id = "steps.%s" % self.name
+        self.id = self.name
         self.template = template
         self.inputs = deepcopy(self.template.inputs)
         self.outputs = deepcopy(self.template.outputs)
@@ -180,8 +180,8 @@ class Step:
                 }
             )
 
-        if isinstance(self.with_param, (InputParameter, OutputParameter)):
-            self.with_param = "{{%s}}" % self.with_param
+        if isinstance(self.with_param, ArgoVar):
+            self.with_param = "{{=%s}}" % self.with_param.expr
 
         return V1alpha1WorkflowStep(
             name=self.name, template=self.template.name, arguments=V1alpha1Arguments(
