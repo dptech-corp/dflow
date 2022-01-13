@@ -87,7 +87,9 @@ class Step:
         for par in self.inputs.parameters.values():
             argo_parameters.append(par.convert_to_argo())
 
-        new_template = None
+        new_template = deepcopy(self.template)
+        new_template.name = self.template.name + "-" + self.name
+        new_template.outputs = self.outputs
 
         argo_artifacts = []
         pvc_arts = []
@@ -98,9 +100,6 @@ class Step:
                 argo_artifacts.append(art.convert_to_argo())
 
         if len(pvc_arts) > 0:
-            if new_template is None:
-                new_template = deepcopy(self.template)
-                new_template.name = self.template.name + "-" + self.name
             if (isinstance(new_template, ShellOPTemplate)):
                 for pvc, art in pvc_arts:
                     del new_template.inputs.artifacts[art.name]
@@ -122,9 +121,6 @@ class Step:
                     pvc_arts.append((save, art))
 
         if len(pvc_arts) > 0:
-            if new_template is None:
-                new_template = deepcopy(self.template)
-                new_template.name = self.template.name + "-" + self.name
             if (isinstance(new_template, ShellOPTemplate)):
                 new_template.script += "\n"
                 for pvc, art in pvc_arts:
@@ -142,9 +138,6 @@ class Step:
 
         if self.continue_on_num_success  or self.continue_on_success_ratio is not None:
             self.continue_on_failed = True
-            if new_template is None:
-                new_template = deepcopy(self.template)
-                new_template.name = self.template.name + "-" + self.name
             if (isinstance(new_template, ShellOPTemplate)):
                 new_template.outputs.parameters["dflow_success_tag"] = OutputParameter(value_from_path="/tmp/success_tag", default="0")
                 new_template.script += "\n"
@@ -156,12 +149,11 @@ class Step:
             else:
                 raise RuntimeError("Unsupported type of OPTemplate for continue_on_num_success or continue_on_success_ratio")
 
-        if new_template is not None:
-            self.template = new_template
-            self.inputs = deepcopy(self.template.inputs)
-            self.outputs = deepcopy(self.template.outputs)
-            self.inputs.set_step_id(self.id)
-            self.outputs.set_step_id(self.id)
+        self.template = new_template
+        self.inputs = deepcopy(self.template.inputs)
+        self.outputs = deepcopy(self.template.outputs)
+        self.inputs.set_step_id(self.id)
+        self.outputs.set_step_id(self.id)
 
         if self.continue_on_num_success is not None:
             self.check_step = Step(
