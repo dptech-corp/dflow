@@ -1,3 +1,4 @@
+import uuid
 from copy import deepcopy
 from collections import UserDict
 import jsonpickle
@@ -198,6 +199,21 @@ class OutputArtifact:
         self.archive = archive
         self._sub_path = None
         self.global_name = global_name
+        for save in self.save:
+            if isinstance(save, OutputArtifact):
+                s3 = self.get_s3_save_or_none(save.save)
+                if s3 is None:
+                    s3 = S3Artifact(key=str(uuid.uuid4()))
+                    save.save.append(s3)
+                save.archive = None
+                self.save.append(s3)
+                self.archive = None
+
+    def get_s3_save_or_none(self, save):
+        for s in save:
+            if isinstance(S3Artifact, s):
+                return s
+        return None
 
     def sub_path(self, path):
         artifact = deepcopy(self)
