@@ -36,7 +36,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         if output_artifact_global_name is not None:
             for name, global_name in output_artifact_global_name.items():
                 output_sign[name].global_name = global_name
-        super().__init__(name=class_name, inputs=Inputs(), outputs=Outputs())
+        super().__init__(name="%s-%s" % (class_name, uuid.uuid4()), inputs=Inputs(), outputs=Outputs())
         if timeout is not None: self.timeout = "%ss" % timeout
         if retry_on_transient_error is not None:
             if timeout_as_transient_error:
