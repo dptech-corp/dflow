@@ -84,7 +84,8 @@ class Step:
     def set_artifacts(self, artifacts):
         for k, v in artifacts.items():
             if v is None:
-                self.inputs.artifacts[k].optional = True
+                del self.inputs.artifacts[k]
+                self.template.inputs.artifacts[k].optional = True
             else:
                 self.inputs.artifacts[k].source = v
 
