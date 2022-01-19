@@ -101,6 +101,8 @@ class Step:
         for art in self.inputs.artifacts.values():
             if isinstance(art.source, PVC):
                 pvc_arts.append((art.source, art))
+            elif art.source is None and art.optional == True:
+                pass
             else:
                 argo_artifacts.append(art.convert_to_argo())
 
