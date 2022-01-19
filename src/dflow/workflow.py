@@ -29,7 +29,7 @@ class Workflow:
             if steps is not None:
                 self.entrypoint = steps
             else:
-                self.entrypoint = Steps(self.name)
+                self.entrypoint = Steps(self.name + "-steps")
             self.argo_templates = {}
             self.pvcs = {}
             self.id = None
