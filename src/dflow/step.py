@@ -76,11 +76,17 @@ class Step:
     
     def set_parameters(self, parameters):
         for k, v in parameters.items():
-            self.inputs.parameters[k].value = v
+            if v is None:
+                self.inputs.parameters[k].value = "null"
+            else:
+                self.inputs.parameters[k].value = v
     
     def set_artifacts(self, artifacts):
         for k, v in artifacts.items():
-            self.inputs.artifacts[k].source = v
+            if v is None:
+                self.inputs.artifacts[k].optional = True
+            else:
+                self.inputs.artifacts[k].source = v
 
     def convert_to_argo(self):
         argo_parameters = []
