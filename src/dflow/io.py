@@ -84,27 +84,32 @@ class ArgoVar:
     def __eq__(self, other):
         if isinstance(other, ArgoVar):
             other = other.expr
-        return "%s == %s" % (self.expr, other)
+        return ArgoVar("%s == %s" % (self.expr, other))
+
+    def __ne__(self, other):
+        if isinstance(other, ArgoVar):
+            other = other.expr
+        return ArgoVar("%s != %s" % (self.expr, other))
 
     def __lt__(self, other):
         if isinstance(other, ArgoVar):
             other = other.expr
-        return "%s < %s" % (self.expr, other)
+        return ArgoVar("%s < %s" % (self.expr, other))
 
     def __le__(self, other):
         if isinstance(other, ArgoVar):
             other = other.expr
-        return "%s <= %s" % (self.expr, other)
+        return ArgoVar("%s <= %s" % (self.expr, other))
 
     def __gt__(self, other):
         if isinstance(other, ArgoVar):
             other = other.expr
-        return "%s > %s" % (self.expr, other)
+        return ArgoVar("%s > %s" % (self.expr, other))
 
     def __ge__(self, other):
         if isinstance(other, ArgoVar):
             other = other.expr
-        return "%s >= %s" % (self.expr, other)
+        return ArgoVar("%s >= %s" % (self.expr, other))
 
 class InputParameter(ArgoVar):
     def __init__(self, name=None, step_id=None, type=None, value=None):
