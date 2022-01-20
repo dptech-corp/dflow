@@ -6,12 +6,11 @@ from argo.workflows.client import (
     V1alpha1Inputs,
     V1alpha1Outputs,
     V1alpha1Parameter,
-    V1alpha1ValueFrom,
-    V1alpha1Artifact,
     V1alpha1RawArtifact,
     V1alpha1S3Artifact,
     V1alpha1ArchiveStrategy
 )
+from .client import V1alpha1ValueFrom, V1alpha1Artifact
 
 class AutonamedDict(UserDict):
     def __setitem__(self, key, value):
@@ -82,6 +81,31 @@ class ArgoVar:
     def __repr__(self):
         return self.expr
 
+    def __eq__(self, other):
+        if isinstance(other, ArgoVar):
+            other = other.expr
+        return "%s == %s" % (self.expr, other)
+
+    def __lt__(self, other):
+        if isinstance(other, ArgoVar):
+            other = other.expr
+        return "%s < %s" % (self.expr, other)
+
+    def __le__(self, other):
+        if isinstance(other, ArgoVar):
+            other = other.expr
+        return "%s <= %s" % (self.expr, other)
+
+    def __gt__(self, other):
+        if isinstance(other, ArgoVar):
+            other = other.expr
+        return "%s > %s" % (self.expr, other)
+
+    def __ge__(self, other):
+        if isinstance(other, ArgoVar):
+            other = other.expr
+        return "%s >= %s" % (self.expr, other)
+
 class InputParameter(ArgoVar):
     def __init__(self, name=None, step_id=None, type=None, value=None):
         self.name = name
@@ -115,7 +139,7 @@ class InputParameter(ArgoVar):
         else:
             return V1alpha1Parameter(name=self.name, value=jsonpickle.dumps(self.value))
 
-class InputArtifact:
+class InputArtifact(ArgoVar):
     def __init__(self, path=None, name=None, step_id=None, optional=False, type=None, source=None):
         self.path = path
         self.name = name
@@ -124,6 +148,15 @@ class InputArtifact:
         self.type = type
         self.source = source
         self._sub_path = None
+
+    def __getattr__(self, key):
+        if key == "expr":
+            if self.name is not None:
+                if self.step_id is not None:
+                    return "steps['%s'].inputs.artifacts['%s']" % (self.step_id, self.name)
+                return "inputs.artifacts['%s']" % self.name
+            return ""
+        return super().__getattr__(key)
 
     def __repr__(self):
         if self.name is not None:
@@ -150,7 +183,8 @@ class InputArtifact:
             raise RuntimeError("Cannot handle here")
 
 class OutputParameter(ArgoVar):
-    def __init__(self, value_from_path=None, value_from_parameter=None, name=None, step_id=None, type=None, default=None, global_name=None):
+    def __init__(self, value_from_path=None, value_from_parameter=None, name=None, step_id=None, type=None, default=None, global_name=None,
+            value_from_expression=None):
         self.value_from_path = value_from_path
         self.value_from_parameter = value_from_parameter
         self.name = name
@@ -158,6 +192,7 @@ class OutputParameter(ArgoVar):
         self.type = type
         self.default = default
         self.global_name = global_name
+        self.value_from_expression = value_from_expression
 
     def __getattr__(self, key):
         if key == "expr":
@@ -180,11 +215,14 @@ class OutputParameter(ArgoVar):
             return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(path=self.value_from_path, default=self.default), global_name=self.global_name)
         elif self.value_from_parameter is not None:
             return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(parameter=str(self.value_from_parameter), default=self.default), global_name=self.global_name)
+        elif self.value_from_expression is not None:
+            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(expression=str(self.value_from_expression), default=self.default), global_name=self.global_name)
         else:
             raise RuntimeError("Output parameter %s is not specified" % self)
 
-class OutputArtifact:
-    def __init__(self, path=None, _from=None, name=None, step_id=None, type=None, save=None, archive="tar", global_name=None):
+class OutputArtifact(ArgoVar):
+    def __init__(self, path=None, _from=None, name=None, step_id=None, type=None, save=None, archive="tar", global_name=None,
+            from_expression=None):
         self.path = path
         self._from = _from
         self.name = name
@@ -198,11 +236,23 @@ class OutputArtifact:
         self.archive = archive
         self._sub_path = None
         self.global_name = global_name
+        self.from_expression = from_expression
 
     def sub_path(self, path):
         artifact = deepcopy(self)
         artifact._sub_path = path
         return artifact
+
+    def __getattr__(self, key):
+        if key == "expr":
+            if self.global_name is not None:
+                return "workflow.outputs.artifacts['%s']" % (self.global_name)
+            elif self.name is not None:
+                if self.step_id is not None:
+                    return "steps['%s'].outputs.artifacts['%s']" % (self.step_id, self.name)
+                return "outputs.artifacts['%s']" % self.name
+            return ""
+        return super().__getattr__(key)
 
     def __repr__(self):
         if self.global_name is not None:
@@ -238,6 +288,8 @@ class OutputArtifact:
             return V1alpha1Artifact(name=self.name, path=self.path, archive=archive, s3=s3, global_name=self.global_name)
         elif self._from is not None:
             return V1alpha1Artifact(name=self.name, _from=str(self._from), archive=archive, s3=s3, global_name=self.global_name)
+        elif self.from_expression is not None:
+            return V1alpha1Artifact(name=self.name, from_expression=str(self.from_expression), archive=archive, s3=s3, global_name=self.global_name)
         else:
             raise RuntimeError("Output artifact %s is not specified" % self)
 

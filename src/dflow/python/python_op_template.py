@@ -23,7 +23,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 output_artifact_slices = {}
                 for name in slices.output_artifact:
                     output_artifact_slices[name] = slices.slices
-                    output_sign[name].save = S3Artifact(key=str(uuid.uuid4())) # stack slices to a S3Artifact for default
+                    output_sign[name].save = S3Artifact(key=str(uuid.uuid4()) + "-{{workflow.duration}}") # stack slices to a S3Artifact for default
                     output_sign[name].archive = None # not archive for default
                     output_sign[name].global_name = class_name + "-" + name # set global name for default
             if slices.output_parameter is not None: output_parameter_slices = {name: slices.slices for name in slices.output_parameter}

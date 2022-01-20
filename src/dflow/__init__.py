@@ -1,5 +1,5 @@
 from .workflow import Workflow
-from .step import Step, argo_range, argo_sequence, argo_len
+from .step import Step, argo_range, argo_sequence, argo_len, if_expression
 from .io import (
     AutonamedDict,
     Inputs,
