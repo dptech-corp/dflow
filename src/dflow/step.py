@@ -46,12 +46,14 @@ def argo_sequence(count=None, start=None, end=None, format=None):
 def argo_len(param):
     return ArgoVar("len(sprig.fromJson(%s))" % param.expr)
 
-def if_expression(_if, then, _else):
-    if isinstance(then, ArgoVar):
-        then = then.expr
+def if_expression(_if, _then, _else):
+    if isinstance(_if, ArgoVar):
+        _if = _if.expr
+    if isinstance(_then, ArgoVar):
+        _then = _then.expr
     if isinstance(_else, ArgoVar):
         _else = _else.expr
-    return "%s ? %s : %s" % (_if, then, _else)
+    return "%s ? %s : %s" % (_if, _then, _else)
 
 class Step:
     def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None, continue_on_failed=False,
