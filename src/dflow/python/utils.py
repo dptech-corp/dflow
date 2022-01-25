@@ -61,7 +61,10 @@ def handle_output_artifact(name, value, sign, slices=None):
             assert isinstance(slices, int)
         else:
             slices = 0
-        path_list.append({"dflow_list_item": copy_results(value, name), "order": slices})
+        if os.path.exists(value):
+            path_list.append({"dflow_list_item": copy_results(value, name), "order": slices})
+        else:
+            path_list.append({"dflow_list_item": None, "order": slices})
     elif sign.type in [List[str], List[Path], Set[str], Set[Path]]:
         os.makedirs('/tmp/outputs/artifacts/' + name, exist_ok=True)
         if slices is not None:
@@ -69,7 +72,10 @@ def handle_output_artifact(name, value, sign, slices=None):
         else:
             slices = list(range(len(value)))
         for path, s in zip(value, slices):
-            path_list.append({"dflow_list_item": copy_results(path, name), "order": s})
+            if os.path.exists(path):
+                path_list.append({"dflow_list_item": copy_results(path, name), "order": s})
+            else:
+                path_list.append({"dflow_list_item": None, "order": s})
     with open("/tmp/outputs/artifacts/%s/.dflow.%s" % (name, uuid.uuid4()), "w") as f:
         f.write(jsonpickle.dumps({"path_list": path_list}))
 
@@ -110,7 +116,7 @@ def assemble_path_list(art_path):
             if f[:6] == ".dflow":
                 dflow_list += jsonpickle.loads(open('%s/%s' % (art_path, f), 'r').read())['path_list']
         if len(dflow_list) > 0:
-            path_list = list(map(lambda x: os.path.join(art_path, x), convert_dflow_list(dflow_list)))
+            path_list = list(map(lambda x: os.path.join(art_path, x) if x is not None else None, convert_dflow_list(dflow_list)))
     return path_list
 
 def handle_python_packages():
