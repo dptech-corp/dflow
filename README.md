@@ -23,16 +23,18 @@ It should be noticed that `Steps` itself is a subclass of OPTemplate and could b
 
 ## Interface layer
 ### Python OP
-Python OP is a kind of OP template defined in the form of Python class. As Python is a weak typed language, we impose strict type checking to OPs to alleviate ambiguity and unexpected behaviors.
+Python `OP` is a kind of OP template defined in the form of Python class. As Python is a weak typed language, we impose strict type checking to `OP`s to alleviate ambiguity and unexpected behaviors.
 
-The structure of the inputs and outputs of a OP is defined in the static methods `get_input_sign` and `get_output_sign`, which return a `OPIOSign` object (basically a dictionary mapping from the name of a parameter or an artifact to its sign). For a parameter, its sign is its type, such as str, float, list, etc. For an artifact, its sign must be an instance of `Artifact`. `Artifact` receives the type of the path variable as the constructor argument, which is supposed to be one of `str`, `pathlib.Path`, `typing.Set[str]`, `typing.Set[pathlib.Path]`, `typing.List[str]`, `typing.List[pathlib.Path]`.
+The structure of the inputs and outputs of a `OP` is defined in the static methods `get_input_sign` and `get_output_sign`, which return a `OPIOSign` object (basically a dictionary mapping from the name of a parameter or an artifact to its sign). For a parameter, its sign is its type, such as str, float, list, etc. For an artifact, its sign must be an instance of `Artifact`. `Artifact` receives the type of the path variable as the constructor argument, which is supposed to be one of `str`, `pathlib.Path`, `typing.Set[str]`, `typing.Set[pathlib.Path]`, `typing.List[str]`, `typing.List[pathlib.Path]`. If a `OP` returns a list of path as an artifact, dflow not only collects files or directories in the returned list of path, and package them in an artifact, but also records their relative path in the artifact. Thus dflow can unpack the artifact to a list of path again before passing to the next `OP`. When no file or directory exists, dflow regards it as `None`.
 
-The execution of the OP is defined in the `execute` method. The `execute` method receives a OPIO object as input and outputs a OPIO object. OPIO is basically a dictionary mapping from the name of a parameter/artifact to its value/path. The type of the parameter value or the artifact path should be in accord with that declared in the sign. Type checking is implemented before and after the ` execute` method. Since argo only accept string as parameter value, dflow encodes all parameters to json (except for string type parameters) before passing to argo, and decodes parameters from argo.
+The execution of the `OP` is defined in the `execute` method. The `execute` method receives a `OPIO` object as input and outputs a `OPIO` object. `OPIO` is basically a dictionary mapping from the name of a parameter/artifact to its value/path. The type of the parameter value or the artifact path should be in accord with that declared in the sign. Type checking is implemented before and after the ` execute` method. Since argo only accept string as parameter value, dflow encodes all parameters to json (except for string type parameters) before passing to argo, and decodes parameters from argo.
 
-## Quick start
-### Prepare Kubernetes cluster
+Use `PythonOPTemplate` to convert a `OP` to Python script OP template.
+
+# Quick Start
+## Prepare Kubernetes cluster
 Firstly, you'll need a Kubernetes cluster. For quick tests, you can set up a [Minikube](https://minikube.sigs.k8s.io) on your PC.
-### Install argo workflows
+## Install argo workflows
 To get started quickly, you can use the quick start manifest which will install Argo Workflow as well as some commonly used components:
 ```
 kubectl create ns argo
@@ -48,15 +50,101 @@ For access to the minio object storage, open a port-forward for minio
 kubectl -n argo port-forward deployment/minio 9000:9000
 ```
 
-### Install dflow
+## Install dflow
 Make sure your Python version is not less than 3.7. Download the source code of dflow and install it
 ```
 pip install .
 ```
 
-### Run an example
+## Run an example
 Submit a simple workflow
 ```
 python examples/test_steps.py
 ```
 Then you can check the submitted workflow through argo's UI.
+
+# User Guide
+
+## Common layer
+
+### Workflow management
+After a workflow is submitted by `wf.submit()`, one can track it with APIs
+
+- `wf.id`: workflow ID in argo
+- `wf.query_status()`: query workflow status, return `"Pending"`, `"Running"`, `"Suceeded"`, etc.
+- `wf.query_step(name=None)`: query step by name (support for regex), return an argo step object
+    - `step.phase`: phase of a step, `"Pending"`, `"Running"`, `Succeeded`, etc.
+    - `step.outputs.parameters`: a dictionary of output parameters
+    - `step.outputs.artifacts`: a dictionary of output artifacts
+
+### Upload/download artifact
+Dflow offers tools for uploading files to Minio and downloading files from Minio (default object storage in the quick start). User can upload a list of files or directories and get an artifact object, which can be used as argument of a step
+```python
+artifact = upload_artifact([path1, path2])
+step = Step(
+    ...
+    artifacts={"foo": artifact}
+)
+```
+User can also download the output artifact of a step queried from a workflow (to current directory for default)
+```python
+step = wf.query_step(name="hello")
+download_artifact(step.outputs.artifacts["bar"])
+```
+Note: dflow retains the relative path of the uploaded file/directory with respect to the current directory during uploading. If file/directory outside current directory is uploaded, its absolute path is used as the relative path in the artifact. If you want a different directory structure in the artifact with the local one, you can make soft links and then upload.
+
+### Produce parallel steps using loop
+`with_param` and `with_sequence` are 2 optional arguments of `Step` to produce parallel steps.
+
+A step using `with_param` option generates parallel steps on a list (usually from another parameter), the parallelism equals to the length of the list. Each parallel step picks an item from the list by `"{{item}}"`, such as
+```python
+step = Step(
+    ...
+    parameter={"msg": "{{item}}"},
+    with_param=steps.inputs.parameters["msg_list"]
+)
+```
+A step using `with_sequence` option generates parallel steps on a numeric sequence. `with_sequence` is usually used in coordination with `argo_sequence` (return a sequence, start from 0 for default) and `argo_len` (return length of a list). Each parallel step picks a number from the sequence by `"{{item}}"`, such as
+```python
+step = Step(
+    ...
+    parameter={"msg": "{{item}}"},
+    with_sequence=argo_sequence(argo_len(steps.inputs.parameters["msg_list"]))
+)
+```
+
+### Timeout
+Set the timeout of a step by `Step(..., timeout=t)`. The unit is second.
+
+### Continue on failed
+Set the workflow to continue when a step fails by `Step(..., continue_on_failed=True)`.
+
+### Continue on success number/ratio of parallel steps
+Set the workflow to continue when certain number/ratio of parallel steps succeed by `Step(..., continue_on_num_success=n)` or `Step(..., continue_on_success_ratio=r)`.
+
+## Interface layer
+
+### Slices
+`Slices` helps user to slice input parameters/artifacts (which must be lists) to feed parallel steps and stack  their output parameters/artifacts to lists in the same pattern. For example,
+```python
+step = Step(name="parallel-tasks",
+    template=PythonOPTemplate(
+        ...,
+        slices=Slices("{{item}}",
+            input_parameter=["msg"],
+            input_artifact=["data"],
+            output_artifact=["log"])
+    ),
+    parameters = {
+        "msg": msg_list
+    },
+    artifacts={
+        "data": data_list
+    },
+    with_param=argo_range(5)
+)
+```
+In this example, each item in `msg_list` is passed to a parallel step as the input parameter `msg`, each part in `data_list` is passed to a parallel step as the input artifact `data`. Finally, the output artifacts `log` of all parallel steps are collected to one artifact `step.outputs.artifacts["log"]`.
+
+### Retry and error handling
+Dflow catches `TransientError` and `FatalError` thrown from `OP`. User can set maximum number of retries on `TransientError` by `PythonOPTemplate(..., retry_on_transient_error=n)`. Timeout error is regarded as fatal error for default. To treat timeout error as transient error, set `PythonOPTemplate(..., timeout_as_transient_error=True)`.
