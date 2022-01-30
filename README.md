@@ -180,6 +180,8 @@ steps.outputs.artifacts["foo"].from_expression = if_expression(
 )
 ```
 
+- [Conditional outputs example](examples/test_conditional_outputs.py)
+
 ####  3.1.5. <a name='Produceparallelstepsusingloop'></a>Produce parallel steps using loop
 `with_param` and `with_sequence` are 2 arguments of `Step` for automatically generating a list of parallel steps. These steps share a common OP template, and only differ in the input parameters.
 
@@ -203,11 +205,17 @@ step = Step(
 ####  3.1.6. <a name='Timeout'></a>Timeout
 Set the timeout of a step by `Step(..., timeout=t)`. The unit is second.
 
+- [Timeout example](examples/test_error_handling.py)
+
 ####  3.1.7. <a name='Continueonfailed'></a>Continue on failed
 Set the workflow to continue when a step fails by `Step(..., continue_on_failed=True)`.
 
+- [Continue on failed example](examples/test_error_handling.py)
+
 ####  3.1.8. <a name='Continueonsuccessnumberratioofparallelsteps'></a>Continue on success number/ratio of parallel steps
 Set the workflow to continue when certain number/ratio of parallel steps succeed by `Step(..., continue_on_num_success=n)` or `Step(..., continue_on_success_ratio=r)`.
+
+- [Continue on success ratio example](examples/test_success_ratio.py)
 
 ####  3.1.9. <a name='Optionalinputartifact'></a>Optional input artifact
 Set a input artifact to be optional by `op_template.inputs.artifacts["foo"].optional = True`.
@@ -239,8 +247,12 @@ step = Step(name="parallel-tasks",
 ```
 In this example, each item in `msg_list` is passed to a parallel step as the input parameter `msg`, each part in `data_list` is passed to a parallel step as the input artifact `data`. Finally, the output artifacts `log` of all parallel steps are collected to one artifact `step.outputs.artifacts["log"]`.
 
+- [Slices example](examples/test_slices.py)
+
 ####  3.2.2. <a name='Retryanderrorhandling'></a>Retry and error handling
 Dflow catches `TransientError` and `FatalError` thrown from `OP`. User can set maximum number of retries on `TransientError` by `PythonOPTemplate(..., retry_on_transient_error=n)`. Timeout error is regarded as fatal error for default. To treat timeout error as transient error, set `PythonOPTemplate(..., timeout_as_transient_error=True)`.
+
+- [Retry example](examples/test_error_handling.py)
 
 ####  3.2.3. <a name='Progress'></a>Progress
 A `OP` can update progress in the runtime so that user can track its real-time progress
@@ -253,6 +265,8 @@ class Progress(OP):
             self.progress_current = 10 * (i + 1)
             ...
 ```
+
+- [Progress example](examples/test_progress.py)
 
 ####  3.2.4. <a name='Uploadpythonpackagesfordevelopment'></a>Upload python packages for development
 To avoid frequently making image during development, dflow offers a interface to upload local packages into container and add them to Python PATH, such as `PythonOPTemplate(python_packages=["/opt/anaconda3/lib/python3.9/site-packages/numpy"])`.
