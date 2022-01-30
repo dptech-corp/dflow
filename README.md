@@ -4,8 +4,9 @@
 * 1. [Overview](#Overview)
 	* 1.1. [ Architecture](#Architecture)
 	* 1.2. [ Common layer](#Commonlayer)
-		* 1.2.1. [ OP template](#OPtemplate)
-		* 1.2.2. [ Workflow](#Workflow)
+		* 1.2.1. [Parameters and artifacts](#Parametersandartifacts)
+		* 1.2.2. [ OP template](#OPtemplate)
+		* 1.2.3. [ Workflow](#Workflow)
 	* 1.3. [ Interface layer](#Interfacelayer)
 		* 1.3.1. [ Python OP](#PythonOP)
 * 2. [Quick Start](#QuickStart)
@@ -44,7 +45,10 @@ Dflow is a Python development framework for concurrent learning applications bas
 The dflow consists of a **common layer** and a **interface layer**.  Interface layer takes various OP templates from users, usually in the form of python classes, and transforms them into base OP templates that common layer can handle. Common layer is an extension over argo client which provides functionalities such as file processing, workflow submission and management, etc.
 
 ###  1.2. <a name='Commonlayer'></a> Common layer
-####  1.2.1. <a name='OPtemplate'></a> OP template
+####  1.2.1. <a name='Parametersandartifacts'></a>Parameters and artifacts
+Parameters and artifacts are data stored by the workflow and passed within the workflow. Parameters are saved as strings which can be displayed in the UI, while artifacts are saved as files.
+
+####  1.2.2. <a name='OPtemplate'></a> OP template
 OP template describes a sort of operation which takes some parameters and artifacts as input and gives some parameters and artifacts as output. The most common OP template is the container OP template whose operation is specified by container image and commands to be executed in the container. Currently two types of container OP templates are supported. Shell OP template defines an operation by a shell script and Python script OP template defines an operation by a Python script.
 
 - Input parameters: basically a dictionary mapping from parameter name to its properties. The value of the input parameter is optional for the OP template, if provided, it will be regarded as the default value which can be overrided at run time.
@@ -55,20 +59,43 @@ OP template describes a sort of operation which takes some parameters and artifa
 
 - Output artifacts: basically a dictionary mapping from artifact name to its properties. For the container OP template, path where the output artifact will be generated in the container is required to be specified.
 
-####  1.2.2. <a name='Workflow'></a> Workflow
-`Step` and `Steps` are central blocks for building a workflow. A `Step` is the result of instantiating a OP template. When a `Step` is initialized, values of all input parameters and sources of all input artifacts defined in the OP template must be clear. `Steps` is a sequential array of array of concurrent `Step`'s. A simple example goes like `[[s00, s01],  [s10, s11, s12]]`, where inner array represent concurrent tasks while outer array is sequential. A `Workflow` contains a `Steps` as entrypoint for default. Adding a `Step` to a `Workflow` is equivalent to adding the `Step` to the `Steps` of the `Workflow`.
+Here is an example of shell OP template
+```python
+ShellOPTemplate(name='Hello',
+    image="alpine:latest",
+    script="cp /tmp/foo.txt /tmp/bar.txt && echo {{inputs.parameters.msg}} > /tmp/msg.txt",
+    inputs=Inputs(parameters={"msg": InputParameter()},
+        artifacts={"foo": InputArtifact(path="/tmp/foo.txt")}),
+    outputs=Outputs(parameters={"msg": OutputParameter(value_from_path="/tmp/result.txt")},
+        artifacts={"bar": OutputArtifact(path="/tmp/bar.txt")}))
+```
+
+####  1.2.3. <a name='Workflow'></a> Workflow
+`Step` and `Steps` are central blocks for building a workflow. A `Step` is the result of instantiating a OP template. When a `Step` is initialized, values of all input parameters and sources of all input artifacts defined in the OP template must be clear. `Steps` is a sequential array of array of concurrent `Step`'s. A simple example goes like `[[s00, s01],  [s10, s11, s12]]`, where inner array represent concurrent tasks while outer array is sequential. A `Workflow` contains a `Steps` as entrypoint for default. Adding a `Step` to a `Workflow` is equivalent to adding the `Step` to the `Steps` of the `Workflow`. For example,
+```python
+wf = Workflow(name="hhh")
+hello0 = Step(name="hello0", template=hello)
+wf.add(hello0)
+```
+Submit a workflow by
+```python
+wf.submit()
+```
+- [Steps example](examples/test_steps.py)
 
 It should be noticed that `Steps` itself is a subclass of OPTemplate and could be used as the template of a higher level `Step`. By virtue of this feature, one can construct complex workflows of nested structure. One is also allowed to recursively use a `Steps` as the template of a building block inside itself to achieve dynamic loop.
+- [Recursion example](examples/test_recurse.py)
 
 ###  1.3. <a name='Interfacelayer'></a> Interface layer
 ####  1.3.1. <a name='PythonOP'></a> Python OP
 Python `OP` is a kind of OP template defined in the form of Python class. As Python is a weak typed language, we impose strict type checking to `OP`s to alleviate ambiguity and unexpected behaviors.
 
-The structure of the inputs and outputs of a `OP` is defined in the static methods `get_input_sign` and `get_output_sign`, which return a `OPIOSign` object (basically a dictionary mapping from the name of a parameter or an artifact to its sign). For a parameter, its sign is its type, such as str, float, list, etc. For an artifact, its sign must be an instance of `Artifact`. `Artifact` receives the type of the path variable as the constructor argument, which is supposed to be one of `str`, `pathlib.Path`, `typing.Set[str]`, `typing.Set[pathlib.Path]`, `typing.List[str]`, `typing.List[pathlib.Path]`. If a `OP` returns a list of path as an artifact, dflow not only collects files or directories in the returned list of path, and package them in an artifact, but also records their relative path in the artifact. Thus dflow can unpack the artifact to a list of path again before passing to the next `OP`. When no file or directory exists, dflow regards it as `None`.
+The structures of the inputs and outputs of a `OP` are defined in the static methods `get_input_sign` and `get_output_sign`. Each of them returns a `OPIOSign` object (basically a dictionary mapping from the name of a parameter/artifact to its sign). For a parameter, its sign is its variable type, such as `str`, `float`, `list`, or any user-defined Python class. Since argo only accept string as parameter value, dflow encodes all parameters to json (except for string type parameters) before passing to argo, and decodes argo parameters from json (except for string type parameters). For an artifact, its sign must be an instance of `Artifact`. `Artifact` receives the type of the path variable as the constructor argument, only `str`, `pathlib.Path`, `typing.Set[str]`, `typing.Set[pathlib.Path]`, `typing.List[str]`, `typing.List[pathlib.Path]` are supported. If a `OP` returns a list of path as an artifact, dflow not only collects files or directories in the returned list of path, and package them in an artifact, but also records their relative path in the artifact. Thus dflow can unpack the artifact to a list of path again before passing to the next `OP`. When no file or directory exists, dflow regards it as `None`.
 
-The execution of the `OP` is defined in the `execute` method. The `execute` method receives a `OPIO` object as input and outputs a `OPIO` object. `OPIO` is basically a dictionary mapping from the name of a parameter/artifact to its value/path. The type of the parameter value or the artifact path should be in accord with that declared in the sign. Type checking is implemented before and after the ` execute` method. Since argo only accept string as parameter value, dflow encodes all parameters to json (except for string type parameters) before passing to argo, and decodes parameters from argo.
+The execution of the `OP` is defined in the `execute` method. The `execute` method receives a `OPIO` object as input and outputs a `OPIO` object. `OPIO` is basically a dictionary mapping from the name of a parameter/artifact to its value/path. The type of the parameter value or the artifact path should be in accord with that declared in the sign. Type checking is implemented before and after the ` execute` method.
 
 Use `PythonOPTemplate` to convert a `OP` to Python script OP template.
+- [Python OP example](examples/test_python.py)
 
 ##  2. <a name='QuickStart'></a>Quick Start
 ###  2.1. <a name='PrepareKubernetescluster'></a>Prepare Kubernetes cluster
@@ -154,7 +181,7 @@ steps.outputs.artifacts["foo"].from_expression = if_expression(
 ```
 
 ####  3.1.5. <a name='Produceparallelstepsusingloop'></a>Produce parallel steps using loop
-`with_param` and `with_sequence` are 2 optional arguments of `Step` to produce parallel steps.
+`with_param` and `with_sequence` are 2 arguments of `Step` for automatically generating a list of parallel steps. These steps share a common OP template, and only differ in the input parameters.
 
 A step using `with_param` option generates parallel steps on a list (usually from another parameter), the parallelism equals to the length of the list. Each parallel step picks an item from the list by `"{{item}}"`, such as
 ```python
@@ -168,7 +195,7 @@ A step using `with_sequence` option generates parallel steps on a numeric sequen
 ```python
 step = Step(
     ...
-    parameter={"msg": "{{item}}"},
+    parameter={"i": "{{item}}"},
     with_sequence=argo_sequence(argo_len(steps.inputs.parameters["msg_list"]))
 )
 ```
