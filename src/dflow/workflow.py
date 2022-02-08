@@ -101,5 +101,5 @@ class Workflow:
         else:
             return workflow.status.phase
 
-    def query_step(self, name=None):
-        return self.query().get_step(name=name)
+    def query_step(self, name=None, key=None):
+        return self.query().get_step(name=name, key=key)

@@ -30,11 +30,17 @@ class ArgoObjectList(UserList):
         return value
 
 class ArgoWorkflow(ArgoObjectDict):
-    def get_step(self, name=None):
+    def get_step(self, name=None, key=None):
         step_list = []
         if hasattr(self.status, "nodes"):
             for step in self.status.nodes.values():
                 if name is not None and re.match(name, step["displayName"]) is None:
                     continue
+                if key is not None:
+                    if hasattr(step, "inputs") and hasattr(step.inputs, "parameters") \
+                            and "dflow_key" in step.inputs.parameters and step.inputs.parameters["dflow_key"].value == str(key):
+                        pass
+                    else:
+                        continue
                 step_list.append(step)
         return step_list

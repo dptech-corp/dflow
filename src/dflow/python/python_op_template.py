@@ -11,7 +11,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  output_artifact_archive=None, input_parameter_slices=None, output_artifact_slices=None,
                  output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None,
                  timeout=None, retry_on_transient_error=None, output_parameter_default=None, output_parameter_global_name=None,
-                 timeout_as_transient_error=False, memoize_key=None):
+                 timeout_as_transient_error=False, memoize_key=None, key=None):
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
         output_sign = op_class.get_output_sign()
@@ -36,7 +36,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         if output_artifact_global_name is not None:
             for name, global_name in output_artifact_global_name.items():
                 output_sign[name].global_name = global_name
-        super().__init__(name="%s-%s" % (class_name, uuid.uuid4()), inputs=Inputs(), outputs=Outputs(), memoize_key=memoize_key)
+        super().__init__(name="%s-%s" % (class_name, uuid.uuid4()), inputs=Inputs(), outputs=Outputs())
         if timeout is not None: self.timeout = "%ss" % timeout
         if retry_on_transient_error is not None:
             if timeout_as_transient_error:
@@ -128,6 +128,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             self.command = ["python"]
         self.script = script
         self.init_progress = "%s/%s" % (op_class.progress_current, op_class.progress_total)
+
+        self.memoize_key = memoize_key
+        self.key = key
 
     def get_slices(self, slices_dict, name):
         slices = None
