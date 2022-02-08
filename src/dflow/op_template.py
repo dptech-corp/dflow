@@ -24,7 +24,7 @@ class OPTemplate:
 
 class ScriptOPTemplate(OPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None):
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None):
         super().__init__(name=name, inputs=inputs, outputs=outputs)
         self.image = image
         self.command = command
@@ -36,6 +36,7 @@ class ScriptOPTemplate(OPTemplate):
         self.timeout = timeout
         self.retry_strategy = retry_strategy
         self.memoize_key = memoize_key
+        self.key = key
 
     def get_memoize(self):
         if self.memoize_key is not None:
@@ -50,6 +51,8 @@ class ScriptOPTemplate(OPTemplate):
 
     def convert_to_argo(self):
         memoize = self.get_memoize()
+        if self.key is not None:
+            self.inputs.parameters["dflow_key"] = InputParameter(value=str(self.key))
         return V1alpha1Template(name=self.name,
             metadata=V1alpha1Metadata(annotations={"workflows.argoproj.io/progress": self.init_progress}),
             inputs=self.inputs.convert_to_argo(),
@@ -61,16 +64,16 @@ class ScriptOPTemplate(OPTemplate):
 
 class ShellOPTemplate(ScriptOPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None):
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None):
         if command is None:
             command = ["sh"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script,
-                mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key)
+                mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key, key=key)
 
 class PythonScriptOPTemplate(ScriptOPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None):
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None):
         if command is None:
             command = ["python"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script,
-                mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key)
+                mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key, key=key)
