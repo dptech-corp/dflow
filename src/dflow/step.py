@@ -57,7 +57,7 @@ def if_expression(_if, _then, _else):
 
 class Step:
     def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None, continue_on_failed=False,
-            continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None):
+            continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None):
         self.name = name
         self.id = self.name
         self.template = template
@@ -79,6 +79,7 @@ class Step:
         self.when = when
         self.with_param = with_param
         self.with_sequence = with_sequence
+        self.key = key
 
     def __repr__(self):
         return self.id
@@ -99,6 +100,10 @@ class Step:
                 self.inputs.artifacts[k].source = v
 
     def convert_to_argo(self):
+        if self.key is not None:
+            self.template.inputs.parameters["dflow_key"] = InputParameter(value="")
+            self.inputs.parameters["dflow_key"] = InputParameter(value=str(self.key))
+
         argo_parameters = []
         for par in self.inputs.parameters.values():
             argo_parameters.append(par.convert_to_argo())
