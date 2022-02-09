@@ -36,9 +36,13 @@ class ArgoWorkflow(ArgoObjectDict):
             for step in self.status.nodes.values():
                 if name is not None and re.match(name, step["displayName"]) is None:
                     continue
+                if hasattr(step, "inputs") and hasattr(step.inputs, "parameters") \
+                            and "dflow_key" in step.inputs.parameters:
+                    step.key = step.inputs.parameters["dflow_key"].value
+                else:
+                    step.key = None
                 if key is not None:
-                    if hasattr(step, "inputs") and hasattr(step.inputs, "parameters") \
-                            and "dflow_key" in step.inputs.parameters and step.inputs.parameters["dflow_key"].value == str(key):
+                    if step.key == str(key):
                         pass
                     else:
                         continue
