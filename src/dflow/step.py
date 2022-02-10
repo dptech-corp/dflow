@@ -60,7 +60,7 @@ class Step:
             continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None):
         self.name = name
         self.id = self.name
-        self.template = template
+        self.template = deepcopy(template)
         self.inputs = deepcopy(self.template.inputs)
         self.outputs = deepcopy(self.template.outputs)
         self.inputs.set_step_id(self.id)
@@ -99,11 +99,10 @@ class Step:
             else:
                 self.inputs.artifacts[k].source = v
 
-    def convert_to_argo(self):
+    def convert_to_argo(self, memoize_prefix=None):
         if self.key is not None:
-            self.template.inputs.parameters["dflow_key"] = InputParameter(value="")
+            self.template.key = self.key
             self.inputs.parameters["dflow_key"] = InputParameter(value=str(self.key))
-
         argo_parameters = []
         for par in self.inputs.parameters.values():
             argo_parameters.append(par.convert_to_argo())
