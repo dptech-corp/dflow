@@ -57,7 +57,8 @@ class Workflow:
                 if step.key is None:
                     continue
                 outputs = {}
-                outputs["exitCode"] = step.outputs.exitCode
+                if hasattr(step.outputs, "exitCode"):
+                    outputs["exitCode"] = step.outputs.exitCode
                 if hasattr(step.outputs, "parameters"):
                     outputs["parameters"] = eval(str(list(step.outputs.parameters.values())))
                 if hasattr(step.outputs, "artifacts"):
