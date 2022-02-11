@@ -57,12 +57,13 @@ class Workflow:
                 if step.key is None:
                     continue
                 outputs = {}
-                if hasattr(step.outputs, "exitCode"):
-                    outputs["exitCode"] = step.outputs.exitCode
-                if hasattr(step.outputs, "parameters"):
-                    outputs["parameters"] = eval(str(list(step.outputs.parameters.values())))
-                if hasattr(step.outputs, "artifacts"):
-                    outputs["artifacts"] = eval(str(list(step.outputs.artifacts.values())))
+                if hasattr(step, "outputs"):
+                    if hasattr(step.outputs, "exitCode"):
+                        outputs["exitCode"] = step.outputs.exitCode
+                    if hasattr(step.outputs, "parameters"):
+                        outputs["parameters"] = eval(str(list(step.outputs.parameters.values())))
+                    if hasattr(step.outputs, "artifacts"):
+                        outputs["artifacts"] = eval(str(list(step.outputs.artifacts.values())))
                 data["%s-%s" % (self.id, step.key)] = json.dumps({
                     "nodeID": step.id,
                     "outputs": outputs,
