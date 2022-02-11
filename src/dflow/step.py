@@ -60,7 +60,7 @@ class Step:
             continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None):
         self.name = name
         self.id = self.name
-        self.template = deepcopy(template)
+        self.template = template
         self.inputs = deepcopy(self.template.inputs)
         self.outputs = deepcopy(self.template.outputs)
         self.inputs.set_step_id(self.id)

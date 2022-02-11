@@ -69,4 +69,5 @@ class ArgoWorkflow(ArgoObjectDict):
                 if key is not None and step.key != str(key):
                     continue
                 step_list.append(step)
+        step_list.sort(key=lambda x: x["startedAt"])
         return step_list
