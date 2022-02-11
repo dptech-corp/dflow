@@ -29,7 +29,11 @@ class OPTemplate:
         if self.key is not None:
             self.inputs.parameters["dflow_key"] = InputParameter(value=str(self.key))
             if memoize_prefix is not None:
-                self.memoize_key = "%s-{{inputs.parameters.dflow_key}}" % memoize_prefix
+                if str(self.key).find("{{inputs.parameters") != -1:
+                    # Argo cannot parse the reference of another input parameter in an input parameter for memomize key
+                    self.memoize_key = "%s-%s" % (memoize_prefix, self.key)
+                else:
+                    self.memoize_key = "%s-{{inputs.parameters.dflow_key}}" % memoize_prefix
 
         if self.memoize_key is not None:
             # Is it a bug of Argo?
