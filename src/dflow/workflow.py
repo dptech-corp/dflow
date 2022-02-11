@@ -32,6 +32,7 @@ class Workflow:
                 self.entrypoint = steps
             else:
                 self.entrypoint = Steps(self.name + "-steps")
+            self.templates = {}
             self.argo_templates = {}
             self.pvcs = {}
             self.id = None
@@ -53,13 +54,17 @@ class Workflow:
             self.id = self.name + "-" + "".join(random.sample(string.digits + string.ascii_lowercase, 5))
             data = {}
             for step in reuse_step:
+                if step.key is None:
+                    continue
+                outputs = {}
+                outputs["exitCode"] = step.outputs.exitCode
+                if hasattr(step.outputs, "parameters"):
+                    outputs["parameters"] = eval(str(list(step.outputs.parameters.values())))
+                if hasattr(step.outputs, "artifacts"):
+                    outputs["artifacts"] = eval(str(list(step.outputs.artifacts.values())))
                 data["%s-%s" % (self.id, step.key)] = json.dumps({
                     "nodeID": step.id,
-                    "outputs": {
-                        "parameters": eval(str(list(step.outputs.parameters.values()))),
-                        "artifacts": eval(str(list(step.outputs.artifacts.values()))),
-                        "exitCode": step.outputs.exitCode
-                    },
+                    "outputs": outputs,
                     "creationTimestamp": step.finishedAt,
                     "lastHitTimestamp": step.finishedAt
                 })
@@ -110,7 +115,10 @@ class Workflow:
         return workflow
 
     def handle_template(self, template, memoize_prefix=None):
-        if template.name not in self.argo_templates:
+        if template.name in self.templates:
+            assert template == self.templates[template.name], "Duplication of template name: %s" % template.name
+        else:
+            self.templates[template.name] = template
             if isinstance(template, Steps): # if the template is steps, handle involved templates
                 argo_template, templates = template.convert_to_argo(memoize_prefix) # breadth first algorithm
                 self.argo_templates[template.name] = argo_template
