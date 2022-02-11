@@ -22,5 +22,6 @@ setup(
         "argo-workflows",
         "jsonpickle",
         "minio",
+        "kubernetes",
     ]
 )

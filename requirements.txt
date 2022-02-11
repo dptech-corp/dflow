@@ -7,3 +7,4 @@ typeguard
 argo-workflows
 jsonpickle
 minio
+kubernetes
