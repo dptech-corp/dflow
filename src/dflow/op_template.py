@@ -27,7 +27,7 @@ class OPTemplate:
 
     def handle_key(self, memoize_prefix=None):
         if self.key is not None:
-            self.inputs.parameters["dflow_key"] = InputParameter(value=str(self.key))
+            self.inputs.parameters["dflow_key"] = InputParameter(value="")
             if memoize_prefix is not None:
                 self.memoize_key = "%s-{{inputs.parameters.dflow_key}}" % memoize_prefix
 

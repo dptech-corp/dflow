@@ -43,7 +43,7 @@ class ArgoStep(ArgoObjectDict):
     def __init__(self, step):
         super().__init__(step)
         if hasattr(self, "inputs") and hasattr(self.inputs, "parameters") \
-                    and "dflow_key" in self.inputs.parameters:
+                    and "dflow_key" in self.inputs.parameters and self.inputs.parameters["dflow_key"].value != "":
             self["key"] = self.inputs.parameters["dflow_key"].value
         else:
             self["key"] = None
@@ -59,7 +59,7 @@ class ArgoStep(ArgoObjectDict):
         self.outputs.artifacts[name].s3 = s3
 
 class ArgoWorkflow(ArgoObjectDict):
-    def get_step(self, name=None, key=None):
+    def get_step(self, name=None, key=None, phase=None):
         step_list = []
         if hasattr(self.status, "nodes"):
             for step in self.status.nodes.values():
@@ -67,6 +67,8 @@ class ArgoWorkflow(ArgoObjectDict):
                 if name is not None and re.match(name, step["displayName"]) is None:
                     continue
                 if key is not None and step.key != str(key):
+                    continue
+                if phase is not None and not (hasattr(step, "phase") and step.phase == phase):
                     continue
                 step_list.append(step)
         step_list.sort(key=lambda x: x["startedAt"])

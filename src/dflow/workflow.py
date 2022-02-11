@@ -147,8 +147,8 @@ class Workflow:
         else:
             return workflow.status.phase
 
-    def query_step(self, name=None, key=None):
-        return self.query().get_step(name=name, key=key)
+    def query_step(self, name=None, key=None, phase=None):
+        return self.query().get_step(name=name, key=key, phase=phase)
 
     def query_keys_of_steps(self):
         return [step.key for step in self.query_step() if step.key is not None]
