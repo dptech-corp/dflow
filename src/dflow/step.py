@@ -216,7 +216,7 @@ class Step:
     def run(self, context):
         import os
         import shutil
-        import uuid
+        import random, string
         from .io import InputParameter, OutputParameter, InputArtifact, OutputArtifact
         from .steps import Steps
         from copy import copy
@@ -269,7 +269,7 @@ class Step:
             steps.run()
             return
 
-        workdir = self.name + str(uuid.uuid4())
+        workdir = self.name + "-" + "".join(random.sample(string.digits + string.ascii_lowercase, 5))
         os.makedirs(workdir, exist_ok=True)
         os.chdir(workdir)
 
