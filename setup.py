@@ -4,7 +4,7 @@ setup(
     name='dflow',
     version='1.0.0',
     description='Dflow is a concurrent learning framework based on Argo Workflows.',
-    author="Xinijian Liu",
+    author="Xinzijian Liu",
     license="LGPLv3",
     package_dir={'': 'src'},
     packages=[
