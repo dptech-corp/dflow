@@ -57,6 +57,10 @@ class ArgoStep(ArgoObjectDict):
     def modify_output_artifact(self, name, s3):
         assert isinstance(s3, S3Artifact), "must provide a S3Artifact object"
         self.outputs.artifacts[name].s3 = s3
+        if s3.key[-4:] == ".tgz" and hasattr(self.outputs.artifacts[name], "archive"):
+            del self.outputs.artifacts[name]["archive"]
+        elif s3.key[-4:] != ".tgz" and not hasattr(self.outputs.artifacts[name], "archive"):
+            self.outputs.artifacts[name]["archive"] = {"none": {}}
 
 class ArgoWorkflow(ArgoObjectDict):
     def get_step(self, name=None, key=None, phase=None):
