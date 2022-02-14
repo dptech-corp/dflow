@@ -885,7 +885,7 @@ spec:
         - server
         - --auth-mode
         - client
-        image: quay.io/argoproj/argocli:v3.2.6
+        image: quay.io/argoproj/argocli:latest
         name: argo-server
         ports:
         - containerPort: 2746

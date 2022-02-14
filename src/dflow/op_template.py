@@ -8,7 +8,7 @@ from argo.workflows.client import (
     V1alpha1Cache
 )
 from argo.workflows.client.configuration import Configuration
-from .io import Inputs, Outputs, InputParameter
+from .io import Inputs, Outputs, InputParameter, S3Artifact
 
 class OPTemplate:
     def __init__(self, name, inputs=None, outputs=None, memoize_key=None, key=None):
@@ -30,6 +30,13 @@ class OPTemplate:
             self.inputs.parameters["dflow_key"] = InputParameter(value="")
             if memoize_prefix is not None:
                 self.memoize_key = "%s-{{inputs.parameters.dflow_key}}" % memoize_prefix
+
+            if hasattr(self, "slices") and self.slices is not None and self.slices.output_artifact is not None:
+                self.inputs.parameters["dflow_group_key"] = InputParameter(value="")
+                for name in self.slices.output_artifact:
+                    for save in self.outputs.artifacts[name].save:
+                        if isinstance(save, S3Artifact):
+                            save.key = "{{workflow.name}}/{{inputs.parameters.dflow_group_key}}-%s" % name
 
         if self.memoize_key is not None:
             # Is it a bug of Argo?

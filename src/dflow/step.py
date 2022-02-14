@@ -103,6 +103,8 @@ class Step:
         if self.key is not None:
             self.template.key = self.key
             self.inputs.parameters["dflow_key"] = InputParameter(value=str(self.key))
+            if hasattr(self.template, "slices") and self.template.slices is not None and self.template.slices.output_artifact is not None:
+                self.inputs.parameters["dflow_group_key"] = InputParameter(value=str(self.key).replace("{{item}}", "group"))
         argo_parameters = []
         for par in self.inputs.parameters.values():
             argo_parameters.append(par.convert_to_argo())

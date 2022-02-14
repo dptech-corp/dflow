@@ -7,10 +7,16 @@ from argo.workflows.client import (
     V1ObjectMeta,
     V1PersistentVolumeClaim,
     V1PersistentVolumeClaimSpec,
-    V1ResourceRequirements
+    V1ResourceRequirements,
+    V1alpha1ArchiveStrategy,
+    V1alpha1WorkflowStatus,
+    V1alpha1Outputs,
+    V1alpha1Artifact
 )
 from .steps import Steps
 from .argo_objects import ArgoWorkflow
+from .utils import copy_s3
+from .io import S3Artifact
 import random, string, json
 import kubernetes
 
@@ -50,9 +56,11 @@ class Workflow:
         if backend == "debug":
             return self.entrypoint.run()
 
+        status = None
         if reuse_step is not None:
             self.id = self.name + "-" + "".join(random.sample(string.digits + string.ascii_lowercase, 5))
             data = {}
+            global_output_artifacts = {}
             for step in reuse_step:
                 if step.key is None:
                     continue
@@ -63,6 +71,16 @@ class Workflow:
                     if hasattr(step.outputs, "parameters"):
                         outputs["parameters"] = eval(str(list(step.outputs.parameters.values())))
                     if hasattr(step.outputs, "artifacts"):
+                        for name, art in step.outputs.artifacts.items():
+                            if hasattr(art, "globalName") and hasattr(art, "s3"):
+                                new_key = self.id + art.s3.key[art.s3.key.find("/"):]
+                                copy_s3(art.s3.key, new_key)
+                                if hasattr(art, "archive"):
+                                    archive = V1alpha1ArchiveStrategy(_none={})
+                                else:
+                                    archive = None
+                                if art.globalName not in global_output_artifacts:
+                                    global_output_artifacts[art.globalName] = V1alpha1Artifact(name=art.globalName, s3=S3Artifact(key=new_key), archive=archive)
                         outputs["artifacts"] = eval(str(list(step.outputs.artifacts.values())))
                 data["%s-%s" % (self.id, step.key)] = json.dumps({
                     "nodeID": step.id,
@@ -78,7 +96,8 @@ class Workflow:
                 v1.create_namespaced_config_map(namespace="argo", body=config_map)
             else:
                 v1.patch_namespaced_config_map(namespace="argo", name="dflow-config", body=config_map)
-
+            if len(global_output_artifacts) > 0:
+                status = V1alpha1WorkflowStatus(outputs=V1alpha1Outputs(artifacts=list(global_output_artifacts.values())))
         self.handle_template(self.entrypoint, memoize_prefix=self.id if reuse_step is not None else None)
 
         argo_pvcs = []
@@ -105,7 +124,8 @@ class Workflow:
                 service_account_name='argo',
                 entrypoint=self.entrypoint.name,
                 templates=list(self.argo_templates.values()),
-                volume_claim_templates=argo_pvcs))
+                volume_claim_templates=argo_pvcs),
+            status=status)
 
         response = self.api_instance.api_client.call_api('/api/v1/workflows/argo', 'POST',
                 body=V1alpha1WorkflowCreateRequest(workflow=manifest), response_type=object,
@@ -147,8 +167,8 @@ class Workflow:
         else:
             return workflow.status.phase
 
-    def query_step(self, name=None, key=None, phase=None):
-        return self.query().get_step(name=name, key=key, phase=phase)
+    def query_step(self, name=None, key=None, phase=None, id=None):
+        return self.query().get_step(name=name, key=key, phase=phase, id=id)
 
     def query_keys_of_steps(self):
         return [step.key for step in self.query_step() if step.key is not None]
