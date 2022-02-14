@@ -63,7 +63,7 @@ class ArgoStep(ArgoObjectDict):
             self.outputs.artifacts[name]["archive"] = {"none": {}}
 
 class ArgoWorkflow(ArgoObjectDict):
-    def get_step(self, name=None, key=None, phase=None):
+    def get_step(self, name=None, key=None, phase=None, id=None):
         step_list = []
         if hasattr(self.status, "nodes"):
             for step in self.status.nodes.values():
@@ -73,6 +73,8 @@ class ArgoWorkflow(ArgoObjectDict):
                 if key is not None and step.key != str(key):
                     continue
                 if phase is not None and not (hasattr(step, "phase") and step.phase == phase):
+                    continue
+                if id is not None and step.id != id:
                     continue
                 step_list.append(step)
         step_list.sort(key=lambda x: x["startedAt"])

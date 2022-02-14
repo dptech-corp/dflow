@@ -189,7 +189,7 @@ A step using `with_param` option generates parallel steps on a list (usually fro
 ```python
 step = Step(
     ...
-    parameter={"msg": "{{item}}"},
+    parameters={"msg": "{{item}}"},
     with_param=steps.inputs.parameters["msg_list"]
 )
 ```
@@ -197,7 +197,7 @@ A step using `with_sequence` option generates parallel steps on a numeric sequen
 ```python
 step = Step(
     ...
-    parameter={"i": "{{item}}"},
+    parameters={"i": "{{item}}"},
     with_sequence=argo_sequence(argo_len(steps.inputs.parameters["msg_list"]))
 )
 ```

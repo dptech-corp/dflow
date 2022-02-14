@@ -114,7 +114,8 @@ def assemble_path_list(art_path):
         dflow_list = []
         for f in os.listdir(art_path):
             if f[:6] == ".dflow":
-                dflow_list += jsonpickle.loads(open('%s/%s' % (art_path, f), 'r').read())['path_list']
+                for item in jsonpickle.loads(open('%s/%s' % (art_path, f), 'r').read())['path_list']:
+                    if item not in dflow_list: dflow_list.append(item) # remove duplicate
         if len(dflow_list) > 0:
             path_list = list(map(lambda x: os.path.join(art_path, x) if x is not None else None, convert_dflow_list(dflow_list)))
     return path_list

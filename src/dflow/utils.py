@@ -4,6 +4,7 @@ import shutil
 import tarfile
 import jsonpickle
 from minio import Minio
+from minio.api import CopySource
 from .io import S3Artifact
 
 def download_artifact(artifact, extract=True, **kwargs):
@@ -110,6 +111,15 @@ def upload_s3(path, key=None, endpoint="127.0.0.1:9000", access_key="admin", sec
             for f in fs:
                 client.fput_object(bucket_name=bucket_name, object_name="%s%s/%s" % (key, rel_path, f), file_path=os.path.join(dn, f))
     return key
+
+def copy_s3(src_key, dst_key, recursive=True, endpoint="127.0.0.1:9000", access_key="admin", secret_key="password",
+            secure=False, bucket_name="my-bucket", **kwargs):
+    client = Minio(endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
+    if recursive:
+        for obj in client.list_objects(bucket_name=bucket_name, prefix=src_key, recursive=True):
+            client.copy_object(bucket_name, dst_key + obj.object_name[len(src_key):], CopySource(bucket_name, obj.object_name))
+    else:
+        client.copy_object(bucket_name, dst_key, CopySource(bucket_name, src_key))
 
 def merge_dir(src, dst):
     for f in os.listdir(src):

@@ -37,6 +37,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             for name, global_name in output_artifact_global_name.items():
                 output_sign[name].global_name = global_name
         super().__init__(name="%s-%s" % (class_name, "".join(random.sample(string.digits + string.ascii_lowercase, 5))), inputs=Inputs(), outputs=Outputs())
+        self.slices = slices
         if timeout is not None: self.timeout = "%ss" % timeout
         if retry_on_transient_error is not None:
             if timeout_as_transient_error:
