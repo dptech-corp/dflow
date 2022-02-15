@@ -47,6 +47,8 @@ def upload_artifact(path, archive="tar", **kwargs):
     os.makedirs(tmpdir)
     path_list = []
     for i, p in enumerate(path):
+        if p is None:
+            continue
         if not os.path.exists(p):
             shutil.rmtree(tmpdir)
             raise RuntimeError("File or directory %s not found" % p)

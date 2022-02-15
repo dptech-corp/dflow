@@ -61,6 +61,7 @@ class Workflow:
             self.id = self.name + "-" + "".join(random.sample(string.digits + string.ascii_lowercase, 5))
             data = {}
             global_output_artifacts = {}
+            copied_keys = []
             for step in reuse_step:
                 if step.key is None:
                     continue
@@ -73,14 +74,18 @@ class Workflow:
                     if hasattr(step.outputs, "artifacts"):
                         for name, art in step.outputs.artifacts.items():
                             if hasattr(art, "globalName") and hasattr(art, "s3"):
-                                new_key = self.id + art.s3.key[art.s3.key.find("/"):]
-                                copy_s3(art.s3.key, new_key)
+                                key = art.s3.key
+                                if hasattr(step, "inputs") and hasattr(step.inputs, "parameters") and "dflow_group_key" in step.inputs.parameters:
+                                    key = "%s/%s-%s" % (self.id, step.inputs.parameters["dflow_group_key"].value, name)
+                                    if art.s3.key not in copied_keys:
+                                        copy_s3(art.s3.key, key)
+                                        copied_keys.append(art.s3.key)
                                 if hasattr(art, "archive"):
                                     archive = V1alpha1ArchiveStrategy(_none={})
                                 else:
                                     archive = None
                                 if art.globalName not in global_output_artifacts:
-                                    global_output_artifacts[art.globalName] = V1alpha1Artifact(name=art.globalName, s3=S3Artifact(key=new_key), archive=archive)
+                                    global_output_artifacts[art.globalName] = V1alpha1Artifact(name=art.globalName, s3=S3Artifact(key=key), archive=archive)
                         outputs["artifacts"] = eval(str(list(step.outputs.artifacts.values())))
                 data["%s-%s" % (self.id, step.key)] = json.dumps({
                     "nodeID": step.id,
