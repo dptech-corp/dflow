@@ -78,6 +78,9 @@ def handle_output_artifact(name, value, sign, slices=None):
                 path_list.append({"dflow_list_item": None, "order": s})
     with open("/tmp/outputs/artifacts/%s/.dflow.%s" % (name, uuid.uuid4()), "w") as f:
         f.write(jsonpickle.dumps({"path_list": path_list}))
+    if slices is not None:
+        with open('/tmp/outputs/parameters/dflow_%s_path_list' % name, 'w') as f:
+            f.write(jsonpickle.dumps(path_list))
 
 def handle_output_parameter(name, value, sign, slices=None):
     if slices is not None:
