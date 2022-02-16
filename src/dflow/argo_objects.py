@@ -1,7 +1,7 @@
 import os, re
 import jsonpickle
 from .io import S3Artifact
-from .utils import download_s3
+from .utils import download_s3, upload_artifact
 from collections import UserDict, UserList
 
 class ArgoObjectDict(UserDict):
@@ -68,6 +68,19 @@ class ArgoStep(ArgoObjectDict):
         path_list = jsonpickle.loads(self.outputs.parameters["dflow_%s_path_list" % name].value)
         for item in path_list:
             download_s3(self.outputs.artifacts[name].s3.key + "/" + item["dflow_list_item"], path=os.path.join(path, item["dflow_list_item"]))
+
+    def upload_and_modify_sliced_output_artifact(self, name, path):
+        assert (hasattr(self, "outputs") and hasattr(self.outputs, "parameters") and "dflow_%s_path_list" % name in self.outputs.parameters), "%s is not sliced output artifact" % name
+        path_list = jsonpickle.loads(self.outputs.parameters["dflow_%s_path_list" % name].value)
+        if not isinstance(path, list):
+            path = [path]
+        assert len(path_list) == len(path), "Require %s paths, %s paths provided" % (len(path_list), len(path))
+        path_list.sort(key=lambda x: x['order'])
+        new_path = [None] * (path_list[-1]['order'] + 1)
+        for local_path, item in zip(path, path_list):
+            new_path[item["order"]] = local_path
+        s3 = upload_artifact(new_path, archive=None)
+        self.modify_output_artifact(name, s3)
 
 class ArgoWorkflow(ArgoObjectDict):
     def get_step(self, name=None, key=None, phase=None, id=None):
