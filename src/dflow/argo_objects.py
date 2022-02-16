@@ -1,6 +1,7 @@
-import re
+import os, re
 import jsonpickle
 from .io import S3Artifact
+from .utils import download_s3
 from collections import UserDict, UserList
 
 class ArgoObjectDict(UserDict):
@@ -61,6 +62,12 @@ class ArgoStep(ArgoObjectDict):
             del self.outputs.artifacts[name]["archive"]
         elif s3.key[-4:] != ".tgz" and not hasattr(self.outputs.artifacts[name], "archive"):
             self.outputs.artifacts[name]["archive"] = {"none": {}}
+
+    def download_sliced_output_artifact(self, name, path="."):
+        assert (hasattr(self, "outputs") and hasattr(self.outputs, "parameters") and "dflow_%s_path_list" % name in self.outputs.parameters), "%s is not sliced output artifact" % name
+        path_list = jsonpickle.loads(self.outputs.parameters["dflow_%s_path_list" % name].value)
+        for item in path_list:
+            download_s3(self.outputs.artifacts[name].s3.key + "/" + item["dflow_list_item"], path=os.path.join(path, item["dflow_list_item"]))
 
 class ArgoWorkflow(ArgoObjectDict):
     def get_step(self, name=None, key=None, phase=None, id=None):

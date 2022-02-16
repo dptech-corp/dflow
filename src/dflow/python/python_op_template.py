@@ -117,6 +117,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(output_artifact_slices, name)
+                if slices is not None:
+                    self.outputs.parameters["dflow_%s_path_list" % name] = OutputParameter(value_from_path="/tmp/outputs/parameters/dflow_%s_path_list" % name)
                 script += "handle_output_artifact('%s', output['%s'], output_sign['%s'], %s)\n" % (name, name, name, slices)
             else:
                 slices = self.get_slices(output_parameter_slices, name)
