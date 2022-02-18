@@ -21,13 +21,18 @@ import random, string, json
 import kubernetes
 
 class Workflow:
-    def __init__(self, name="workflow", steps=None, ip="127.0.0.1", port=2746, id=None):
-        self.ip = ip
-        self.port = port
+    def __init__(self, name="workflow", steps=None, id=None, host="https://127.0.0.1:2746", token=None, k8s_config_file=None):
+        self.host = host
+        self.token = token
+        self.k8s_config_file = k8s_config_file
 
-        configuration = Configuration(host="https://%s:%s" % (self.ip, self.port))
+        configuration = Configuration(host=host)
         configuration.verify_ssl = False
-        api_client = ApiClient(configuration)
+        if token is None:
+            api_client = ApiClient(configuration)
+        else:
+            api_client = ApiClient(configuration, header_name='Authorization', header_value='Bearer %s' % token)
+
         self.api_instance = WorkflowServiceApi(api_client)
 
         if id is not None:
@@ -94,7 +99,7 @@ class Workflow:
                     "lastHitTimestamp": step.finishedAt
                 })
             config_map = kubernetes.client.V1ConfigMap(data=data, metadata=kubernetes.client.V1ObjectMeta(name="dflow-config"))
-            kubernetes.config.load_kube_config()
+            kubernetes.config.load_kube_config(config_file=self.k8s_config_file)
             v1 = kubernetes.client.CoreV1Api()
             config_maps = v1.list_namespaced_config_map(namespace="argo").items
             if not self.dflow_config_exists(config_maps):

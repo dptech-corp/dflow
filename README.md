@@ -226,14 +226,14 @@ Set a input artifact to be optional by `op_template.inputs.artifacts["foo"].opti
 Set default value for a output parameter by `op_template.outputs.parameters["msg"].default = default_value`. The default value will be used when the expression in `value_from_expression` fails or the step is skipped.
 
 ####  3.1.11. <a name='Keyofstep'></a>Key of step
-You can set a key for a step by `Step(..., key="some-key")` for the convenience of locating the step. The key can be regarded as an input parameter which can contain reference of other parameters. For instance, the key of a step can change with iterations of a dynamic loop. Once key is assigned to a step, the step can be query by `wf.query_step(key="some-key")`. If the key is unique within the workflow, the `query_step` method returns a list containing only one element.
+You can set a key for a step by `Step(..., key="some-key")` for the convenience of locating the step. The key can be regarded as an input parameter which can contain reference of other parameters. For instance, the key of a step can change with iterations of a dynamic loop. Once key is assigned to a step, the step can be query by `wf.query_step(key="some-key")`. If the key is unique within the workflow, the `query_step` method returns a list consist of only one element.
 
-- [Key of step example](examples/test_memoize.py)
+- [Key of step example](examples/test_reuse.py)
 
 ####  3.1.12. <a name='Reusestep'></a>Reuse step
-Workflows often have some steps that are expensive to compute. The outputs of previously run steps can be reused for submitting a new workflow. E.g. a failed workflow can be restarted from a certain point after some modification of the workflow template or even outputs of completed steps. For example, steps are reused when submitting a workflow by `wf.submit(reuse_step=[step0, step1])`. Here, `step0` and `step1` are steps of a previous workflow return by `query_step` method. Before the new workflow runs a step, if there exists a reused step whose key matches the key of the step about to run, the step will be skipped and its outputs will be set as those of the reused step. To modify outputs of a step before reused, use `step0.modify_output_parameter(par_name, value)` to modify output parameter and use `step0.modify_output_artifact(art_name, artifact)` to modify output artifact.
+Workflows often have some steps that are expensive to compute. The outputs of previously run steps can be reused for submitting a new workflow. E.g. a failed workflow can be restarted from a certain point after some modification of the workflow template or even outputs of completed steps. For example, submit a workflow with reused steps by `wf.submit(reuse_step=[step0, step1])`. Here, `step0` and `step1` are previously run steps returned by `query_step` method. Before the new workflow runs a step, if there exists a reused step whose key matches that of the step about to run, the workflow will skip the step and set its outputs as those of the reused step. To modify outputs of a step before reusing, use `step0.modify_output_parameter(par_name, value)` for parameters and `step0.modify_output_artifact(art_name, artifact)` for artifacts.
 
-- [Reuse step example](examples/test_memoize.py)
+- [Reuse step example](examples/test_reuse.py)
 
 ###  3.2. <a name='Interfacelayer-1'></a>Interface layer
 
