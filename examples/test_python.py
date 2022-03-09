@@ -76,7 +76,7 @@ if __name__ == "__main__":
     print(artifact1)
     step = Step(
         name="step", 
-        template=PythonOPTemplate(Duplicate, image="dflow:v1.0"), 
+        template=PythonOPTemplate(Duplicate, image="dptechnology/dflow"),
         parameters={"msg": "Hello", "num": 3}, 
         artifacts={"foo": artifact0, "idir": artifact1},
     )

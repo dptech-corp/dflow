@@ -99,7 +99,7 @@ class Step:
             else:
                 self.inputs.artifacts[k].source = v
 
-    def convert_to_argo(self, memoize_prefix=None):
+    def convert_to_argo(self):
         if self.key is not None:
             self.template.key = self.key
             self.inputs.parameters["dflow_key"] = InputParameter(value=str(self.key))

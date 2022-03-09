@@ -12,4 +12,4 @@ from .io import (
 )
 from .steps import Steps
 from .op_template import OPTemplate, ShellOPTemplate, PythonScriptOPTemplate
-from .utils import upload_s3, download_s3, upload_artifact, download_artifact
+from .utils import upload_s3, download_s3, copy_s3, upload_artifact, download_artifact, copy_artifact

@@ -33,7 +33,7 @@ class Progress(OP):
 
 if __name__ == "__main__":
     wf = Workflow(name="progress")
-    step = Step(name="step", template=PythonOPTemplate(Progress, image="dflow:v1.0"))
+    step = Step(name="step", template=PythonOPTemplate(Progress, image="dptechnology/dflow"))
     # This step will report progress every 10 seconds
     wf.add(step)
     wf.submit()

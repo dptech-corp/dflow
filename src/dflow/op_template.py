@@ -25,7 +25,7 @@ class OPTemplate:
         self.key = key
         self.memoize = None
 
-    def handle_key(self, memoize_prefix=None):
+    def handle_key(self, memoize_prefix=None, memoize_configmap="dflow-config"):
         if self.key is not None:
             self.inputs.parameters["dflow_key"] = InputParameter(value="")
             if memoize_prefix is not None:
@@ -45,7 +45,7 @@ class OPTemplate:
                 self.memoize_key = self.memoize_key.replace("workflow.name", "inputs.parameters.workflow_name")
             config = Configuration()
             config.client_side_validation = False
-            self.memoize = V1alpha1Memoize(key=self.memoize_key, local_vars_configuration=config, cache=V1alpha1Cache(config_map=V1ConfigMapKeySelector(name="dflow-config", local_vars_configuration=config)))
+            self.memoize = V1alpha1Memoize(key=self.memoize_key, local_vars_configuration=config, cache=V1alpha1Cache(config_map=V1ConfigMapKeySelector(name=memoize_configmap, local_vars_configuration=config)))
 
 class ScriptOPTemplate(OPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, mounts=None,
@@ -61,8 +61,8 @@ class ScriptOPTemplate(OPTemplate):
         self.timeout = timeout
         self.retry_strategy = retry_strategy
 
-    def convert_to_argo(self, memoize_prefix=None):
-        self.handle_key(memoize_prefix)
+    def convert_to_argo(self, memoize_prefix=None, memoize_configmap="dflow-config"):
+        self.handle_key(memoize_prefix, memoize_configmap)
         return V1alpha1Template(name=self.name,
             metadata=V1alpha1Metadata(annotations={"workflows.argoproj.io/progress": self.init_progress}),
             inputs=self.inputs.convert_to_argo(),

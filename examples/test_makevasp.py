@@ -195,7 +195,7 @@ def run_vasp(numb_vasp = 3):
                        )
     make_poscar = Step(name="make-poscar",
                        template=PythonOPTemplate(MakePoscar,
-                                                 image="dflow:v1.0",
+                                                 image="dptechnology/dflow",
                                                  output_artifact_archive={
                                                      "poscar": None
                                                  }),
@@ -206,7 +206,7 @@ def run_vasp(numb_vasp = 3):
                        )    
     make_potcar = Step(name="make-potcar",
                        template=PythonOPTemplate(MakePotcar,
-                                                 image="dflow:v1.0",
+                                                 image="dptechnology/dflow",
                                                  output_artifact_archive={
                                                      "potcar": None
                                                  }),
@@ -220,7 +220,7 @@ def run_vasp(numb_vasp = 3):
     vasp_run = Step(name="vasp-run",
                     template=PythonOPTemplate(
                         RunVasp,
-                        image="dflow:v1.0",
+                        image="dptechnology/dflow",
                         slices=Slices("{{item}}", 
                                       input_parameter=["task_subdir"],
                                       input_artifact=["poscar", "potcar"], 
@@ -238,7 +238,7 @@ def run_vasp(numb_vasp = 3):
     vasp_steps.add(vasp_run)
 
     vasp_res = Step(name='vasp-res',
-                    template=PythonOPTemplate(ShowResult, image='dflow:v1.0'),
+                    template=PythonOPTemplate(ShowResult, image='dptechnology/dflow'),
                     artifacts={
                         'outcar' : vasp_run.outputs.artifacts["outcar"],
                         'log' : vasp_run.outputs.artifacts["log"],
