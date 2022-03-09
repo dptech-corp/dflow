@@ -51,19 +51,13 @@ class Workflow:
     def add(self, step):
         self.entrypoint.add(step)
 
-    def dflow_config_exists(self, config_maps):
-        for config_map in config_maps:
-            if config_map.metadata.name == "dflow-config":
-                return True
-        return False
-
     def submit(self, backend="argo", reuse_step=None):
         if backend == "debug":
             return self.entrypoint.run()
 
         status = None
         if reuse_step is not None:
-            self.id = self.name + "-" + "".join(random.sample(string.digits + string.ascii_lowercase, 5))
+            self.id = self.name + "-" + randstr()
             data = {}
             global_output_artifacts = {}
             copied_keys = []
@@ -98,17 +92,16 @@ class Workflow:
                     "creationTimestamp": step.finishedAt,
                     "lastHitTimestamp": step.finishedAt
                 })
-            config_map = kubernetes.client.V1ConfigMap(data=data, metadata=kubernetes.client.V1ObjectMeta(name="dflow-config"))
+            cm_name = "dflow-" + randstr()
+            config_map = kubernetes.client.V1ConfigMap(data=data, metadata=kubernetes.client.V1ObjectMeta(name=cm_name))
             kubernetes.config.load_kube_config(config_file=self.k8s_config_file)
             v1 = kubernetes.client.CoreV1Api()
-            config_maps = v1.list_namespaced_config_map(namespace="argo").items
-            if not self.dflow_config_exists(config_maps):
-                v1.create_namespaced_config_map(namespace="argo", body=config_map)
-            else:
-                v1.patch_namespaced_config_map(namespace="argo", name="dflow-config", body=config_map)
+            v1.create_namespaced_config_map(namespace="argo", body=config_map)
             if len(global_output_artifacts) > 0:
                 status = V1alpha1WorkflowStatus(outputs=V1alpha1Outputs(artifacts=list(global_output_artifacts.values())))
-        self.handle_template(self.entrypoint, memoize_prefix=self.id if reuse_step is not None else None)
+            self.handle_template(self.entrypoint, memoize_prefix=self.id, memoize_configmap=cm_name)
+        else:
+            self.handle_template(self.entrypoint)
 
         argo_pvcs = []
         for k, v in self.pvcs.items():
@@ -146,18 +139,18 @@ class Workflow:
         print("Workflow has been submitted (ID: %s)" % self.id)
         return workflow
 
-    def handle_template(self, template, memoize_prefix=None):
+    def handle_template(self, template, memoize_prefix=None, memoize_configmap="dflow-config"):
         if template.name in self.templates:
             assert template == self.templates[template.name], "Duplication of template name: %s" % template.name
         else:
             self.templates[template.name] = template
             if isinstance(template, Steps): # if the template is steps, handle involved templates
-                argo_template, templates = template.convert_to_argo(memoize_prefix) # breadth first algorithm
+                argo_template, templates = template.convert_to_argo(memoize_prefix, memoize_configmap) # breadth first algorithm
                 self.argo_templates[template.name] = argo_template
                 for template in templates:
-                    self.handle_template(template, memoize_prefix)
+                    self.handle_template(template, memoize_prefix, memoize_configmap)
             else:
-                self.argo_templates[template.name] = template.convert_to_argo(memoize_prefix)
+                self.argo_templates[template.name] = template.convert_to_argo(memoize_prefix, memoize_configmap)
                 for mount in template.mounts:
                     if mount.name not in self.pvcs:
                         self.pvcs[mount.name] = ""
@@ -182,3 +175,6 @@ class Workflow:
 
     def query_keys_of_steps(self):
         return [step.key for step in self.query_step() if step.key is not None]
+
+def randstr(l=5):
+    return "".join(random.sample(string.digits + string.ascii_lowercase, l))

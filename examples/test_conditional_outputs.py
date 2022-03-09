@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     random = Step(
         name="random", 
-        template=PythonOPTemplate(Random, image="dflow:v1.0")
+        template=PythonOPTemplate(Random, image="dptechnology/dflow")
     )
     steps.add(random)
 

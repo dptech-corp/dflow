@@ -81,19 +81,19 @@ if __name__ == "__main__":
 
     step = Step(
         name="hello0", 
-        template=PythonOPTemplate(Hello, image="dflow:v1.0", retry_on_transient_error=1), 
+        template=PythonOPTemplate(Hello, image="dptechnology/dflow", retry_on_transient_error=1),
         continue_on_failed=True
     )
     wf.add(step)
     step = Step(
         name="hello1", 
-        template=PythonOPTemplate(Timeout, image="dflow:v1.0", timeout=10, retry_on_transient_error=1, timeout_as_transient_error=True), 
+        template=PythonOPTemplate(Timeout, image="dptechnology/dflow", timeout=10, retry_on_transient_error=1, timeout_as_transient_error=True),
         continue_on_failed=True
     )
     wf.add(step)
     step = Step(
         name="hello2", 
-        template=PythonOPTemplate(Goodbye, image="dflow:v1.0", retry_on_transient_error=1)
+        template=PythonOPTemplate(Goodbye, image="dptechnology/dflow", retry_on_transient_error=1)
     )
     wf.add(step)
     wf.submit()

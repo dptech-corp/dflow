@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='dflow',
+    name='pydflow',
     version='1.0.0',
     description='Dflow is a concurrent learning framework based on Argo Workflows.',
     author="Xinzijian Liu",

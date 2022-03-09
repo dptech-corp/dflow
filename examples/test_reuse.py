@@ -44,7 +44,7 @@ if __name__ == "__main__":
     steps = Steps(name="iter", inputs=Inputs(parameters={"iter": InputParameter(value=0), "limit": InputParameter(value=5)}))
     plus1 = Step(name="plus1",
             template=PythonOPTemplate(Plus1,
-                    image="dflow:v1.0"),
+                    image="dptechnology/dflow"),
             parameters={"iter": steps.inputs.parameters["iter"]},
             key="iter-%s" % steps.inputs.parameters["iter"])
     steps.add(plus1)

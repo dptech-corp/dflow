@@ -76,6 +76,24 @@ def upload_artifact(path, archive="tar", **kwargs):
     shutil.rmtree(tmpdir)
     return S3Artifact(key=key)
 
+def copy_artifact(src, dst):
+    if hasattr(src, "s3"):
+        src_key = src.s3.key
+    elif hasattr(src, "key"):
+        src_key = src.key
+    else:
+        raise NotImplementedError()
+
+    if hasattr(dst, "s3"):
+        dst_key = dst.s3.key
+    elif hasattr(dst, "key"):
+        dst_key = dst.key
+    else:
+        raise NotImplementedError()
+
+    copy_s3(src_key, dst_key)
+    return S3Artifact(key=dst_key)
+
 def download_s3(key, path=None, recursive=True, endpoint="127.0.0.1:9000",
             access_key="admin", secret_key="password", secure=False, bucket_name="my-bucket", **kwargs):
     if path is None:

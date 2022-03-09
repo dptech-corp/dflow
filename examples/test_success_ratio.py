@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     step = Step(
         name="hello0", 
-        template=PythonOPTemplate(Hello, image="dflow:v1.0"), 
+        template=PythonOPTemplate(Hello, image="dptechnology/dflow"),
         continue_on_success_ratio=0.6,
         # continue_on_num_success=3,
         with_param=argo_range(5)
