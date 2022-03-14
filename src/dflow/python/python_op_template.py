@@ -97,7 +97,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(input_artifact_slices, name)
-                script += "input['%s'] = handle_input_artifact('%s', input_sign['%s'], %s)\n" % (name, name, name, slices)
+                script += "input['%s'] = handle_input_artifact('%s', input_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
             else:
                 slices = self.get_slices(input_parameter_slices, name)
                 script += "input['%s'] = handle_input_parameter('%s', r'{{inputs.parameters.%s}}', input_sign['%s'], %s)\n" % (name, name, name, name, slices)
@@ -119,10 +119,10 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 slices = self.get_slices(output_artifact_slices, name)
                 if slices is not None:
                     self.outputs.parameters["dflow_%s_path_list" % name] = OutputParameter(value_from_path="/tmp/outputs/parameters/dflow_%s_path_list" % name)
-                script += "handle_output_artifact('%s', output['%s'], output_sign['%s'], %s)\n" % (name, name, name, slices)
+                script += "handle_output_artifact('%s', output['%s'], output_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
             else:
                 slices = self.get_slices(output_parameter_slices, name)
-                script += "handle_output_parameter('%s', output['%s'], output_sign['%s'], %s)\n" % (name, name, name, slices)
+                script += "handle_output_parameter('%s', output['%s'], output_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
 
         self.image = image
         if command is not None:
