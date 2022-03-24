@@ -48,12 +48,15 @@ class OPTemplate:
             self.memoize = V1alpha1Memoize(key=self.memoize_key, local_vars_configuration=config, cache=V1alpha1Cache(config_map=V1ConfigMapKeySelector(name=memoize_configmap, local_vars_configuration=config)))
 
 class ScriptOPTemplate(OPTemplate):
-    def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, mounts=None,
+    def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None):
         super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, key=key)
         self.image = image
         self.command = command
         self.script = script
+        if volumes is None:
+            volumes = []
+        self.volumes = volumes
         if mounts is None:
             mounts = []
         self.mounts = mounts
@@ -70,20 +73,21 @@ class ScriptOPTemplate(OPTemplate):
             timeout=self.timeout,
             retry_strategy=self.retry_strategy,
             memoize=self.memoize,
+            volumes=self.volumes,
             script=V1alpha1ScriptTemplate(image=self.image, command=self.command, source=self.script, volume_mounts=self.mounts))
 
 class ShellOPTemplate(ScriptOPTemplate):
-    def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, mounts=None,
+    def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None):
         if command is None:
             command = ["sh"]
-        super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script,
+        super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
                 mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key, key=key)
 
 class PythonScriptOPTemplate(ScriptOPTemplate):
-    def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, mounts=None,
+    def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None):
         if command is None:
             command = ["python"]
-        super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script,
+        super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
                 mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key, key=key)
