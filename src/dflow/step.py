@@ -57,7 +57,7 @@ def if_expression(_if, _then, _else):
 
 class Step:
     def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None, continue_on_failed=False,
-            continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None, remote_executor=None):
+            continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None, executor=None):
         self.name = name
         self.id = self.name
         self.template = template
@@ -80,7 +80,7 @@ class Step:
         self.with_param = with_param
         self.with_sequence = with_sequence
         self.key = key
-        self.remote_executor = remote_executor
+        self.executor = executor
 
     def __repr__(self):
         return self.id
@@ -208,12 +208,12 @@ class Step:
         if isinstance(self.with_param, ArgoVar):
             self.with_param = "{{=%s}}" % self.with_param.expr
 
-        if self.remote_executor is not None:
+        if self.executor is not None:
             new_template = ShellOPTemplate(name=self.template.name + "-remote", inputs=self.template.inputs,
-                outputs=self.template.outputs, image=self.remote_executor.image, command=["sh"], script=None, mounts=self.template.mounts,
+                outputs=self.template.outputs, image=self.executor.image, command=self.executor.command, script=None, volumes=self.template.volumes, mounts=self.template.mounts,
                 init_progress=self.template.init_progress, timeout=self.template.timeout, retry_strategy=self.template.retry_strategy,
                 memoize_key=self.template.memoize_key, key=self.template.key)
-            new_template.script = self.remote_executor.get_script(self.template.command, self.template.script)
+            new_template.script = self.executor.get_script(self.template.command, self.template.script)
             self.template = new_template
 
         return V1alpha1WorkflowStep(
