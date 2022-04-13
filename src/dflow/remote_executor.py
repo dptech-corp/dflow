@@ -1,4 +1,10 @@
 class Executor(object):
+    """
+    Executor
+    :param image: the image to execute the script
+    :param command: the command to execute the script
+    :method get_script: 
+    """
     image = None
     command = None
     def get_script(self, command, script):

@@ -1421,7 +1421,7 @@ spec:
         - name: MINIO_SECRET_KEY
           value: password
         image: minio/minio
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         lifecycle:
           postStart:
             exec:
@@ -1502,7 +1502,7 @@ spec:
         - --executor-image
         - quay.io/argoproj/argoexec:latest
         - --executor-image-pull-policy
-        - IfNotPresent
+        - Always
         - --namespaced
         command:
         - workflow-controller

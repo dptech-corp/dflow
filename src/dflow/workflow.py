@@ -22,6 +22,16 @@ import kubernetes
 
 class Workflow:
     def __init__(self, name="workflow", steps=None, id=None, host="https://127.0.0.1:2746", token=None, k8s_config_file=None):
+        """
+        Instantiate a workflow
+        :param name: the name of the workflow
+        :param steps: steps used as the entrypoint of the workflow, if not provided, a empty steps will be used
+        :param id: workflow ID in Argo, you can provide it to track an existing workflow
+        :param host: URL of the Argo server
+        :param token: request the Argo server with the token
+        :param k8s_config_file: Kubernetes configuration file for accessing API server
+        :return:
+        """
         self.host = host
         self.token = token
         self.k8s_config_file = k8s_config_file
@@ -49,9 +59,20 @@ class Workflow:
             self.id = None
 
     def add(self, step):
+        """
+        Add a step or a list of parallel steps to the workflow
+        :param step: a step or a list of parallel steps to be added to the entrypoint of the workflow
+        :return:
+        """
         self.entrypoint.add(step)
 
     def submit(self, backend="argo", reuse_step=None):
+        """
+        Submit the workflow
+        :param backend: "debug" for local run
+        :param reuse_step: a list of steps to be reused in the workflow
+        :return:
+        """
         if backend == "debug":
             return self.entrypoint.run()
 
@@ -156,6 +177,10 @@ class Workflow:
                         self.pvcs[mount.name] = ""
 
     def query(self):
+        """
+        Query the workflow from Argo
+        :return: an ArgoWorkflow object
+        """
         if self.id is None:
             raise RuntimeError("Workflow ID is None")
         response = self.api_instance.api_client.call_api('/api/v1/workflows/argo/%s' % self.id,
@@ -164,6 +189,10 @@ class Workflow:
         return workflow
 
     def query_status(self):
+        """
+        Query the status of the workflow from Argo
+        :return: Pending, Running, Succeeded, Failed, Error, etc
+        """
         workflow = self.query()
         if "phase" not in workflow.status:
             return "Pending"
@@ -171,9 +200,21 @@ class Workflow:
             return workflow.status.phase
 
     def query_step(self, name=None, key=None, phase=None, id=None):
+        """
+        Query the existing steps of the workflow from Argo
+        :param name: filter by name of step, support regex
+        :param key: filter by key of step
+        :param phase: filter by phase of step
+        :param id: filter by id of step
+        :return: a list of steps
+        """
         return self.query().get_step(name=name, key=key, phase=phase, id=id)
 
     def query_keys_of_steps(self):
+        """
+        Query the keys of existing steps of the workflow from Argo
+        :return: a list of keys
+        """
         return [step.key for step in self.query_step() if step.key is not None]
 
 def randstr(l=5):

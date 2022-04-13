@@ -4,6 +4,14 @@ from typeguard import check_type
 from .opio import Artifact, OPIO, OPIOSign
 
 class OP(ABC):
+    """
+    Python class OP
+    :param progress_total: an int representing total progress
+    :param progress_current: an int representing currenet progress
+    :method get_input_sign: get the signature of the inputs
+    :method get_output_sign: get the signature of the outputs
+    :method execute: execution of the OP
+    """
     progress_total = 1
     progress_current = 0
     def __init__(

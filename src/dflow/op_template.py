@@ -50,6 +50,23 @@ class OPTemplate:
 class ScriptOPTemplate(OPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None):
+        """
+        Instantiate a script OP template
+        :param name: the name of the OP template
+        :param inputs: input parameters and input artifacts
+        :param outputs: output parameters and output artifacts
+        :param image: image the template uses
+        :param command: command to run the script
+        :param script: script
+        :param volumes: volumes the template uses
+        :param mounts: volumes the template mounts
+        :param init_progress: a str representing the initial progress
+        :param timeout: timeout of the OP template
+        :param retry_strategy: retry strategy of the OP template
+        :param memoize_key: memoized key of the OP template
+        :param key: key of the OP template
+        :return:
+        """
         super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, key=key)
         self.image = image
         self.command = command
@@ -79,6 +96,23 @@ class ScriptOPTemplate(OPTemplate):
 class ShellOPTemplate(ScriptOPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None):
+        """
+        Instantiate a shell script OP template
+        :param name: the name of the OP template
+        :param inputs: input parameters and input artifacts
+        :param outputs: output parameters and output artifacts
+        :param image: image the template uses
+        :param command: command to run the script
+        :param script: shell script
+        :param volumes: volumes the template uses
+        :param mounts: volumes the template mounts
+        :param init_progress: a str representing the initial progress
+        :param timeout: timeout of the OP template
+        :param retry_strategy: retry strategy of the OP template
+        :param memoize_key: memoized key of the OP template
+        :param key: key of the OP template
+        :return:
+        """
         if command is None:
             command = ["sh"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
@@ -87,6 +121,23 @@ class ShellOPTemplate(ScriptOPTemplate):
 class PythonScriptOPTemplate(ScriptOPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None):
+        """
+        Instantiate a python script OP template
+        :param name: the name of the OP template
+        :param inputs: input parameters and input artifacts
+        :param outputs: output parameters and output artifacts
+        :param image: image the template uses
+        :param command: command to run the script
+        :param script: python script
+        :param volumes: volumes the template uses
+        :param mounts: volumes the template mounts
+        :param init_progress: a str representing the initial progress
+        :param timeout: timeout of the OP template
+        :param retry_strategy: retry strategy of the OP template
+        :param memoize_key: memoized key of the OP template
+        :param key: key of the OP template
+        :return:
+        """
         if command is None:
             command = ["python"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,

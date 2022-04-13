@@ -12,6 +12,30 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None,
                  timeout=None, retry_on_transient_error=None, output_parameter_default=None, output_parameter_global_name=None,
                  timeout_as_transient_error=False, memoize_key=None, key=None, volumes=None, mounts=None):
+        """
+        Convert from Python class OP to OP template
+        :param op_class: Python class OP
+        :param image: image of the OP template
+        :param command: python executable
+        :param input_artifact_slices: a dict specifying input artifacts to use slices
+        :param output_artifact_save: a dict specifying storage of output artifacts overriding default storage
+        :param output_artifact_archive: a dict specifying compress format of output artifacts, None for no compression
+        :param input_parameter_slices: a dict specifying input parameters to use slices
+        :param output_artifact_slices: a dict specifying output artifacts to use slices
+        :param output_parameter_slices: a dict specifying output parameters to use slices
+        :param output_artifact_global_name: a dict specifying global names of output artifacts within the workflow
+        :param slices: use slices to generate parallel steps
+        :param python_packages: local python packages to be uploaded to the OP
+        :param timeout: timeout of the OP template
+        :param retry_on_transient_error: maximum retries on TrasientError
+        :param output_parameter_default: a dict specifying default values for output parameters
+        :param output_parameter_global_name: a dict specifying global names of output parameters within the workflow
+        :param timeout_as_transient_error: regard timeout as transient error or fatal one
+        :param memoize_key: memoized key of the OP template
+        :param key: key of the OP template
+        :param volumes: volumes to use in the OP template
+        :param mounts: volumes to mount in the OP template
+        """
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
         output_sign = op_class.get_output_sign()
@@ -162,6 +186,14 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
 class Slices:
     def __init__(self, slices=None, input_parameter=None, input_artifact=None, output_parameter=None, output_artifact=None):
+        """
+        Instantiate a slices specified in PythonOPTemplate
+        :param slices: slice pattern
+        :param input_parameter: list of input parameters to be sliced
+        :param input_artifact: list of input artifacts to be sliced
+        :param output_parameter: list of output parameters to be stacked
+        :param output_artifact: list of output artifacts to be stacked
+        """
         self.slices = slices
         self.input_parameter = input_parameter
         self.input_artifact = input_artifact

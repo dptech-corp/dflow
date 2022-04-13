@@ -6,6 +6,14 @@ ArtifactAllowedTypes = [str, Path, Set[str], Set[Path], List[str], List[Path]]
 
 class Artifact:
     def __init__(self, type, archive="tar", save=None, optional=False, global_name=None):
+        """
+        OPIO signature of artifact
+        :param type: str, Path, Set[str], Set[Path], List[str] or List[Path]
+        :param archive: compress format of the artifact, None for no compression
+        :param save: place to store the output artifact instead of default storage, can be a list
+        :param optional: optional input artifact or not
+        :param global_name: global name of the artifact within the workflow
+        """
         self.type = type
         self.archive = archive
         self.save = save

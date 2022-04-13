@@ -50,12 +50,24 @@ class ArgoStep(ArgoObjectDict):
             self["key"] = None
 
     def modify_output_parameter(self, name, value):
+        """
+        Modify output parameter of an Argo step
+        :param name: parameter name
+        :param value: new value
+        :return:
+        """
         if isinstance(value, str):
             self.outputs.parameters[name].value = value
         else:
             self.outputs.parameters[name].value = jsonpickle.dumps(value)
 
     def modify_output_artifact(self, name, s3):
+        """
+        Modify output artifact of an Argo step
+        :param name: artifact name
+        :param s3: replace the artifact with a s3 object
+        :return:
+        """
         assert isinstance(s3, S3Artifact), "must provide a S3Artifact object"
         self.outputs.artifacts[name].s3 = s3
         if s3.key[-4:] == ".tgz" and hasattr(self.outputs.artifacts[name], "archive"):
@@ -64,12 +76,24 @@ class ArgoStep(ArgoObjectDict):
             self.outputs.artifacts[name]["archive"] = {"none": {}}
 
     def download_sliced_output_artifact(self, name, path="."):
+        """
+        Download output artifact of a sliced step
+        :param name: artifact name
+        :param path: local path
+        :return:
+        """
         assert (hasattr(self, "outputs") and hasattr(self.outputs, "parameters") and "dflow_%s_path_list" % name in self.outputs.parameters), "%s is not sliced output artifact" % name
         path_list = jsonpickle.loads(self.outputs.parameters["dflow_%s_path_list" % name].value)
         for item in path_list:
             download_s3(self.outputs.artifacts[name].s3.key + "/" + item["dflow_list_item"], path=os.path.join(path, item["dflow_list_item"]))
 
     def upload_and_modify_sliced_output_artifact(self, name, path):
+        """
+        Upload and modify output artifact of a sliced step
+        :param name: artifact name
+        :param path: local path to be uploaded
+        :return:
+        """
         assert (hasattr(self, "outputs") and hasattr(self.outputs, "parameters") and "dflow_%s_path_list" % name in self.outputs.parameters), "%s is not sliced output artifact" % name
         path_list = jsonpickle.loads(self.outputs.parameters["dflow_%s_path_list" % name].value)
         if not isinstance(path, list):
