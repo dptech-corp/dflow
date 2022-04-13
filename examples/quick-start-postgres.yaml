@@ -1502,7 +1502,7 @@ spec:
         - --executor-image
         - quay.io/argoproj/argoexec:latest
         - --executor-image-pull-policy
-        - Always
+        - IfNotPresent
         - --namespaced
         command:
         - workflow-controller

@@ -9,8 +9,10 @@ from dflow.python import (
     OP,
     OPIO,
     OPIOSign,
-    Artifact
+    Artifact,
+    upload_packages
 )
+upload_packages.append(__file__)
 from pathlib import Path
 import time
 
@@ -63,7 +65,7 @@ def make_idir():
     (idir / "f2").write_text("bar")
 
 
-if __name__ == "__main__":
+def test_python():
     wf = Workflow(name="hello")
 
     with open("foo.txt", "w") as f:
@@ -94,3 +96,6 @@ if __name__ == "__main__":
 
     print(download_artifact(step.outputs.artifacts["bar"]))
     print(download_artifact(step.outputs.artifacts["odir"]))
+
+if __name__ == "__main__":
+    test_python()

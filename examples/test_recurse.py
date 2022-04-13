@@ -12,7 +12,7 @@ from dflow import (
 )
 import time
 
-if __name__ == "__main__":
+def test_recurse():
     plus1 = ShellOPTemplate(name='plus1',
                 image="alpine:latest",
                 script="echo 'This is iter {{inputs.parameters.iter}}' && echo $(({{inputs.parameters.iter}}+1)) > /tmp/result.txt")
@@ -34,3 +34,6 @@ if __name__ == "__main__":
         time.sleep(1)
 
     assert(wf.query_status() == "Succeeded")
+
+if __name__ == "__main__":
+    test_recurse()

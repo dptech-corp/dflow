@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='pydflow',
-    version='1.0.0',
+    version='1.0.2',
     description='Dflow is a concurrent learning framework based on Argo Workflows.',
     author="Xinzijian Liu",
     license="LGPLv3",
@@ -19,7 +19,7 @@ setup(
         "urllib3",
         "certifi",
         "typeguard",
-        "argo-workflows",
+        "argo-workflows==5.0.0",
         "jsonpickle",
         "minio",
         "kubernetes",

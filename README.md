@@ -1,5 +1,7 @@
 # DFLOW
 
+Dflow is a Python development framework for concurrent learning applications based on [Argo Workflows](https://argoproj.github.io/). Dflow's users are usually ML application developers, e.g. [DPGEN2 project](https://github.com/wanghan-iapcm/dpgen2) is developed in the framework of dflow. Argo is an open-source Kubernetes-native workflow engine. While argo defines workflows via yaml configurations, dflow offers more user-friendly functional programming interfaces.
+
 <!-- vscode-markdown-toc -->
 * 1. [Overview](#Overview)
 	* 1.1. [ Architecture](#Architecture)
@@ -41,7 +43,6 @@
 <!-- /vscode-markdown-toc -->
 
 ##  1. <a name='Overview'></a>Overview
-Dflow is a Python development framework for concurrent learning applications based on [Argo Workflows](https://argoproj.github.io/). Dflow's users are usually ML application developers, e.g. [DPGEN2 project](https://github.com/wanghan-iapcm/dpgen2) is developed in the framework of dflow. Argo is an open-source Kubernetes-native workflow engine. While argo defines workflows via yaml configurations, dflow offers more user-friendly functional programming interfaces.
 
 ###  1.1. <a name='Architecture'></a> Architecture
 The dflow consists of a **common layer** and a **interface layer**.  Interface layer takes various OP templates from users, usually in the form of python classes, and transforms them into base OP templates that common layer can handle. Common layer is an extension over argo client which provides functionalities such as file processing, workflow submission and management, etc.
