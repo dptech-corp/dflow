@@ -20,6 +20,12 @@ class AutonamedDict(UserDict):
 
 class Inputs:
     def __init__(self, parameters=None, artifacts=None):
+        """
+        Inputs for OP template
+        :param paramters: input parameters
+        :param artifacts: input artifacts
+        :return:
+        """
         if parameters is not None:
             self.parameters = parameters
         else:
@@ -48,6 +54,12 @@ class Inputs:
 
 class Outputs:
     def __init__(self, parameters=None, artifacts=None):
+        """
+        Outputs for OP template
+        :param paramters: output parameters
+        :param artifacts: output artifacts
+        :return:
+        """
         if parameters is not None:
             self.parameters = parameters
         else:
@@ -121,6 +133,14 @@ class ArgoVar:
 
 class InputParameter(ArgoVar):
     def __init__(self, name=None, step_id=None, type=None, value=None):
+        """
+        Input parameter for OP template
+        :param name: name of the input parameter
+        :param step_id:
+        :param type: parameter type
+        :param value: default value
+        :return:
+        """
         self.name = name
         self.step_id = step_id
         self.type = type
@@ -154,6 +174,16 @@ class InputParameter(ArgoVar):
 
 class InputArtifact(ArgoVar):
     def __init__(self, path=None, name=None, step_id=None, optional=False, type=None, source=None):
+        """
+        Input artifact for OP template
+        :param path: path where the input artifact is placed in the container
+        :param name: name of the input artifact
+        :param step_id:
+        :param optional: optional artifact or not
+        :param type: artifact type
+        :param source: default source
+        :return:
+        """
         self.path = path
         self.name = name
         self.step_id = step_id
@@ -198,6 +228,18 @@ class InputArtifact(ArgoVar):
 class OutputParameter(ArgoVar):
     def __init__(self, value_from_path=None, value_from_parameter=None, name=None, step_id=None, type=None, default=None, global_name=None,
             value_from_expression=None):
+        """
+        Output parameter for OP template
+        :param value_from_path: the value is read from file generated in the container
+        :param value_from_parameter: the value is from another parameter
+        :param name: name of the output parameter
+        :param step_id:
+        :param type: parameter type
+        :param default: default value
+        :param global_name: global name of the parameter within the workflow
+        :param value_from_expression: the value is from an expression
+        :return:
+        """
         self.value_from_path = value_from_path
         self.value_from_parameter = value_from_parameter
         self.name = name
@@ -236,6 +278,19 @@ class OutputParameter(ArgoVar):
 class OutputArtifact(ArgoVar):
     def __init__(self, path=None, _from=None, name=None, step_id=None, type=None, save=None, archive="tar", global_name=None,
             from_expression=None):
+        """
+        Output artifact for OP template
+        :param path: path of the output artifact in the container
+        :param _from: the artifact is from another artifact
+        :param name: name of the output artifact
+        :param step_id:
+        :param type: artifact type
+        :param save: place to store the output artifact instead of default storage, can be a list
+        :param archive: compress format of the artifact, None for no compression
+        :param global_name: global name of the artifact within the workflow
+        :param from_expression: the artifact is from an expression
+        :return:
+        """
         self.path = path
         self._from = _from
         self.name = name

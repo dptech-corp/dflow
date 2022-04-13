@@ -3,6 +3,16 @@ from .op_template import OPTemplate
 
 class Steps(OPTemplate):
     def __init__(self, name, inputs=None, outputs=None, steps=None, memoize_key=None, key=None):
+        """
+        Instantiate a steps
+        :param name: the name of the steps
+        :param inputs: inputs in the template
+        :param outputs: outputs in the template
+        :param steps: a sequential list of steps
+        :param memoize_key: memoized key of the steps
+        :param key: the key of the steps
+        :return:
+        """
         super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, key=key)
         if steps is not None:
             self.steps = steps
@@ -13,6 +23,11 @@ class Steps(OPTemplate):
         return iter(self.steps)
 
     def add(self, step):
+        """
+        Add a step or a list of parallel steps to the steps
+        :param step: a step or a list of parallel steps to be added to the entrypoint of the workflow
+        :return:
+        """
         self.steps.append(step)
 
     def convert_to_argo(self, memoize_prefix=None, memoize_configmap="dflow-config"):

@@ -13,6 +13,11 @@ from .util_ops import CheckNumSuccess, CheckSuccessRatio
 from .client import V1alpha1Sequence
 
 def argo_range(*args):
+    """
+    Return a str representing a range of integer in Argo
+    It receives 1-3 arguments, which is similar to the function `range` in Python
+    Each argument can be Argo parameter
+    """
     start = 0
     step = 1
     if len(args) == 1:
@@ -35,6 +40,14 @@ def argo_range(*args):
     return ArgoVar("toJson(sprig.untilStep(%s, %s, %s))" % (start, end, step))
 
 def argo_sequence(count=None, start=None, end=None, format=None):
+    """
+    Return a numeric sequence in Argo
+    :param count: length of the sequence, can be an Argo parameter
+    :param start: start number of the sequence, can be an Argo parameter
+    :param end: end number of the sequence, can be an Argo parameter
+    :param format: output the sequence with format
+    :return:
+    """
     if isinstance(count, ArgoVar):
         count = "{{=%s}}" % count.expr
     if isinstance(start, ArgoVar):
@@ -44,9 +57,21 @@ def argo_sequence(count=None, start=None, end=None, format=None):
     return V1alpha1Sequence(count=count, start=start, end=end, format=format)
 
 def argo_len(param):
+    """
+    Return the length of a list which is an Argo parameter
+    :param param: the Argo parameter which is a list
+    :return:
+    """
     return ArgoVar("len(sprig.fromJson(%s))" % param.expr)
 
 def if_expression(_if, _then, _else):
+    """
+    Return an if expression in Argo
+    :param _if: a bool expression, which may be a comparison of two Argo parameters
+    :param _then: value returned if the condition is satisfied
+    :param _else: value returned if the condition is not satisfied
+    :return:
+    """
     if isinstance(_if, ArgoVar):
         _if = _if.expr
     if isinstance(_then, ArgoVar):
@@ -58,6 +83,22 @@ def if_expression(_if, _then, _else):
 class Step:
     def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None, continue_on_failed=False,
             continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None, executor=None):
+        """
+        Instantiate a step
+        :param name: the name of the step
+        :param template: OP template the step uses
+        :param parameters: input parameters passed to the step as arguments
+        :param artifacts: input artifacts passed to the step as arguments
+        :param when: conditional step if the condition is satisfied
+        :param with_param: generate parallel steps with respect to a list as a parameter
+        :param continue_on_failed: continue if the step fails
+        :param continue_on_num_success: continue if the success number of the generated parallel steps greater than certain number
+        :param continue_on_success_ratio: continue if the success ratio of the generated parallel steps greater than certain number
+        :param with_sequence: generate parallel steps with respect to a sequence
+        :param key: the key of the step
+        :param executor: define the executor to execute the script
+        :return:
+        """
         self.name = name
         self.id = self.name
         self.template = template

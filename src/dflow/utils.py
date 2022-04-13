@@ -8,6 +8,18 @@ from minio.api import CopySource
 from .io import S3Artifact
 
 def download_artifact(artifact, extract=True, **kwargs):
+    """
+    Download an artifact from Argo to local
+    :param artifact: artifact to be downloaded
+    :param extract: extract files if the artifact is compressed
+    :param path: local path
+    :param endpoint: endpoint for Minio
+    :param access_key: access key for Minio
+    :param secret_key: secret key for Minio
+    :param secure: secure or not for Minio
+    :param bucket_name: bucket name for Minio
+    :return:
+    """
     if hasattr(artifact, "s3"):
         if hasattr(artifact, "archive") and hasattr(artifact.archive, "none") and artifact.archive.none is not None:
             path = download_s3(key=artifact.s3.key, recursive=True, **kwargs)
@@ -40,6 +52,17 @@ def download_artifact(artifact, extract=True, **kwargs):
         raise NotImplementedError()
 
 def upload_artifact(path, archive="tar", **kwargs):
+    """
+    Upload an artifact from local to Argo
+    :param path: local path
+    :param archive: compress format of the artifact, None for no compression
+    :param endpoint: endpoint for Minio
+    :param access_key: access key for Minio
+    :param secret_key: secret key for Minio
+    :param secure: secure or not for Minio
+    :param bucket_name: bucket name for Minio
+    :return:
+    """
     if not isinstance(path, list):
         path = [path]
     cwd = os.getcwd()
@@ -77,6 +100,12 @@ def upload_artifact(path, archive="tar", **kwargs):
     return S3Artifact(key=key)
 
 def copy_artifact(src, dst):
+    """
+    Copy an artifact to another on server side
+    :param src: source artifact
+    :param dst: destination artifact
+    :return:
+    """
     if hasattr(src, "s3"):
         src_key = src.s3.key
     elif hasattr(src, "key"):
