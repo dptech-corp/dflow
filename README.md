@@ -30,6 +30,7 @@ Dflow is a Python development framework for concurrent learning applications bas
 		* 3.1.10. [Default value for output parameter](#Defaultvalueforoutputparameter)
 		* 3.1.11. [Key of step](#Keyofstep)
 		* 3.1.12. [Reuse step](#Reusestep)
+		* 3.1.13. [Executor](#Executor)
 	* 3.2. [Interface layer](#Interfacelayer-1)
 		* 3.2.1. [Slices](#Slices)
 		* 3.2.2. [Retry and error handling](#Retryanderrorhandling)
@@ -45,14 +46,14 @@ Dflow is a Python development framework for concurrent learning applications bas
 ##  1. <a name='Overview'></a>Overview
 
 ###  1.1. <a name='Architecture'></a> Architecture
-The dflow consists of a **common layer** and a **interface layer**.  Interface layer takes various OP templates from users, usually in the form of python classes, and transforms them into base OP templates that common layer can handle. Common layer is an extension over argo client which provides functionalities such as file processing, workflow submission and management, etc.
+The dflow consists of a **common layer** and an **interface layer**.  Interface layer takes various OP templates from users, usually in the form of python classes, and transforms them into base OP templates that common layer can handle. Common layer is an extension over argo client which provides functionalities such as file processing, workflow submission and management, etc.
 
 ###  1.2. <a name='Commonlayer'></a> Common layer
 ####  1.2.1. <a name='Parametersandartifacts'></a>Parameters and artifacts
 Parameters and artifacts are data stored by the workflow and passed within the workflow. Parameters are saved as strings which can be displayed in the UI, while artifacts are saved as files.
 
 ####  1.2.2. <a name='OPtemplate'></a> OP template
-OP template describes a sort of operation which takes some parameters and artifacts as input and gives some parameters and artifacts as output. The most common OP template is the container OP template whose operation is specified by container image and commands to be executed in the container. Currently two types of container OP templates are supported. Shell OP template defines an operation by a shell script and Python script OP template defines an operation by a Python script.
+OP template describes a sort of operation which takes some parameters and artifacts as input and gives some parameters and artifacts as output. The most common OP template is the container OP template whose operation is specified by container image and commands to be executed as entrypoint. Currently two types of container OP templates are supported. Shell OP template defines an operation by a shell script and Python script OP template defines an operation by a Python script.
 
 - Input parameters: basically a dictionary mapping from parameter name to its properties. The value of the input parameter is optional for the OP template, if provided, it will be regarded as the default value which can be overrided at run time.
 
@@ -74,7 +75,7 @@ ShellOPTemplate(name='Hello',
 ```
 
 ####  1.2.3. <a name='Workflow'></a> Workflow
-`Step` and `Steps` are central blocks for building a workflow. A `Step` is the result of instantiating a OP template. When a `Step` is initialized, values of all input parameters and sources of all input artifacts defined in the OP template must be clear. `Steps` is a sequential array of array of concurrent `Step`'s. A simple example goes like `[[s00, s01],  [s10, s11, s12]]`, where inner array represent concurrent tasks while outer array is sequential. A `Workflow` contains a `Steps` as entrypoint for default. Adding a `Step` to a `Workflow` is equivalent to adding the `Step` to the `Steps` of the `Workflow`. For example,
+`Step` and `Steps` are central blocks for building a workflow. A `Step` is the result of instantiating a OP template. When a `Step` is initialized, values of all input parameters and sources of all input artifacts declared in the OP template must be specified. `Steps` is a sequential array of array of concurrent `Step`'s. A simple example goes like `[[s00, s01],  [s10, s11, s12]]`, where inner array represent concurrent tasks while outer array is sequential. A `Workflow` contains a `Steps` as entrypoint for default. Adding a `Step` to a `Workflow` is equivalent to adding the `Step` to the `Steps` of the `Workflow`. For example,
 ```python
 wf = Workflow(name="hhh")
 hello0 = Step(name="hello0", template=hello)
@@ -93,7 +94,7 @@ It should be noticed that `Steps` itself is a subclass of OPTemplate and could b
 ####  1.3.1. <a name='PythonOP'></a> Python OP
 Python `OP` is a kind of OP template defined in the form of Python class. As Python is a weak typed language, we impose strict type checking to `OP`s to alleviate ambiguity and unexpected behaviors.
 
-The structures of the inputs and outputs of a `OP` are defined in the static methods `get_input_sign` and `get_output_sign`. Each of them returns a `OPIOSign` object (basically a dictionary mapping from the name of a parameter/artifact to its sign). For a parameter, its sign is its variable type, such as `str`, `float`, `list`, or any user-defined Python class. Since argo only accept string as parameter value, dflow encodes all parameters to json (except for string type parameters) before passing to argo, and decodes argo parameters from json (except for string type parameters). For an artifact, its sign must be an instance of `Artifact`. `Artifact` receives the type of the path variable as the constructor argument, only `str`, `pathlib.Path`, `typing.Set[str]`, `typing.Set[pathlib.Path]`, `typing.List[str]`, `typing.List[pathlib.Path]` are supported. If a `OP` returns a list of path as an artifact, dflow not only collects files or directories in the returned list of path, and package them in an artifact, but also records their relative path in the artifact. Thus dflow can unpack the artifact to a list of path again before passing to the next `OP`. When no file or directory exists, dflow regards it as `None`.
+The structures of the inputs and outputs of a `OP` are defined in the static methods `get_input_sign` and `get_output_sign`. Each of them returns a `OPIOSign` object (basically a dictionary mapping from the name of a parameter/artifact to its sign). For a parameter, its sign is its variable type, such as `str`, `float`, `list`, or any user-defined Python class. Since argo only accept string as parameter value, dflow encodes all parameters to json (except for string type parameters) before passing them to argo, and decodes argo parameters from json (except for string type parameters). For an artifact, its sign must be an instance of `Artifact`. `Artifact` receives the type of the path variable as the constructor argument, only `str`, `pathlib.Path`, `typing.Set[str]`, `typing.Set[pathlib.Path]`, `typing.List[str]`, `typing.List[pathlib.Path]` are supported. If a `OP` returns a list of path as an artifact, dflow not only collects files or directories in the returned list of path, and package them in an artifact, but also records their relative path in the artifact. Thus dflow can unpack the artifact to a list of path again before passing to the next `OP`. When no file or directory exists, dflow regards it as `None`.
 
 The execution of the `OP` is defined in the `execute` method. The `execute` method receives a `OPIO` object as input and outputs a `OPIO` object. `OPIO` is basically a dictionary mapping from the name of a parameter/artifact to its value/path. The type of the parameter value or the artifact path should be in accord with that declared in the sign. Type checking is implemented before and after the ` execute` method.
 
@@ -120,9 +121,9 @@ kubectl -n argo port-forward deployment/minio 9000:9000
 ```
 
 ###  2.3. <a name='Installdflow'></a>Install dflow
-Make sure your Python version is not less than 3.7. Download the source code of dflow and install it
+Make sure your Python version is not less than 3.7 and install dflow
 ```
-pip install .
+pip install pydflow
 ```
 
 ###  2.4. <a name='Runanexample'></a>Run an example
@@ -221,20 +222,43 @@ Set the workflow to continue when certain number/ratio of parallel steps succeed
 - [Continue on success ratio example](examples/test_success_ratio.py)
 
 ####  3.1.9. <a name='Optionalinputartifact'></a>Optional input artifact
-Set a input artifact to be optional by `op_template.inputs.artifacts["foo"].optional = True`.
+Set an input artifact to be optional by `op_template.inputs.artifacts["foo"].optional = True`.
 
 ####  3.1.10. <a name='Defaultvalueforoutputparameter'></a>Default value for output parameter
 Set default value for a output parameter by `op_template.outputs.parameters["msg"].default = default_value`. The default value will be used when the expression in `value_from_expression` fails or the step is skipped.
 
 ####  3.1.11. <a name='Keyofstep'></a>Key of step
-You can set a key for a step by `Step(..., key="some-key")` for the convenience of locating the step. The key can be regarded as an input parameter which can contain reference of other parameters. For instance, the key of a step can change with iterations of a dynamic loop. Once key is assigned to a step, the step can be query by `wf.query_step(key="some-key")`. If the key is unique within the workflow, the `query_step` method returns a list consist of only one element.
+You can set a key for a step by `Step(..., key="some-key")` for the convenience of locating the step. The key can be regarded as an input parameter which may contain reference of other parameters. For instance, the key of a step can change with iterations of a dynamic loop. Once key is assigned to a step, the step can be query by `wf.query_step(key="some-key")`. If the key is unique within the workflow, the `query_step` method returns a list consist of only one element.
 
 - [Key of step example](examples/test_reuse.py)
 
 ####  3.1.12. <a name='Reusestep'></a>Reuse step
-Workflows often have some steps that are expensive to compute. The outputs of previously run steps can be reused for submitting a new workflow. E.g. a failed workflow can be restarted from a certain point after some modification of the workflow template or even outputs of completed steps. For example, submit a workflow with reused steps by `wf.submit(reuse_step=[step0, step1])`. Here, `step0` and `step1` are previously run steps returned by `query_step` method. Before the new workflow runs a step, if there exists a reused step whose key matches that of the step about to run, the workflow will skip the step and set its outputs as those of the reused step. To modify outputs of a step before reusing, use `step0.modify_output_parameter(par_name, value)` for parameters and `step0.modify_output_artifact(art_name, artifact)` for artifacts.
+Workflows often have some steps that are expensive to compute. The outputs of previously run steps can be reused for submitting a new workflow. E.g. a failed workflow can be restarted from a certain point after some modification of the workflow template or even outputs of completed steps. For example, submit a workflow with reused steps by `wf.submit(reuse_step=[step0, step1])`. Here, `step0` and `step1` are previously run steps returned by `query_step` method. Before the new workflow runs a step, it will detect if there exists a reused step whose key matches that of the step about to run. If hit, the workflow will skip the step and set its outputs as those of the reused step. To modify outputs of a step before reusing, use `step0.modify_output_parameter(par_name, value)` for parameters and `step0.modify_output_artifact(art_name, artifact)` for artifacts.
 
 - [Reuse step example](examples/test_reuse.py)
+
+####  3.1.13. <a name='Executor'></a>Executor
+By default, for a "script step" (a step whose template is a script OP template), the Shell script or Python script runs in the container directly. Alternatively, one can modify the executor to run the script. Dflow offers an extension point for "script step" `Step(..., executor=my_executor)`. Here, `my_executor` should be an instance of class derived from `Executor`. A `Executor`-derived class should specify `image` and `command` to be used for the executor, as well as a method `get_script` which converts original command and script to new script run by the executor.
+```python
+class Executor(object):
+    image = None
+    command = None
+    def get_script(self, command, script):
+        pass
+```
+`SlurmRemoteExecutor` is provided as an example of executor. The executor submits a slurm job to a remote host and synchronize its status and logs to the dflow step. The central logic of the executor is implemented in the Golang project [Dflow-extender](https://github.com/dptech-corp/dflow-extender). If you want to run a step on a slurm cluster remotely, do something like
+```python
+Step(
+    ...,
+    executor=SlurmRemoteExecutor(host="1.2.3.4",
+        username="myuser",
+        password="mypasswd",
+        header="""#!/bin/bash
+                  #SBATCH -N 1
+                  #SBATCH -n 1
+                  #SBATCH -p cpu""")
+)
+```
 
 ###  3.2. <a name='Interfacelayer-1'></a>Interface layer
 
@@ -282,4 +306,8 @@ class Progress(OP):
 - [Progress example](examples/test_progress.py)
 
 ####  3.2.4. <a name='Uploadpythonpackagesfordevelopment'></a>Upload python packages for development
-To avoid frequently making image during development, dflow offers a interface to upload local packages into container and add them to Python PATH, such as `PythonOPTemplate(python_packages=["/opt/anaconda3/lib/python3.9/site-packages/numpy"])`.
+To avoid frequently making image during development, dflow offers a interface to upload local packages into container of `OP` and add them to `$PYTHONPATH`, such as `PythonOPTemplate(python_packages=["/opt/anaconda3/lib/python3.9/site-packages/numpy"])`. One can also globally specify packages to be uploaded, which will affect all `OP`s
+```python
+from dflow import upload_packages
+upload_packages.append("/opt/anaconda3/lib/python3.9/site-packages/numpy")
+```
