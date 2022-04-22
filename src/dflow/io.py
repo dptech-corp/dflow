@@ -1,6 +1,8 @@
 from copy import deepcopy
 from collections import UserDict
 import jsonpickle
+import random
+import string
 from argo.workflows.client.configuration import Configuration
 from argo.workflows.client import (
     V1alpha1Inputs,
@@ -331,8 +333,8 @@ class OutputArtifact(ArgoVar):
             return "{{outputs.artifacts.%s}}" % self.name
         return ""
 
-    def pvc(self):
-        pvc = PVC("public", self.step_id, self.name)
+    def pvc(self, size="1Gi", storage_class=None, access_modes=None):
+        pvc = PVC("public", randstr(), size, storage_class, access_modes)
         self.save.append(pvc)
         return pvc
 
@@ -362,10 +364,14 @@ class OutputArtifact(ArgoVar):
             raise RuntimeError("Output artifact %s is not specified" % self)
 
 class PVC:
-    def __init__(self, pvcname, relpath, name):
-        self.pvcname = pvcname
-        self.relpath = relpath
+    def __init__(self, name, subpath, size="1Gi", storage_class=None, access_modes=None):
         self.name = name
+        self.subpath = subpath
+        self.size = size
+        self.storage_class = storage_class
+        if access_modes is None:
+            access_modes = ["ReadWriteOnce"]
+        self.access_modes = access_modes
 
 class S3Artifact(V1alpha1S3Artifact):
     def __init__(self, *args, **kwargs):
@@ -378,3 +384,6 @@ class S3Artifact(V1alpha1S3Artifact):
         artifact = deepcopy(self)
         artifact._sub_path = path
         return artifact
+
+def randstr(l=5):
+    return "".join(random.sample(string.digits + string.ascii_lowercase, l))

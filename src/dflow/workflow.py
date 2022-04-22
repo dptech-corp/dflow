@@ -15,9 +15,9 @@ from argo.workflows.client import (
 )
 from .steps import Steps
 from .argo_objects import ArgoWorkflow
-from .utils import copy_s3
+from .utils import copy_s3, randstr
 from .io import S3Artifact
-import random, string, json
+import json
 import kubernetes
 
 class Workflow:
@@ -125,17 +125,17 @@ class Workflow:
             self.handle_template(self.entrypoint)
 
         argo_pvcs = []
-        for k, v in self.pvcs.items():
-            if v == "":
-                argo_pvcs.append(V1PersistentVolumeClaim(
-                    metadata=V1ObjectMeta(name=k),
-                    spec=V1PersistentVolumeClaimSpec(
-                        access_modes=["ReadWriteOnce"],
-                        resources=V1ResourceRequirements(
-                            requests={"storage": "1Gi"}
-                        )
+        for pvc in self.pvcs.values():
+            argo_pvcs.append(V1PersistentVolumeClaim(
+                metadata=V1ObjectMeta(name=pvc.name),
+                spec=V1PersistentVolumeClaimSpec(
+                    storage_class_name=pvc.storage_class,
+                    access_modes=pvc.access_modes,
+                    resources=V1ResourceRequirements(
+                        requests={"storage": pvc.size}
                     )
-                ))
+                )
+            ))
 
         if self.id is not None:
             metadata = V1ObjectMeta(name=self.id)
@@ -172,9 +172,9 @@ class Workflow:
                     self.handle_template(template, memoize_prefix, memoize_configmap)
             else:
                 self.argo_templates[template.name] = template.convert_to_argo(memoize_prefix, memoize_configmap)
-                for mount in template.mounts:
-                    if mount.name not in self.pvcs:
-                        self.pvcs[mount.name] = ""
+                for pvc in template.pvcs:
+                    if pvc.name not in self.pvcs:
+                        self.pvcs[pvc.name] = pvc
 
     def query(self):
         """
@@ -216,6 +216,3 @@ class Workflow:
         :return: a list of keys
         """
         return [step.key for step in self.query_step() if step.key is not None]
-
-def randstr(l=5):
-    return "".join(random.sample(string.digits + string.ascii_lowercase, l))

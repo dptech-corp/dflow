@@ -138,6 +138,11 @@ spec:
       jsonPath: .status.startedAt
       name: Age
       type: date
+    - description: Human readable message indicating details about why the workflow
+        is in this condition.
+      jsonPath: .status.message
+      name: Message
+      type: string
     name: v1alpha1
     schema:
       openAPIV3Schema:
@@ -385,8 +390,30 @@ spec:
                             - value
                             type: object
                           type: array
+                        passwordSecret:
+                          properties:
+                            key:
+                              type: string
+                            name:
+                              type: string
+                            optional:
+                              type: boolean
+                          required:
+                          - key
+                          type: object
                         url:
                           type: string
+                        usernameSecret:
+                          properties:
+                            key:
+                              type: string
+                            name:
+                              type: string
+                            optional:
+                              type: boolean
+                          required:
+                          - key
+                          type: object
                       required:
                       - url
                       type: object
@@ -689,6 +716,7 @@ metadata:
   annotations:
     workflows.argoproj.io/description: |
       This is the minimum recommended permissions needed if you want to use the agent, e.g. for HTTP or plugin templates.
+
       If <= v3.2 you must replace `workflowtasksets/status` with `patch workflowtasksets`.
   name: agent
 rules:
@@ -1165,29 +1193,14 @@ data:
       secretKeySecret:
         name: my-minio-cred
         key: secretkey
-  containerRuntimeExecutors: |
-    - name: emissary
-      selector:
-        matchLabels:
-          workflows.argoproj.io/container-runtime-executor: emissary
-    - name: pns
-      selector:
-        matchLabels:
-          workflows.argoproj.io/container-runtime-executor: pns
   executor: |
     resources:
       requests:
         cpu: 10m
         memory: 64Mi
   images: |
-    argoproj/argosay:v1:
-      command: [cowsay]
-    argoproj/argosay:v2:
-      command: [/argosay]
     docker/whalesay:latest:
-       command: [cowsay]
-    python:alpine3.6:
-       command: [python3]
+       cmd: [cowsay]
   links: |
     - name: Workflow Link
       scope: workflow
@@ -1304,9 +1317,14 @@ metadata:
   name: minio
 spec:
   ports:
-  - port: 9000
+  - name: api
+    port: 9000
     protocol: TCP
     targetPort: 9000
+  - name: dashboard
+    port: 9001
+    protocol: TCP
+    targetPort: 9001
   selector:
     app: minio
 ---
@@ -1380,9 +1398,12 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 20
         securityContext:
+          allowPrivilegeEscalation: false
           capabilities:
             drop:
             - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
         volumeMounts:
         - mountPath: /tmp
           name: tmp
@@ -1414,6 +1435,8 @@ spec:
       - command:
         - minio
         - server
+        - --console-address
+        - :9001
         - /data
         env:
         - name: MINIO_ACCESS_KEY
@@ -1421,7 +1444,6 @@ spec:
         - name: MINIO_SECRET_KEY
           value: password
         image: minio/minio
-        imagePullPolicy: Always
         lifecycle:
           postStart:
             exec:
@@ -1438,6 +1460,9 @@ spec:
         name: main
         ports:
         - containerPort: 9000
+          name: api
+        - containerPort: 9001
+          name: dashboard
         readinessProbe:
           httpGet:
             path: /minio/health/ready
@@ -1490,6 +1515,8 @@ spec:
   selector:
     matchLabels:
       app: workflow-controller
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -1497,10 +1524,6 @@ spec:
     spec:
       containers:
       - args:
-        - --configmap
-        - workflow-controller-configmap
-        - --executor-image
-        - quay.io/argoproj/argoexec:latest
         - --executor-image-pull-policy
         - IfNotPresent
         - --namespaced
@@ -1517,7 +1540,7 @@ spec:
           failureThreshold: 3
           httpGet:
             path: /healthz
-            port: 6060
+            port: healthz
           initialDelaySeconds: 90
           periodSeconds: 60
           timeoutSeconds: 30
@@ -1526,6 +1549,11 @@ spec:
         - containerPort: 9090
           name: metrics
         - containerPort: 6060
+          name: healthz
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
