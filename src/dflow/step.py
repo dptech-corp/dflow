@@ -170,13 +170,15 @@ class Step:
             if (isinstance(new_template, ShellOPTemplate)):
                 for pvc, art in pvc_arts:
                     del new_template.inputs.artifacts[art.name]
-                    new_template.script = "ln -s /tmp/mnt/%s/%s %s\n" % (pvc.relpath, pvc.name, art.path) + new_template.script
-                    new_template.mounts.append(V1VolumeMount(name=pvc.pvcname, mount_path="/tmp/mnt"))
+                    new_template.script = "ln -s /tmp/mnt/%s %s\n" % (pvc.subpath, art.path) + new_template.script
+                    new_template.mounts.append(V1VolumeMount(name=pvc.name, mount_path="/tmp/mnt"))
+                    new_template.pvcs.append(pvc)
             elif (isinstance(new_template, PythonScriptOPTemplate)):
                 for pvc, art in pvc_arts:
                     del new_template.inputs.artifacts[art.name]
-                    new_template.script = "os.system('ln -s /tmp/mnt/%s/%s %s')\n" % (pvc.relpath, pvc.name, art.path) + new_template.script
-                    new_template.mounts.append(V1VolumeMount(name=pvc.pvcname, mount_path="/tmp/mnt"))
+                    new_template.script = "os.system('ln -s /tmp/mnt/%s %s')\n" % (pvc.subpath, art.path) + new_template.script
+                    new_template.mounts.append(V1VolumeMount(name=pvc.name, mount_path="/tmp/mnt"))
+                    new_template.pvcs.append(pvc)
                 new_template.script = "import os\n" + new_template.script
             else:
                 raise RuntimeError("Unsupported type of OPTemplate to mount PVC")
@@ -194,15 +196,15 @@ class Step:
             if (isinstance(new_template, ShellOPTemplate)):
                 new_template.script += "\n"
                 for pvc, art in pvc_arts:
-                    new_template.mounts.append(V1VolumeMount(name=pvc.pvcname, mount_path="/tmp/mnt"))
-                    new_template.script += "mkdir -p /tmp/mnt/%s\n" % pvc.relpath
-                    new_template.script += "cp -r %s /tmp/mnt/%s/%s\n" % (art.path, pvc.relpath, pvc.name)
+                    new_template.mounts.append(V1VolumeMount(name=pvc.name, mount_path="/tmp/mnt"))
+                    new_template.script += "cp -r %s /tmp/mnt/%s\n" % (art.path, pvc.subpath)
+                    new_template.pvcs.append(pvc)
             elif (isinstance(new_template, PythonScriptOPTemplate)):
                 new_template.script += "\nimport os\n"
                 for pvc, art in pvc_arts:
-                    new_template.mounts.append(V1VolumeMount(name=pvc.pvcname, mount_path="/tmp/mnt"))
-                    new_template.script += "os.system('mkdir -p /tmp/mnt/%s')\n" % pvc.relpath
-                    new_template.script += "os.system('cp -r %s /tmp/mnt/%s/%s')\n" % (art.path, pvc.relpath, pvc.name)
+                    new_template.mounts.append(V1VolumeMount(name=pvc.name, mount_path="/tmp/mnt"))
+                    new_template.script += "os.system('cp -r %s /tmp/mnt/%s')\n" % (art.path, pvc.subpath)
+                    new_template.pvcs.append(pvc)
             else:
                 raise RuntimeError("Unsupported type of OPTemplate to mount PVC")
 

@@ -11,7 +11,7 @@ from argo.workflows.client.configuration import Configuration
 from .io import Inputs, Outputs, InputParameter, S3Artifact
 
 class OPTemplate:
-    def __init__(self, name, inputs=None, outputs=None, memoize_key=None, key=None):
+    def __init__(self, name, inputs=None, outputs=None, memoize_key=None, key=None, pvcs=None):
         self.name = name
         if inputs is not None:
             self.inputs = inputs
@@ -24,6 +24,9 @@ class OPTemplate:
         self.memoize_key = memoize_key
         self.key = key
         self.memoize = None
+        if pvcs is None:
+            pvcs = []
+        self.pvcs = pvcs
 
     def handle_key(self, memoize_prefix=None, memoize_configmap="dflow-config"):
         if self.key is not None:
@@ -49,7 +52,7 @@ class OPTemplate:
 
 class ScriptOPTemplate(OPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None):
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None):
         """
         Instantiate a script OP template
         :param name: the name of the OP template
@@ -65,9 +68,10 @@ class ScriptOPTemplate(OPTemplate):
         :param retry_strategy: retry strategy of the OP template
         :param memoize_key: memoized key of the OP template
         :param key: key of the OP template
+        :param pvcs: PVCs need to be declared
         :return:
         """
-        super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, key=key)
+        super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, key=key, pvcs=pvcs)
         self.image = image
         self.command = command
         self.script = script
@@ -95,7 +99,7 @@ class ScriptOPTemplate(OPTemplate):
 
 class ShellOPTemplate(ScriptOPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None):
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None):
         """
         Instantiate a shell script OP template
         :param name: the name of the OP template
@@ -111,16 +115,18 @@ class ShellOPTemplate(ScriptOPTemplate):
         :param retry_strategy: retry strategy of the OP template
         :param memoize_key: memoized key of the OP template
         :param key: key of the OP template
+        :param pvcs: PVCs need to be declared
         :return:
         """
         if command is None:
             command = ["sh"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
-                mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key, key=key)
+                mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key,
+                key=key, pvcs=pvcs)
 
 class PythonScriptOPTemplate(ScriptOPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None):
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None):
         """
         Instantiate a python script OP template
         :param name: the name of the OP template
@@ -136,9 +142,11 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         :param retry_strategy: retry strategy of the OP template
         :param memoize_key: memoized key of the OP template
         :param key: key of the OP template
+        :param pvcs: PVCs need to be declared
         :return:
         """
         if command is None:
             command = ["python"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
-                mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key, key=key)
+                mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key,
+                key=key, pvcs=pvcs)

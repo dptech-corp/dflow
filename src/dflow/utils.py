@@ -5,7 +5,7 @@ import tarfile
 import jsonpickle
 from minio import Minio
 from minio.api import CopySource
-from .io import S3Artifact
+from .io import S3Artifact, randstr
 
 def download_artifact(artifact, extract=True, **kwargs):
     """
