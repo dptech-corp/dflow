@@ -1,6 +1,10 @@
 # DFLOW
 
-Dflow is a Python development framework for concurrent learning applications based on [Argo Workflows](https://argoproj.github.io/). Dflow's users are usually ML application developers, e.g. [DPGEN2 project](https://github.com/wanghan-iapcm/dpgen2) is developed in the framework of dflow. Argo is an open-source Kubernetes-native workflow engine. While argo defines workflows via yaml configurations, dflow offers more user-friendly functional programming interfaces.
+Dflow is a Python framework for constructing scientific computing workflows (e.g. concurrent learning workflows) employing [Argo Workflows](https://argoproj.github.io/) as the workflow engine.
+
+For dflow's users (e.g. ML application developers), dflow offers user-friendly functional programming interfaces for building their own workflows. Users need not be concerned with process control, task scheduling, observability and disaster tolerance. Users can track workflow status and handle exceptions by APIs as well as from frontend UI. Thereby users are enabled to concentrate on implementing operators and orchestrating workflows.
+
+For dflow's developers, dflow wraps on argo SDK, keeps details of computing and storage resources from users, and provides extension abilities. While argo is a cloud-native workflow engine, dflow uses containers to decouple computing logic and scheduling logic, and uses Kubernetes to make workflows observable, reproducible and robust. Dflow is designed to be based on a distributed, heterogeneous infrastructure. The most common computing resources in scientific computing may be HPC clusters. Users can either use remote executor to manage HPC jobs within dflow ([dflow-extender](https://github.com/dptech-corp/dflow-extender)), or use operator to uniformly abstract HPC resources in the framework of Kubernetes ([wlm-operator](https://github.com/dptech-corp/wlm-operator)).
 
 <!-- vscode-markdown-toc -->
 * 1. [Overview](#Overview)
