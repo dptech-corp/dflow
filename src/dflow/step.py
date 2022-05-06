@@ -4,7 +4,8 @@ from argo.workflows.client import (
     V1alpha1WorkflowStep,
     V1alpha1Arguments,
     V1VolumeMount,
-    V1alpha1ContinueOn
+    V1alpha1ContinueOn,
+    V1alpha1ResourceTemplate
 )
 from .io import InputParameter, OutputParameter, PVC, ArgoVar
 from .op_template import ShellOPTemplate, PythonScriptOPTemplate
@@ -82,7 +83,7 @@ def if_expression(_if, _then, _else):
 
 class Step:
     def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None, continue_on_failed=False,
-            continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None, executor=None):
+            continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None, executor=None, use_resource=None):
         """
         Instantiate a step
         :param name: the name of the step
@@ -122,6 +123,7 @@ class Step:
         self.with_sequence = with_sequence
         self.key = key
         self.executor = executor
+        self.use_resource = use_resource
 
     def __repr__(self):
         return self.id
@@ -258,6 +260,11 @@ class Step:
                 memoize_key=self.template.memoize_key, key=self.template.key)
             new_template.script = self.executor.get_script(self.template.command, self.template.script)
             self.template = new_template
+
+        if self.use_resource is not None:
+            self.template.resource = V1alpha1ResourceTemplate(action=self.use_resource.action,
+                success_condition=self.use_resource.success_condition, failure_condition=self.use_resource.failure_condition,
+                manifest=self.use_resource.get_manifest(self.template.command, self.template.script))
 
         return V1alpha1WorkflowStep(
             name=self.name, template=self.template.name, arguments=V1alpha1Arguments(

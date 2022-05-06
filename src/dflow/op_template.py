@@ -52,7 +52,7 @@ class OPTemplate:
 
 class ScriptOPTemplate(OPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None):
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None, resource=None):
         """
         Instantiate a script OP template
         :param name: the name of the OP template
@@ -84,18 +84,30 @@ class ScriptOPTemplate(OPTemplate):
         self.init_progress = init_progress
         self.timeout = timeout
         self.retry_strategy = retry_strategy
+        self.resource = resource
 
     def convert_to_argo(self, memoize_prefix=None, memoize_configmap="dflow-config"):
         self.handle_key(memoize_prefix, memoize_configmap)
-        return V1alpha1Template(name=self.name,
-            metadata=V1alpha1Metadata(annotations={"workflows.argoproj.io/progress": self.init_progress}),
-            inputs=self.inputs.convert_to_argo(),
-            outputs=self.outputs.convert_to_argo(),
-            timeout=self.timeout,
-            retry_strategy=self.retry_strategy,
-            memoize=self.memoize,
-            volumes=self.volumes,
-            script=V1alpha1ScriptTemplate(image=self.image, command=self.command, source=self.script, volume_mounts=self.mounts))
+        if self.resource is not None:
+            return V1alpha1Template(name=self.name,
+                metadata=V1alpha1Metadata(annotations={"workflows.argoproj.io/progress": self.init_progress}),
+                inputs=self.inputs.convert_to_argo(),
+                outputs=self.outputs.convert_to_argo(),
+                timeout=self.timeout,
+                retry_strategy=self.retry_strategy,
+                memoize=self.memoize,
+                volumes=self.volumes,
+                resource=self.resource)
+        else:
+            return V1alpha1Template(name=self.name,
+                metadata=V1alpha1Metadata(annotations={"workflows.argoproj.io/progress": self.init_progress}),
+                inputs=self.inputs.convert_to_argo(),
+                outputs=self.outputs.convert_to_argo(),
+                timeout=self.timeout,
+                retry_strategy=self.retry_strategy,
+                memoize=self.memoize,
+                volumes=self.volumes,
+                script=V1alpha1ScriptTemplate(image=self.image, command=self.command, source=self.script, volume_mounts=self.mounts))
 
 class ShellOPTemplate(ScriptOPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,

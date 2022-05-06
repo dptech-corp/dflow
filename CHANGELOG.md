@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.0.4
+
+### Added
+
+- add resource template
+- add some manifests
+
 ## 1.0.3
 
 ### Added

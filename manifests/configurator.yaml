@@ -1,0 +1,123 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: virtual-kubelet
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - secrets
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - delete
+      - get
+      - list
+      - watch
+      - patch
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - create
+      - get
+      - patch
+      - list
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - nodes/status
+    verbs:
+      - update
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - pods/status
+    verbs:
+      - update
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+  - apiGroups:
+      - ""
+      - wlm.sylabs.io
+    resources:
+      - slurmjobs
+      - wlmjobs
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argo-virtual-kubelet
+subjects:
+  - kind: ServiceAccount
+    name: argo
+    namespace: argo
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: virtual-kubelet
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: configurator
+spec:
+  selector:
+    matchLabels:
+      name: configurator
+  template:
+    metadata:
+      labels:
+        name: configurator
+    spec:
+      serviceAccountName: argo
+      containers:
+        - name: configurator
+          image: dptechnology/hpc-configurator:latest
+          imagePullPolicy: IfNotPresent
+          args:
+            - --sock
+            - "/syslurm/red-box.sock"
+          volumeMounts:
+            - name: syslurm-mount
+              mountPath: /syslurm
+          env:
+            - name: HOST_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: SERVICE_ACCOUNT
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+            - name: KUBELET_IMAGE
+              value: "dptechnology/hpc-vk:latest"
+            - name: RESULTS_IMAGE
+              value: "dptechnology/hpc-results:latest"
+            - name: NAMESPACE
+              value: argo
+      volumes:
+        - name: syslurm-mount
+          hostPath:
+            path: /var/run/syslurm
+            type: Directory
