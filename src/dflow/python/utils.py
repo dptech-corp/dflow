@@ -4,7 +4,7 @@ import jsonpickle
 from typing import Set, List
 from pathlib import Path
 from .opio import Artifact
-from ..utils import copy_file
+from ..utils import assemble_path_list, convert_dflow_list, copy_file
 
 def handle_input_artifact(name, sign, slices=None, data_root="/tmp"):
     art_path = data_root + '/inputs/artifacts/' + name
@@ -106,22 +106,6 @@ def copy_results(source, name, data_root="/tmp"):
         target = data_root + "/outputs/artifacts/%s/%s" % (name, source)
         copy_file(source, target, os.link)
         return source
-
-def convert_dflow_list(dflow_list):
-    dflow_list.sort(key=lambda x: x['order'])
-    return list(map(lambda x: x['dflow_list_item'], dflow_list))
-
-def assemble_path_list(art_path):
-    path_list = [art_path]
-    if os.path.isdir(art_path):
-        dflow_list = []
-        for f in os.listdir(art_path):
-            if f[:6] == ".dflow":
-                for item in jsonpickle.loads(open('%s/%s' % (art_path, f), 'r').read())['path_list']:
-                    if item not in dflow_list: dflow_list.append(item) # remove duplicate
-        if len(dflow_list) > 0:
-            path_list = list(map(lambda x: os.path.join(art_path, x) if x is not None else None, convert_dflow_list(dflow_list)))
-    return path_list
 
 def handle_python_packages():
     python_packages = handle_input_artifact('dflow_python_packages', Artifact(List[str]), None)

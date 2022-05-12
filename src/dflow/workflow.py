@@ -76,6 +76,18 @@ class Workflow:
         if backend == "debug":
             return self.entrypoint.run()
 
+        manifest = self.convert_to_argo(reuse_step=reuse_step)
+
+        response = self.api_instance.api_client.call_api('/api/v1/workflows/argo', 'POST',
+                body=V1alpha1WorkflowCreateRequest(workflow=manifest), response_type=object,
+                _return_http_data_only=True)
+        workflow = ArgoWorkflow(response)
+
+        self.id = workflow.metadata.name
+        print("Workflow has been submitted (ID: %s)" % self.id)
+        return workflow
+
+    def convert_to_argo(self, reuse_step=None):
         status = None
         if reuse_step is not None:
             self.id = self.name + "-" + randstr()
@@ -142,7 +154,7 @@ class Workflow:
         else:
             metadata = V1ObjectMeta(generate_name=self.name + '-')
 
-        manifest = V1alpha1Workflow(
+        return V1alpha1Workflow(
             metadata=metadata,
             spec=V1alpha1WorkflowSpec(
                 service_account_name='argo',
@@ -150,15 +162,6 @@ class Workflow:
                 templates=list(self.argo_templates.values()),
                 volume_claim_templates=argo_pvcs),
             status=status)
-
-        response = self.api_instance.api_client.call_api('/api/v1/workflows/argo', 'POST',
-                body=V1alpha1WorkflowCreateRequest(workflow=manifest), response_type=object,
-                _return_http_data_only=True)
-        workflow = ArgoWorkflow(response)
-
-        self.id = workflow.metadata.name
-        print("Workflow has been submitted (ID: %s)" % self.id)
-        return workflow
 
     def handle_template(self, template, memoize_prefix=None, memoize_configmap="dflow-config"):
         if template.name in self.templates:
