@@ -264,6 +264,28 @@ Step(
 )
 ```
 
+#### Submit Slurm job by wlm-operator
+
+Following the installation steps in the [wlm-operator](https://github.com/dptech-corp/wlm-operator) project to add Slurm partitions as virtual nodes to Kubernetes (use manifests [configurator.yaml](manifests/configurator.yaml), [operator-rbac.yaml](manifests/operator-rbac.yaml), [operator.yaml](manifests/operator.yaml) in this project which modified some RBAC configurations)
+```
+$ kubectl get nodes
+NAME                            STATUS   ROLES                  AGE    VERSION
+minikube                        Ready    control-plane,master   49d    v1.22.3
+slurm-minikube-cpu              Ready    agent                  131m   v1.13.1-vk-N/A
+slurm-minikube-dplc-ai-v100x8   Ready    agent                  131m   v1.13.1-vk-N/A
+slurm-minikube-v100             Ready    agent                  131m   v1.13.1-vk-N/A
+```
+Then you can specify a step to be executed on a virtual node (i.e. submit a Slurm job to the corresponding partition to complete the step)
+```python
+step = Step(
+    ...
+    use_template=SlurmJobTemplate(
+        header="#!/bin/sh\n#SBATCH --nodes=1",
+        node_selector={"kubernetes.io/hostname": "slurm-minikube-v100"}
+    )
+)
+```
+
 ###  3.2. <a name='Interfacelayer-1'></a>Interface layer
 
 ####  3.2.1. <a name='Slices'></a>Slices

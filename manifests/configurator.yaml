@@ -81,6 +81,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: configurator
+  namespace: argo
 spec:
   selector:
     matchLabels:
