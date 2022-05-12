@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.0.6
+
+### Added
+
+- add SlurmJobTemplate to submit slurm job by using wlm-operator
+
 ## 1.0.5
 
 ### Added

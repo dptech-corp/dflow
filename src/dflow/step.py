@@ -83,7 +83,8 @@ def if_expression(_if, _then, _else):
 
 class Step:
     def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None, continue_on_failed=False,
-            continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None, executor=None, use_resource=None):
+            continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None, executor=None, use_resource=None,
+            use_template=None):
         """
         Instantiate a step
         :param name: the name of the step
@@ -98,6 +99,8 @@ class Step:
         :param with_sequence: generate parallel steps with respect to a sequence
         :param key: the key of the step
         :param executor: define the executor to execute the script
+        :param use_resource: use k8s resource
+        :param use_template: use custom template
         :return:
         """
         self.name = name
@@ -124,6 +127,7 @@ class Step:
         self.key = key
         self.executor = executor
         self.use_resource = use_resource
+        self.use_template = use_template
 
     def __repr__(self):
         return self.id
@@ -265,6 +269,10 @@ class Step:
             self.template.resource = V1alpha1ResourceTemplate(action=self.use_resource.action,
                 success_condition=self.use_resource.success_condition, failure_condition=self.use_resource.failure_condition,
                 manifest=self.use_resource.get_manifest(self.template.command, self.template.script))
+
+        if self.use_template is not None:
+            self.use_template.render(self.template)
+            self.template = self.use_template
 
         return V1alpha1WorkflowStep(
             name=self.name, template=self.template.name, arguments=V1alpha1Arguments(
