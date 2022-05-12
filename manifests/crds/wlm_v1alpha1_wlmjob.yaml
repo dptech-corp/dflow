@@ -42,6 +42,8 @@ spec:
                   WlmJob to fit on a node. Selector which must match a node''s labels
                   for the WlmJob to be scheduled on that node. More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/.'
                 type: object
+                x-kubernetes-map-type: atomic
+                x-kubernetes-preserve-unknown-fields: true
               options:
                 description: Options singularity run options.
                 properties:
@@ -102,6 +104,23 @@ spec:
                     format: int64
                     type: integer
                 type: object
+              prepare:
+                description: Prepare may be specified for an optional data preparation step.
+                  When specified, before job is started required data will be uploaded to Slurm
+                  cluster with respect to this configuration.
+                properties:
+                  to:
+                    description: To is a path to the data to be uploaded to a Slurm cluster.
+                    type: string
+                  mount:
+                    description: Mount is a directory where input data will be given.
+                    type: object
+                    x-kubernetes-map-type: atomic
+                    x-kubernetes-preserve-unknown-fields: true
+                required:
+                - mount
+                - to
+                type: object
               results:
                 description: Results may be specified for an optional results collection
                   step. When specified, after job is completed all results will be downloaded
@@ -116,6 +135,8 @@ spec:
                       After results collection all job generated files can be found
                       in Mount/<SlurmJob.Name> directory.
                     type: object
+                    x-kubernetes-map-type: atomic
+                    x-kubernetes-preserve-unknown-fields: true
                 required:
                 - mount
                 - from
