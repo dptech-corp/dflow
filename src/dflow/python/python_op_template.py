@@ -104,7 +104,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             self.inputs.artifacts["dflow_python_packages"] = InputArtifact(path="/tmp/inputs/artifacts/dflow_python_packages",
                     source=upload_artifact(python_packages))
             script += "from dflow.python.utils import handle_python_packages\n"
-            script += "handle_python_packages()\n"
+            script += "handle_python_packages('/tmp')\n"
 
         if op_class.__module__ == "__main__":
             source_lines, start_line = inspect.getsourcelines(op_class)

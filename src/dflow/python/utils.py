@@ -107,7 +107,7 @@ def copy_results(source, name, data_root="/tmp"):
         copy_file(source, target, os.link)
         return source
 
-def handle_python_packages():
-    python_packages = handle_input_artifact('dflow_python_packages', Artifact(List[str]), None)
+def handle_python_packages(data_root="/tmp"):
+    python_packages = handle_input_artifact('dflow_python_packages', Artifact(List[str]), None, data_root)
     for package in python_packages:
         sys.path.append(os.path.dirname(package))
