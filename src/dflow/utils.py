@@ -23,31 +23,26 @@ def download_artifact(artifact, extract=True, **kwargs):
     if hasattr(artifact, "s3"):
         if hasattr(artifact, "archive") and hasattr(artifact.archive, "none") and artifact.archive.none is not None:
             path = download_s3(key=artifact.s3.key, recursive=True, **kwargs)
-            return path
+        else:
+            path = download_s3(key=artifact.s3.key, recursive=False, **kwargs)
+            if path[-4:] == ".tgz" and extract:
+                tf = tarfile.open(path, "r:gz")
+                tmpdir = os.path.join(os.path.dirname(path), "tmp-%s" % uuid.uuid4())
+                tf.extractall(tmpdir)
+                tf.close()
 
-        path = download_s3(key=artifact.s3.key, recursive=False, **kwargs)
-        if path[-4:] == ".tgz" and extract:
-            tf = tarfile.open(path, "r:gz")
-            tmpdir = os.path.join(os.path.dirname(path), "tmp-%s" % uuid.uuid4())
-            tf.extractall(tmpdir)
-            tf.close()
+                os.remove(path)
+                path = os.path.join(os.path.dirname(path))
 
-            os.remove(path)
-            path = os.path.join(os.path.dirname(path))
+                # if the artifact contains only one directory, merge the directory with the target directory
+                ld = os.listdir(tmpdir)
+                if len(ld) == 1 and os.path.isdir(os.path.join(tmpdir, ld[0])):
+                    merge_dir(os.path.join(tmpdir, ld[0]), path)
+                else:
+                    merge_dir(tmpdir, path)
+                shutil.rmtree(tmpdir)
 
-            # if the artifact contains only one directory, merge the directory with the target directory
-            ld = os.listdir(tmpdir)
-            if len(ld) == 1 and os.path.isdir(os.path.join(tmpdir, ld[0])):
-                merge_dir(os.path.join(tmpdir, ld[0]), path)
-            else:
-                merge_dir(tmpdir, path)
-            shutil.rmtree(tmpdir)
-
-            for f in os.listdir(path):
-                if f[:6] == ".dflow":
-                    os.remove(os.path.join(path, f))
-
-        return path
+        return assemble_path_list(path, remove=True)
     else:
         raise NotImplementedError()
 
@@ -132,7 +127,6 @@ def download_s3(key, path=None, recursive=True, endpoint="127.0.0.1:9000",
         for obj in client.list_objects(bucket_name=bucket_name, prefix=key, recursive=True):
             rel_path = obj.object_name[len(key):]
             if rel_path[:1] == "/": rel_path = rel_path[1:]
-            if rel_path[:6] == ".dflow": continue
             if rel_path == "":
                 file_path = os.path.join(path, os.path.basename(key))
             else:
@@ -194,3 +188,21 @@ def copy_file(src, dst, func=os.link):
         func(src, dst)
     else:
         raise RuntimeError("File %s not found" % src)
+
+def assemble_path_list(art_path, remove=False):
+    path_list = [art_path]
+    if os.path.isdir(art_path):
+        dflow_list = []
+        for f in os.listdir(art_path):
+            if f[:6] == ".dflow":
+                for item in jsonpickle.loads(open('%s/%s' % (art_path, f), 'r').read())['path_list']:
+                    if item not in dflow_list: dflow_list.append(item) # remove duplicate
+                if remove:
+                    os.remove(os.path.join(art_path, f))
+        if len(dflow_list) > 0:
+            path_list = list(map(lambda x: os.path.join(art_path, x) if x is not None else None, convert_dflow_list(dflow_list)))
+    return path_list
+
+def convert_dflow_list(dflow_list):
+    dflow_list.sort(key=lambda x: x['order'])
+    return list(map(lambda x: x['dflow_list_item'], dflow_list))

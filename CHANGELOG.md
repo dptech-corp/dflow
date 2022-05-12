@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.0.5
+
+### Added
+
+- download_artifact returns path list
+- add convert_to_argo method to Workflow
+
 ## 1.0.4
 
 ### Added
