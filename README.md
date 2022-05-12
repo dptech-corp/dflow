@@ -35,6 +35,7 @@ For dflow's developers, dflow wraps on argo SDK, keeps details of computing and 
 		* 3.1.11. [Key of step](#Keyofstep)
 		* 3.1.12. [Reuse step](#Reusestep)
 		* 3.1.13. [Executor](#Executor)
+		* 3.1.14. [Submit Slurm job by wlm-operator](#SubmitSlurmjobbywlm-operator)
 	* 3.2. [Interface layer](#Interfacelayer-1)
 		* 3.2.1. [Slices](#Slices)
 		* 3.2.2. [Retry and error handling](#Retryanderrorhandling)
@@ -264,7 +265,7 @@ Step(
 )
 ```
 
-#### Submit Slurm job by wlm-operator
+####  3.1.14. <a name='SubmitSlurmjobbywlm-operator'></a>Submit Slurm job by wlm-operator
 
 Following the installation steps in the [wlm-operator](https://github.com/dptech-corp/wlm-operator) project to add Slurm partitions as virtual nodes to Kubernetes (use manifests [configurator.yaml](manifests/configurator.yaml), [operator-rbac.yaml](manifests/operator-rbac.yaml), [operator.yaml](manifests/operator.yaml) in this project which modified some RBAC configurations)
 ```
