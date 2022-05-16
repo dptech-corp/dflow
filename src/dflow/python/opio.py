@@ -25,6 +25,10 @@ class Artifact:
             assert (value in ArtifactAllowedTypes), "%s is not allowed artifact type, only %s are allowed." % (value, ArtifactAllowedTypes)
         super().__setattr__(key, value)
 
+class BigParameter:
+    def __init__(self, type):
+        self.type = type
+
 class OPIOSign(MutableMapping):
     """The signature of OPIO.
     A signature of OPIO includes the key and its typing

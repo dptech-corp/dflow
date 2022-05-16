@@ -1,18 +1,19 @@
+import os
 from copy import deepcopy
 from collections import UserDict
 import jsonpickle
 import random
 import string
-from argo.workflows.client.configuration import Configuration
 from argo.workflows.client import (
     V1alpha1Inputs,
     V1alpha1Outputs,
     V1alpha1Parameter,
     V1alpha1RawArtifact,
-    V1alpha1S3Artifact,
     V1alpha1ArchiveStrategy
 )
 from .client import V1alpha1ValueFrom, V1alpha1Artifact
+from .common import S3Artifact
+from .utils import upload_s3, randstr
 
 class AutonamedDict(UserDict):
     def __setitem__(self, key, value):
@@ -51,8 +52,16 @@ class Inputs:
             art.step_id = step_id
 
     def convert_to_argo(self):
-        return V1alpha1Inputs(parameters=[par.convert_to_argo() for par in self.parameters.values()],
-                artifacts=[art.convert_to_argo() for art in self.artifacts.values()])
+        parameters = []
+        artifacts = []
+        for par in self.parameters.values():
+            if par.save_as_artifact:
+                artifacts.append(par.convert_to_argo())
+            else:
+                parameters.append(par.convert_to_argo())
+        for art in self.artifacts.values():
+            artifacts.append(art.convert_to_argo())
+        return V1alpha1Inputs(parameters=parameters, artifacts=artifacts)
 
 class Outputs:
     def __init__(self, parameters=None, artifacts=None):
@@ -85,8 +94,16 @@ class Outputs:
             art.step_id = step_id
 
     def convert_to_argo(self):
-        return V1alpha1Outputs(parameters=[par.convert_to_argo() for par in self.parameters.values()],
-                artifacts=[art.convert_to_argo() for art in self.artifacts.values()])
+        parameters = []
+        artifacts = []
+        for par in self.parameters.values():
+            if par.save_as_artifact:
+                artifacts.append(par.convert_to_argo())
+            else:
+                parameters.append(par.convert_to_argo())
+        for art in self.artifacts.values():
+            artifacts.append(art.convert_to_argo())
+        return V1alpha1Outputs(parameters=parameters, artifacts=artifacts)
 
 class ArgoVar:
     def __init__(self, expr=None):
@@ -134,7 +151,7 @@ class ArgoVar:
         return ArgoVar("asFloat(%s) >= %s" % (self.expr, other))
 
 class InputParameter(ArgoVar):
-    def __init__(self, name=None, step_id=None, type=None, value=None):
+    def __init__(self, name=None, step_id=None, type=None, value=None, save_as_artifact=False, path=None, source=None):
         """
         Input parameter for OP template
         :param name: name of the input parameter
@@ -147,9 +164,18 @@ class InputParameter(ArgoVar):
         self.step_id = step_id
         self.type = type
         self.value = value
+        self.save_as_artifact = save_as_artifact
+        self.path = path
+        self.source = source
 
     def __getattr__(self, key):
         if key == "expr":
+            if self.save_as_artifact:
+                if self.name is not None:
+                    if self.step_id is not None:
+                        return "steps['%s'].inputs.artifacts['%s']" % (self.step_id, self.name)
+                    return "inputs.artifacts['%s']" % self.name
+                return ""
             if self.name is not None:
                 if self.step_id is not None:
                     return "steps['%s'].inputs.parameters['%s']" % (self.step_id, self.name)
@@ -158,6 +184,12 @@ class InputParameter(ArgoVar):
         return super().__getattr__(key)
 
     def __repr__(self):
+        if self.save_as_artifact:
+            if self.name is not None:
+                if self.step_id is not None:
+                    return "{{steps.%s.inputs.artifacts.%s}}" % (self.step_id, self.name)
+                return "{{inputs.artifacts.%s}}" % self.name
+            return ""
         if self.name is not None:
             if self.step_id is not None:
                 return "{{steps.%s.inputs.parameters.%s}}" % (self.step_id, self.name)
@@ -165,6 +197,25 @@ class InputParameter(ArgoVar):
         return ""
 
     def convert_to_argo(self):
+        if self.save_as_artifact:
+            if self.value is not None:
+                path = ".tmp-%s" % self.name
+                with open(path, "w") as f:
+                    if isinstance(self.value, str):
+                        f.write(self.value)
+                    else:
+                        f.write(jsonpickle.dumps(self.value))
+                key = upload_s3(path)
+                s3 = S3Artifact(key=key)
+                os.remove(path)
+                return V1alpha1Artifact(name=self.name, path=self.path, s3=s3)
+            elif isinstance(self.source, (InputParameter, OutputParameter)):
+                return V1alpha1Artifact(name=self.name, path=self.path, _from=str(self.source))
+            elif isinstance(self.source, (InputArtifact, OutputArtifact)):
+                return V1alpha1Artifact(name=self.name, path=self.path, _from=str(self.source))
+            else:
+                return V1alpha1Artifact(name=self.name, path=self.path)
+
         if self.value is None:
             return V1alpha1Parameter(name=self.name)
         elif isinstance(self.value, ArgoVar):
@@ -225,11 +276,11 @@ class InputArtifact(ArgoVar):
         elif isinstance(self.source, str):
             return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, raw=V1alpha1RawArtifact(data=self.source))
         else:
-            raise RuntimeError("Cannot handle here")
+            raise RuntimeError("Cannot pass an object of type %s to artifact %s" % (type(self.source)), self)
 
 class OutputParameter(ArgoVar):
     def __init__(self, value_from_path=None, value_from_parameter=None, name=None, step_id=None, type=None, default=None, global_name=None,
-            value_from_expression=None):
+            value_from_expression=None, save_as_artifact=False):
         """
         Output parameter for OP template
         :param value_from_path: the value is read from file generated in the container
@@ -250,9 +301,15 @@ class OutputParameter(ArgoVar):
         self.default = default
         self.global_name = global_name
         self.value_from_expression = value_from_expression
+        self.save_as_artifact = save_as_artifact
 
     def __getattr__(self, key):
         if key == "expr":
+            if self.save_as_artifact:
+                if self.name is not None:
+                    if self.step_id is not None:
+                        return "steps['%s'].outputs.artifacts['%s']" % (self.step_id, self.name)
+                    return "outputs.artifacts['%s']" % self.name
             if self.name is not None:
                 if self.step_id is not None:
                     return "steps['%s'].outputs.parameters['%s']" % (self.step_id, self.name)
@@ -260,7 +317,20 @@ class OutputParameter(ArgoVar):
             return ""
         return super().__getattr__(key)
 
+    def __setattr__(self, key, value):
+        if key == "value_from_parameter" and isinstance(value, (InputParameter, OutputParameter)):
+            if self.save_as_artifact:
+                value.save_as_artifact = True
+            if value.save_as_artifact:
+                self.save_as_artifact = True
+        return super().__setattr__(key, value)
+
     def __repr__(self):
+        if self.save_as_artifact:
+            if self.name is not None:
+                if self.step_id is not None:
+                    return "{{steps.%s.outputs.artifacts.%s}}" % (self.step_id, self.name)
+                return "{{outputs.artifacts.%s}}" % self.name
         if self.name is not None:
             if self.step_id is not None:
                 return "{{steps.%s.outputs.parameters.%s}}" % (self.step_id, self.name)
@@ -268,6 +338,15 @@ class OutputParameter(ArgoVar):
         return ""
 
     def convert_to_argo(self):
+        if self.save_as_artifact:
+            if self.value_from_path is not None:
+                return V1alpha1Artifact(name=self.name, path=self.value_from_path, global_name=self.global_name)
+            elif self.value_from_parameter is not None:
+                return V1alpha1Artifact(name=self.name, _from=str(self.value_from_parameter), global_name=self.global_name)
+            elif self.value_from_expression is not None:
+                return V1alpha1Artifact(name=self.name, from_expression=str(self.value_from_expression), global_name=self.global_name)
+            else:
+                raise RuntimeError("Not supported.")
         if self.value_from_path is not None:
             return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(path=self.value_from_path, default=self.default), global_name=self.global_name)
         elif self.value_from_parameter is not None:
@@ -373,17 +452,3 @@ class PVC:
             access_modes = ["ReadWriteOnce"]
         self.access_modes = access_modes
 
-class S3Artifact(V1alpha1S3Artifact):
-    def __init__(self, *args, **kwargs):
-        config = Configuration()
-        config.client_side_validation = False
-        super().__init__(local_vars_configuration=config, *args, **kwargs)
-        self._sub_path = None
-
-    def sub_path(self, path):
-        artifact = deepcopy(self)
-        artifact._sub_path = path
-        return artifact
-
-def randstr(l=5):
-    return "".join(random.sample(string.digits + string.ascii_lowercase, l))

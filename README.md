@@ -276,7 +276,7 @@ slurm-minikube-cpu              Ready    agent                  131m   v1.13.1-v
 slurm-minikube-dplc-ai-v100x8   Ready    agent                  131m   v1.13.1-vk-N/A
 slurm-minikube-v100             Ready    agent                  131m   v1.13.1-vk-N/A
 ```
-Then you can specify a step to be executed on a virtual node (i.e. submit a Slurm job to the corresponding partition to complete the step)
+Then you can assign a step to be executed on a virtual node (i.e. submit a Slurm job to the corresponding partition to complete the step)
 ```python
 step = Step(
     ...
