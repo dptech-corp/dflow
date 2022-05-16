@@ -1,4 +1,5 @@
 from copy import deepcopy
+
 import jsonpickle
 from argo.workflows.client import (
     V1alpha1WorkflowStep,
@@ -7,7 +8,7 @@ from argo.workflows.client import (
     V1alpha1ContinueOn,
     V1alpha1ResourceTemplate
 )
-from .io import InputParameter, OutputParameter, PVC, ArgoVar
+from .io import InputArtifact, InputParameter, OutputArtifact, OutputParameter, PVC, ArgoVar
 from .op_template import ShellOPTemplate, PythonScriptOPTemplate
 from .utils import copy_file
 from .util_ops import CheckNumSuccess, CheckSuccessRatio
@@ -134,11 +135,21 @@ class Step:
     
     def set_parameters(self, parameters):
         for k, v in parameters.items():
+            # if a parameter is saved as artifact, the parameters it pass value to or its value comes from must be saved as artifact as well
+            if self.inputs.parameters[k].save_as_artifact and isinstance(v, (InputParameter, OutputParameter)):
+                v.save_as_artifact = True
+            if isinstance(v, (InputParameter, OutputParameter)) and v.save_as_artifact:
+                self.inputs.parameters[k].save_as_artifact = True
+
+            if self.inputs.parameters[k].save_as_artifact and isinstance(v, (InputParameter, OutputParameter, InputArtifact, OutputArtifact)):
+                self.inputs.parameters[k].source = v
+                return
+
             if v is None:
                 self.inputs.parameters[k].value = "null"
             else:
                 self.inputs.parameters[k].value = v
-    
+
     def set_artifacts(self, artifacts):
         for k, v in artifacts.items():
             if v is None:
@@ -154,12 +165,15 @@ class Step:
             if hasattr(self.template, "slices") and self.template.slices is not None and self.template.slices.output_artifact is not None:
                 self.inputs.parameters["dflow_group_key"] = InputParameter(value=str(self.key).replace("{{item}}", "group"))
         argo_parameters = []
+        argo_artifacts = []
         for par in self.inputs.parameters.values():
-            argo_parameters.append(par.convert_to_argo())
+            if par.save_as_artifact:
+                argo_artifacts.append(par.convert_to_argo())
+            else:
+                argo_parameters.append(par.convert_to_argo())
 
         new_template = None
 
-        argo_artifacts = []
         pvc_arts = []
         for art in self.inputs.artifacts.values():
             if isinstance(art.source, PVC):
@@ -226,7 +240,7 @@ class Step:
             elif (isinstance(new_template, PythonScriptOPTemplate)):
                 new_template.outputs.parameters["dflow_success_tag"] = OutputParameter(value_from_path="/tmp/success_tag", default="0")
                 new_template.script += "\n"
-                new_template.script += "open('/tmp/success_tag', 'w').write('1')\n"
+                new_template.script += "with open('/tmp/success_tag', 'w') as f:\n    f.write('1')\n"
             else:
                 raise RuntimeError("Unsupported type of OPTemplate for continue_on_num_success or continue_on_success_ratio")
 

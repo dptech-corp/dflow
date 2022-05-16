@@ -52,7 +52,8 @@ class OPTemplate:
 
 class ScriptOPTemplate(OPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None, resource=None):
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None, resource=None,
+            image_pull_policy="Always"):
         """
         Instantiate a script OP template
         :param name: the name of the OP template
@@ -69,6 +70,7 @@ class ScriptOPTemplate(OPTemplate):
         :param memoize_key: memoized key of the OP template
         :param key: key of the OP template
         :param pvcs: PVCs need to be declared
+        :param image_pull_policy: Always, IfNotPresent, Never
         :return:
         """
         super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, key=key, pvcs=pvcs)
@@ -85,6 +87,7 @@ class ScriptOPTemplate(OPTemplate):
         self.timeout = timeout
         self.retry_strategy = retry_strategy
         self.resource = resource
+        self.image_pull_policy = image_pull_policy
 
     def convert_to_argo(self, memoize_prefix=None, memoize_configmap="dflow-config"):
         self.handle_key(memoize_prefix, memoize_configmap)
@@ -107,11 +110,12 @@ class ScriptOPTemplate(OPTemplate):
                 retry_strategy=self.retry_strategy,
                 memoize=self.memoize,
                 volumes=self.volumes,
-                script=V1alpha1ScriptTemplate(image=self.image, command=self.command, source=self.script, volume_mounts=self.mounts))
+                script=V1alpha1ScriptTemplate(image=self.image, image_pull_policy=self.image_pull_policy,
+                    command=self.command, source=self.script, volume_mounts=self.mounts))
 
 class ShellOPTemplate(ScriptOPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None):
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None, image_pull_policy="Always"):
         """
         Instantiate a shell script OP template
         :param name: the name of the OP template
@@ -128,17 +132,18 @@ class ShellOPTemplate(ScriptOPTemplate):
         :param memoize_key: memoized key of the OP template
         :param key: key of the OP template
         :param pvcs: PVCs need to be declared
+        :param image_pull_policy: Always, IfNotPresent, Never
         :return:
         """
         if command is None:
             command = ["sh"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
                 mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key,
-                key=key, pvcs=pvcs)
+                key=key, pvcs=pvcs, image_pull_policy=image_pull_policy)
 
 class PythonScriptOPTemplate(ScriptOPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None):
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None, image_pull_policy="Always"):
         """
         Instantiate a python script OP template
         :param name: the name of the OP template
@@ -155,10 +160,11 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         :param memoize_key: memoized key of the OP template
         :param key: key of the OP template
         :param pvcs: PVCs need to be declared
+        :param image_pull_policy: Always, IfNotPresent, Never
         :return:
         """
         if command is None:
             command = ["python"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
                 mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key,
-                key=key, pvcs=pvcs)
+                key=key, pvcs=pvcs, image_pull_policy=image_pull_policy)

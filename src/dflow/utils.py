@@ -4,8 +4,7 @@ import shutil
 import tarfile
 import jsonpickle
 from minio import Minio
-from minio.api import CopySource
-from .io import S3Artifact, randstr
+from .common import S3Artifact
 
 def download_artifact(artifact, extract=True, **kwargs):
     """
@@ -42,6 +41,7 @@ def download_artifact(artifact, extract=True, **kwargs):
                     merge_dir(tmpdir, path)
                 shutil.rmtree(tmpdir)
 
+        remove_empty_dir_tag(path)
         return assemble_path_list(path, remove=True)
     else:
         raise NotImplementedError()
@@ -195,8 +195,9 @@ def assemble_path_list(art_path, remove=False):
         dflow_list = []
         for f in os.listdir(art_path):
             if f[:6] == ".dflow":
-                for item in jsonpickle.loads(open('%s/%s' % (art_path, f), 'r').read())['path_list']:
-                    if item not in dflow_list: dflow_list.append(item) # remove duplicate
+                with open('%s/%s' % (art_path, f), 'r') as fd:
+                    for item in jsonpickle.loads(fd.read())['path_list']:
+                        if item not in dflow_list: dflow_list.append(item) # remove duplicate
                 if remove:
                     os.remove(os.path.join(art_path, f))
         if len(dflow_list) > 0:
@@ -206,3 +207,11 @@ def assemble_path_list(art_path, remove=False):
 def convert_dflow_list(dflow_list):
     dflow_list.sort(key=lambda x: x['order'])
     return list(map(lambda x: x['dflow_list_item'], dflow_list))
+
+def remove_empty_dir_tag(path):
+    for dn, ds, fs in os.walk(path, followlinks=True):
+        if ".empty_dir" in fs:
+            os.remove(os.path.join(dn, ".empty_dir"))
+
+def randstr(l=5):
+    return "".join(random.sample(string.digits + string.ascii_lowercase, l))

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.0.7
+
+### Added
+
+- add BigParameter
+- retain empty dir
+- optimize opening file descriptors
+
 ## 1.0.6
 
 ### Added

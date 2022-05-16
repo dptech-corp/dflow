@@ -1,5 +1,6 @@
 import inspect, uuid, jsonpickle, random, string
-from .opio import Artifact
+
+from .opio import Artifact, BigParameter
 from ..op_template import PythonScriptOPTemplate
 from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact, S3Artifact
 from ..utils import upload_artifact
@@ -11,7 +12,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  output_artifact_archive=None, input_parameter_slices=None, output_artifact_slices=None,
                  output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None,
                  timeout=None, retry_on_transient_error=None, output_parameter_default=None, output_parameter_global_name=None,
-                 timeout_as_transient_error=False, memoize_key=None, key=None, volumes=None, mounts=None):
+                 timeout_as_transient_error=False, memoize_key=None, key=None, volumes=None, mounts=None, image_pull_policy="Always"):
         """
         Convert from Python class OP to OP template
         :param op_class: Python class OP
@@ -35,6 +36,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         :param key: key of the OP template
         :param volumes: volumes to use in the OP template
         :param mounts: volumes to mount in the OP template
+        :param image_pull_policy: Always, IfNotPresent, Never
         """
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
@@ -74,12 +76,16 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 self.inputs.artifacts[name] = InputArtifact(path="/tmp/inputs/artifacts/" + name, optional=sign.optional)
+            elif isinstance(sign, BigParameter):
+                self.inputs.parameters[name] = InputParameter(save_as_artifact=True, path="/tmp/inputs/parameters/" + name)
             else:
                 self.inputs.parameters[name] = InputParameter()
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 self.outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/" + name,
                     archive=sign.archive, save=sign.save, global_name=sign.global_name)
+            elif isinstance(sign, BigParameter):
+                self.outputs.parameters[name] = OutputParameter(save_as_artifact=True, value_from_path="/tmp/outputs/parameters/" + name)
             else:
                 default = None
                 if output_parameter_default is not None and name in output_parameter_default:
@@ -108,7 +114,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
         if op_class.__module__ == "__main__":
             source_lines, start_line = inspect.getsourcelines(op_class)
-            pre_lines = open(inspect.getsourcefile(op_class), "r").readlines()[:start_line-1]
+            with open(inspect.getsourcefile(op_class), "r") as fd:
+                pre_lines = fd.readlines()[:start_line-1]
             script += "".join(pre_lines + source_lines) + "\n"
 
         script += "import os, sys, traceback, jsonpickle\n"
@@ -125,7 +132,10 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 script += "input['%s'] = handle_input_artifact('%s', input_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
             else:
                 slices = self.get_slices(input_parameter_slices, name)
-                script += "input['%s'] = handle_input_parameter('%s', r'{{inputs.parameters.%s}}', input_sign['%s'], %s)\n" % (name, name, name, name, slices)
+                if isinstance(sign, BigParameter):
+                    script += "input['%s'] = handle_input_parameter('%s', '', input_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
+                else:
+                    script += "input['%s'] = handle_input_parameter('%s', r'{{inputs.parameters.%s}}', input_sign['%s'], %s, '/tmp')\n" % (name, name, name, name, slices)
 
         script += "try:\n"
         script += "    output = op_obj.execute(input)\n"
@@ -150,6 +160,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 script += "handle_output_parameter('%s', output['%s'], output_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
 
         self.image = image
+        self.image_pull_policy = image_pull_policy
         if command is not None:
             self.command = command
         else:
