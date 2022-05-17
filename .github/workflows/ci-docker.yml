@@ -38,17 +38,6 @@ jobs:
         docker buildx build --platform linux/arm64,linux/amd64 -t dptechnology/dflow:v${{ steps.read.outputs.content }} --push .
         docker buildx build --platform linux/arm64,linux/amd64 -t dptechnology/dflow:latest --push .
 
-  send-email:
-    if: github.repository_owner == 'dptech-corp'
-    name: send email to inform developers
-    runs-on: ubuntu-latest
-    needs: [ build-n-push ]
-    steps:
-    - name: read version
-      id: read
-      uses: juliangruber/read-file-action@v1
-      with:
-        path: ./VERSION
     - name: send email
       uses: dawidd6/action-send-mail@v3
       with:
@@ -57,7 +46,7 @@ jobs:
         username: ${{ secrets.MAILUSERNAME }}
         password: ${{ secrets.MAILPASSWORD }}
         subject: PyPI Auto Build For Dflow
-        body: dptechnology/dflow:v${{ steps.read.outputs.content }}
+        body: Docker image has been pushed to dptechnology/dflow:v${{ steps.read.outputs.content }}
         to: ${{ secrets.MAIL_RECEIVER_LIST }}
         from: Github Actions
         content_type: text
