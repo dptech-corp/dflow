@@ -3,10 +3,15 @@ from setuptools import setup
 with open('VERSION', 'r') as f:
     VERSION = f.read()
 
+with open('README.md', 'r') as f:
+    LONG_DESCRIPTION = f.read()
+
 setup(
     name='pydflow',
     version=VERSION,
     description='Dflow is a concurrent learning framework based on Argo Workflows.',
+    long_description=LONG_DESCRIPTION,
+    long_description_content_type="text/markdown",
     author="Xinzijian Liu",
     license="LGPLv3",
     package_dir={'': 'src'},
