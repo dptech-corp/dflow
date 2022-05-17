@@ -2,8 +2,6 @@ import os
 from copy import deepcopy
 from collections import UserDict
 import jsonpickle
-import random
-import string
 from argo.workflows.client import (
     V1alpha1Inputs,
     V1alpha1Outputs,
@@ -386,6 +384,7 @@ class OutputArtifact(ArgoVar):
         self._sub_path = None
         self.global_name = global_name
         self.from_expression = from_expression
+        self.redirect = None
 
     def sub_path(self, path):
         artifact = deepcopy(self)
@@ -404,6 +403,8 @@ class OutputArtifact(ArgoVar):
         return super().__getattr__(key)
 
     def __repr__(self):
+        if self.redirect is not None:
+            return self.redirect
         if self.global_name is not None:
             return "{{workflow.outputs.artifacts.%s}}" % (self.global_name)
         elif self.name is not None:

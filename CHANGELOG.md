@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.0.8
+
+### Added
+
+- handle empty sliced step
+
 ## 1.0.7
 
 ### Added

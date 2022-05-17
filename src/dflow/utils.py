@@ -1,9 +1,12 @@
 import os
 import uuid
 import shutil
+import string
+import random
 import tarfile
 import jsonpickle
 from minio import Minio
+from minio.api import CopySource
 from .common import S3Artifact
 
 def download_artifact(artifact, extract=True, **kwargs):
@@ -190,7 +193,7 @@ def copy_file(src, dst, func=os.link):
         raise RuntimeError("File %s not found" % src)
 
 def assemble_path_list(art_path, remove=False):
-    path_list = [art_path]
+    path_list = []
     if os.path.isdir(art_path):
         dflow_list = []
         for f in os.listdir(art_path):

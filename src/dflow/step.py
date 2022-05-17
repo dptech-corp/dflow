@@ -8,6 +8,7 @@ from argo.workflows.client import (
     V1alpha1ContinueOn,
     V1alpha1ResourceTemplate
 )
+from .common import S3Artifact
 from .io import InputArtifact, InputParameter, OutputArtifact, OutputParameter, PVC, ArgoVar
 from .op_template import ShellOPTemplate, PythonScriptOPTemplate
 from .utils import copy_file
@@ -115,6 +116,7 @@ class Step:
         self.continue_on_num_success = continue_on_num_success
         self.continue_on_success_ratio = continue_on_success_ratio
         self.check_step = None
+        self.prepare_step = None
 
         if parameters is not None:
             self.set_parameters(parameters)
@@ -163,6 +165,7 @@ class Step:
             self.template.key = self.key
             self.inputs.parameters["dflow_key"] = InputParameter(value=str(self.key))
             if hasattr(self.template, "slices") and self.template.slices is not None and self.template.slices.output_artifact is not None:
+                self.template.inputs.parameters["dflow_group_key"] = InputParameter(value="")
                 self.inputs.parameters["dflow_group_key"] = InputParameter(value=str(self.key).replace("{{item}}", "group"))
         argo_parameters = []
         argo_artifacts = []
@@ -244,11 +247,41 @@ class Step:
             else:
                 raise RuntimeError("Unsupported type of OPTemplate for continue_on_num_success or continue_on_success_ratio")
 
+        if hasattr(self.template, "slices") and self.template.slices is not None and self.template.slices.output_artifact is not None:
+            if new_template is None:
+                new_template = deepcopy(self.template)
+                new_template.name = self.template.name + "-" + self.name
+            script = ""
+            for name in new_template.slices.output_artifact:
+                script += "mkdir -p /tmp/outputs/artifacts/%s\n" % name
+                script += "echo '{\"path_list\": []}' > /tmp/outputs/artifacts/%s/.dflow.init\n" % name
+            init_template = ShellOPTemplate(name="%s-init-artifact" % new_template.name, image=new_template.image,
+                image_pull_policy=new_template.image_pull_policy, script=script)
+            if self.key is not None:
+                init_template.inputs.parameters["dflow_group_key"] = InputParameter()
+                for name in new_template.slices.output_artifact:
+                    init_template.outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/%s" % name,
+                        save=S3Artifact(key="{{workflow.name}}/{{inputs.parameters.dflow_group_key}}/%s" % name), archive=None)
+                    new_template.outputs.artifacts[name].save.append(S3Artifact(
+                        key="{{workflow.name}}/{{inputs.parameters.dflow_group_key}}/%s" % name))
+                self.prepare_step = Step(name="%s-init-artifact" % self.name, template=init_template,
+                    parameters={"dflow_group_key": str(self.key).replace("{{item}}", "group")})
+            else:
+                new_template.inputs.parameters["dflow_artifact_key"] = InputParameter(value="")
+                self.inputs.parameters["dflow_artifact_key"] = InputParameter(value="{{workflow.name}}/{{steps.%s-init-artifact.id}}" % self.name)
+                argo_parameters.append(self.inputs.parameters["dflow_artifact_key"].convert_to_argo())
+                for name in new_template.slices.output_artifact:
+                    init_template.outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/%s" % name,
+                        save=S3Artifact(key="{{workflow.name}}/{{pod.name}}/%s" % name), archive=None)
+                    new_template.outputs.artifacts[name].save.append(S3Artifact(
+                        key="{{inputs.parameters.dflow_artifact_key}}/%s" % name))
+                self.prepare_step = Step(name="%s-init-artifact" % self.name, template=init_template)
+            new_template.outputs.artifacts[name].redirect = "{{steps.%s-init-artifact.outputs.artifacts.%s}}" % (self.name, name)
+            self.outputs.artifacts[name].redirect = "{{steps.%s-init-artifact.outputs.artifacts.%s}}" % (self.name, name)
+
         if new_template is not None:
             self.template = new_template
-            self.inputs = deepcopy(self.template.inputs)
             self.outputs = deepcopy(self.template.outputs)
-            self.inputs.set_step_id(self.id)
             self.outputs.set_step_id(self.id)
 
         if self.continue_on_num_success is not None:
