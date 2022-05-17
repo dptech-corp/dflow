@@ -1,8 +1,11 @@
 from setuptools import setup
 
+with open('VERSION', 'r') as f:
+    VERSION = f.read()
+
 setup(
     name='pydflow',
-    version='1.0.7',
+    version=VERSION,
     description='Dflow is a concurrent learning framework based on Argo Workflows.',
     author="Xinzijian Liu",
     license="LGPLv3",
