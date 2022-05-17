@@ -3,7 +3,7 @@ name: Publish Python distributions to PyPI
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build-n-publish:
