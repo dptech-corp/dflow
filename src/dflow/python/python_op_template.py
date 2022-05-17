@@ -12,7 +12,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  output_artifact_archive=None, input_parameter_slices=None, output_artifact_slices=None,
                  output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None,
                  timeout=None, retry_on_transient_error=None, output_parameter_default=None, output_parameter_global_name=None,
-                 timeout_as_transient_error=False, memoize_key=None, key=None, volumes=None, mounts=None, image_pull_policy="Always"):
+                 timeout_as_transient_error=False, memoize_key=None, key=None, volumes=None, mounts=None, image_pull_policy=None):
         """
         Convert from Python class OP to OP template
         :param op_class: Python class OP
@@ -49,9 +49,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 output_artifact_slices = {}
                 for name in slices.output_artifact:
                     output_artifact_slices[name] = slices.slices
-                    output_sign[name].save = S3Artifact(key=str(uuid.uuid4()) + "-{{workflow.duration}}") # stack slices to a S3Artifact for default
                     output_sign[name].archive = None # not archive for default
-                    output_sign[name].global_name = class_name + "-" + name # set global name for default
             if slices.output_parameter is not None: output_parameter_slices = {name: slices.slices for name in slices.output_parameter}
         if output_artifact_save is not None:
             for name, save in output_artifact_save.items():

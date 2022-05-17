@@ -34,13 +34,6 @@ class OPTemplate:
             if memoize_prefix is not None:
                 self.memoize_key = "%s-{{inputs.parameters.dflow_key}}" % memoize_prefix
 
-            if hasattr(self, "slices") and self.slices is not None and self.slices.output_artifact is not None:
-                self.inputs.parameters["dflow_group_key"] = InputParameter(value="")
-                for name in self.slices.output_artifact:
-                    for save in self.outputs.artifacts[name].save:
-                        if isinstance(save, S3Artifact):
-                            save.key = "{{workflow.name}}/{{inputs.parameters.dflow_group_key}}-%s" % name
-
         if self.memoize_key is not None:
             # Is it a bug of Argo?
             if self.memoize_key.find("workflow.name") != -1:
@@ -53,7 +46,7 @@ class OPTemplate:
 class ScriptOPTemplate(OPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None, resource=None,
-            image_pull_policy="Always"):
+            image_pull_policy=None):
         """
         Instantiate a script OP template
         :param name: the name of the OP template
@@ -115,7 +108,7 @@ class ScriptOPTemplate(OPTemplate):
 
 class ShellOPTemplate(ScriptOPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None, image_pull_policy="Always"):
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None, image_pull_policy=None):
         """
         Instantiate a shell script OP template
         :param name: the name of the OP template
@@ -143,7 +136,7 @@ class ShellOPTemplate(ScriptOPTemplate):
 
 class PythonScriptOPTemplate(ScriptOPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None, image_pull_policy="Always"):
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None, image_pull_policy=None):
         """
         Instantiate a python script OP template
         :param name: the name of the OP template
