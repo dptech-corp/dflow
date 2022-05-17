@@ -1,0 +1,21 @@
+name: Sync to Github Repo
+
+on: [ push, delete, create ]
+
+# Ensures that only one mirror task will run at a time.
+concurrency:
+  group: git-mirror
+
+jobs:
+  git-mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url:
+            git@github.com:deepmodeling/dflow.git
+          ssh_private_key:
+            ${{ secrets.DEEPMODELING_SSH_PRIVATE_KEY }}
