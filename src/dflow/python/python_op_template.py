@@ -12,7 +12,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  output_artifact_archive=None, input_parameter_slices=None, output_artifact_slices=None,
                  output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None,
                  timeout=None, retry_on_transient_error=None, output_parameter_default=None, output_parameter_global_name=None,
-                 timeout_as_transient_error=False, memoize_key=None, key=None, volumes=None, mounts=None, image_pull_policy=None):
+                 timeout_as_transient_error=False, memoize_key=None, volumes=None, mounts=None, image_pull_policy=None):
         """
         Convert from Python class OP to OP template
         :param op_class: Python class OP
@@ -33,7 +33,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         :param output_parameter_global_name: a dict specifying global names of output parameters within the workflow
         :param timeout_as_transient_error: regard timeout as transient error or fatal one
         :param memoize_key: memoized key of the OP template
-        :param key: key of the OP template
         :param volumes: volumes to use in the OP template
         :param mounts: volumes to mount in the OP template
         :param image_pull_policy: Always, IfNotPresent, Never
@@ -167,7 +166,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         self.init_progress = "%s/%s" % (op_class.progress_current, op_class.progress_total)
 
         self.memoize_key = memoize_key
-        self.key = key
 
     def get_slices(self, slices_dict, name):
         slices = None
