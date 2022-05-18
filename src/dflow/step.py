@@ -132,6 +132,43 @@ class Step:
         self.use_resource = use_resource
         self.use_template = use_template
 
+        if self.key is not None:
+            self.template.inputs.parameters["dflow_key"] = InputParameter(value="")
+            self.inputs.parameters["dflow_key"] = InputParameter(value=str(self.key))
+
+        if hasattr(self.template, "slices") and self.template.slices is not None and self.template.slices.output_artifact is not None:
+            new_template = deepcopy(self.template)
+            new_template.name = self.template.name + "-" + self.name
+            script = ""
+            for name in new_template.slices.output_artifact:
+                script += "mkdir -p /tmp/outputs/artifacts/%s\n" % name
+                script += "echo '{\"path_list\": []}' > /tmp/outputs/artifacts/%s/.dflow.init\n" % name
+            init_template = ShellOPTemplate(name="%s-init-artifact" % new_template.name, image=new_template.image,
+                image_pull_policy=new_template.image_pull_policy, script=script)
+            if self.key is not None:
+                new_template.inputs.parameters["dflow_group_key"] = InputParameter(value="")
+                self.inputs.parameters["dflow_group_key"] = InputParameter(value=str(self.key).replace("{{item}}", "group"))
+                init_template.inputs.parameters["dflow_group_key"] = InputParameter()
+                for name in new_template.slices.output_artifact:
+                    init_template.outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/%s" % name,
+                        save=S3Artifact(key="{{workflow.name}}/{{inputs.parameters.dflow_group_key}}/%s" % name), archive=None)
+                    new_template.outputs.artifacts[name].save.append(S3Artifact(
+                        key="{{workflow.name}}/{{inputs.parameters.dflow_group_key}}/%s" % name))
+                self.prepare_step = Step(name="%s-init-artifact" % self.name, template=init_template,
+                    parameters={"dflow_group_key": str(self.key).replace("{{item}}", "group")})
+            else:
+                new_template.inputs.parameters["dflow_artifact_key"] = InputParameter(value="")
+                self.inputs.parameters["dflow_artifact_key"] = InputParameter(value="{{workflow.name}}/{{steps.%s-init-artifact.id}}" % self.name)
+                for name in new_template.slices.output_artifact:
+                    init_template.outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/%s" % name,
+                        save=S3Artifact(key="{{workflow.name}}/{{pod.name}}/%s" % name), archive=None)
+                    new_template.outputs.artifacts[name].save.append(S3Artifact(
+                        key="{{inputs.parameters.dflow_artifact_key}}/%s" % name))
+                self.prepare_step = Step(name="%s-init-artifact" % self.name, template=init_template)
+            for name in new_template.slices.output_artifact:
+                self.outputs.artifacts[name].redirect = self.prepare_step.outputs.artifacts[name]
+            self.template = new_template
+
     def __repr__(self):
         return self.id
     
@@ -161,12 +198,6 @@ class Step:
                 self.inputs.artifacts[k].source = v
 
     def convert_to_argo(self):
-        if self.key is not None:
-            self.template.key = self.key
-            self.inputs.parameters["dflow_key"] = InputParameter(value=str(self.key))
-            if hasattr(self.template, "slices") and self.template.slices is not None and self.template.slices.output_artifact is not None:
-                self.template.inputs.parameters["dflow_group_key"] = InputParameter(value="")
-                self.inputs.parameters["dflow_group_key"] = InputParameter(value=str(self.key).replace("{{item}}", "group"))
         argo_parameters = []
         argo_artifacts = []
         for par in self.inputs.parameters.values():
@@ -246,38 +277,6 @@ class Step:
                 new_template.script += "with open('/tmp/success_tag', 'w') as f:\n    f.write('1')\n"
             else:
                 raise RuntimeError("Unsupported type of OPTemplate for continue_on_num_success or continue_on_success_ratio")
-
-        if hasattr(self.template, "slices") and self.template.slices is not None and self.template.slices.output_artifact is not None:
-            if new_template is None:
-                new_template = deepcopy(self.template)
-                new_template.name = self.template.name + "-" + self.name
-            script = ""
-            for name in new_template.slices.output_artifact:
-                script += "mkdir -p /tmp/outputs/artifacts/%s\n" % name
-                script += "echo '{\"path_list\": []}' > /tmp/outputs/artifacts/%s/.dflow.init\n" % name
-            init_template = ShellOPTemplate(name="%s-init-artifact" % new_template.name, image=new_template.image,
-                image_pull_policy=new_template.image_pull_policy, script=script)
-            if self.key is not None:
-                init_template.inputs.parameters["dflow_group_key"] = InputParameter()
-                for name in new_template.slices.output_artifact:
-                    init_template.outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/%s" % name,
-                        save=S3Artifact(key="{{workflow.name}}/{{inputs.parameters.dflow_group_key}}/%s" % name), archive=None)
-                    new_template.outputs.artifacts[name].save.append(S3Artifact(
-                        key="{{workflow.name}}/{{inputs.parameters.dflow_group_key}}/%s" % name))
-                self.prepare_step = Step(name="%s-init-artifact" % self.name, template=init_template,
-                    parameters={"dflow_group_key": str(self.key).replace("{{item}}", "group")})
-            else:
-                new_template.inputs.parameters["dflow_artifact_key"] = InputParameter(value="")
-                self.inputs.parameters["dflow_artifact_key"] = InputParameter(value="{{workflow.name}}/{{steps.%s-init-artifact.id}}" % self.name)
-                argo_parameters.append(self.inputs.parameters["dflow_artifact_key"].convert_to_argo())
-                for name in new_template.slices.output_artifact:
-                    init_template.outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/%s" % name,
-                        save=S3Artifact(key="{{workflow.name}}/{{pod.name}}/%s" % name), archive=None)
-                    new_template.outputs.artifacts[name].save.append(S3Artifact(
-                        key="{{inputs.parameters.dflow_artifact_key}}/%s" % name))
-                self.prepare_step = Step(name="%s-init-artifact" % self.name, template=init_template)
-            new_template.outputs.artifacts[name].redirect = "{{steps.%s-init-artifact.outputs.artifacts.%s}}" % (self.name, name)
-            self.outputs.artifacts[name].redirect = "{{steps.%s-init-artifact.outputs.artifacts.%s}}" % (self.name, name)
 
         if new_template is not None:
             self.template = new_template

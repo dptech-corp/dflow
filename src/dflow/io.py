@@ -393,6 +393,8 @@ class OutputArtifact(ArgoVar):
 
     def __getattr__(self, key):
         if key == "expr":
+            if self.redirect is not None:
+                return self.redirect.expr
             if self.global_name is not None:
                 return "workflow.outputs.artifacts['%s']" % (self.global_name)
             elif self.name is not None:
@@ -404,7 +406,7 @@ class OutputArtifact(ArgoVar):
 
     def __repr__(self):
         if self.redirect is not None:
-            return self.redirect
+            return str(self.redirect)
         if self.global_name is not None:
             return "{{workflow.outputs.artifacts.%s}}" % (self.global_name)
         elif self.name is not None:

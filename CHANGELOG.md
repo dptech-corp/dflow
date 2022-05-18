@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.0.9
+
+## Fix
+
+- fix a bug in sliced step
+
 ## 1.0.8
 
 ### Added

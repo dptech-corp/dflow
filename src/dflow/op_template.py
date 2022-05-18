@@ -1,17 +1,16 @@
 from argo.workflows.client import (
     V1alpha1Template,
     V1alpha1ScriptTemplate,
-    V1VolumeMount,
     V1alpha1Metadata,
     V1ConfigMapKeySelector,
     V1alpha1Memoize,
     V1alpha1Cache
 )
 from argo.workflows.client.configuration import Configuration
-from .io import Inputs, Outputs, InputParameter, S3Artifact
+from .io import Inputs, Outputs, InputParameter
 
 class OPTemplate:
-    def __init__(self, name, inputs=None, outputs=None, memoize_key=None, key=None, pvcs=None):
+    def __init__(self, name, inputs=None, outputs=None, memoize_key=None, pvcs=None):
         self.name = name
         if inputs is not None:
             self.inputs = inputs
@@ -22,15 +21,13 @@ class OPTemplate:
         else:
             self.outputs = Outputs()
         self.memoize_key = memoize_key
-        self.key = key
         self.memoize = None
         if pvcs is None:
             pvcs = []
         self.pvcs = pvcs
 
     def handle_key(self, memoize_prefix=None, memoize_configmap="dflow-config"):
-        if self.key is not None:
-            self.inputs.parameters["dflow_key"] = InputParameter(value="")
+        if "dflow_key" in self.inputs.parameters:
             if memoize_prefix is not None:
                 self.memoize_key = "%s-{{inputs.parameters.dflow_key}}" % memoize_prefix
 
@@ -45,7 +42,7 @@ class OPTemplate:
 
 class ScriptOPTemplate(OPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None, resource=None,
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, resource=None,
             image_pull_policy=None):
         """
         Instantiate a script OP template
@@ -61,12 +58,11 @@ class ScriptOPTemplate(OPTemplate):
         :param timeout: timeout of the OP template
         :param retry_strategy: retry strategy of the OP template
         :param memoize_key: memoized key of the OP template
-        :param key: key of the OP template
         :param pvcs: PVCs need to be declared
         :param image_pull_policy: Always, IfNotPresent, Never
         :return:
         """
-        super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, key=key, pvcs=pvcs)
+        super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, pvcs=pvcs)
         self.image = image
         self.command = command
         self.script = script
@@ -108,7 +104,7 @@ class ScriptOPTemplate(OPTemplate):
 
 class ShellOPTemplate(ScriptOPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None, image_pull_policy=None):
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, image_pull_policy=None):
         """
         Instantiate a shell script OP template
         :param name: the name of the OP template
@@ -123,7 +119,6 @@ class ShellOPTemplate(ScriptOPTemplate):
         :param timeout: timeout of the OP template
         :param retry_strategy: retry strategy of the OP template
         :param memoize_key: memoized key of the OP template
-        :param key: key of the OP template
         :param pvcs: PVCs need to be declared
         :param image_pull_policy: Always, IfNotPresent, Never
         :return:
@@ -132,11 +127,11 @@ class ShellOPTemplate(ScriptOPTemplate):
             command = ["sh"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
                 mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key,
-                key=key, pvcs=pvcs, image_pull_policy=image_pull_policy)
+                pvcs=pvcs, image_pull_policy=image_pull_policy)
 
 class PythonScriptOPTemplate(ScriptOPTemplate):
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, key=None, pvcs=None, image_pull_policy=None):
+            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, image_pull_policy=None):
         """
         Instantiate a python script OP template
         :param name: the name of the OP template
@@ -151,7 +146,6 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         :param timeout: timeout of the OP template
         :param retry_strategy: retry strategy of the OP template
         :param memoize_key: memoized key of the OP template
-        :param key: key of the OP template
         :param pvcs: PVCs need to be declared
         :param image_pull_policy: Always, IfNotPresent, Never
         :return:
@@ -160,4 +154,4 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
             command = ["python"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
                 mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key,
-                key=key, pvcs=pvcs, image_pull_policy=image_pull_policy)
+                pvcs=pvcs, image_pull_policy=image_pull_policy)
