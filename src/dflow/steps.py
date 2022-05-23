@@ -1,8 +1,8 @@
-from argo.workflows.client import V1alpha1Template
+from argo.workflows.client import V1alpha1Template, V1alpha1Metadata
 from .op_template import OPTemplate
 
 class Steps(OPTemplate):
-    def __init__(self, name, inputs=None, outputs=None, steps=None, memoize_key=None):
+    def __init__(self, name, inputs=None, outputs=None, steps=None, memoize_key=None, annotations=None):
         """
         Instantiate a steps
         :param name: the name of the steps
@@ -10,9 +10,10 @@ class Steps(OPTemplate):
         :param outputs: outputs in the template
         :param steps: a sequential list of steps
         :param memoize_key: memoized key of the steps
+        :param annotations: annotations for the OP template
         :return:
         """
-        super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key)
+        super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, annotations=annotations)
         if steps is not None:
             self.steps = steps
         else:
@@ -51,6 +52,7 @@ class Steps(OPTemplate):
 
         self.handle_key(memoize_prefix, memoize_configmap)
         argo_template = V1alpha1Template(name=self.name,
+                metadata=V1alpha1Metadata(annotations=self.annotations),
                 steps=argo_steps,
                 inputs=self.inputs.convert_to_argo(),
                 outputs=self.outputs.convert_to_argo(),

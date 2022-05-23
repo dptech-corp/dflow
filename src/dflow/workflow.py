@@ -7,21 +7,17 @@ from argo.workflows.client import (
     V1ObjectMeta,
     V1PersistentVolumeClaim,
     V1PersistentVolumeClaimSpec,
-    V1ResourceRequirements,
-    V1alpha1ArchiveStrategy,
-    V1alpha1WorkflowStatus,
-    V1alpha1Outputs,
-    V1alpha1Artifact
+    V1ResourceRequirements
 )
 from .steps import Steps
 from .argo_objects import ArgoWorkflow
 from .utils import copy_s3, randstr
-from .io import S3Artifact
 import json
 import kubernetes
 
 class Workflow:
-    def __init__(self, name="workflow", steps=None, id=None, host="https://127.0.0.1:2746", token=None, k8s_config_file=None):
+    def __init__(self, name="workflow", steps=None, id=None, host="https://127.0.0.1:2746", token=None,
+        k8s_config_file=None, context=None):
         """
         Instantiate a workflow
         :param name: the name of the workflow
@@ -30,11 +26,13 @@ class Workflow:
         :param host: URL of the Argo server
         :param token: request the Argo server with the token
         :param k8s_config_file: Kubernetes configuration file for accessing API server
+        "param context: context for the workflow
         :return:
         """
         self.host = host
         self.token = token
         self.k8s_config_file = k8s_config_file
+        self.context = context
 
         configuration = Configuration(host=host)
         configuration.verify_ssl = False
@@ -138,10 +136,14 @@ class Workflow:
                 )
             ))
 
+        annotations = {}
+        if self.context is not None:
+            annotations.update(self.context.get_annotations())
+
         if self.id is not None:
-            metadata = V1ObjectMeta(name=self.id)
+            metadata = V1ObjectMeta(name=self.id, annotations=annotations)
         else:
-            metadata = V1ObjectMeta(generate_name=self.name + '-')
+            metadata = V1ObjectMeta(generate_name=self.name + '-', annotations=annotations)
 
         return V1alpha1Workflow(
             metadata=metadata,

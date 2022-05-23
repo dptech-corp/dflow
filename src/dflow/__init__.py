@@ -13,6 +13,7 @@ from .io import (
 from .steps import Steps
 from .op_template import OPTemplate, ShellOPTemplate, PythonScriptOPTemplate
 from .utils import upload_s3, download_s3, copy_s3, upload_artifact, download_artifact, copy_artifact
-from .executor import Executor, RemoteExecutor, SlurmRemoteExecutor
-from .resource import Resource, SlurmJob
-from .custom_template import SlurmJobTemplate
+from .common import S3Artifact
+from .executor import Executor, RemoteExecutor
+from .resource import Resource
+from .slurm import SlurmJob, SlurmJobTemplate, SlurmRemoteExecutor

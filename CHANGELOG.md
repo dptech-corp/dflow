@@ -1,8 +1,16 @@
 # CHANGELOG
 
+## 1.0.10
+
+### Added
+
+- add Lebesgue plugins
+- add resources requirements for templates
+- support for slurm template for slices
+
 ## 1.0.9
 
-## Fix
+### Fix
 
 - fix a bug in sliced step
 

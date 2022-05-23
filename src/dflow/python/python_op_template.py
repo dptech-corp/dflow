@@ -12,7 +12,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  output_artifact_archive=None, input_parameter_slices=None, output_artifact_slices=None,
                  output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None,
                  timeout=None, retry_on_transient_error=None, output_parameter_default=None, output_parameter_global_name=None,
-                 timeout_as_transient_error=False, memoize_key=None, volumes=None, mounts=None, image_pull_policy=None):
+                 timeout_as_transient_error=False, memoize_key=None, volumes=None, mounts=None, image_pull_policy=None,
+                 cpu_requests=None, memory_requests=None, cpu_limits=None, memory_limits=None):
         """
         Convert from Python class OP to OP template
         :param op_class: Python class OP
@@ -36,6 +37,10 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         :param volumes: volumes to use in the OP template
         :param mounts: volumes to mount in the OP template
         :param image_pull_policy: Always, IfNotPresent, Never
+        :param cpu_requests: CPU requests
+        :param memory_requests: memory requests
+        :param cpu_limits: CPU limits
+        :param memory_limits: memory limits
         """
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
@@ -60,7 +65,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             for name, global_name in output_artifact_global_name.items():
                 output_sign[name].global_name = global_name
         super().__init__(name="%s-%s" % (class_name, "".join(random.sample(string.digits + string.ascii_lowercase, 5))), inputs=Inputs(), outputs=Outputs(),
-                volumes=volumes, mounts=mounts)
+                volumes=volumes, mounts=mounts, cpu_requests=cpu_requests, memory_requests=memory_requests, cpu_limits=cpu_limits, memory_limits=memory_limits)
         self.slices = slices
         if timeout is not None: self.timeout = "%ss" % timeout
         if retry_on_transient_error is not None:
