@@ -1,13 +1,11 @@
+from .op_template import ShellOPTemplate
+
 class Executor(object):
     """
     Executor
-    :param image: the image to execute the script
-    :param command: the command to execute the script
-    :method get_script: 
+    :method render: render original template and return a new template, do not modify self in this method to make the executor reusable
     """
-    image = None
-    command = None
-    def get_script(self, command, script):
+    def render(self, template):
         raise NotImplementedError()
 
 class RemoteExecutor(Executor):
@@ -56,24 +54,8 @@ class RemoteExecutor(Executor):
         script += self.download("%s/tmp/*" % self.workdir, "/tmp") + " || exit 1\n"
         return script
 
-class SlurmRemoteExecutor(RemoteExecutor):
-    def __init__(self, host, port=22, username="root", password=None, workdir="~/dflow/workflows/{{workflow.name}}/{{pod.name}}", command=None, remote_command=None,
-            image="dptechnology/dflow-extender", header="", interval=3):
-        super().__init__(host=host, port=port, username=username, password=password, workdir=workdir, command=command, remote_command=remote_command, image=image)
-        self.header = header
-        self.interval = interval
-
-    def run(self):
-        script = ""
-        script += "echo '%s\n%s script' > slurm.sh\n" % (self.header, " ".join(self.remote_command))
-        script += self.upload("slurm.sh", "%s/slurm.sh" % self.workdir) + " || exit 1\n"
-        script += "echo 'jobIdFile: /tmp/job_id.txt' >> param.yaml\n"
-        script += "echo 'workdir: %s' >> param.yaml\n" % self.workdir
-        script += "echo 'scriptFile: slurm.sh' >> param.yaml\n"
-        script += "echo 'interval: %s' >> param.yaml\n" % self.interval
-        script += "echo 'host: %s' >> param.yaml\n" % self.host
-        script += "echo 'port: %s' >> param.yaml\n" % self.port
-        script += "echo 'username: %s' >> param.yaml\n" % self.username
-        script += "echo 'password: %s' >> param.yaml\n" % self.password
-        script += "./bin/slurm param.yaml || exit 1\n"
-        return script
+    def render(self, template):
+        return ShellOPTemplate(name=template.name + "-remote", inputs=template.inputs, outputs=template.outputs,
+                        image=self.image, command=self.command, script=self.get_script(template.command, template.script),
+                        volumes=template.volumes, mounts=template.mounts, init_progress=template.init_progress,
+                        timeout=template.timeout, retry_strategy=template.retry_strategy, memoize_key=template.memoize_key)

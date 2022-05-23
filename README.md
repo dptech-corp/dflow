@@ -265,7 +265,7 @@ Step(
 )
 ```
 
-####  3.1.14. <a name='SubmitSlurmjobbywlm-operator'></a>Submit Slurm job by wlm-operator
+####  3.1.14. <a name='SubmitSlurmjobbywlm-operator'></a>Submit Slurm job via virtual node
 
 Following the installation steps in the [wlm-operator](https://github.com/dptech-corp/wlm-operator) project to add Slurm partitions as virtual nodes to Kubernetes (use manifests [configurator.yaml](manifests/configurator.yaml), [operator-rbac.yaml](manifests/operator-rbac.yaml), [operator.yaml](manifests/operator.yaml) in this project which modified some RBAC configurations)
 ```
@@ -280,7 +280,7 @@ Then you can assign a step to be executed on a virtual node (i.e. submit a Slurm
 ```python
 step = Step(
     ...
-    use_template=SlurmJobTemplate(
+    executor=SlurmJobTemplate(
         header="#!/bin/sh\n#SBATCH --nodes=1",
         node_selector={"kubernetes.io/hostname": "slurm-minikube-v100"}
     )

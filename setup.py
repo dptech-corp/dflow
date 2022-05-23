@@ -18,7 +18,8 @@ setup(
     packages=[
         "dflow",
         "dflow/python",
-        "dflow/client"
+        "dflow/client",
+        "dflow/plugins",
     ],
     python_requires='>=3.6',
     install_requires=[
