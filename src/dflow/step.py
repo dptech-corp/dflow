@@ -194,7 +194,7 @@ class Step:
             else:
                 self.inputs.artifacts[k].source = v
 
-    def convert_to_argo(self):
+    def convert_to_argo(self, context=None):
         argo_parameters = []
         argo_artifacts = []
         for par in self.inputs.parameters.values():
@@ -299,6 +299,9 @@ class Step:
 
         if isinstance(self.with_param, ArgoVar):
             self.with_param = "{{=%s}}" % self.with_param.expr
+
+        if context is not None:
+            self.template = context.render(self.template)
 
         if self.executor is not None:
             self.template = self.executor.render(self.template)

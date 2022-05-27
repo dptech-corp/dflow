@@ -9,6 +9,14 @@ from minio import Minio
 from minio.api import CopySource
 from .common import S3Artifact
 
+s3_config = {
+    "endpoint": "127.0.0.1:9000",
+    "access_key": "admin",
+    "secret_key": "password",
+    "secure": False,
+    "bucket_name": "my-bucket"
+}
+
 def download_artifact(artifact, extract=True, **kwargs):
     """
     Download an artifact from Argo to local
@@ -121,8 +129,18 @@ def copy_artifact(src, dst):
     copy_s3(src_key, dst_key)
     return S3Artifact(key=dst_key)
 
-def download_s3(key, path=None, recursive=True, endpoint="127.0.0.1:9000",
-            access_key="admin", secret_key="password", secure=False, bucket_name="my-bucket", **kwargs):
+def download_s3(key, path=None, recursive=True, endpoint=None, access_key=None, secret_key=None,
+        secure=None, bucket_name=None, **kwargs):
+    if endpoint is None:
+        endpoint = s3_config["endpoint"]
+    if access_key is None:
+        access_key = s3_config["access_key"]
+    if secret_key is None:
+        secret_key = s3_config["secret_key"]
+    if secure is None:
+        secure = s3_config["secure"]
+    if bucket_name is None:
+        bucket_name = s3_config["bucket_name"]
     if path is None:
         path = "."
     client = Minio(endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
@@ -140,8 +158,18 @@ def download_s3(key, path=None, recursive=True, endpoint="127.0.0.1:9000",
         client.fget_object(bucket_name=bucket_name, object_name=key, file_path=path)
     return path
 
-def upload_s3(path, key=None, endpoint="127.0.0.1:9000", access_key="admin", secret_key="password",
-            secure=False, bucket_name="my-bucket", **kwargs):
+def upload_s3(path, key=None, endpoint=None, access_key=None, secret_key=None, secure=None,
+        bucket_name=None, **kwargs):
+    if endpoint is None:
+        endpoint = s3_config["endpoint"]
+    if access_key is None:
+        access_key = s3_config["access_key"]
+    if secret_key is None:
+        secret_key = s3_config["secret_key"]
+    if secure is None:
+        secure = s3_config["secure"]
+    if bucket_name is None:
+        bucket_name = s3_config["bucket_name"]
     if key is None:
         key = "upload/%s/%s" % (uuid.uuid4(), os.path.basename(path))
     client = Minio(endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
@@ -158,8 +186,18 @@ def upload_s3(path, key=None, endpoint="127.0.0.1:9000", access_key="admin", sec
                 client.fput_object(bucket_name=bucket_name, object_name="%s%s/%s" % (key, rel_path, f), file_path=os.path.join(dn, f))
     return key
 
-def copy_s3(src_key, dst_key, recursive=True, endpoint="127.0.0.1:9000", access_key="admin", secret_key="password",
-            secure=False, bucket_name="my-bucket", **kwargs):
+def copy_s3(src_key, dst_key, recursive=True, key=None, endpoint=None, access_key=None, secret_key=None,
+        secure=None, bucket_name=None, **kwargs):
+    if endpoint is None:
+        endpoint = s3_config["endpoint"]
+    if access_key is None:
+        access_key = s3_config["access_key"]
+    if secret_key is None:
+        secret_key = s3_config["secret_key"]
+    if secure is None:
+        secure = s3_config["secure"]
+    if bucket_name is None:
+        bucket_name = s3_config["bucket_name"]
     client = Minio(endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
     if recursive:
         for obj in client.list_objects(bucket_name=bucket_name, prefix=src_key, recursive=True):

@@ -30,7 +30,7 @@ class Steps(OPTemplate):
         """
         self.steps.append(step)
 
-    def convert_to_argo(self, memoize_prefix=None, memoize_configmap="dflow-config"):
+    def convert_to_argo(self, memoize_prefix=None, memoize_configmap="dflow-config", context=None):
         argo_steps = []
         templates = []
         assert len(self.steps) > 0, "Steps %s is empty" % self.name
@@ -40,14 +40,14 @@ class Steps(OPTemplate):
                 step = [step]
             argo_parallel_steps = []
             for ps in step:
-                argo_parallel_steps.append(ps.convert_to_argo())
+                argo_parallel_steps.append(ps.convert_to_argo(context))
                 templates.append(ps.template) # template may change after conversion
             if len(step) == 1 and step[0].prepare_step is not None:
-                argo_steps.append([step[0].prepare_step.convert_to_argo()])
+                argo_steps.append([step[0].prepare_step.convert_to_argo(context)])
                 templates.append(step[0].prepare_step.template)
             argo_steps.append(argo_parallel_steps)
             if len(step) == 1 and step[0].check_step is not None:
-                argo_steps.append([step[0].check_step.convert_to_argo()])
+                argo_steps.append([step[0].check_step.convert_to_argo(context)])
                 templates.append(step[0].check_step.template)
 
         self.handle_key(memoize_prefix, memoize_configmap)
