@@ -15,31 +15,44 @@ from .utils import copy_s3, randstr
 import json
 import kubernetes
 
+config = {
+    "host": "https://127.0.0.1:2746",
+    "token": None,
+    "k8s_config_file": None,
+    "k8s_api_server": None
+}
+
 class Workflow:
-    def __init__(self, name="workflow", steps=None, id=None, host="https://127.0.0.1:2746", token=None,
-        k8s_config_file=None, context=None):
+    def __init__(self, name="workflow", steps=None, id=None, host=None, token=None, k8s_config_file=None,
+            k8s_api_server=None, context=None, annotations=None):
         """
         Instantiate a workflow
         :param name: the name of the workflow
         :param steps: steps used as the entrypoint of the workflow, if not provided, a empty steps will be used
         :param id: workflow ID in Argo, you can provide it to track an existing workflow
-        :param host: URL of the Argo server
-        :param token: request the Argo server with the token
-        :param k8s_config_file: Kubernetes configuration file for accessing API server
-        "param context: context for the workflow
+        :param host: URL of the Argo server, will override global config
+        :param token: request the Argo server with the token, will override global config
+        :param k8s_config_file: Kubernetes configuration file for accessing API server, will override global config
+        :param k8s_api_server: Url of kubernetes API server, will override global config
+        :param context: context for the workflow
+        :param annotations: annotations for the workflow
         :return:
         """
-        self.host = host
-        self.token = token
-        self.k8s_config_file = k8s_config_file
+        self.host = host if host is not None else config["host"]
+        self.token = token if token is not None else config["token"]
+        self.k8s_config_file = k8s_config_file if k8s_config_file is not None else config["k8s_config_file"]
+        self.k8s_api_server = k8s_api_server if k8s_api_server is not None else config["k8s_api_server"]
         self.context = context
+        if annotations is None:
+            annotations = {}
+        self.annotations = annotations
 
-        configuration = Configuration(host=host)
+        configuration = Configuration(host=self.host)
         configuration.verify_ssl = False
-        if token is None:
+        if self.token is None:
             api_client = ApiClient(configuration)
         else:
-            api_client = ApiClient(configuration, header_name='Authorization', header_value='Bearer %s' % token)
+            api_client = ApiClient(configuration, header_name='Authorization', header_value='Bearer %s' % self.token)
 
         self.api_instance = WorkflowServiceApi(api_client)
 
@@ -86,6 +99,9 @@ class Workflow:
         return workflow
 
     def convert_to_argo(self, reuse_step=None):
+        if self.context is not None:
+            self = self.context.render(self)
+
         status = None
         if reuse_step is not None:
             self.id = self.name + "-" + randstr()
@@ -116,8 +132,17 @@ class Workflow:
                 })
             cm_name = "dflow-" + randstr()
             config_map = kubernetes.client.V1ConfigMap(data=data, metadata=kubernetes.client.V1ObjectMeta(name=cm_name))
-            kubernetes.config.load_kube_config(config_file=self.k8s_config_file)
-            v1 = kubernetes.client.CoreV1Api()
+            if self.k8s_api_server is not None:
+                k8s_configuration = kubernetes.client.Configuration(host=self.k8s_api_server)
+                k8s_configuration.verify_ssl = False
+                if self.token is None:
+                    k8s_client = kubernetes.client.ApiClient(k8s_configuration)
+                else:
+                    k8s_client = kubernetes.client.ApiClient(k8s_configuration, header_name='Authorization', header_value='Bearer %s' % self.token)
+                v1 = kubernetes.client.CoreV1Api(k8s_client)
+            else:
+                kubernetes.config.load_kube_config(config_file=self.k8s_config_file)
+                v1 = kubernetes.client.CoreV1Api()
             v1.create_namespaced_config_map(namespace="argo", body=config_map)
             self.handle_template(self.entrypoint, memoize_prefix=self.id, memoize_configmap=cm_name)
         else:
@@ -136,14 +161,10 @@ class Workflow:
                 )
             ))
 
-        annotations = {}
-        if self.context is not None:
-            annotations.update(self.context.get_annotations())
-
         if self.id is not None:
-            metadata = V1ObjectMeta(name=self.id, annotations=annotations)
+            metadata = V1ObjectMeta(name=self.id, annotations=self.annotations)
         else:
-            metadata = V1ObjectMeta(generate_name=self.name + '-', annotations=annotations)
+            metadata = V1ObjectMeta(generate_name=self.name + '-', annotations=self.annotations)
 
         return V1alpha1Workflow(
             metadata=metadata,
@@ -160,7 +181,7 @@ class Workflow:
         else:
             self.templates[template.name] = template
             if isinstance(template, Steps): # if the template is steps, handle involved templates
-                argo_template, templates = template.convert_to_argo(memoize_prefix, memoize_configmap) # breadth first algorithm
+                argo_template, templates = template.convert_to_argo(memoize_prefix, memoize_configmap, self.context) # breadth first algorithm
                 self.argo_templates[template.name] = argo_template
                 for template in templates:
                     self.handle_template(template, memoize_prefix, memoize_configmap)

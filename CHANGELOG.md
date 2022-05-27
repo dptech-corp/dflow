@@ -1,5 +1,14 @@
 # CHANGELOG
 
+
+## 1.0.11
+
+### Added
+
+- add global configurations
+- modify lebesgue interfaces
+- request kubernetes API server with token
+
 ## 1.0.10
 
 ### Added

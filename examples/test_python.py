@@ -12,7 +12,8 @@ from dflow.python import (
     Artifact,
     upload_packages
 )
-upload_packages.append(__file__)
+if "__file__" in locals():
+    upload_packages.append(__file__)
 from pathlib import Path
 import time
 

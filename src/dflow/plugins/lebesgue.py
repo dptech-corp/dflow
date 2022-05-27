@@ -1,40 +1,17 @@
+import json
 from copy import deepcopy
+from ..workflow import Workflow
+from ..op_template import ShellOPTemplate, PythonScriptOPTemplate
 from ..executor import Executor
 from ..context import Context
 
 class LebesgueExecutor(Executor):
-    def __init__(self, authorization=None, image=None, command=None, log=None, inputs=None, outputs=None,
-            resources=None, nodes=None, extra=None):
-        self.authorization = authorization
-        self.image = image
-        self.command = command
-        self.log = log
-        self.inputs = inputs
-        self.outputs = outputs
-        self.resources = resources
-        self.nodes = nodes
+    def __init__(self, extra=None):
         self.extra = extra
 
     def render(self, template):
         new_template = deepcopy(template)
-        new_template.name += "-lebesgue"
-
-        if self.image is None:
-            self.image = new_template.image
-        if self.command is None:
-            self.command = new_template.command
-        self.script = new_template.script
-        
-        new_template.annotations["task.dp.tech/executor"] = "lebesgue"
-        new_template.annotations["task.dp.tech/authorization"] = self.authorization
-        new_template.annotations["task.dp.tech/image"] = self.image
-        new_template.annotations["task.dp.tech/init"] = "cat <<EOF | %s\n%s\nEOF" % (" ".join(self.command), self.script)
-        new_template.annotations["task.dp.tech/log"] = self.log
-        new_template.annotations["task.dp.tech/inputs"] = self.inputs
-        new_template.annotations["task.dp.tech/outputs"] = self.outputs
-        new_template.annotations["task.dp.tech/resources"] = self.resources
-        new_template.annotations["task.dp.tech/nodes"] = self.nodes
-        new_template.annotations["task.dp.tech/extra"] = self.extra
+        new_template.annotations["task.dp.tech/extra"] = json.dumps(self.extra) if isinstance(self.extra, dict) else self.extra
         return new_template
 
 class LebesgueContext(Context):
@@ -47,13 +24,24 @@ class LebesgueContext(Context):
         self.extra = extra
         self.authorization = authorization
 
-    def get_annotations(self):
-        return {
-            "workflow.dp.tech/app_name": self.app_name,
-            "workflow.dp.tech/org_id": self.org_id,
-            "workflow.dp.tech/user_id": self.user_id,
-            "workflow.dp.tech/tag": self.tag,
-            "workflow.dp.tech/executor": self.executor,
-            "task.dp.tech/extra": self.extra,
-            "workflow.dp.tech/authorization": self.authorization
-        }
+    def render(self, template):
+        if isinstance(template, Workflow):
+            template.annotations["workflow.dp.tech/app_name"] = self.app_name
+            template.annotations["workflow.dp.tech/org_id"] = self.org_id
+            template.annotations["workflow.dp.tech/user_id"] = self.user_id
+            template.annotations["workflow.dp.tech/tag"] = self.tag
+            template.annotations["workflow.dp.tech/executor"] = self.executor
+            template.annotations["task.dp.tech/extra"] = json.dumps(self.extra) if isinstance(self.extra, dict) else self.extra
+            template.annotations["workflow.dp.tech/authorization"] = self.authorization
+            return template
+
+        if isinstance(template, (ShellOPTemplate, PythonScriptOPTemplate)):
+            new_template = deepcopy(template)
+            new_template.script = new_template.script.replace("/tmp", "tmp")
+            if isinstance(template, ShellOPTemplate):
+                new_template.script = "mkdir -p tmp\n" + new_template.script
+            if isinstance(template, PythonScriptOPTemplate):
+                new_template.script = "import os\nos.makedirs('tmp', exist_ok=True)\n" + new_template.script
+            return new_template
+
+        return template
