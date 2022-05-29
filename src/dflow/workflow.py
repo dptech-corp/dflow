@@ -23,21 +23,22 @@ config = {
 }
 
 class Workflow:
+    """
+    Workflow
+
+    Args:
+        name: the name of the workflow
+        steps: steps used as the entrypoint of the workflow, if not provided, a empty steps will be used
+        id: workflow ID in Argo, you can provide it to track an existing workflow
+        host: URL of the Argo server, will override global config
+        token: request the Argo server with the token, will override global config
+        k8s_config_file: Kubernetes configuration file for accessing API server, will override global config
+        k8s_api_server: Url of kubernetes API server, will override global config
+        context: context for the workflow
+        annotations: annotations for the workflow
+    """
     def __init__(self, name="workflow", steps=None, id=None, host=None, token=None, k8s_config_file=None,
             k8s_api_server=None, context=None, annotations=None):
-        """
-        Instantiate a workflow
-        :param name: the name of the workflow
-        :param steps: steps used as the entrypoint of the workflow, if not provided, a empty steps will be used
-        :param id: workflow ID in Argo, you can provide it to track an existing workflow
-        :param host: URL of the Argo server, will override global config
-        :param token: request the Argo server with the token, will override global config
-        :param k8s_config_file: Kubernetes configuration file for accessing API server, will override global config
-        :param k8s_api_server: Url of kubernetes API server, will override global config
-        :param context: context for the workflow
-        :param annotations: annotations for the workflow
-        :return:
-        """
         self.host = host if host is not None else config["host"]
         self.token = token if token is not None else config["token"]
         self.k8s_config_file = k8s_config_file if k8s_config_file is not None else config["k8s_config_file"]
@@ -72,17 +73,19 @@ class Workflow:
     def add(self, step):
         """
         Add a step or a list of parallel steps to the workflow
-        :param step: a step or a list of parallel steps to be added to the entrypoint of the workflow
-        :return:
+
+        Args:
+            step: a step or a list of parallel steps to be added to the entrypoint of the workflow
         """
         self.entrypoint.add(step)
 
     def submit(self, backend="argo", reuse_step=None):
         """
         Submit the workflow
-        :param backend: "debug" for local run
-        :param reuse_step: a list of steps to be reused in the workflow
-        :return:
+
+        Args:
+            backend: "debug" for local run
+            reuse_step: a list of steps to be reused in the workflow
         """
         if backend == "debug":
             return self.entrypoint.run()
@@ -194,7 +197,9 @@ class Workflow:
     def query(self):
         """
         Query the workflow from Argo
-        :return: an ArgoWorkflow object
+
+        Returns:
+            an ArgoWorkflow object
         """
         if self.id is None:
             raise RuntimeError("Workflow ID is None")
@@ -206,7 +211,9 @@ class Workflow:
     def query_status(self):
         """
         Query the status of the workflow from Argo
-        :return: Pending, Running, Succeeded, Failed, Error, etc
+
+        Returns:
+            Pending, Running, Succeeded, Failed, Error, etc
         """
         workflow = self.query()
         if "phase" not in workflow.status:
@@ -217,17 +224,22 @@ class Workflow:
     def query_step(self, name=None, key=None, phase=None, id=None):
         """
         Query the existing steps of the workflow from Argo
-        :param name: filter by name of step, support regex
-        :param key: filter by key of step
-        :param phase: filter by phase of step
-        :param id: filter by id of step
-        :return: a list of steps
+
+        Args:
+            name: filter by name of step, support regex
+            key: filter by key of step
+            phase: filter by phase of step
+            id: filter by id of step
+        Returns:
+            a list of steps
         """
         return self.query().get_step(name=name, key=key, phase=phase, id=id)
 
     def query_keys_of_steps(self):
         """
         Query the keys of existing steps of the workflow from Argo
-        :return: a list of keys
+
+        Returns:
+            a list of keys
         """
         return [step.key for step in self.query_step() if step.key is not None]

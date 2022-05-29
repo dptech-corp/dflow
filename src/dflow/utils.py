@@ -20,15 +20,16 @@ s3_config = {
 def download_artifact(artifact, extract=True, **kwargs):
     """
     Download an artifact from Argo to local
-    :param artifact: artifact to be downloaded
-    :param extract: extract files if the artifact is compressed
-    :param path: local path
-    :param endpoint: endpoint for Minio
-    :param access_key: access key for Minio
-    :param secret_key: secret key for Minio
-    :param secure: secure or not for Minio
-    :param bucket_name: bucket name for Minio
-    :return:
+
+    Args:
+        artifact: artifact to be downloaded
+        extract: extract files if the artifact is compressed
+        path: local path
+        endpoint: endpoint for Minio
+        access_key: access key for Minio
+        secret_key: secret key for Minio
+        secure: secure or not for Minio
+        bucket_name: bucket name for Minio
     """
     if hasattr(artifact, "s3"):
         if hasattr(artifact, "archive") and hasattr(artifact.archive, "none") and artifact.archive.none is not None:
@@ -60,14 +61,15 @@ def download_artifact(artifact, extract=True, **kwargs):
 def upload_artifact(path, archive="tar", **kwargs):
     """
     Upload an artifact from local to Argo
-    :param path: local path
-    :param archive: compress format of the artifact, None for no compression
-    :param endpoint: endpoint for Minio
-    :param access_key: access key for Minio
-    :param secret_key: secret key for Minio
-    :param secure: secure or not for Minio
-    :param bucket_name: bucket name for Minio
-    :return:
+
+    Args:
+        path: local path
+        archive: compress format of the artifact, None for no compression
+        endpoint: endpoint for Minio
+        access_key: access key for Minio
+        secret_key: secret key for Minio
+        secure: secure or not for Minio
+        bucket_name: bucket name for Minio
     """
     if not isinstance(path, list):
         path = [path]
@@ -108,9 +110,10 @@ def upload_artifact(path, archive="tar", **kwargs):
 def copy_artifact(src, dst):
     """
     Copy an artifact to another on server side
-    :param src: source artifact
-    :param dst: destination artifact
-    :return:
+
+    Args:
+        src: source artifact
+        dst: destination artifact
     """
     if hasattr(src, "s3"):
         src_key = src.s3.key

@@ -121,7 +121,10 @@ def copy_results(source, name, data_root="/tmp"):
         return rel_path
     else:
         target = data_root + "/outputs/artifacts/%s/%s" % (name, source)
-        copy_file(source, target, os.link)
+        try:
+            copy_file(source, target, os.link)
+        except:
+            copy_file(source, target, shutil.copy)
         return source
 
 def handle_python_packages(data_root="/tmp"):

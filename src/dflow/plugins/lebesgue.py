@@ -6,6 +6,12 @@ from ..executor import Executor
 from ..context import Context
 
 class LebesgueExecutor(Executor):
+    """
+    Lebesgue executor
+
+    Args:
+        extra: extra arguments, will override extra defined in global context
+    """
     def __init__(self, extra=None):
         self.extra = extra
 
@@ -15,6 +21,18 @@ class LebesgueExecutor(Executor):
         return new_template
 
 class LebesgueContext(Context):
+    """
+    Lebesgue context
+
+    Args:
+        app_name: application name
+        org_id: organization ID
+        user_id: user ID
+        tag: tag
+        executor: executor
+        extra: extra arguments
+        authorization: JWT token
+    """
     def __init__(self, app_name=None, org_id=None, user_id=None, tag=None, executor=None, extra=None, authorization=None):
         self.app_name = app_name
         self.org_id = org_id

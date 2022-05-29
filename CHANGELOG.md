@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.0.12
+
+### Added
+
+- force lowercase for OP template to fix RFC 1123
+- add private key option for SSH connection
+- add container mode for remote Slurm executor
+- add docs
 
 ## 1.0.11
 
