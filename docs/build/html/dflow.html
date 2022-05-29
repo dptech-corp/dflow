@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>dflow package &#8212; dflow 1.0.11 documentation</title>
+    <title>dflow package &#8212; dflow 1.0.12 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -27,7 +27,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.0.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.0.12 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">dflow package</a></li> 
       </ul>
     </div>  
@@ -450,6 +450,32 @@
 <dt class="sig sig-object py" id="dflow.op_template.PythonScriptOPTemplate">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dflow.op_template.</span></span><span class="sig-name descname"><span class="pre">PythonScriptOPTemplate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">script</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volumes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0/1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retry_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memoize_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pvcs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_pull_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_requests</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory_requests</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.PythonScriptOPTemplate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dflow.op_template.ScriptOPTemplate" title="dflow.op_template.ScriptOPTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.op_template.ScriptOPTemplate</span></code></a></p>
+<p>Python script OP template</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – the name of the OP template</p></li>
+<li><p><strong>inputs</strong> – input parameters and input artifacts</p></li>
+<li><p><strong>outputs</strong> – output parameters and output artifacts</p></li>
+<li><p><strong>image</strong> – image the template uses</p></li>
+<li><p><strong>command</strong> – command to run the script</p></li>
+<li><p><strong>script</strong> – python script</p></li>
+<li><p><strong>volumes</strong> – volumes the template uses</p></li>
+<li><p><strong>mounts</strong> – volumes the template mounts</p></li>
+<li><p><strong>init_progress</strong> – a str representing the initial progress</p></li>
+<li><p><strong>timeout</strong> – timeout of the OP template</p></li>
+<li><p><strong>retry_strategy</strong> – retry strategy of the OP template</p></li>
+<li><p><strong>memoize_key</strong> – memoized key of the OP template</p></li>
+<li><p><strong>pvcs</strong> – PVCs need to be declared</p></li>
+<li><p><strong>image_pull_policy</strong> – Always, IfNotPresent, Never</p></li>
+<li><p><strong>annotations</strong> – annotations for the OP template</p></li>
+<li><p><strong>cpu_requests</strong> – CPU requests</p></li>
+<li><p><strong>memory_requests</strong> – memory requests</p></li>
+<li><p><strong>cpu_limits</strong> – CPU limits</p></li>
+<li><p><strong>memory_limits</strong> – memory limits</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
@@ -493,6 +519,32 @@
 <dt class="sig sig-object py" id="dflow.op_template.ShellOPTemplate">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dflow.op_template.</span></span><span class="sig-name descname"><span class="pre">ShellOPTemplate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">script</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volumes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0/1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retry_strategy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memoize_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pvcs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_pull_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_requests</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory_requests</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.ShellOPTemplate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dflow.op_template.ScriptOPTemplate" title="dflow.op_template.ScriptOPTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.op_template.ScriptOPTemplate</span></code></a></p>
+<p>Shell script OP template</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – the name of the OP template</p></li>
+<li><p><strong>inputs</strong> – input parameters and input artifacts</p></li>
+<li><p><strong>outputs</strong> – output parameters and output artifacts</p></li>
+<li><p><strong>image</strong> – image the template uses</p></li>
+<li><p><strong>command</strong> – command to run the script</p></li>
+<li><p><strong>script</strong> – shell script</p></li>
+<li><p><strong>volumes</strong> – volumes the template uses</p></li>
+<li><p><strong>mounts</strong> – volumes the template mounts</p></li>
+<li><p><strong>init_progress</strong> – a str representing the initial progress</p></li>
+<li><p><strong>timeout</strong> – timeout of the OP template</p></li>
+<li><p><strong>retry_strategy</strong> – retry strategy of the OP template</p></li>
+<li><p><strong>memoize_key</strong> – memoized key of the OP template</p></li>
+<li><p><strong>pvcs</strong> – PVCs need to be declared</p></li>
+<li><p><strong>image_pull_policy</strong> – Always, IfNotPresent, Never</p></li>
+<li><p><strong>annotations</strong> – annotations for the OP template</p></li>
+<li><p><strong>cpu_requests</strong> – CPU requests</p></li>
+<li><p><strong>memory_requests</strong> – memory requests</p></li>
+<li><p><strong>cpu_limits</strong> – CPU limits</p></li>
+<li><p><strong>memory_limits</strong> – memory limits</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -1048,7 +1100,7 @@ Each argument can be Argo parameter</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.0.11 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.0.12 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">dflow package</a></li> 
       </ul>
     </div>

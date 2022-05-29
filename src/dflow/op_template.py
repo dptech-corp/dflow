@@ -12,6 +12,7 @@ from .io import Inputs, Outputs, InputParameter
 
 class OPTemplate:
     def __init__(self, name, inputs=None, outputs=None, memoize_key=None, pvcs=None, annotations=None):
+        # force lowercase to fix RFC 1123
         self.name = name.lower()
         if inputs is not None:
             self.inputs = inputs
@@ -128,33 +129,33 @@ class ScriptOPTemplate(OPTemplate):
                     command=self.command, source=self.script, volume_mounts=self.mounts, resources=V1ResourceRequirements(limits=limits, requests=requests)))
 
 class ShellOPTemplate(ScriptOPTemplate):
+    """
+    Shell script OP template
+
+    Args:
+        name: the name of the OP template
+        inputs: input parameters and input artifacts
+        outputs: output parameters and output artifacts
+        image: image the template uses
+        command: command to run the script
+        script: shell script
+        volumes: volumes the template uses
+        mounts: volumes the template mounts
+        init_progress: a str representing the initial progress
+        timeout: timeout of the OP template
+        retry_strategy: retry strategy of the OP template
+        memoize_key: memoized key of the OP template
+        pvcs: PVCs need to be declared
+        image_pull_policy: Always, IfNotPresent, Never
+        annotations: annotations for the OP template
+        cpu_requests: CPU requests
+        memory_requests: memory requests
+        cpu_limits: CPU limits
+        memory_limits: memory limits
+    """
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, image_pull_policy=None,
             annotations=None, cpu_requests=None, memory_requests=None, cpu_limits=None, memory_limits=None):
-        """
-        Instantiate a shell script OP template
-
-        Args:
-            name: the name of the OP template
-            inputs: input parameters and input artifacts
-            outputs: output parameters and output artifacts
-            image: image the template uses
-            command: command to run the script
-            script: shell script
-            volumes: volumes the template uses
-            mounts: volumes the template mounts
-            init_progress: a str representing the initial progress
-            timeout: timeout of the OP template
-            retry_strategy: retry strategy of the OP template
-            memoize_key: memoized key of the OP template
-            pvcs: PVCs need to be declared
-            image_pull_policy: Always, IfNotPresent, Never
-            annotations: annotations for the OP template
-            cpu_requests: CPU requests
-            memory_requests: memory requests
-            cpu_limits: CPU limits
-            memory_limits: memory limits
-        """
         if command is None:
             command = ["sh"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
@@ -163,33 +164,33 @@ class ShellOPTemplate(ScriptOPTemplate):
                 cpu_limits=cpu_limits, memory_limits=memory_limits)
 
 class PythonScriptOPTemplate(ScriptOPTemplate):
+    """
+    Python script OP template
+
+    Args:
+        name: the name of the OP template
+        inputs: input parameters and input artifacts
+        outputs: output parameters and output artifacts
+        image: image the template uses
+        command: command to run the script
+        script: python script
+        volumes: volumes the template uses
+        mounts: volumes the template mounts
+        init_progress: a str representing the initial progress
+        timeout: timeout of the OP template
+        retry_strategy: retry strategy of the OP template
+        memoize_key: memoized key of the OP template
+        pvcs: PVCs need to be declared
+        image_pull_policy: Always, IfNotPresent, Never
+        annotations: annotations for the OP template
+        cpu_requests: CPU requests
+        memory_requests: memory requests
+        cpu_limits: CPU limits
+        memory_limits: memory limits
+    """
     def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, image_pull_policy=None,
             annotations=None, cpu_requests=None, memory_requests=None, cpu_limits=None, memory_limits=None):
-        """
-        Instantiate a python script OP template
-
-        Args:
-            name: the name of the OP template
-            inputs: input parameters and input artifacts
-            outputs: output parameters and output artifacts
-            image: image the template uses
-            command: command to run the script
-            script: python script
-            volumes: volumes the template uses
-            mounts: volumes the template mounts
-            init_progress: a str representing the initial progress
-            timeout: timeout of the OP template
-            retry_strategy: retry strategy of the OP template
-            memoize_key: memoized key of the OP template
-            pvcs: PVCs need to be declared
-            image_pull_policy: Always, IfNotPresent, Never
-            annotations: annotations for the OP template
-            cpu_requests: CPU requests
-            memory_requests: memory requests
-            cpu_limits: CPU limits
-            memory_limits: memory limits
-        """
         if command is None:
             command = ["python"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
