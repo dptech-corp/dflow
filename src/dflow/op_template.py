@@ -12,7 +12,8 @@ from .io import Inputs, Outputs, InputParameter
 
 class OPTemplate:
     def __init__(self, name, inputs=None, outputs=None, memoize_key=None, pvcs=None, annotations=None):
-        self.name = name
+        # force lowercase to fix RFC 1123
+        self.name = name.lower()
         if inputs is not None:
             self.inputs = inputs
         else:
