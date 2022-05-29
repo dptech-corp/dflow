@@ -2,17 +2,18 @@ from argo.workflows.client import V1alpha1Template, V1alpha1Metadata
 from .op_template import OPTemplate
 
 class Steps(OPTemplate):
+    """
+    Steps
+
+    Args:
+        name: the name of the steps
+        inputs: inputs in the template
+        outputs: outputs in the template
+        steps: a sequential list of steps
+        memoize_key: memoized key of the steps
+        annotations: annotations for the OP template
+        """
     def __init__(self, name, inputs=None, outputs=None, steps=None, memoize_key=None, annotations=None):
-        """
-        Instantiate a steps
-        :param name: the name of the steps
-        :param inputs: inputs in the template
-        :param outputs: outputs in the template
-        :param steps: a sequential list of steps
-        :param memoize_key: memoized key of the steps
-        :param annotations: annotations for the OP template
-        :return:
-        """
         super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, annotations=annotations)
         if steps is not None:
             self.steps = steps
@@ -25,8 +26,9 @@ class Steps(OPTemplate):
     def add(self, step):
         """
         Add a step or a list of parallel steps to the steps
-        :param step: a step or a list of parallel steps to be added to the entrypoint of the workflow
-        :return:
+
+        Args:
+            step: a step or a list of parallel steps to be added to the entrypoint of the workflow
         """
         self.steps.append(step)
 

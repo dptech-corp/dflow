@@ -1,13 +1,17 @@
 class Resource(object):
     """
     Resource
-    :param action: action on the Kubernetes resource
-    :param success_condition: expression representing success
-    :param failure_condition: expression representing failure
-    :method get_manifest: the method to get the manifest (str)
+
+    Args:
+        action: action on the Kubernetes resource
+        success_condition: expression representing success
+        failure_condition: expression representing failure
     """
     action = None
     success_condition = None
     failure_condition = None
     def get_manifest(self, command, script):
+        """
+        The method to get the manifest (str)
+        """
         raise NotImplementedError()

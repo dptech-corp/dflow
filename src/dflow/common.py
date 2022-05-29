@@ -3,6 +3,12 @@ from argo.workflows.client import V1alpha1S3Artifact
 from argo.workflows.client.configuration import Configuration
 
 class S3Artifact(V1alpha1S3Artifact):
+    """
+    S3 artifact
+
+    Args:
+        key: key of the s3 artifact
+    """
     def __init__(self, *args, **kwargs):
         config = Configuration()
         config.client_side_validation = False

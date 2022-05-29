@@ -52,9 +52,10 @@ class ArgoStep(ArgoObjectDict):
     def modify_output_parameter(self, name, value):
         """
         Modify output parameter of an Argo step
-        :param name: parameter name
-        :param value: new value
-        :return:
+
+        Args:
+            name: parameter name
+            value: new value
         """
         if isinstance(value, str):
             self.outputs.parameters[name].value = value
@@ -64,9 +65,10 @@ class ArgoStep(ArgoObjectDict):
     def modify_output_artifact(self, name, s3):
         """
         Modify output artifact of an Argo step
-        :param name: artifact name
-        :param s3: replace the artifact with a s3 object
-        :return:
+
+        Args:
+            name: artifact name
+            s3: replace the artifact with a s3 object
         """
         assert isinstance(s3, S3Artifact), "must provide a S3Artifact object"
         self.outputs.artifacts[name].s3 = s3
@@ -78,9 +80,10 @@ class ArgoStep(ArgoObjectDict):
     def download_sliced_output_artifact(self, name, path="."):
         """
         Download output artifact of a sliced step
-        :param name: artifact name
-        :param path: local path
-        :return:
+
+        Args:
+            name: artifact name
+            path: local path
         """
         assert (hasattr(self, "outputs") and hasattr(self.outputs, "parameters") and "dflow_%s_path_list" % name in self.outputs.parameters), "%s is not sliced output artifact" % name
         path_list = jsonpickle.loads(self.outputs.parameters["dflow_%s_path_list" % name].value)
@@ -90,9 +93,10 @@ class ArgoStep(ArgoObjectDict):
     def upload_and_modify_sliced_output_artifact(self, name, path):
         """
         Upload and modify output artifact of a sliced step
-        :param name: artifact name
-        :param path: local path to be uploaded
-        :return:
+
+        Args:
+            name: artifact name
+            path: local path to be uploaded
         """
         assert (hasattr(self, "outputs") and hasattr(self.outputs, "parameters") and "dflow_%s_path_list" % name in self.outputs.parameters), "%s is not sliced output artifact" % name
         path_list = jsonpickle.loads(self.outputs.parameters["dflow_%s_path_list" % name].value)

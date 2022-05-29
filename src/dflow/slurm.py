@@ -43,6 +43,17 @@ class SlurmJob(Resource):
         return yaml.dump(manifest, default_style="|")
 
 class SlurmJobTemplate(Executor):
+    """
+    Slurm job template
+
+    Args:
+        header: header for Slurm job
+        node_selector: node selector
+        prepare_image: image for preparing data
+        collect_image: image for collecting results
+        workdir: remote working directory
+        remote_command: command for running the script remotely
+    """
     def __init__(self, header="", node_selector=None, prepare_image="dptechnology/dflow", collect_image="dptechnology/dflow",
             workdir="dflow/workflows/{{workflow.name}}/{{pod.name}}", remote_command=None):
         self.header = header
@@ -140,15 +151,37 @@ class SlurmJobTemplate(Executor):
         return new_template
 
 class SlurmRemoteExecutor(RemoteExecutor):
-    def __init__(self, host, port=22, username="root", password=None, workdir="~/dflow/workflows/{{workflow.name}}/{{pod.name}}", command=None, remote_command=None,
-            image="dptechnology/dflow-extender", header="", interval=3):
-        super().__init__(host=host, port=port, username=username, password=password, workdir=workdir, command=command, remote_command=remote_command, image=image)
+    """
+    Slurm remote executor
+
+    Args:
+        host: remote host
+        port: SSH port
+        username: username
+        password: password for SSH
+        private_key_file: private key file for SSH
+        workdir: remote working directory
+        command: command for the executor
+        remote_command: command for running the script remotely
+        image: image for the executor
+        map_tmp_dir: map /tmp to ./tmp
+        container: container executable to run remotely
+        header: header for Slurm job
+        interval: query interval for Slurm
+    """
+    def __init__(self, host, port=22, username="root", password=None, private_key_file=None, workdir="~/dflow/workflows/{{workflow.name}}/{{pod.name}}",
+            command=None, remote_command=None, image="dptechnology/dflow-extender", map_tmp_dir=True, container=None, header="", interval=3):
+        super().__init__(host=host, port=port, username=username, password=password, private_key_file=private_key_file, workdir=workdir, command=command,
+                remote_command=remote_command, image=image, map_tmp_dir=map_tmp_dir, container=container)
         self.header = header
         self.interval = interval
 
-    def run(self):
+    def run(self, image):
         script = ""
-        script += "echo '%s\n%s script' > slurm.sh\n" % (self.header, " ".join(self.remote_command))
+        if self.container is None:
+            script += "echo '%s\n%s script' > slurm.sh\n" % (self.header, " ".join(self.remote_command))
+        else:
+            script += "echo '%s\n%s run -v$(pwd)/tmp:/tmp -v$(pwd)/script:/script -ti %s %s /script' > slurm.sh\n" % (self.header, self.container, image, " ".join(self.remote_command))
         script += self.upload("slurm.sh", "%s/slurm.sh" % self.workdir) + " || exit 1\n"
         script += "echo 'jobIdFile: /tmp/job_id.txt' >> param.yaml\n"
         script += "echo 'workdir: %s' >> param.yaml\n" % self.workdir
@@ -157,6 +190,11 @@ class SlurmRemoteExecutor(RemoteExecutor):
         script += "echo 'host: %s' >> param.yaml\n" % self.host
         script += "echo 'port: %s' >> param.yaml\n" % self.port
         script += "echo 'username: %s' >> param.yaml\n" % self.username
-        script += "echo 'password: %s' >> param.yaml\n" % self.password
+        if self.password is not None:
+            script += "echo 'password: %s' >> param.yaml\n" % self.password
+        elif self.private_key_file is not None:
+            script += "echo 'privateKeyFile: /root/.ssh/id_rsa' >> param.yaml\n"
+        else:
+            raise ValueError("password or private key file must be provided")
         script += "./bin/slurm param.yaml || exit 1\n"
         return script

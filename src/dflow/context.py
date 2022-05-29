@@ -1,7 +1,9 @@
 class Context(object):
     """
     Context
-    :method get_annotations: 
     """
-    def get_annotations(self):
-        return {}
+    def render(self, template):
+        """
+        render original template and return a new template
+        """
+        return template

@@ -45,11 +45,12 @@ def argo_range(*args):
 def argo_sequence(count=None, start=None, end=None, format=None):
     """
     Return a numeric sequence in Argo
-    :param count: length of the sequence, can be an Argo parameter
-    :param start: start number of the sequence, can be an Argo parameter
-    :param end: end number of the sequence, can be an Argo parameter
-    :param format: output the sequence with format
-    :return:
+
+    Args:
+        count: length of the sequence, can be an Argo parameter
+        start: start number of the sequence, can be an Argo parameter
+        end: end number of the sequence, can be an Argo parameter
+        format: output the sequence with format
     """
     if isinstance(count, ArgoVar):
         count = "{{=%s}}" % count.expr
@@ -62,18 +63,20 @@ def argo_sequence(count=None, start=None, end=None, format=None):
 def argo_len(param):
     """
     Return the length of a list which is an Argo parameter
-    :param param: the Argo parameter which is a list
-    :return:
+
+    Args:
+        param: the Argo parameter which is a list
     """
     return ArgoVar("len(sprig.fromJson(%s))" % param.expr)
 
 def if_expression(_if, _then, _else):
     """
     Return an if expression in Argo
-    :param _if: a bool expression, which may be a comparison of two Argo parameters
-    :param _then: value returned if the condition is satisfied
-    :param _else: value returned if the condition is not satisfied
-    :return:
+
+    Args:
+        _if: a bool expression, which may be a comparison of two Argo parameters
+        _then: value returned if the condition is satisfied
+        _else: value returned if the condition is not satisfied
     """
     if isinstance(_if, ArgoVar):
         _if = _if.expr
@@ -84,25 +87,26 @@ def if_expression(_if, _then, _else):
     return "%s ? %s : %s" % (_if, _then, _else)
 
 class Step:
+    """
+    Step
+
+    Args:
+        name: the name of the step
+        template: OP template the step uses
+        parameters: input parameters passed to the step as arguments
+        artifacts: input artifacts passed to the step as arguments
+        when: conditional step if the condition is satisfied
+        with_param: generate parallel steps with respect to a list as a parameter
+        continue_on_failed: continue if the step fails
+        continue_on_num_success: continue if the success number of the generated parallel steps greater than certain number
+        continue_on_success_ratio: continue if the success ratio of the generated parallel steps greater than certain number
+        with_sequence: generate parallel steps with respect to a sequence
+        key: the key of the step
+        executor: define the executor to execute the script
+        use_resource: use k8s resource
+    """
     def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None, continue_on_failed=False,
             continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None, executor=None, use_resource=None):
-        """
-        Instantiate a step
-        :param name: the name of the step
-        :param template: OP template the step uses
-        :param parameters: input parameters passed to the step as arguments
-        :param artifacts: input artifacts passed to the step as arguments
-        :param when: conditional step if the condition is satisfied
-        :param with_param: generate parallel steps with respect to a list as a parameter
-        :param continue_on_failed: continue if the step fails
-        :param continue_on_num_success: continue if the success number of the generated parallel steps greater than certain number
-        :param continue_on_success_ratio: continue if the success ratio of the generated parallel steps greater than certain number
-        :param with_sequence: generate parallel steps with respect to a sequence
-        :param key: the key of the step
-        :param executor: define the executor to execute the script
-        :param use_resource: use k8s resource
-        :return:
-        """
         self.name = name
         self.id = self.name
         self.template = template
