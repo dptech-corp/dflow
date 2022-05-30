@@ -23,6 +23,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">dflow 1.0.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
@@ -37,11 +40,55 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="dflow-plugins-lebesgue-module">
-<h2>dflow.plugins.lebesgue module<a class="headerlink" href="#dflow-plugins-lebesgue-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.plugins.lebesgue">
+<span id="dflow-plugins-lebesgue-module"></span><h2>dflow.plugins.lebesgue module<a class="headerlink" href="#module-dflow.plugins.lebesgue" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dflow.plugins.lebesgue.LebesgueContext">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.plugins.lebesgue.</code><code class="sig-name descname">LebesgueContext</code><span class="sig-paren">(</span><em class="sig-param">app_name=None</em>, <em class="sig-param">org_id=None</em>, <em class="sig-param">user_id=None</em>, <em class="sig-param">tag=None</em>, <em class="sig-param">executor=None</em>, <em class="sig-param">extra=None</em>, <em class="sig-param">authorization=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.context.Context" title="dflow.context.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.context.Context</span></code></a></p>
+<p>Lebesgue context</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>app_name</strong> – application name</p></li>
+<li><p><strong>org_id</strong> – organization ID</p></li>
+<li><p><strong>user_id</strong> – user ID</p></li>
+<li><p><strong>tag</strong> – tag</p></li>
+<li><p><strong>executor</strong> – executor</p></li>
+<li><p><strong>extra</strong> – extra arguments</p></li>
+<li><p><strong>authorization</strong> – JWT token</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.plugins.lebesgue.LebesgueContext.render">
+<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">template</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueContext.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.plugins.lebesgue.LebesgueExecutor">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.plugins.lebesgue.</code><code class="sig-name descname">LebesgueExecutor</code><span class="sig-paren">(</span><em class="sig-param">extra=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueExecutor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.executor.Executor</span></code></a></p>
+<p>Lebesgue executor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>extra</strong> – extra arguments, will override extra defined in global context</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.plugins.lebesgue.LebesgueExecutor.render">
+<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">template</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueExecutor.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template, do not modify self in this method to make the executor reusable</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.plugins">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dflow.plugins" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -55,8 +102,8 @@
   <ul>
 <li><a class="reference internal" href="#">dflow.plugins package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#dflow-plugins-lebesgue-module">dflow.plugins.lebesgue module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-dflow.plugins.lebesgue">dflow.plugins.lebesgue module</a></li>
+<li><a class="reference internal" href="#module-dflow.plugins">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -88,6 +135,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">dflow 1.0.13 documentation</a> &#187;</li> 
       </ul>
     </div>

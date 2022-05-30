@@ -23,6 +23,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">dflow 1.0.13 documentation</a> &#187;</li> 
       </ul>
     </div>  
@@ -40,26 +43,26 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="dflow.client.html">dflow.client package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="dflow.client.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.client.html#dflow-client-v1alpha1-artifact-module">dflow.client.v1alpha1_artifact module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.client.html#dflow-client-v1alpha1-retry-strategy-module">dflow.client.v1alpha1_retry_strategy module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.client.html#dflow-client-v1alpha1-sequence-module">dflow.client.v1alpha1_sequence module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.client.html#dflow-client-v1alpha1-value-from-module">dflow.client.v1alpha1_value_from module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.client.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.client.html#module-dflow.client.v1alpha1_artifact">dflow.client.v1alpha1_artifact module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.client.html#module-dflow.client.v1alpha1_retry_strategy">dflow.client.v1alpha1_retry_strategy module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.client.html#module-dflow.client.v1alpha1_sequence">dflow.client.v1alpha1_sequence module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.client.html#module-dflow.client.v1alpha1_value_from">dflow.client.v1alpha1_value_from module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.client.html#module-dflow.client">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="dflow.plugins.html">dflow.plugins package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#dflow-plugins-lebesgue-module">dflow.plugins.lebesgue module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#module-dflow.plugins.lebesgue">dflow.plugins.lebesgue module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#module-dflow.plugins">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="dflow.python.html">dflow.python package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="dflow.python.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#dflow-python-op-module">dflow.python.op module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#dflow-python-opio-module">dflow.python.opio module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#dflow-python-python-op-template-module">dflow.python.python_op_template module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#dflow-python-utils-module">dflow.python.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python.op">dflow.python.op module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python.opio">dflow.python.opio module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python.python_op_template">dflow.python.python_op_template module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python.utils">dflow.python.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -68,47 +71,977 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="dflow-argo-objects-module">
-<h2>dflow.argo_objects module<a class="headerlink" href="#dflow-argo-objects-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.argo_objects">
+<span id="dflow-argo-objects-module"></span><h2>dflow.argo_objects module<a class="headerlink" href="#module-dflow.argo_objects" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dflow.argo_objects.ArgoObjectDict">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.argo_objects.</code><code class="sig-name descname">ArgoObjectDict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoObjectDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserDict</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.argo_objects.ArgoObjectList">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.argo_objects.</code><code class="sig-name descname">ArgoObjectList</code><span class="sig-paren">(</span><em class="sig-param">l</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoObjectList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserList</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.argo_objects.ArgoStep">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.argo_objects.</code><code class="sig-name descname">ArgoStep</code><span class="sig-paren">(</span><em class="sig-param">step</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoStep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.argo_objects.ArgoObjectDict" title="dflow.argo_objects.ArgoObjectDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.argo_objects.ArgoObjectDict</span></code></a></p>
+<dl class="method">
+<dt id="dflow.argo_objects.ArgoStep.download_sliced_output_artifact">
+<code class="sig-name descname">download_sliced_output_artifact</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">path='.'</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoStep.download_sliced_output_artifact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download output artifact of a sliced step</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – artifact name</p></li>
+<li><p><strong>path</strong> – local path</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dflow.argo_objects.ArgoStep.modify_output_artifact">
+<code class="sig-name descname">modify_output_artifact</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">s3</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoStep.modify_output_artifact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify output artifact of an Argo step</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – artifact name</p></li>
+<li><p><strong>s3</strong> – replace the artifact with a s3 object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dflow.argo_objects.ArgoStep.modify_output_parameter">
+<code class="sig-name descname">modify_output_parameter</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">value</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoStep.modify_output_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify output parameter of an Argo step</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – parameter name</p></li>
+<li><p><strong>value</strong> – new value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dflow.argo_objects.ArgoStep.upload_and_modify_sliced_output_artifact">
+<code class="sig-name descname">upload_and_modify_sliced_output_artifact</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoStep.upload_and_modify_sliced_output_artifact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upload and modify output artifact of a sliced step</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – artifact name</p></li>
+<li><p><strong>path</strong> – local path to be uploaded</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.argo_objects.ArgoWorkflow">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.argo_objects.</code><code class="sig-name descname">ArgoWorkflow</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoWorkflow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.argo_objects.ArgoObjectDict" title="dflow.argo_objects.ArgoObjectDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.argo_objects.ArgoObjectDict</span></code></a></p>
+<dl class="method">
+<dt id="dflow.argo_objects.ArgoWorkflow.get_step">
+<code class="sig-name descname">get_step</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">key=None</em>, <em class="sig-param">phase=None</em>, <em class="sig-param">id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoWorkflow.get_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="dflow-common-module">
-<h2>dflow.common module<a class="headerlink" href="#dflow-common-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.common">
+<span id="dflow-common-module"></span><h2>dflow.common module<a class="headerlink" href="#module-dflow.common" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dflow.common.S3Artifact">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.common.</code><code class="sig-name descname">S3Artifact</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.common.S3Artifact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">argo.workflows.client.models.v1alpha1_s3_artifact.V1alpha1S3Artifact</span></code></p>
+<p>S3 artifact</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> – key of the s3 artifact</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.common.S3Artifact.sub_path">
+<code class="sig-name descname">sub_path</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.common.S3Artifact.sub_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="dflow-context-module">
-<h2>dflow.context module<a class="headerlink" href="#dflow-context-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.context">
+<span id="dflow-context-module"></span><h2>dflow.context module<a class="headerlink" href="#module-dflow.context" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dflow.context.Context">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.context.</code><code class="sig-name descname">Context</code><a class="headerlink" href="#dflow.context.Context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="dflow.context.Context.render">
+<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">template</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.context.Context.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="dflow-executor-module">
-<h2>dflow.executor module<a class="headerlink" href="#dflow-executor-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.executor">
+<span id="dflow-executor-module"></span><h2>dflow.executor module<a class="headerlink" href="#module-dflow.executor" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dflow.executor.Executor">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.executor.</code><code class="sig-name descname">Executor</code><a class="headerlink" href="#dflow.executor.Executor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="dflow.executor.Executor.render">
+<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">template</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.executor.Executor.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template, do not modify self in this method to make the executor reusable</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.executor.RemoteExecutor">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.executor.</code><code class="sig-name descname">RemoteExecutor</code><span class="sig-paren">(</span><em class="sig-param">host</em>, <em class="sig-param">port=22</em>, <em class="sig-param">username='root'</em>, <em class="sig-param">password=None</em>, <em class="sig-param">private_key_file=None</em>, <em class="sig-param">workdir='~/dflow/workflows/{{workflow.name}}/{{pod.name}}'</em>, <em class="sig-param">command=None</em>, <em class="sig-param">remote_command=None</em>, <em class="sig-param">image='dptechnology/dflow-extender'</em>, <em class="sig-param">map_tmp_dir=True</em>, <em class="sig-param">docker_executable=None</em>, <em class="sig-param">action_retries=-1</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.executor.RemoteExecutor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.executor.Executor</span></code></a></p>
+<dl class="method">
+<dt id="dflow.executor.RemoteExecutor.download">
+<code class="sig-name descname">download</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">dst</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.executor.RemoteExecutor.download" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.executor.RemoteExecutor.execute">
+<code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param">cmd</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.executor.RemoteExecutor.execute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.executor.RemoteExecutor.get_script">
+<code class="sig-name descname">get_script</code><span class="sig-paren">(</span><em class="sig-param">command</em>, <em class="sig-param">script</em>, <em class="sig-param">image</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.executor.RemoteExecutor.get_script" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.executor.RemoteExecutor.render">
+<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">template</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.executor.RemoteExecutor.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template, do not modify self in this method to make the executor reusable</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dflow.executor.RemoteExecutor.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.executor.RemoteExecutor.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.executor.RemoteExecutor.upload">
+<code class="sig-name descname">upload</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">dst</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.executor.RemoteExecutor.upload" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="dflow-io-module">
-<h2>dflow.io module<a class="headerlink" href="#dflow-io-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.io">
+<span id="dflow-io-module"></span><h2>dflow.io module<a class="headerlink" href="#module-dflow.io" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dflow.io.ArgoVar">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.io.</code><code class="sig-name descname">ArgoVar</code><span class="sig-paren">(</span><em class="sig-param">expr=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.ArgoVar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.io.AutonamedDict">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.io.</code><code class="sig-name descname">AutonamedDict</code><span class="sig-paren">(</span><em class="sig-param">dict=None</em>, <em class="sig-param">/</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.AutonamedDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserDict</span></code></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.io.InputArtifact">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.io.</code><code class="sig-name descname">InputArtifact</code><span class="sig-paren">(</span><em class="sig-param">path=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">step_id=None</em>, <em class="sig-param">optional=False</em>, <em class="sig-param">type=None</em>, <em class="sig-param">source=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.InputArtifact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.io.ArgoVar</span></code></a></p>
+<p>Input artifact for OP template</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – path where the input artifact is placed in the container</p></li>
+<li><p><strong>name</strong> – name of the input artifact</p></li>
+<li><p><strong>step_id</strong> – </p></li>
+<li><p><strong>optional</strong> – optional artifact or not</p></li>
+<li><p><strong>type</strong> – artifact type</p></li>
+<li><p><strong>source</strong> – default source</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.io.InputArtifact.convert_to_argo">
+<code class="sig-name descname">convert_to_argo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.InputArtifact.convert_to_argo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.io.InputArtifact.sub_path">
+<code class="sig-name descname">sub_path</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.InputArtifact.sub_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.io.InputParameter">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.io.</code><code class="sig-name descname">InputParameter</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">step_id=None</em>, <em class="sig-param">type=None</em>, <em class="sig-param">value=None</em>, <em class="sig-param">save_as_artifact=False</em>, <em class="sig-param">path=None</em>, <em class="sig-param">source=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.InputParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.io.ArgoVar</span></code></a></p>
+<p>Input parameter for OP template</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – name of the input parameter</p></li>
+<li><p><strong>step_id</strong> – </p></li>
+<li><p><strong>type</strong> – parameter type</p></li>
+<li><p><strong>value</strong> – default value</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.io.InputParameter.convert_to_argo">
+<code class="sig-name descname">convert_to_argo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.InputParameter.convert_to_argo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.io.Inputs">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.io.</code><code class="sig-name descname">Inputs</code><span class="sig-paren">(</span><em class="sig-param">parameters=None</em>, <em class="sig-param">artifacts=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.Inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Inputs for OP template</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>paramters</strong> – input parameters</p></li>
+<li><p><strong>artifacts</strong> – input artifacts</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.io.Inputs.convert_to_argo">
+<code class="sig-name descname">convert_to_argo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.Inputs.convert_to_argo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.io.Inputs.set_step_id">
+<code class="sig-name descname">set_step_id</code><span class="sig-paren">(</span><em class="sig-param">step_id</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.Inputs.set_step_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.io.OutputArtifact">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.io.</code><code class="sig-name descname">OutputArtifact</code><span class="sig-paren">(</span><em class="sig-param">path=None</em>, <em class="sig-param">_from=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">step_id=None</em>, <em class="sig-param">type=None</em>, <em class="sig-param">save=None</em>, <em class="sig-param">archive='tar'</em>, <em class="sig-param">global_name=None</em>, <em class="sig-param">from_expression=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.OutputArtifact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.io.ArgoVar</span></code></a></p>
+<p>Output artifact for OP template</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – path of the output artifact in the container</p></li>
+<li><p><strong>_from</strong> – the artifact is from another artifact</p></li>
+<li><p><strong>name</strong> – name of the output artifact</p></li>
+<li><p><strong>step_id</strong> – </p></li>
+<li><p><strong>type</strong> – artifact type</p></li>
+<li><p><strong>save</strong> – place to store the output artifact instead of default storage, can be a list</p></li>
+<li><p><strong>archive</strong> – compress format of the artifact, None for no compression</p></li>
+<li><p><strong>global_name</strong> – global name of the artifact within the workflow</p></li>
+<li><p><strong>from_expression</strong> – the artifact is from an expression</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.io.OutputArtifact.convert_to_argo">
+<code class="sig-name descname">convert_to_argo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.OutputArtifact.convert_to_argo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.io.OutputArtifact.pvc">
+<code class="sig-name descname">pvc</code><span class="sig-paren">(</span><em class="sig-param">size='1Gi'</em>, <em class="sig-param">storage_class=None</em>, <em class="sig-param">access_modes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.OutputArtifact.pvc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.io.OutputArtifact.sub_path">
+<code class="sig-name descname">sub_path</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.OutputArtifact.sub_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.io.OutputParameter">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.io.</code><code class="sig-name descname">OutputParameter</code><span class="sig-paren">(</span><em class="sig-param">value_from_path=None</em>, <em class="sig-param">value_from_parameter=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">step_id=None</em>, <em class="sig-param">type=None</em>, <em class="sig-param">default=None</em>, <em class="sig-param">global_name=None</em>, <em class="sig-param">value_from_expression=None</em>, <em class="sig-param">save_as_artifact=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.OutputParameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.io.ArgoVar</span></code></a></p>
+<p>Output parameter for OP template</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value_from_path</strong> – the value is read from file generated in the container</p></li>
+<li><p><strong>value_from_parameter</strong> – the value is from another parameter</p></li>
+<li><p><strong>name</strong> – name of the output parameter</p></li>
+<li><p><strong>step_id</strong> – </p></li>
+<li><p><strong>type</strong> – parameter type</p></li>
+<li><p><strong>default</strong> – default value</p></li>
+<li><p><strong>global_name</strong> – global name of the parameter within the workflow</p></li>
+<li><p><strong>value_from_expression</strong> – the value is from an expression</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.io.OutputParameter.convert_to_argo">
+<code class="sig-name descname">convert_to_argo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.OutputParameter.convert_to_argo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.io.Outputs">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.io.</code><code class="sig-name descname">Outputs</code><span class="sig-paren">(</span><em class="sig-param">parameters=None</em>, <em class="sig-param">artifacts=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.Outputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Outputs for OP template</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>paramters</strong> – output parameters</p></li>
+<li><p><strong>artifacts</strong> – output artifacts</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.io.Outputs.convert_to_argo">
+<code class="sig-name descname">convert_to_argo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.Outputs.convert_to_argo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.io.Outputs.set_step_id">
+<code class="sig-name descname">set_step_id</code><span class="sig-paren">(</span><em class="sig-param">step_id</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.Outputs.set_step_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.io.PVC">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.io.</code><code class="sig-name descname">PVC</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">subpath</em>, <em class="sig-param">size='1Gi'</em>, <em class="sig-param">storage_class=None</em>, <em class="sig-param">access_modes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.PVC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
 </div>
-<div class="section" id="dflow-op-template-module">
-<h2>dflow.op_template module<a class="headerlink" href="#dflow-op-template-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.op_template">
+<span id="dflow-op-template-module"></span><h2>dflow.op_template module<a class="headerlink" href="#module-dflow.op_template" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dflow.op_template.OPTemplate">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.op_template.</code><code class="sig-name descname">OPTemplate</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">inputs=None</em>, <em class="sig-param">outputs=None</em>, <em class="sig-param">memoize_key=None</em>, <em class="sig-param">pvcs=None</em>, <em class="sig-param">annotations=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.OPTemplate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="dflow.op_template.OPTemplate.handle_key">
+<code class="sig-name descname">handle_key</code><span class="sig-paren">(</span><em class="sig-param">memoize_prefix=None</em>, <em class="sig-param">memoize_configmap='dflow-config'</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.OPTemplate.handle_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.op_template.PythonScriptOPTemplate">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.op_template.</code><code class="sig-name descname">PythonScriptOPTemplate</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">inputs=None</em>, <em class="sig-param">outputs=None</em>, <em class="sig-param">image=None</em>, <em class="sig-param">command=None</em>, <em class="sig-param">script=None</em>, <em class="sig-param">volumes=None</em>, <em class="sig-param">mounts=None</em>, <em class="sig-param">init_progress='0/1'</em>, <em class="sig-param">timeout=None</em>, <em class="sig-param">retry_strategy=None</em>, <em class="sig-param">memoize_key=None</em>, <em class="sig-param">pvcs=None</em>, <em class="sig-param">image_pull_policy=None</em>, <em class="sig-param">annotations=None</em>, <em class="sig-param">cpu_requests=None</em>, <em class="sig-param">memory_requests=None</em>, <em class="sig-param">cpu_limits=None</em>, <em class="sig-param">memory_limits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.PythonScriptOPTemplate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.op_template.ScriptOPTemplate" title="dflow.op_template.ScriptOPTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.op_template.ScriptOPTemplate</span></code></a></p>
+<p>Python script OP template</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – the name of the OP template</p></li>
+<li><p><strong>inputs</strong> – input parameters and input artifacts</p></li>
+<li><p><strong>outputs</strong> – output parameters and output artifacts</p></li>
+<li><p><strong>image</strong> – image the template uses</p></li>
+<li><p><strong>command</strong> – command to run the script</p></li>
+<li><p><strong>script</strong> – python script</p></li>
+<li><p><strong>volumes</strong> – volumes the template uses</p></li>
+<li><p><strong>mounts</strong> – volumes the template mounts</p></li>
+<li><p><strong>init_progress</strong> – a str representing the initial progress</p></li>
+<li><p><strong>timeout</strong> – timeout of the OP template</p></li>
+<li><p><strong>retry_strategy</strong> – retry strategy of the OP template</p></li>
+<li><p><strong>memoize_key</strong> – memoized key of the OP template</p></li>
+<li><p><strong>pvcs</strong> – PVCs need to be declared</p></li>
+<li><p><strong>image_pull_policy</strong> – Always, IfNotPresent, Never</p></li>
+<li><p><strong>annotations</strong> – annotations for the OP template</p></li>
+<li><p><strong>cpu_requests</strong> – CPU requests</p></li>
+<li><p><strong>memory_requests</strong> – memory requests</p></li>
+<li><p><strong>cpu_limits</strong> – CPU limits</p></li>
+<li><p><strong>memory_limits</strong> – memory limits</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.op_template.ScriptOPTemplate">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.op_template.</code><code class="sig-name descname">ScriptOPTemplate</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">inputs=None</em>, <em class="sig-param">outputs=None</em>, <em class="sig-param">image=None</em>, <em class="sig-param">command=None</em>, <em class="sig-param">script=None</em>, <em class="sig-param">volumes=None</em>, <em class="sig-param">mounts=None</em>, <em class="sig-param">init_progress='0/1'</em>, <em class="sig-param">timeout=None</em>, <em class="sig-param">retry_strategy=None</em>, <em class="sig-param">memoize_key=None</em>, <em class="sig-param">pvcs=None</em>, <em class="sig-param">resource=None</em>, <em class="sig-param">image_pull_policy=None</em>, <em class="sig-param">annotations=None</em>, <em class="sig-param">cpu_requests=None</em>, <em class="sig-param">memory_requests=None</em>, <em class="sig-param">cpu_limits=None</em>, <em class="sig-param">memory_limits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.ScriptOPTemplate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.op_template.OPTemplate</span></code></a></p>
+<p>Script OP template</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – the name of the OP template</p></li>
+<li><p><strong>inputs</strong> – input parameters and input artifacts</p></li>
+<li><p><strong>outputs</strong> – output parameters and output artifacts</p></li>
+<li><p><strong>image</strong> – image the template uses</p></li>
+<li><p><strong>command</strong> – command to run the script</p></li>
+<li><p><strong>script</strong> – script</p></li>
+<li><p><strong>volumes</strong> – volumes the template uses</p></li>
+<li><p><strong>mounts</strong> – volumes the template mounts</p></li>
+<li><p><strong>init_progress</strong> – a str representing the initial progress</p></li>
+<li><p><strong>timeout</strong> – timeout of the OP template</p></li>
+<li><p><strong>retry_strategy</strong> – retry strategy of the OP template</p></li>
+<li><p><strong>memoize_key</strong> – memoized key of the OP template</p></li>
+<li><p><strong>pvcs</strong> – PVCs need to be declared</p></li>
+<li><p><strong>image_pull_policy</strong> – Always, IfNotPresent, Never</p></li>
+<li><p><strong>annotations</strong> – annotations for the OP template</p></li>
+<li><p><strong>cpu_requests</strong> – CPU requests</p></li>
+<li><p><strong>memory_requests</strong> – memory requests</p></li>
+<li><p><strong>cpu_limits</strong> – CPU limits</p></li>
+<li><p><strong>memory_limits</strong> – memory limits</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.op_template.ScriptOPTemplate.convert_to_argo">
+<code class="sig-name descname">convert_to_argo</code><span class="sig-paren">(</span><em class="sig-param">memoize_prefix=None</em>, <em class="sig-param">memoize_configmap='dflow-config'</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.ScriptOPTemplate.convert_to_argo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.op_template.ShellOPTemplate">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.op_template.</code><code class="sig-name descname">ShellOPTemplate</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">inputs=None</em>, <em class="sig-param">outputs=None</em>, <em class="sig-param">image=None</em>, <em class="sig-param">command=None</em>, <em class="sig-param">script=None</em>, <em class="sig-param">volumes=None</em>, <em class="sig-param">mounts=None</em>, <em class="sig-param">init_progress='0/1'</em>, <em class="sig-param">timeout=None</em>, <em class="sig-param">retry_strategy=None</em>, <em class="sig-param">memoize_key=None</em>, <em class="sig-param">pvcs=None</em>, <em class="sig-param">image_pull_policy=None</em>, <em class="sig-param">annotations=None</em>, <em class="sig-param">cpu_requests=None</em>, <em class="sig-param">memory_requests=None</em>, <em class="sig-param">cpu_limits=None</em>, <em class="sig-param">memory_limits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.ShellOPTemplate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.op_template.ScriptOPTemplate" title="dflow.op_template.ScriptOPTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.op_template.ScriptOPTemplate</span></code></a></p>
+<p>Shell script OP template</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – the name of the OP template</p></li>
+<li><p><strong>inputs</strong> – input parameters and input artifacts</p></li>
+<li><p><strong>outputs</strong> – output parameters and output artifacts</p></li>
+<li><p><strong>image</strong> – image the template uses</p></li>
+<li><p><strong>command</strong> – command to run the script</p></li>
+<li><p><strong>script</strong> – shell script</p></li>
+<li><p><strong>volumes</strong> – volumes the template uses</p></li>
+<li><p><strong>mounts</strong> – volumes the template mounts</p></li>
+<li><p><strong>init_progress</strong> – a str representing the initial progress</p></li>
+<li><p><strong>timeout</strong> – timeout of the OP template</p></li>
+<li><p><strong>retry_strategy</strong> – retry strategy of the OP template</p></li>
+<li><p><strong>memoize_key</strong> – memoized key of the OP template</p></li>
+<li><p><strong>pvcs</strong> – PVCs need to be declared</p></li>
+<li><p><strong>image_pull_policy</strong> – Always, IfNotPresent, Never</p></li>
+<li><p><strong>annotations</strong> – annotations for the OP template</p></li>
+<li><p><strong>cpu_requests</strong> – CPU requests</p></li>
+<li><p><strong>memory_requests</strong> – memory requests</p></li>
+<li><p><strong>cpu_limits</strong> – CPU limits</p></li>
+<li><p><strong>memory_limits</strong> – memory limits</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="dflow-resource-module">
-<h2>dflow.resource module<a class="headerlink" href="#dflow-resource-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.resource">
+<span id="dflow-resource-module"></span><h2>dflow.resource module<a class="headerlink" href="#module-dflow.resource" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dflow.resource.Resource">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.resource.</code><code class="sig-name descname">Resource</code><a class="headerlink" href="#dflow.resource.Resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>action</strong> – action on the Kubernetes resource</p></li>
+<li><p><strong>success_condition</strong> – expression representing success</p></li>
+<li><p><strong>failure_condition</strong> – expression representing failure</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="dflow.resource.Resource.action">
+<code class="sig-name descname">action</code><em class="property"> = None</em><a class="headerlink" href="#dflow.resource.Resource.action" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dflow.resource.Resource.failure_condition">
+<code class="sig-name descname">failure_condition</code><em class="property"> = None</em><a class="headerlink" href="#dflow.resource.Resource.failure_condition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.resource.Resource.get_manifest">
+<code class="sig-name descname">get_manifest</code><span class="sig-paren">(</span><em class="sig-param">command</em>, <em class="sig-param">script</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.resource.Resource.get_manifest" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method to get the manifest (str)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dflow.resource.Resource.success_condition">
+<code class="sig-name descname">success_condition</code><em class="property"> = None</em><a class="headerlink" href="#dflow.resource.Resource.success_condition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="dflow-slurm-module">
-<h2>dflow.slurm module<a class="headerlink" href="#dflow-slurm-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.slurm">
+<span id="dflow-slurm-module"></span><h2>dflow.slurm module<a class="headerlink" href="#module-dflow.slurm" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dflow.slurm.SlurmJob">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.slurm.</code><code class="sig-name descname">SlurmJob</code><span class="sig-paren">(</span><em class="sig-param">header=''</em>, <em class="sig-param">node_selector=None</em>, <em class="sig-param">prepare=None</em>, <em class="sig-param">results=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmJob" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.resource.Resource" title="dflow.resource.Resource"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.resource.Resource</span></code></a></p>
+<dl class="method">
+<dt id="dflow.slurm.SlurmJob.get_manifest">
+<code class="sig-name descname">get_manifest</code><span class="sig-paren">(</span><em class="sig-param">command</em>, <em class="sig-param">script</em>, <em class="sig-param">workdir='.'</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmJob.get_manifest" title="Permalink to this definition">¶</a></dt>
+<dd><p>The method to get the manifest (str)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.slurm.SlurmJobTemplate">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.slurm.</code><code class="sig-name descname">SlurmJobTemplate</code><span class="sig-paren">(</span><em class="sig-param">header=''</em>, <em class="sig-param">node_selector=None</em>, <em class="sig-param">prepare_image='dptechnology/dflow'</em>, <em class="sig-param">collect_image='dptechnology/dflow'</em>, <em class="sig-param">workdir='dflow/workflows/{{workflow.name}}/{{pod.name}}'</em>, <em class="sig-param">remote_command=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmJobTemplate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.executor.Executor</span></code></a></p>
+<p>Slurm job template</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>header</strong> – header for Slurm job</p></li>
+<li><p><strong>node_selector</strong> – node selector</p></li>
+<li><p><strong>prepare_image</strong> – image for preparing data</p></li>
+<li><p><strong>collect_image</strong> – image for collecting results</p></li>
+<li><p><strong>workdir</strong> – remote working directory</p></li>
+<li><p><strong>remote_command</strong> – command for running the script remotely</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.slurm.SlurmJobTemplate.render">
+<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">template</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmJobTemplate.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template, do not modify self in this method to make the executor reusable</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.slurm.SlurmRemoteExecutor">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.slurm.</code><code class="sig-name descname">SlurmRemoteExecutor</code><span class="sig-paren">(</span><em class="sig-param">host</em>, <em class="sig-param">port=22</em>, <em class="sig-param">username='root'</em>, <em class="sig-param">password=None</em>, <em class="sig-param">private_key_file=None</em>, <em class="sig-param">workdir='~/dflow/workflows/{{workflow.name}}/{{pod.name}}'</em>, <em class="sig-param">command=None</em>, <em class="sig-param">remote_command=None</em>, <em class="sig-param">image='dptechnology/dflow-extender'</em>, <em class="sig-param">map_tmp_dir=True</em>, <em class="sig-param">docker_executable=None</em>, <em class="sig-param">action_retries=-1</em>, <em class="sig-param">header=''</em>, <em class="sig-param">interval=3</em>, <em class="sig-param">pvc='public'</em>, <em class="sig-param">size='1Gi'</em>, <em class="sig-param">storage_class=None</em>, <em class="sig-param">access_modes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmRemoteExecutor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.executor.RemoteExecutor" title="dflow.executor.RemoteExecutor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.executor.RemoteExecutor</span></code></a></p>
+<p>Slurm remote executor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> – remote host</p></li>
+<li><p><strong>port</strong> – SSH port</p></li>
+<li><p><strong>username</strong> – username</p></li>
+<li><p><strong>password</strong> – password for SSH</p></li>
+<li><p><strong>private_key_file</strong> – private key file for SSH</p></li>
+<li><p><strong>workdir</strong> – remote working directory</p></li>
+<li><p><strong>command</strong> – command for the executor</p></li>
+<li><p><strong>remote_command</strong> – command for running the script remotely</p></li>
+<li><p><strong>image</strong> – image for the executor</p></li>
+<li><p><strong>map_tmp_dir</strong> – map /tmp to ./tmp</p></li>
+<li><p><strong>docker_executable</strong> – docker executable to run remotely</p></li>
+<li><p><strong>action_retries</strong> – retries for actions (upload, execute commands, download), -1 for infinity</p></li>
+<li><p><strong>header</strong> – header for Slurm job</p></li>
+<li><p><strong>interval</strong> – query interval for Slurm</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.slurm.SlurmRemoteExecutor.render">
+<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">template</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmRemoteExecutor.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template, do not modify self in this method to make the executor reusable</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dflow.slurm.SlurmRemoteExecutor.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">image</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmRemoteExecutor.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="dflow-step-module">
-<h2>dflow.step module<a class="headerlink" href="#dflow-step-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.step">
+<span id="dflow-step-module"></span><h2>dflow.step module<a class="headerlink" href="#module-dflow.step" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dflow.step.Step">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.step.</code><code class="sig-name descname">Step</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">template</em>, <em class="sig-param">parameters=None</em>, <em class="sig-param">artifacts=None</em>, <em class="sig-param">when=None</em>, <em class="sig-param">with_param=None</em>, <em class="sig-param">continue_on_failed=False</em>, <em class="sig-param">continue_on_num_success=None</em>, <em class="sig-param">continue_on_success_ratio=None</em>, <em class="sig-param">with_sequence=None</em>, <em class="sig-param">key=None</em>, <em class="sig-param">executor=None</em>, <em class="sig-param">use_resource=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – the name of the step</p></li>
+<li><p><strong>template</strong> – OP template the step uses</p></li>
+<li><p><strong>parameters</strong> – input parameters passed to the step as arguments</p></li>
+<li><p><strong>artifacts</strong> – input artifacts passed to the step as arguments</p></li>
+<li><p><strong>when</strong> – conditional step if the condition is satisfied</p></li>
+<li><p><strong>with_param</strong> – generate parallel steps with respect to a list as a parameter</p></li>
+<li><p><strong>continue_on_failed</strong> – continue if the step fails</p></li>
+<li><p><strong>continue_on_num_success</strong> – continue if the success number of the generated parallel steps greater than certain number</p></li>
+<li><p><strong>continue_on_success_ratio</strong> – continue if the success ratio of the generated parallel steps greater than certain number</p></li>
+<li><p><strong>with_sequence</strong> – generate parallel steps with respect to a sequence</p></li>
+<li><p><strong>key</strong> – the key of the step</p></li>
+<li><p><strong>executor</strong> – define the executor to execute the script</p></li>
+<li><p><strong>use_resource</strong> – use k8s resource</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.step.Step.convert_to_argo">
+<code class="sig-name descname">convert_to_argo</code><span class="sig-paren">(</span><em class="sig-param">context=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.convert_to_argo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.step.Step.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">context</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.step.Step.set_artifacts">
+<code class="sig-name descname">set_artifacts</code><span class="sig-paren">(</span><em class="sig-param">artifacts</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.set_artifacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.step.Step.set_parameters">
+<code class="sig-name descname">set_parameters</code><span class="sig-paren">(</span><em class="sig-param">parameters</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.set_parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="dflow.step.argo_len">
+<code class="sig-prename descclassname">dflow.step.</code><code class="sig-name descname">argo_len</code><span class="sig-paren">(</span><em class="sig-param">param</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.argo_len" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the length of a list which is an Argo parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param</strong> – the Argo parameter which is a list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="dflow.step.argo_range">
+<code class="sig-prename descclassname">dflow.step.</code><code class="sig-name descname">argo_range</code><span class="sig-paren">(</span><em class="sig-param">*args</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.argo_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a str representing a range of integer in Argo
+It receives 1-3 arguments, which is similar to the function <cite>range</cite> in Python
+Each argument can be Argo parameter</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dflow.step.argo_sequence">
+<code class="sig-prename descclassname">dflow.step.</code><code class="sig-name descname">argo_sequence</code><span class="sig-paren">(</span><em class="sig-param">count=None</em>, <em class="sig-param">start=None</em>, <em class="sig-param">end=None</em>, <em class="sig-param">format=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.argo_sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a numeric sequence in Argo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>count</strong> – length of the sequence, can be an Argo parameter</p></li>
+<li><p><strong>start</strong> – start number of the sequence, can be an Argo parameter</p></li>
+<li><p><strong>end</strong> – end number of the sequence, can be an Argo parameter</p></li>
+<li><p><strong>format</strong> – output the sequence with format</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="dflow.step.backup">
+<code class="sig-prename descclassname">dflow.step.</code><code class="sig-name descname">backup</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.backup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dflow.step.eval_bool_expr">
+<code class="sig-prename descclassname">dflow.step.</code><code class="sig-name descname">eval_bool_expr</code><span class="sig-paren">(</span><em class="sig-param">expr</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.eval_bool_expr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dflow.step.if_expression">
+<code class="sig-prename descclassname">dflow.step.</code><code class="sig-name descname">if_expression</code><span class="sig-paren">(</span><em class="sig-param">_if</em>, <em class="sig-param">_then</em>, <em class="sig-param">_else</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.if_expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an if expression in Argo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_if</strong> – a bool expression, which may be a comparison of two Argo parameters</p></li>
+<li><p><strong>_then</strong> – value returned if the condition is satisfied</p></li>
+<li><p><strong>_else</strong> – value returned if the condition is not satisfied</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="dflow-steps-module">
-<h2>dflow.steps module<a class="headerlink" href="#dflow-steps-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.steps">
+<span id="dflow-steps-module"></span><h2>dflow.steps module<a class="headerlink" href="#module-dflow.steps" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dflow.steps.Steps">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.steps.</code><code class="sig-name descname">Steps</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">inputs=None</em>, <em class="sig-param">outputs=None</em>, <em class="sig-param">steps=None</em>, <em class="sig-param">memoize_key=None</em>, <em class="sig-param">annotations=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.steps.Steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.op_template.OPTemplate</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – the name of the steps</p></li>
+<li><p><strong>inputs</strong> – inputs in the template</p></li>
+<li><p><strong>outputs</strong> – outputs in the template</p></li>
+<li><p><strong>steps</strong> – a sequential list of steps</p></li>
+<li><p><strong>memoize_key</strong> – memoized key of the steps</p></li>
+<li><p><strong>annotations</strong> – annotations for the OP template</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.steps.Steps.add">
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">step</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.steps.Steps.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a step or a list of parallel steps to the steps</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>step</strong> – a step or a list of parallel steps to be added to the entrypoint of the workflow</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dflow.steps.Steps.convert_to_argo">
+<code class="sig-name descname">convert_to_argo</code><span class="sig-paren">(</span><em class="sig-param">memoize_prefix=None</em>, <em class="sig-param">memoize_configmap='dflow-config'</em>, <em class="sig-param">context=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.steps.Steps.convert_to_argo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.steps.Steps.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.steps.Steps.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="dflow-util-ops-module">
-<h2>dflow.util_ops module<a class="headerlink" href="#dflow-util-ops-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.util_ops">
+<span id="dflow-util-ops-module"></span><h2>dflow.util_ops module<a class="headerlink" href="#module-dflow.util_ops" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dflow.util_ops.CheckNumSuccess">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.util_ops.</code><code class="sig-name descname">CheckNumSuccess</code><span class="sig-paren">(</span><em class="sig-param">name='check-num-success'</em>, <em class="sig-param">image=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.util_ops.CheckNumSuccess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.op_template.ShellOPTemplate" title="dflow.op_template.ShellOPTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.op_template.ShellOPTemplate</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="dflow.util_ops.CheckSuccessRatio">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.util_ops.</code><code class="sig-name descname">CheckSuccessRatio</code><span class="sig-paren">(</span><em class="sig-param">name='check-success-ratio'</em>, <em class="sig-param">image=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.util_ops.CheckSuccessRatio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.op_template.ShellOPTemplate" title="dflow.op_template.ShellOPTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.op_template.ShellOPTemplate</span></code></a></p>
+</dd></dl>
+
 </div>
-<div class="section" id="dflow-utils-module">
-<h2>dflow.utils module<a class="headerlink" href="#dflow-utils-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.utils">
+<span id="dflow-utils-module"></span><h2>dflow.utils module<a class="headerlink" href="#module-dflow.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="dflow.utils.assemble_path_list">
+<code class="sig-prename descclassname">dflow.utils.</code><code class="sig-name descname">assemble_path_list</code><span class="sig-paren">(</span><em class="sig-param">art_path</em>, <em class="sig-param">remove=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.assemble_path_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dflow.utils.convert_dflow_list">
+<code class="sig-prename descclassname">dflow.utils.</code><code class="sig-name descname">convert_dflow_list</code><span class="sig-paren">(</span><em class="sig-param">dflow_list</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.convert_dflow_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dflow.utils.copy_artifact">
+<code class="sig-prename descclassname">dflow.utils.</code><code class="sig-name descname">copy_artifact</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">dst</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.copy_artifact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy an artifact to another on server side</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> – source artifact</p></li>
+<li><p><strong>dst</strong> – destination artifact</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="dflow.utils.copy_file">
+<code class="sig-prename descclassname">dflow.utils.</code><code class="sig-name descname">copy_file</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">dst</em>, <em class="sig-param">func=&lt;built-in function link&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.copy_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dflow.utils.copy_s3">
+<code class="sig-prename descclassname">dflow.utils.</code><code class="sig-name descname">copy_s3</code><span class="sig-paren">(</span><em class="sig-param">src_key</em>, <em class="sig-param">dst_key</em>, <em class="sig-param">recursive=True</em>, <em class="sig-param">key=None</em>, <em class="sig-param">endpoint=None</em>, <em class="sig-param">access_key=None</em>, <em class="sig-param">secret_key=None</em>, <em class="sig-param">secure=None</em>, <em class="sig-param">bucket_name=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.copy_s3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dflow.utils.download_artifact">
+<code class="sig-prename descclassname">dflow.utils.</code><code class="sig-name descname">download_artifact</code><span class="sig-paren">(</span><em class="sig-param">artifact</em>, <em class="sig-param">extract=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.download_artifact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download an artifact from Argo to local</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>artifact</strong> – artifact to be downloaded</p></li>
+<li><p><strong>extract</strong> – extract files if the artifact is compressed</p></li>
+<li><p><strong>path</strong> – local path</p></li>
+<li><p><strong>endpoint</strong> – endpoint for Minio</p></li>
+<li><p><strong>access_key</strong> – access key for Minio</p></li>
+<li><p><strong>secret_key</strong> – secret key for Minio</p></li>
+<li><p><strong>secure</strong> – secure or not for Minio</p></li>
+<li><p><strong>bucket_name</strong> – bucket name for Minio</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="dflow.utils.download_s3">
+<code class="sig-prename descclassname">dflow.utils.</code><code class="sig-name descname">download_s3</code><span class="sig-paren">(</span><em class="sig-param">key</em>, <em class="sig-param">path=None</em>, <em class="sig-param">recursive=True</em>, <em class="sig-param">endpoint=None</em>, <em class="sig-param">access_key=None</em>, <em class="sig-param">secret_key=None</em>, <em class="sig-param">secure=None</em>, <em class="sig-param">bucket_name=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.download_s3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dflow.utils.merge_dir">
+<code class="sig-prename descclassname">dflow.utils.</code><code class="sig-name descname">merge_dir</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">dst</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.merge_dir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dflow.utils.randstr">
+<code class="sig-prename descclassname">dflow.utils.</code><code class="sig-name descname">randstr</code><span class="sig-paren">(</span><em class="sig-param">l=5</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.randstr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dflow.utils.remove_empty_dir_tag">
+<code class="sig-prename descclassname">dflow.utils.</code><code class="sig-name descname">remove_empty_dir_tag</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.remove_empty_dir_tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="dflow.utils.upload_artifact">
+<code class="sig-prename descclassname">dflow.utils.</code><code class="sig-name descname">upload_artifact</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">archive='tar'</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.upload_artifact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upload an artifact from local to Argo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – local path</p></li>
+<li><p><strong>archive</strong> – compress format of the artifact, None for no compression</p></li>
+<li><p><strong>endpoint</strong> – endpoint for Minio</p></li>
+<li><p><strong>access_key</strong> – access key for Minio</p></li>
+<li><p><strong>secret_key</strong> – secret key for Minio</p></li>
+<li><p><strong>secure</strong> – secure or not for Minio</p></li>
+<li><p><strong>bucket_name</strong> – bucket name for Minio</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="dflow.utils.upload_s3">
+<code class="sig-prename descclassname">dflow.utils.</code><code class="sig-name descname">upload_s3</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">key=None</em>, <em class="sig-param">endpoint=None</em>, <em class="sig-param">access_key=None</em>, <em class="sig-param">secret_key=None</em>, <em class="sig-param">secure=None</em>, <em class="sig-param">bucket_name=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.upload_s3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
-<div class="section" id="dflow-workflow-module">
-<h2>dflow.workflow module<a class="headerlink" href="#dflow-workflow-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow.workflow">
+<span id="dflow-workflow-module"></span><h2>dflow.workflow module<a class="headerlink" href="#module-dflow.workflow" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="dflow.workflow.Workflow">
+<em class="property">class </em><code class="sig-prename descclassname">dflow.workflow.</code><code class="sig-name descname">Workflow</code><span class="sig-paren">(</span><em class="sig-param">name='workflow'</em>, <em class="sig-param">steps=None</em>, <em class="sig-param">id=None</em>, <em class="sig-param">host=None</em>, <em class="sig-param">token=None</em>, <em class="sig-param">k8s_config_file=None</em>, <em class="sig-param">k8s_api_server=None</em>, <em class="sig-param">context=None</em>, <em class="sig-param">annotations=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – the name of the workflow</p></li>
+<li><p><strong>steps</strong> – steps used as the entrypoint of the workflow, if not provided, a empty steps will be used</p></li>
+<li><p><strong>id</strong> – workflow ID in Argo, you can provide it to track an existing workflow</p></li>
+<li><p><strong>host</strong> – URL of the Argo server, will override global config</p></li>
+<li><p><strong>token</strong> – request the Argo server with the token, will override global config</p></li>
+<li><p><strong>k8s_config_file</strong> – Kubernetes configuration file for accessing API server, will override global config</p></li>
+<li><p><strong>k8s_api_server</strong> – Url of kubernetes API server, will override global config</p></li>
+<li><p><strong>context</strong> – context for the workflow</p></li>
+<li><p><strong>annotations</strong> – annotations for the workflow</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="dflow.workflow.Workflow.add">
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">step</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a step or a list of parallel steps to the workflow</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>step</strong> – a step or a list of parallel steps to be added to the entrypoint of the workflow</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dflow.workflow.Workflow.convert_to_argo">
+<code class="sig-name descname">convert_to_argo</code><span class="sig-paren">(</span><em class="sig-param">reuse_step=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow.convert_to_argo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.workflow.Workflow.handle_template">
+<code class="sig-name descname">handle_template</code><span class="sig-paren">(</span><em class="sig-param">template</em>, <em class="sig-param">memoize_prefix=None</em>, <em class="sig-param">memoize_configmap='dflow-config'</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow.handle_template" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.workflow.Workflow.query">
+<code class="sig-name descname">query</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the workflow from Argo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>an ArgoWorkflow object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dflow.workflow.Workflow.query_keys_of_steps">
+<code class="sig-name descname">query_keys_of_steps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow.query_keys_of_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the keys of existing steps of the workflow from Argo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a list of keys</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dflow.workflow.Workflow.query_status">
+<code class="sig-name descname">query_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow.query_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the status of the workflow from Argo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Pending, Running, Succeeded, Failed, Error, etc</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dflow.workflow.Workflow.query_step">
+<code class="sig-name descname">query_step</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">key=None</em>, <em class="sig-param">phase=None</em>, <em class="sig-param">id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow.query_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the existing steps of the workflow from Argo</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – filter by name of step, support regex</p></li>
+<li><p><strong>key</strong> – filter by key of step</p></li>
+<li><p><strong>phase</strong> – filter by phase of step</p></li>
+<li><p><strong>id</strong> – filter by id of step</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of steps</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dflow.workflow.Workflow.submit">
+<code class="sig-name descname">submit</code><span class="sig-paren">(</span><em class="sig-param">backend='argo'</em>, <em class="sig-param">reuse_step=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow.submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit the workflow</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>backend</strong> – “debug” for local run</p></li>
+<li><p><strong>reuse_step</strong> – a list of steps to be reused in the workflow</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-dflow">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dflow" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -123,20 +1056,20 @@
 <li><a class="reference internal" href="#">dflow package</a><ul>
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#dflow-argo-objects-module">dflow.argo_objects module</a></li>
-<li><a class="reference internal" href="#dflow-common-module">dflow.common module</a></li>
-<li><a class="reference internal" href="#dflow-context-module">dflow.context module</a></li>
-<li><a class="reference internal" href="#dflow-executor-module">dflow.executor module</a></li>
-<li><a class="reference internal" href="#dflow-io-module">dflow.io module</a></li>
-<li><a class="reference internal" href="#dflow-op-template-module">dflow.op_template module</a></li>
-<li><a class="reference internal" href="#dflow-resource-module">dflow.resource module</a></li>
-<li><a class="reference internal" href="#dflow-slurm-module">dflow.slurm module</a></li>
-<li><a class="reference internal" href="#dflow-step-module">dflow.step module</a></li>
-<li><a class="reference internal" href="#dflow-steps-module">dflow.steps module</a></li>
-<li><a class="reference internal" href="#dflow-util-ops-module">dflow.util_ops module</a></li>
-<li><a class="reference internal" href="#dflow-utils-module">dflow.utils module</a></li>
-<li><a class="reference internal" href="#dflow-workflow-module">dflow.workflow module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-dflow.argo_objects">dflow.argo_objects module</a></li>
+<li><a class="reference internal" href="#module-dflow.common">dflow.common module</a></li>
+<li><a class="reference internal" href="#module-dflow.context">dflow.context module</a></li>
+<li><a class="reference internal" href="#module-dflow.executor">dflow.executor module</a></li>
+<li><a class="reference internal" href="#module-dflow.io">dflow.io module</a></li>
+<li><a class="reference internal" href="#module-dflow.op_template">dflow.op_template module</a></li>
+<li><a class="reference internal" href="#module-dflow.resource">dflow.resource module</a></li>
+<li><a class="reference internal" href="#module-dflow.slurm">dflow.slurm module</a></li>
+<li><a class="reference internal" href="#module-dflow.step">dflow.step module</a></li>
+<li><a class="reference internal" href="#module-dflow.steps">dflow.steps module</a></li>
+<li><a class="reference internal" href="#module-dflow.util_ops">dflow.util_ops module</a></li>
+<li><a class="reference internal" href="#module-dflow.utils">dflow.utils module</a></li>
+<li><a class="reference internal" href="#module-dflow.workflow">dflow.workflow module</a></li>
+<li><a class="reference internal" href="#module-dflow">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -168,6 +1101,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">dflow 1.0.13 documentation</a> &#187;</li> 
       </ul>
     </div>
