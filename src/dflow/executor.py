@@ -1,7 +1,14 @@
+from copy import deepcopy
 from .common import S3Artifact
 from .io import InputArtifact
 from .utils import upload_s3
 from .op_template import ShellOPTemplate
+from .workflow import config
+from argo.workflows.client import (
+    V1Volume,
+    V1VolumeMount,
+    V1HostPathVolumeSource
+)
 
 class Executor(object):
     """
@@ -15,7 +22,7 @@ class Executor(object):
 
 class RemoteExecutor(Executor):
     def __init__(self, host, port=22, username="root", password=None, private_key_file=None, workdir="~/dflow/workflows/{{workflow.name}}/{{pod.name}}",
-            command=None, remote_command=None, image="dptechnology/dflow-extender", map_tmp_dir=True, container=None):
+            command=None, remote_command=None, image="dptechnology/dflow-extender", map_tmp_dir=True, docker_executable=None, action_retries=-1):
         self.host = host
         self.port = port
         self.username = username
@@ -30,38 +37,68 @@ class RemoteExecutor(Executor):
         self.remote_command = remote_command
         self.image = image
         self.map_tmp_dir = map_tmp_dir
-        self.container = container
-        if self.container is not None:
+        self.docker_executable = docker_executable
+        if self.docker_executable is not None:
             self.map_tmp_dir = False
+        self.action_retries = action_retries
 
     def execute(self, cmd):
-        if self.password is None:
-            return "ssh -o StrictHostKeyChecking=no -p %s %s@%s '%s'" % (self.port, self.username, self.host, cmd)
-        else:
-            return "sshpass -p %s ssh -o StrictHostKeyChecking=no -p %s %s@%s '%s'" % (self.password, self.port, self.username, self.host, cmd)
+        return "execute %s '%s'" % (self.action_retries, cmd) # add '' in case shell will expand ~
 
     def upload(self, src, dst):
-        if self.password is None:
-            return "scp -o StrictHostKeyChecking=no -P %s -r %s %s@%s:%s" % (self.port, src, self.username, self.host, dst)
-        else:
-            return "sshpass -p %s scp -o StrictHostKeyChecking=no -P %s -r %s %s@%s:%s" % (self.password, self.port, src, self.username, self.host, dst)
+        return "upload %s '%s' '%s'" % (self.action_retries, src, dst) # add '' in case shell will expand ~
 
     def download(self, src, dst):
-        if self.password is None:
-            return "scp -o StrictHostKeyChecking=no -P %s -r %s@%s:%s %s" % (self.port, self.username, self.host, src, dst)
-        else:
-            return "sshpass -p %s scp -o StrictHostKeyChecking=no -P %s -r %s@%s:%s %s" % (self.password, self.port, self.username, self.host, src, dst)  
+        return "download %s '%s' '%s'" % (self.action_retries, src, dst) # add '' in case shell will expand ~
 
     def run(self):
-        if self.container is None:
+        if self.docker_executable is None:
             return self.execute("cd %s && %s script" % (self.workdir, " ".join(self.remote_command))) + " || exit 1\n"
         else:
-            return self.execute("cd %s && %s run -v$(pwd)/tmp:/tmp -v$(pwd)/script:/script -ti %s %s /script" % (self.workdir, self.container, image, " ".join(self.remote_command))) + " || exit 1\n"
+            return self.execute("cd %s && %s run -v$(pwd)/tmp:/tmp -v$(pwd)/script:/script -ti %s %s /script" % (self.workdir, self.docker_executable, image, " ".join(self.remote_command))) + " || exit 1\n"
 
     def get_script(self, command, script, image):
+        remote_script = script.replace("/tmp", "tmp") if self.map_tmp_dir else script
         if self.remote_command is None:
             self.remote_command = command
-        script = "cat <<EOF> script\n" + (script.replace("/tmp", "tmp") if self.map_tmp_dir else script) + "\nEOF\n"
+        ssh_pass = "sshpass -p %s " % self.password if self.password is not None else ""
+        script = """
+execute() {
+    if [ $1 != 0 ]; then
+        %sssh -C -o StrictHostKeyChecking=no -p %s %s@%s -- $2
+        if [ $? != 0 ]; then
+            echo retry: $1
+            sleep 1
+            execute $(($1-1)) '$2'
+        fi
+    fi
+}
+""" % (ssh_pass, self.port, self.username, self.host)
+        script += """
+upload() {
+    if [ $1 != 0 ]; then
+        %sscp -C -o StrictHostKeyChecking=no -P %s -r $2 %s@%s:$3
+        if [ $? != 0 ]; then
+            echo retry: $1
+            sleep 1
+            upload $(($1-1)) $2 $3
+        fi
+    fi
+}
+""" % (ssh_pass, self.port, self.username, self.host)
+        script += """
+download() {
+    if [ $1 != 0 ]; then
+        %sscp -C -o StrictHostKeyChecking=no -P %s -r %s@%s:$2 $3
+        if [ $? != 0 ]; then
+            echo retry: $1
+            sleep 1
+            download $(($1-1)) $2 $3
+        fi
+    fi
+}
+""" % (ssh_pass, self.port, self.username, self.host)
+        script += "cat <<EOF> script\n" + remote_script + "\nEOF\n"
         script += self.execute("mkdir -p %s/tmp" % self.workdir) + " || exit 1\n"
         script += "if [ -d /tmp ]; then " + self.upload("/tmp", self.workdir) + " || exit 1; fi\n"
         script += self.upload("script", "%s/script" % self.workdir) + " || exit 1\n"
@@ -70,12 +107,17 @@ class RemoteExecutor(Executor):
         return script
 
     def render(self, template):
-        new_template = ShellOPTemplate(name=template.name + "-remote", inputs=template.inputs, outputs=template.outputs,
-                        image=self.image, command=self.command, script=self.get_script(template.command, template.script, template.image),
-                        volumes=template.volumes, mounts=template.mounts, init_progress=template.init_progress,
-                        timeout=template.timeout, retry_strategy=template.retry_strategy, memoize_key=template.memoize_key)
-        if self.private_key_file is not None:
+        new_template = deepcopy(template)
+        new_template.image = self.image
+        new_template.command = self.command
+        new_template.script = self.get_script(template.command, template.script, template.image)
+        if self.password is not None:
+            pass
+        elif self.private_key_file is not None:
             key = upload_s3(self.private_key_file)
             private_key_artifact = S3Artifact(key=key)
             new_template.inputs.artifacts["dflow_private_key"] = InputArtifact(path="/root/.ssh/id_rsa", source=private_key_artifact)
+        else:
+            new_template.volumes.append(V1Volume(name="dflow-private-key", host_path=V1HostPathVolumeSource(path=config["private_key_host_path"])))
+            new_template.mounts.append(V1VolumeMount(name="dflow-private-key", mount_path="/root/.ssh/id_rsa"))
         return new_template

@@ -1,6 +1,6 @@
 import copy
 import yaml
-from .io import InputArtifact, InputParameter, OutputArtifact, OutputParameter
+from .io import InputArtifact, InputParameter, OutputArtifact, OutputParameter, PVC
 from .op_template import ScriptOPTemplate, ShellOPTemplate
 from .step import Step
 from .steps import Steps
@@ -165,25 +165,34 @@ class SlurmRemoteExecutor(RemoteExecutor):
         remote_command: command for running the script remotely
         image: image for the executor
         map_tmp_dir: map /tmp to ./tmp
-        container: container executable to run remotely
+        docker_executable: docker executable to run remotely
+        action_retries: retries for actions (upload, execute commands, download), -1 for infinity
         header: header for Slurm job
         interval: query interval for Slurm
     """
     def __init__(self, host, port=22, username="root", password=None, private_key_file=None, workdir="~/dflow/workflows/{{workflow.name}}/{{pod.name}}",
-            command=None, remote_command=None, image="dptechnology/dflow-extender", map_tmp_dir=True, container=None, header="", interval=3):
+            command=None, remote_command=None, image="dptechnology/dflow-extender", map_tmp_dir=True, docker_executable=None, action_retries=-1,
+            header="", interval=3, pvc="public", size="1Gi", storage_class=None, access_modes=None):
         super().__init__(host=host, port=port, username=username, password=password, private_key_file=private_key_file, workdir=workdir, command=command,
-                remote_command=remote_command, image=image, map_tmp_dir=map_tmp_dir, container=container)
+                remote_command=remote_command, image=image, map_tmp_dir=map_tmp_dir, docker_executable=docker_executable, action_retries=action_retries)
         self.header = header
         self.interval = interval
+        self.pvc = pvc
+        self.size = size
+        self.storage_class = storage_class
+        self.access_modes = access_modes
 
     def run(self, image):
         script = ""
-        if self.container is None:
+        if self.docker_executable is None:
             script += "echo '%s\n%s script' > slurm.sh\n" % (self.header, " ".join(self.remote_command))
         else:
-            script += "echo '%s\n%s run -v$(pwd)/tmp:/tmp -v$(pwd)/script:/script -ti %s %s /script' > slurm.sh\n" % (self.header, self.container, image, " ".join(self.remote_command))
+            script += "echo '%s\n%s run -v$(pwd)/tmp:/tmp -v$(pwd)/script:/script -ti %s %s /script' > slurm.sh\n" % (self.header, self.docker_executable, image, " ".join(self.remote_command))
         script += self.upload("slurm.sh", "%s/slurm.sh" % self.workdir) + " || exit 1\n"
-        script += "echo 'jobIdFile: /tmp/job_id.txt' >> param.yaml\n"
+        if self.pvc:
+            script += "echo 'jobIdFile: /mnt/job_id.txt' >> param.yaml\n"
+        else:
+            script += "echo 'jobIdFile: /tmp/job_id.txt' >> param.yaml\n"
         script += "echo 'workdir: %s' >> param.yaml\n" % self.workdir
         script += "echo 'scriptFile: slurm.sh' >> param.yaml\n"
         script += "echo 'interval: %s' >> param.yaml\n" % self.interval
@@ -192,9 +201,14 @@ class SlurmRemoteExecutor(RemoteExecutor):
         script += "echo 'username: %s' >> param.yaml\n" % self.username
         if self.password is not None:
             script += "echo 'password: %s' >> param.yaml\n" % self.password
-        elif self.private_key_file is not None:
-            script += "echo 'privateKeyFile: /root/.ssh/id_rsa' >> param.yaml\n"
         else:
-            raise ValueError("password or private key file must be provided")
+            script += "echo 'privateKeyFile: /root/.ssh/id_rsa' >> param.yaml\n"
         script += "./bin/slurm param.yaml || exit 1\n"
         return script
+
+    def render(self, template):
+        new_template = super().render(template)
+        if self.pvc is not None:
+            new_template.pvcs.append(PVC(self.pvc, ".", size=self.size, storage_class=self.storage_class, access_modes=self.access_modes))
+            new_template.mounts.append(V1VolumeMount(name=self.pvc, mount_path="/mnt", sub_path="{{pod.name}}"))
+        return new_template
