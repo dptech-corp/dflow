@@ -1,0 +1,50 @@
+name: Build docs
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'VERSION'
+
+jobs:
+  build-n-push:
+    if: github.repository_owner == 'dptech-corp'
+    name: Build docs
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - uses: ammaraskar/sphinx-action@master
+      with:
+        docs-folder: "docs/"
+
+    - name: Commit documentation changes
+      run: |
+        git clone https://github.com/dptech-corp/dflow.git --branch docs --single-branch dflow-docs
+        cp -r docs/build/html/* dflow-docs
+        cd dflow-docs
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "Update documentation"
+
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        branch: docs
+        directory: dflow-docs
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: send email
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.feishu.cn
+        server_port: 465
+        username: ${{ secrets.MAILUSERNAME }}
+        password: ${{ secrets.MAILPASSWORD }}
+        subject: Docker Auto Build For Dflow
+        body: Docs has been published to https://dptech-corp.github.io/
+        to: ${{ secrets.MAIL_RECEIVER_LIST }}
+        from: Github Actions
+        content_type: text
