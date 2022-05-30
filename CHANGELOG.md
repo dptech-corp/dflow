@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.0.13
+
+### Added
+
+- auto build docs to branch docs
+- add retry for all actions in slurm remote executor
+- support for use private key on node for SSH connection
+
 ## 1.0.12
 
 ### Added
