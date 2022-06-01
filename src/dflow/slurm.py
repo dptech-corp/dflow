@@ -12,6 +12,7 @@ from argo.workflows.client import (
     V1VolumeMount,
     V1alpha1ResourceTemplate
 )
+import re
 
 class SlurmJob(Resource):
     def __init__(self, header="", node_selector=None, prepare=None, results=None):
@@ -175,7 +176,7 @@ class SlurmRemoteExecutor(RemoteExecutor):
             header="", interval=3, pvc="public", size="1Gi", storage_class=None, access_modes=None):
         super().__init__(host=host, port=port, username=username, password=password, private_key_file=private_key_file, workdir=workdir, command=command,
                 remote_command=remote_command, image=image, map_tmp_dir=map_tmp_dir, docker_executable=docker_executable, action_retries=action_retries)
-        self.header = ''.join(list(filter(None, header.split(' '))))
+        self.header = re.sub(" *#","#",header)
         self.interval = interval
         self.pvc = pvc
         self.size = size
