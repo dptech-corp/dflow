@@ -67,7 +67,18 @@ simple_example=ShellOPTemplate(name = "Hello",
                                 image = "alpine:latest",
                                 script = "cp /tmp/foo.txt /tmp/bar.txt && echo {{inputs.parameters.msg}} > /tmp/msg.txt")
 ```
-The above example defines a ShellOPTemplate with `name = "Hello"` and container image `alpine:latest`. The operation is to copy (`cp`) `/tmp/foo.txt` to `/tmp/bar.txt` and printout (`echo`) the parameters of the inputs named `msg` and pipe it to `/tmp/msg.txt`. We later will show how to define inputs and outputs. But here, `/tmp/foo.txt` is the input artifact and `inputs.parameters.msg` is the input parameter. The output artifact of the operation `/tmp/bar.txt` and the output parameter is defined as the value in `/tmp/msg.txt`.
+The above example defines a ShellOPTemplate with `name = "Hello"` and container image `alpine:latest`. The operation is to copy (`cp`) `/tmp/foo.txt` (input artifacts) to `/tmp/bar.txt` (output artifacts) and printout (`echo`) the parameters of the inputs named `msg` (input parameters) and pipe it to `/tmp/msg.txt` (value in the file is output parameters). 
+
+Now we need to define the input parameters, input artifacts, output parameters, output artifacts:
+
+```python
+#define input 
+simple_example.inputs.parameters = {"msg": InputParameter()}
+simple_example.inputs.artifacts = {"inp_art": InputArtifact(path = "/tmp/foo.txt")}
+#define output
+simple_example.outputs.parameters = {"msg": OutputParameter(value_from_path = "/tmp/results.txt")}
+simple_example.outputs.parameters = {"out_art": OutputArtifact(path = "/tmp/bar.txt")}
+```
 
 
 
