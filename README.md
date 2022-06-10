@@ -99,7 +99,7 @@ simple_example_templ.inputs.parameters = {"msg": InputParameter()}
 simple_example_templ.inputs.artifacts = {"inp_art": InputArtifact(path="/tmp/foo.txt")}
 # define output
 simple_example_templ.outputs.parameters = {
-    "msg": OutputParameter(value_from_path="/tmp/results.txt")
+    "msg": OutputParameter(value_from_path="/tmp/msg.txt")
 }
 simple_example_templ.outputs.parameters = {
     "out_art": OutputArtifact(path="/tmp/bar.txt")
