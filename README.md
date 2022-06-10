@@ -131,7 +131,7 @@ simple_example_step = Step(
     artifacts={"inp_art": foo},
 )
 ``` 
-This step will instantiate the OP template created in [1.2.2](#122-a-nameoptemplatea-op-template). Note that foo is an artifact either uploaded from local or output of another step。
+This step will instantiate the OP template created in [1.2.2](#122-a-nameoptemplatea-op-template). Note that foo is an artifact either uploaded from local or output of another step.
 
 
 ####  1.2.4. <a name='Workflow'></a> Workflow
@@ -243,7 +243,7 @@ kubectl -n argo port-forward deployment/minio 9000:9000
 ```
 
 ###  2.3. <a name='Installdflow'></a>Install dflow
-Make sure your Python version is not less than 3.7 and install dflow
+Make sure your Python version is not less than 3.6 and install dflow
 ```
 pip install pydflow
 ```
