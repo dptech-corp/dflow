@@ -75,9 +75,13 @@ OP template (shown as base OP in the figure above) is the fundamental building b
 To use the `ShellOPTemplate`:
 
 ```python
-simple_example_templ=ShellOPTemplate(name = "Hello",
-                                image = "alpine:latest",
-                                script = "cp /tmp/foo.txt /tmp/bar.txt && echo {{inputs.parameters.msg}} > /tmp/msg.txt")
+from dflow import ShellOPTemplate
+
+simple_example_templ = ShellOPTemplate(
+    name="Hello",
+    image="alpine:latest",
+    script="cp /tmp/foo.txt /tmp/bar.txt && echo {{inputs.parameters.msg}} > /tmp/msg.txt",
+)
 ```
 The above example defines a `ShellOPTemplate` with `name = "Hello"` and container image `alpine:latest`. The operation is to copy `/tmp/foo.txt` (input artifacts) to `/tmp/bar.txt` (output artifacts) and printout the properties of the parameters with name `msg` (input parameters) and pipe it to `/tmp/msg.txt` (value in the file is the properties of the output parameters). 
 <!-- 
@@ -88,12 +92,18 @@ Parameters and artifacts can be defined as the following:
 To define the parameters and artifacts of this OPTemplate: 
 
 ```python
-#define input 
+from dflow import InputParameter, InputArtifact, OutputParameter, OutputArtifact
+
+# define input
 simple_example_templ.inputs.parameters = {"msg": InputParameter()}
-simple_example_templ.inputs.artifacts = {"inp_art": InputArtifact(path = "/tmp/foo.txt")}
-#define output
-simple_example_templ.outputs.parameters = {"msg": OutputParameter(value_from_path = "/tmp/results.txt")}
-simple_example_templ.outputs.parameters = {"out_art": OutputArtifact(path = "/tmp/bar.txt")}
+simple_example_templ.inputs.artifacts = {"inp_art": InputArtifact(path="/tmp/foo.txt")}
+# define output
+simple_example_templ.outputs.parameters = {
+    "msg": OutputParameter(value_from_path="/tmp/results.txt")
+}
+simple_example_templ.outputs.parameters = {
+    "out_art": OutputArtifact(path="/tmp/bar.txt")
+}
 ```
 
 In the above example, there are three things to clarify. 
@@ -112,16 +122,22 @@ simple_example=PythonScriptOPTemplate(name = "Hello",
 `Step` is the central block for building a workflow. A `Step` is created by instantiating an OP template. When a `Step` is initialized, values of all input parameters and sources of all input artifacts declared in the OP template must be specified. 
 <!-- `Steps` is a sequential array of concurrent `Step`'s. A simple example goes like `[[s00, s01],  [s10, s11, s12]]`, where inner array represent concurrent tasks while outer array is sequential. (this part can be put in the User Guide-->
 ```python
-simple_example_step = Step(name='step0',
-                            template=simple_example_templ,
-                            parameters={"msg":'HelloWorld!'},
-                            artifacts={"inp_art":foo})
+from dflow import Step
+
+simple_example_step = Step(
+    name="step0",
+    template=simple_example_templ,
+    parameters={"msg": "HelloWorld!"},
+    artifacts={"inp_art": foo},
+)
 ``` 
 This step will instantiate the OP template created in [1.2.2](#122-a-nameoptemplatea-op-template). Note that `foo` is an artifact. 
 
 ####  1.2.4. <a name='Workflow'></a> Workflow
 `Workflow` is the connecting block for building a workflow. A `Workflow` is created by adding `Step` together. By default, it contains the `Step` as entrypoint for default. 
 ```python
+from dflow import Workflow
+
 wf = Workflow(name="hello-world")
 wf.add(simple_example_step)
 ```
@@ -146,42 +162,50 @@ The structures of the inputs and outputs of a `PythonOP` are defined in the stat
 The execution of the `PythonOP` is defined in the `execute` method. The `execute` method receives a `OPIO` object as input and outputs a `OPIO` object. `OPIO` is a dictionary mapping from the name of a parameter/artifact to its value/path. The type of the parameter value or the artifact path should be in accord with that declared in the sign. Type checking is implemented before and after the `execute` method.
 
 ```python
-from dflow.python import OP,OPIO,OPIOSign,Artifact
+from dflow.python import OP, OPIO, OPIOSign, Artifact
 from pathlib import Path
 import shutil
+
+
 class simpleexample(OP):
     def __init__(self):
         pass
-    
+
     @classmethod
     def get_input_sign(cls):
-        return OPIOSign({
-            "msg" : str,
-            "inp_art" : Artifact(Path),
-        })
+        return OPIOSign(
+            {
+                "msg": str,
+                "inp_art": Artifact(Path),
+            }
+        )
 
-    @clssmethod
+    @classmethod
     def get_output_sign(cls):
-        return OPIOSign({
-            "msg" : str,
-            "out_art" : Artifact(Path),
-        })
-    
+        return OPIOSign(
+            {
+                "msg": str,
+                "out_art": Artifact(Path),
+            }
+        )
+
     @OP.exec_sign_check
     def execute(
-                self,
-                op_in: OPIO,
+        self,
+        op_in: OPIO,
     ) -> OPIO:
         shutil.copy(op_in["inp_art"], "bar.txt")
-        f=open("msg.txt", "w")
+        f = open("msg.txt", "w")
         f.write(op_io["msg"])
         f.close()
         with open("msg.txt", "r") as g:
-            out_msg = g.read() 
-        op_out=OPIO({
-            "msg": out_msg
-            "out_art": Path("bar.txt")
-        })
+            out_msg = g.read()
+        op_out = OPIO(
+            {
+                "msg": out_msg,
+                "out_art": Path("bar.txt"),
+            }
+        )
         return op_out
 ```
 The above example defines an OP `simpleexample`. The operation is to copy `foo.txt` to `bar.txt` and writeS the properties of the parameters with name msg to `msg.txt`. 
@@ -189,7 +213,8 @@ The above example defines an OP `simpleexample`. The operation is to copy `foo.t
 To use the above class as a PythonOPTemplate, we need to pass the above class to `PythonOPTemplate` and specify the container image. Note that `pydflow` must be installed in this image
 ```python
 from dflow.python import PythonOPTemplate
-simple_example_templ=PythonOPTemplate(simpleexample, image="dptechnology/dflow")
+
+simple_example_templ = PythonOPTemplate(simpleexample, image="dptechnology/dflow")
 ```
 
 An example using all the elements discussed in [1.3](#12-a-namecommonlayera-common-layer)  is shown here:
