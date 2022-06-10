@@ -50,7 +50,6 @@ For dflow's developers, dflow wraps on argo SDK, keeps details of computing and 
 <!-- /vscode-markdown-toc -->
 
 ##  1. <a name='Overview'></a>Overview
-
 ###  1.1. <a name='Architecture'></a> Architecture
 The dflow consists of a **common layer** and an **interface layer**.  Interface layer takes various OP templates from users, usually in the form of python classes, and transforms them into base OP templates that common layer can handle. Common layer is an extension over argo client which provides functionalities such as file processing, workflow submission and management, etc.
 
@@ -66,6 +65,7 @@ img {
 </style> -->
 
 ###  1.2. <a name='Commonlayer'></a> Common layer
+maybe add some common layer description here?
 ####  1.2.1. <a name='Parametersandartifacts'></a>Parameters and artifacts
 Parameters and artifacts are data stored by the workflow and passed within the workflow. Parameters are saved as strings which can be displayed in the UI, while artifacts are saved as files.
 
@@ -136,8 +136,9 @@ You can check out a complete example using all the elements discussed above.
 - [Recursion example](examples/test_recurse.py) -->
 
 ###  1.3. <a name='Interfacelayer'></a> Interface layer
+Maybe add some interface layer description here?
 ####  1.3.1. <a name='PythonOP'></a> Python OP
-Python `OP` is a kind of OP template defined in the form of Python class. As Python is a weak typed language, we impose strict type checking to `OP`s to alleviate ambiguity and unexpected behaviors.
+Python `OP` is another kind of OP template defined in the form of a Python class. As Python is a weak typed language, we impose strict type checking to `OP`s to alleviate ambiguity and unexpected behaviors.
 
 The structures of the inputs and outputs of a `OP` are defined in the static methods `get_input_sign` and `get_output_sign`. Each of them returns a `OPIOSign` object (basically a dictionary mapping from the name of a parameter/artifact to its sign). For a parameter, its sign is its variable type, such as `str`, `float`, `list`, or any user-defined Python class. Since argo only accept string as parameter value, dflow encodes all parameters to json (except for string type parameters) before passing them to argo, and decodes argo parameters from json (except for string type parameters). For an artifact, its sign must be an instance of `Artifact`. `Artifact` receives the type of the path variable as the constructor argument, only `str`, `pathlib.Path`, `typing.Set[str]`, `typing.Set[pathlib.Path]`, `typing.List[str]`, `typing.List[pathlib.Path]` are supported. If a `OP` returns a list of path as an artifact, dflow not only collects files or directories in the returned list of path, and package them in an artifact, but also records their relative path in the artifact. Thus dflow can unpack the artifact to a list of path again before passing to the next `OP`. When no file or directory exists, dflow regards it as `None`.
 
