@@ -9,9 +9,12 @@ from argo.workflows.client import (
 )
 from argo.workflows.client.configuration import Configuration
 from .io import Inputs, Outputs, InputParameter
+from .utils import randstr
 
 class OPTemplate:
-    def __init__(self, name, inputs=None, outputs=None, memoize_key=None, pvcs=None, annotations=None):
+    def __init__(self, name=None, inputs=None, outputs=None, memoize_key=None, pvcs=None, annotations=None):
+        if name is None:
+            name = randstr()
         # force lowercase to fix RFC 1123
         self.name = name.lower()
         if inputs is not None:
@@ -70,7 +73,7 @@ class ScriptOPTemplate(OPTemplate):
         cpu_limits: CPU limits
         memory_limits: memory limits
     """
-    def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
+    def __init__(self, name=None, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, resource=None,
             image_pull_policy=None, annotations=None, cpu_requests=None, memory_requests=None, cpu_limits=None, memory_limits=None):
         super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, pvcs=pvcs, annotations=annotations)
@@ -153,7 +156,7 @@ class ShellOPTemplate(ScriptOPTemplate):
         cpu_limits: CPU limits
         memory_limits: memory limits
     """
-    def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
+    def __init__(self, name=None, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, image_pull_policy=None,
             annotations=None, cpu_requests=None, memory_requests=None, cpu_limits=None, memory_limits=None):
         if command is None:
@@ -188,7 +191,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         cpu_limits: CPU limits
         memory_limits: memory limits
     """
-    def __init__(self, name, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
+    def __init__(self, name=None, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, image_pull_policy=None,
             annotations=None, cpu_requests=None, memory_requests=None, cpu_limits=None, memory_limits=None):
         if command is None:

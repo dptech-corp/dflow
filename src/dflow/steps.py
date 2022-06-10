@@ -13,7 +13,7 @@ class Steps(OPTemplate):
         memoize_key: memoized key of the steps
         annotations: annotations for the OP template
         """
-    def __init__(self, name, inputs=None, outputs=None, steps=None, memoize_key=None, annotations=None):
+    def __init__(self, name=None, inputs=None, outputs=None, steps=None, memoize_key=None, annotations=None):
         super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, annotations=annotations)
         if steps is not None:
             self.steps = steps

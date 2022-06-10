@@ -4,6 +4,7 @@ from ..workflow import Workflow
 from ..op_template import ShellOPTemplate, PythonScriptOPTemplate
 from ..executor import Executor
 from ..context import Context
+from ..utils import randstr
 
 class LebesgueExecutor(Executor):
     """
@@ -17,6 +18,7 @@ class LebesgueExecutor(Executor):
 
     def render(self, template):
         new_template = deepcopy(template)
+        new_template.name += "-" + randstr()
         new_template.annotations["task.dp.tech/extra"] = json.dumps(self.extra) if isinstance(self.extra, dict) else self.extra
         return new_template
 
@@ -55,7 +57,8 @@ class LebesgueContext(Context):
 
         if isinstance(template, (ShellOPTemplate, PythonScriptOPTemplate)):
             new_template = deepcopy(template)
-            new_template.script = new_template.script.replace("/tmp", "tmp")
+            new_template.name += "-" + randstr()
+            new_template.script = new_template.script.replace("/tmp", "$(pwd)/tmp")
             if isinstance(template, ShellOPTemplate):
                 new_template.script = "mkdir -p tmp\n" + new_template.script
             if isinstance(template, PythonScriptOPTemplate):
