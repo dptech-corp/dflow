@@ -11,8 +11,9 @@ For dflow's developers, dflow wraps on argo SDK, keeps details of computing and 
 	* 1.1. [ Architecture](#Architecture)
 	* 1.2. [ Common layer](#Commonlayer)
 		* 1.2.1. [Parameters and artifacts](#Parametersandartifacts)
-		* 1.2.2. [ OP template](#OPtemplate)
-		* 1.2.3. [ Workflow](#Workflow)
+		* 1.2.2. [OP template](#OPtemplate)
+        * 1.2.3. [Step](#Step)
+		* 1.2.4. [Workflow](#Workflow)
 	* 1.3. [ Interface layer](#Interfacelayer)
 		* 1.3.1. [ Python OP](#PythonOP)
 * 2. [Quick Start](#QuickStart)
@@ -52,14 +53,21 @@ For dflow's developers, dflow wraps on argo SDK, keeps details of computing and 
 
 ###  1.1. <a name='Architecture'></a> Architecture
 The dflow consists of a **common layer** and an **interface layer**.  Interface layer takes various OP templates from users, usually in the form of python classes, and transforms them into base OP templates that common layer can handle. Common layer is an extension over argo client which provides functionalities such as file processing, workflow submission and management, etc.
-![dflow_architecture.png](./docs/imgs/dflow_architecture.png)
+<img src="./docs/imgs/dflow_architecture.png" alt="dflow_architecture" width="400"/>
+<style>
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
 
 ###  1.2. <a name='Commonlayer'></a> Common layer
 ####  1.2.1. <a name='Parametersandartifacts'></a>Parameters and artifacts
 Parameters and artifacts are data stored by the workflow and passed within the workflow. Parameters are saved as strings which can be displayed in the UI, while artifacts are saved as files.
 
 ####  1.2.2. <a name='OPtemplate'></a> OP template
-OP template is the fundamental building block of a workflow. It defines an operation to be executed given the input and output. Both the input and output can be parameters and/or artifacts. The most common OP template is the container OP template. Necessary elements to be defined for the operation are the container image, scripts to be executed and commands to execute the scripts as entrypoint. Currently, two types of container OP templates are supported: `ShellOPTemplate`, `PythonOPTemplate`. Shell OP template (`ShellOPTemplate`) defines an operation by a shell script and Python script OP template (`PythonOPTemplate`) defines an operation by a Python script.
+OP template (shown as base OP in the figure above) is the fundamental building block of a workflow. It defines an operation to be executed given the input and output. Both the input and output can be parameters and/or artifacts. The most common OP template is the container OP template. Necessary arguements to be defined for the operation are the name of the OP Template, the container image and scripts to be executed. Currently, two types of container OP templates are supported: `ShellOPTemplate`, `PythonScriptOPTemplate`. Shell OP template (`ShellOPTemplate`) defines an operation by a shell script and Python script OP template (`PythonScriptOPTemplate`) defines an operation by a Python script.
 
 To use the `ShellOPTemplate`:
 
@@ -69,10 +77,12 @@ simple_example=ShellOPTemplate(name = "Hello",
                                 script = "cp /tmp/foo.txt /tmp/bar.txt && echo {{inputs.parameters.msg}} > /tmp/msg.txt")
 ```
 The above example defines a `ShellOPTemplate` with `name = "Hello"` and container image `alpine:latest`. The operation is to copy `/tmp/foo.txt` (input artifacts) to `/tmp/bar.txt` (output artifacts) and printout the properties of the parameters with name `msg` (input parameters) and pipe it to `/tmp/msg.txt` (value in the file is the properties of the output parameters). 
-
-Now we need to understand these four terms, namely the input parameters, the input artifacts, the output parameters, the output artifacts:
+<!-- 
+Parameters and artifacts can be defined as the following:
 - Input/output parameters: a dictionary that maps the parameter name to its properties.
-- Input/output artifacts: a dictionary that maps the artifact name to its properties.
+- Input/output artifacts: a dictionary that maps the artifact name to its properties. -->
+
+To define the parameters and artifacts of this OPTemplate: 
 
 ```python
 #define input 
@@ -88,10 +98,14 @@ In the above example, there are three things to clarify.
 2. For the output parameter, the source where its value comes from should be specified. For the container OP template, the value may come from a certain file generated in the container (`value_from_path`). 
 3. The paths to the input and output artifact in the container are required to be specified.
 
-If we want to achieve the same operation using `PythonOPTemplate`, we first need to define a class for the 
-```python
-class 
-```
+On the same level, one can also define a `PythonScriptOPTemplate` to achieve the same operation. 
+<!-- ```python
+simple_example=PythonScriptOPTemplate(name = "Hello",
+                                image = "alpine:latest",
+                                script = "import shutil,sys\nshutil.copy('/tmp/foo.txt','/tmp/bar.txt')\nf=open('/tmp/msg.txt','w')\nf.write({{inputs.parameters.msg}})\nf.close()")
+``` -->
+
+#### 1.2.3 <a name='Step'></a> Step
 
 ####  1.2.3. <a name='Workflow'></a> Workflow
 `Step` and `Steps` are central blocks for building a workflow. A `Step` is the result of instantiating a OP template. When a `Step` is initialized, values of all input parameters and sources of all input artifacts declared in the OP template must be specified. `Steps` is a sequential array of array of concurrent `Step`'s. A simple example goes like `[[s00, s01],  [s10, s11, s12]]`, where inner array represent concurrent tasks while outer array is sequential. A `Workflow` contains a `Steps` as entrypoint for default. Adding a `Step` to a `Workflow` is equivalent to adding the `Step` to the `Steps` of the `Workflow`. For example,
