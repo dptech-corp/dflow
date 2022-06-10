@@ -154,7 +154,7 @@ An example using all the elements discussed in [1.2](#12-a-namecommonlayera-comm
 ###  1.3. <a name='Interfacelayer'></a> Interface layer
 Maybe add some interface layer description here?
 ####  1.3.1. <a name='PythonOP'></a> Python OP
-`PythonOPTemplate` is another kind of OP template. It inherits from `PythonScriptOPTemplate` but allows users to define operation (OP) in the from of a Python class. As Python is a weak typed language, we impose strict type checking to `PythonOP` to alleviate ambiguity and unexpected behaviors.
+`PythonOPTemplate` is another kind of OP template. It inherits from `PythonScriptOPTemplate` but allows users to define operation (OP) in the form of a Python class. As Python is a weak typed language, we impose strict type checking to `PythonOP` to alleviate ambiguity and unexpected behaviors.
 
 The structures of the inputs and outputs of a `PythonOP` are defined in the static methods `get_input_sign` and `get_output_sign`. Each of them returns a `OPIOSign` object, which is a dictionary mapping from the name of a parameter/artifact to its sign. 
 <!-- For a parameter, its sign is its variable type, such as `str`, `float`, `list`, or any user-defined Python class. Since argo only accept string as parameter value, dflow encodes all parameters to json (except string type parameters) before passing them to argo, and decodes argo parameters from json (except string type parameters). For an artifact, its sign must be an instance of `Artifact`. `Artifact` receives the type of the path variable as the constructor argument, only `str`, `pathlib.Path`, `typing.Set[str]`, `typing.Set[pathlib.Path]`, `typing.List[str]`, `typing.List[pathlib.Path]` are supported. If a `OP` returns a list of path as an artifact, dflow not only collects files or directories in the returned list of path, and package them in an artifact, but also records their relative path in the artifact. Thus dflow can unpack the artifact to a list of path again before passing to the next `OP`. When no file or directory exists, dflow regards it as `None`. -->
@@ -239,6 +239,7 @@ If you are running Argo Workflows locally (e.g. using Minikube or Docker for Des
 kubectl -n argo port-forward deployment/argo-server 2746:2746
 ```
 This will serve the user interface on https://localhost:2746
+
 For access to the minio object storage, open a port-forward for minio
 ```
 kubectl -n argo port-forward deployment/minio 9000:9000
