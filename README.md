@@ -51,7 +51,7 @@ For dflow's developers, dflow wraps on argo SDK, keeps details of computing and 
 
 ##  1. <a name='Overview'></a>Overview
 ###  1.1. <a name='Architecture'></a> Architecture
-The dflow consists of a **common layer** and an **interface layer**.  Interface layer takes various OP templates from users, usually in the form of python classes, and transforms them into base OP templates that common layer can handle. Common layer is an extension over argo client which provides functionalities such as file processing, workflow submission and management, etc.
+The dflow consists of a **common layer** and an **interface layer**.  Interface layer takes various OP templates from users, usually in the form of python classes, and transforms them into base OP templates that common layer can handle.
 
 <p align="center">
 <img src="./docs/imgs/dflow_architecture.png" alt="dflow_architecture" width="400"/>
@@ -65,7 +65,7 @@ img {
 </style> -->
 
 ###  1.2. <a name='Commonlayer'></a> Common layer
-maybe add some common layer description here?
+Common layer is an extension over argo client which provides functionalities such as file processing, computing resources management, workflow submission and management, etc.
 ####  1.2.1. <a name='Parametersandartifacts'></a>Parameters and artifacts
 Parameters and artifacts are data stored by the workflow and passed within the workflow. Parameters are saved as strings which can be displayed in the UI, while artifacts are saved as files.
 
@@ -135,7 +135,7 @@ This step will instantiate the OP template created in [1.2.2](#122-a-nameoptempl
 
 
 ####  1.2.4. <a name='Workflow'></a> Workflow
-`Workflow` is the connecting block for building a workflow. A `Workflow` is created by adding `Step` together. By default, it contains the `Step` as entrypoint for default. 
+`Workflow` is the connecting block for building a workflow. A `Workflow` is created by adding `Step` together.
 ```python
 from dflow import Workflow
 
@@ -153,7 +153,7 @@ An example using all the elements discussed in [1.2](#12-a-namecommonlayera-comm
 - [Recursion example](examples/test_recurse.py) -->
 
 ###  1.3. <a name='Interfacelayer'></a> Interface layer
-Maybe add some interface layer description here?
+Interface layer handles more Python-native OPs defined in the form of class.
 ####  1.3.1. <a name='PythonOP'></a> Python OP
 `PythonOPTemplate` is another kind of OP template. It inherits from `PythonScriptOPTemplate` but allows users to define operation (OP) in the form of a Python class. As Python is a weak typed language, we impose strict type checking to `PythonOP` to alleviate ambiguity and unexpected behaviors.
 
