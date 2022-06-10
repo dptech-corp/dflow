@@ -129,8 +129,8 @@ Submit a workflow by
 ```python
 wf.submit()
 ```
-You can check out a complete example using all the elements discussed above.
-- [Overview example](examples/test_steps.py)
+An example using all the elements discussed above is shown here:
+- [Common layer example](examples/test_steps.py)
 
 <!-- It should be noticed that `Steps` itself is a subclass of OPTemplate and could be used as the template of a higher level `Step`. By virtue of this feature, one can construct complex workflows of nested structure. One is also allowed to recursively use a `Steps` as the template of a building block inside itself to achieve dynamic loop.
 - [Recursion example](examples/test_recurse.py) -->
@@ -138,11 +138,59 @@ You can check out a complete example using all the elements discussed above.
 ###  1.3. <a name='Interfacelayer'></a> Interface layer
 Maybe add some interface layer description here?
 ####  1.3.1. <a name='PythonOP'></a> Python OP
-Python `OP` is another kind of OP template defined in the form of a Python class. As Python is a weak typed language, we impose strict type checking to `OP`s to alleviate ambiguity and unexpected behaviors.
+`PythonOPTemplate` is another kind of OP template. It inherits from `PythonScriptOPTemplate` but allow user to define operation (OP) in the from of a Python class. As Python is a weak typed language, we impose strict type checking to `PythonOP` to alleviate ambiguity and unexpected behaviors.
 
-The structures of the inputs and outputs of a `OP` are defined in the static methods `get_input_sign` and `get_output_sign`. Each of them returns a `OPIOSign` object, which is a dictionary mapping from the name of a parameter/artifact to its sign. For a parameter, its sign is its variable type, such as `str`, `float`, `list`, or any user-defined Python class. Since argo only accept string as parameter value, dflow encodes all parameters to json (except for string type parameters) before passing them to argo, and decodes argo parameters from json (except for string type parameters). For an artifact, its sign must be an instance of `Artifact`. `Artifact` receives the type of the path variable as the constructor argument, only `str`, `pathlib.Path`, `typing.Set[str]`, `typing.Set[pathlib.Path]`, `typing.List[str]`, `typing.List[pathlib.Path]` are supported. If a `OP` returns a list of path as an artifact, dflow not only collects files or directories in the returned list of path, and package them in an artifact, but also records their relative path in the artifact. Thus dflow can unpack the artifact to a list of path again before passing to the next `OP`. When no file or directory exists, dflow regards it as `None`.
+The structures of the inputs and outputs of a `PythonOP` are defined in the static methods `get_input_sign` and `get_output_sign`. Each of them returns a `OPIOSign` object, which is a dictionary mapping from the name of a parameter/artifact to its sign. 
+<!-- For a parameter, its sign is its variable type, such as `str`, `float`, `list`, or any user-defined Python class. Since argo only accept string as parameter value, dflow encodes all parameters to json (except string type parameters) before passing them to argo, and decodes argo parameters from json (except string type parameters). For an artifact, its sign must be an instance of `Artifact`. `Artifact` receives the type of the path variable as the constructor argument, only `str`, `pathlib.Path`, `typing.Set[str]`, `typing.Set[pathlib.Path]`, `typing.List[str]`, `typing.List[pathlib.Path]` are supported. If a `OP` returns a list of path as an artifact, dflow not only collects files or directories in the returned list of path, and package them in an artifact, but also records their relative path in the artifact. Thus dflow can unpack the artifact to a list of path again before passing to the next `OP`. When no file or directory exists, dflow regards it as `None`. -->
 
-The execution of the `OP` is defined in the `execute` method. The `execute` method receives a `OPIO` object as input and outputs a `OPIO` object. `OPIO` is basically a dictionary mapping from the name of a parameter/artifact to its value/path. The type of the parameter value or the artifact path should be in accord with that declared in the sign. Type checking is implemented before and after the ` execute` method.
+The execution of the `PythonOP` is defined in the `execute` method. The `execute` method receives a `OPIO` object as input and outputs a `OPIO` object. `OPIO` is a dictionary mapping from the name of a parameter/artifact to its value/path. The type of the parameter value or the artifact path should be in accord with that declared in the sign. Type checking is implemented before and after the `execute` method.
+
+```python
+from dflow.python import OP,OPIO,OPIOSign,Artifact
+from pathlib import Path
+import shutil
+class simpleexample(OP):
+    def __init__(self):
+        pass
+    
+    @classmethod
+    def get_input_sign(cls):
+        return OPIOSign({
+            "msg" : str,
+            "inp_art" : Artifact(Path),
+        })
+
+    @clssmethod
+    def get_output_sign(cls):
+        return OPIOSign({
+            "msg" : str,
+            "out_art" : Artifact(Path),
+        })
+    
+    @OP.exec_sign_check
+    def execute(
+                self,
+                op_in: OPIO,
+    ) -> OPIO:
+        shutil.copy(op_in["inp_art"], "bar.txt")
+        f=open("msg.txt", "w")
+        f.write(op_io["msg"])
+        f.close()
+        with open("msg.txt", "r") as g:
+            out_msg = g.read() 
+        op_out=OPIO({
+            "msg": out_msg
+            "out_art": Path("bar.txt")
+        })
+        return op_out
+```
+The above example defines a OP class `simpleexample`. The operation is to copy `foo.txt` to `bar.txt` and write the properties of the parameters with name msg to `msg.txt`. 
+
+To use the above class as a PythonOPTemplate, we need to pass the above class to `PythonOPTemplate` and specify the container image. Note that `pydflow` must be installed in this image
+```python
+from dflow.python import PythonOPTemplate
+simple_example_templ=PythonOPTemplate(simpleexample, image="dptechnology/dflow")
+```
 
 Use `PythonOPTemplate` to convert a `OP` to Python script OP template.
 - [Python OP example](examples/test_python.py)
