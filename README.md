@@ -53,14 +53,14 @@ For dflow's developers, dflow wraps on argo SDK, keeps details of computing and 
 
 ###  1.1. <a name='Architecture'></a> Architecture
 The dflow consists of a **common layer** and an **interface layer**.  Interface layer takes various OP templates from users, usually in the form of python classes, and transforms them into base OP templates that common layer can handle. Common layer is an extension over argo client which provides functionalities such as file processing, workflow submission and management, etc.
-<img src="./docs/imgs/dflow_architecture.png" alt="dflow_architecture" width="400"/>
-<style>
+<img src="./docs/imgs/dflow_architecture.png" display="block" alt="dflow_architecture" width="400"/>
+<!-- <style>
 img {
   display: block;
   margin-left: auto;
   margin-right: auto;
 }
-</style>
+</style> -->
 
 ###  1.2. <a name='Commonlayer'></a> Common layer
 ####  1.2.1. <a name='Parametersandartifacts'></a>Parameters and artifacts
@@ -72,7 +72,7 @@ OP template (shown as base OP in the figure above) is the fundamental building b
 To use the `ShellOPTemplate`:
 
 ```python
-simple_example=ShellOPTemplate(name = "Hello",
+simple_example_templ=ShellOPTemplate(name = "Hello",
                                 image = "alpine:latest",
                                 script = "cp /tmp/foo.txt /tmp/bar.txt && echo {{inputs.parameters.msg}} > /tmp/msg.txt")
 ```
@@ -86,11 +86,11 @@ To define the parameters and artifacts of this OPTemplate:
 
 ```python
 #define input 
-simple_example.inputs.parameters = {"msg": InputParameter()}
-simple_example.inputs.artifacts = {"inp_art": InputArtifact(path = "/tmp/foo.txt")}
+simple_example_templ.inputs.parameters = {"msg": InputParameter()}
+simple_example_templ.inputs.artifacts = {"inp_art": InputArtifact(path = "/tmp/foo.txt")}
 #define output
-simple_example.outputs.parameters = {"msg": OutputParameter(value_from_path = "/tmp/results.txt")}
-simple_example.outputs.parameters = {"out_art": OutputArtifact(path = "/tmp/bar.txt")}
+simple_example_templ.outputs.parameters = {"msg": OutputParameter(value_from_path = "/tmp/results.txt")}
+simple_example_templ.outputs.parameters = {"out_art": OutputArtifact(path = "/tmp/bar.txt")}
 ```
 
 In the above example, there are three things to clarify. 
@@ -106,9 +106,18 @@ simple_example=PythonScriptOPTemplate(name = "Hello",
 ``` -->
 
 #### 1.2.3 <a name='Step'></a> Step
+`Step` is the central block for building a workflow. A `Step` is created by instantiating an OP template. When a `Step` is initialized, values of all input parameters and sources of all input artifacts declared in the OP template must be specified. 
+<!-- `Steps` is a sequential array of concurrent `Step`'s. A simple example goes like `[[s00, s01],  [s10, s11, s12]]`, where inner array represent concurrent tasks while outer array is sequential. (this part can be put in the User Guide-->
+```python
+simple_example_step = Step(name='step0',
+                            template=simple_example_templ,
+                            parameters={"msg":'HelloWorld!'},
+                            artifacts={"inp_art":foo})
+``` 
+This step will instantiate the OP template created in [1.2.2](#122-a-nameoptemplatea-op-template). Note that `foo` is an artifact. 
 
 ####  1.2.3. <a name='Workflow'></a> Workflow
-`Step` and `Steps` are central blocks for building a workflow. A `Step` is the result of instantiating a OP template. When a `Step` is initialized, values of all input parameters and sources of all input artifacts declared in the OP template must be specified. `Steps` is a sequential array of array of concurrent `Step`'s. A simple example goes like `[[s00, s01],  [s10, s11, s12]]`, where inner array represent concurrent tasks while outer array is sequential. A `Workflow` contains a `Steps` as entrypoint for default. Adding a `Step` to a `Workflow` is equivalent to adding the `Step` to the `Steps` of the `Workflow`. For example,
+ A `Workflow` contains the `Step` as entrypoint for default. Adding a `Step` to a `Workflow` is equivalent to adding the `Step` to the `Steps` of the `Workflow`. For example,
 ```python
 wf = Workflow(name="hhh")
 hello0 = Step(name="hello0", template=hello)
