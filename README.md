@@ -1,6 +1,6 @@
 # DFLOW
 
-Dflow is a Python framework for constructing scientific computing workflows (e.g. concurrent learning workflows) employing [Argo Workflows](https://argoproj.github.io/) as the workflow engine.
+[Dflow](https://deepmodeling.com/dflow/dflow.html) is a Python framework for constructing scientific computing workflows (e.g. concurrent learning workflows) employing [Argo Workflows](https://argoproj.github.io/) as the workflow engine.
 
 For dflow's users (e.g. ML application developers), dflow offers user-friendly functional programming interfaces for building their own workflows. Users need not be concerned with process control, task scheduling, observability and disaster tolerance. Users can track workflow status and handle exceptions by APIs as well as from frontend UI. Thereby users are enabled to concentrate on implementing operators and orchestrating workflows.
 
@@ -11,13 +11,14 @@ For dflow's developers, dflow wraps on argo SDK, keeps details of computing and 
 	* 1.1. [ Architecture](#Architecture)
 	* 1.2. [ Common layer](#Commonlayer)
 		* 1.2.1. [Parameters and artifacts](#Parametersandartifacts)
-		* 1.2.2. [ OP template](#OPtemplate)
-		* 1.2.3. [ Workflow](#Workflow)
+		* 1.2.2. [OP template](#OPtemplate)
+        * 1.2.3. [Step](#Step)
+		* 1.2.4. [Workflow](#Workflow)
 	* 1.3. [ Interface layer](#Interfacelayer)
-		* 1.3.1. [ Python OP](#PythonOP)
+		* 1.3.1. [Python OP](#PythonOP)
 * 2. [Quick Start](#QuickStart)
 	* 2.1. [Prepare Kubernetes cluster](#PrepareKubernetescluster)
-	* 2.2. [Install argo workflows](#Installargoworkflows)
+	* 2.2. [Setup Argo Workflows](#Setupargoworkflows)
 	* 2.3. [Install dflow](#Installdflow)
 	* 2.4. [Run an example](#Runanexample)
 * 3. [User Guide](#UserGuide)
@@ -49,68 +50,183 @@ For dflow's developers, dflow wraps on argo SDK, keeps details of computing and 
 <!-- /vscode-markdown-toc -->
 
 ##  1. <a name='Overview'></a>Overview
-
 ###  1.1. <a name='Architecture'></a> Architecture
-The dflow consists of a **common layer** and an **interface layer**.  Interface layer takes various OP templates from users, usually in the form of python classes, and transforms them into base OP templates that common layer can handle. Common layer is an extension over argo client which provides functionalities such as file processing, workflow submission and management, etc.
+The dflow consists of a **common layer** and an **interface layer**.  Interface layer takes various OP templates from users, usually in the form of python classes, and transforms them into base OP templates that common layer can handle.
+
+<p align="center">
+<img src="./docs/imgs/dflow_architecture.png" alt="dflow_architecture" width="400"/>
+</p>
+<!-- <style>
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style> -->
 
 ###  1.2. <a name='Commonlayer'></a> Common layer
+Common layer is an extension over argo client which provides functionalities such as file processing, computing resources management, workflow submission and management, etc.
 ####  1.2.1. <a name='Parametersandartifacts'></a>Parameters and artifacts
 Parameters and artifacts are data stored by the workflow and passed within the workflow. Parameters are saved as strings which can be displayed in the UI, while artifacts are saved as files.
 
 ####  1.2.2. <a name='OPtemplate'></a> OP template
-OP template describes a sort of operation which takes some parameters and artifacts as input and gives some parameters and artifacts as output. The most common OP template is the container OP template whose operation is specified by container image and commands to be executed as entrypoint. Currently two types of container OP templates are supported. Shell OP template defines an operation by a shell script and Python script OP template defines an operation by a Python script.
+OP template (shown as base OP in the figure above) is the fundamental building block of a workflow. It defines an operation to be executed given the input and output. Both the input and output can be parameters and/or artifacts. The most common OP template is the container OP template. Necessary arguments to be defined for the operation are the container image and scripts to be executed. Currently, two types of container OP templates are supported: `ShellOPTemplate`, `PythonScriptOPTemplate`. Shell OP template (`ShellOPTemplate`) defines an operation by a shell script and Python script OP template (`PythonScriptOPTemplate`) defines an operation by a Python script.
 
-- Input parameters: basically a dictionary mapping from parameter name to its properties. The value of the input parameter is optional for the OP template, if provided, it will be regarded as the default value which can be overrided at run time.
+To use the `ShellOPTemplate`:
 
-- Input artifacts: basically a dictionary mapping from artifact name to its properties. For the container OP template, path where the input artifact is placed in the container is required to be specified.
-
-- Output parameters: basically a dictionary mapping from parameter name to its properties. The source where its value comes from should be specified. For the container OP template, the value may be from a certain file generated in the container (value_from_path).
-
-- Output artifacts: basically a dictionary mapping from artifact name to its properties. For the container OP template, path where the output artifact will be generated in the container is required to be specified.
-
-Here is an example of shell OP template
 ```python
-ShellOPTemplate(name='Hello',
+from dflow import ShellOPTemplate
+
+simple_example_templ = ShellOPTemplate(
+    name="Hello",
     image="alpine:latest",
     script="cp /tmp/foo.txt /tmp/bar.txt && echo {{inputs.parameters.msg}} > /tmp/msg.txt",
-    inputs=Inputs(parameters={"msg": InputParameter()},
-        artifacts={"foo": InputArtifact(path="/tmp/foo.txt")}),
-    outputs=Outputs(parameters={"msg": OutputParameter(value_from_path="/tmp/result.txt")},
-        artifacts={"bar": OutputArtifact(path="/tmp/bar.txt")}))
+)
+```
+The above example defines a `ShellOPTemplate` with `name = "Hello"` and container image `alpine:latest`. The operation is to copy `/tmp/foo.txt` (input artifacts) to `/tmp/bar.txt` (output artifacts) and printout the properties of the parameters with name `msg` (input parameters) and redirect it to `/tmp/msg.txt` (value in the file is the properties of the output parameters). 
+<!-- 
+Parameters and artifacts can be defined as the following:
+- Input/output parameters: a dictionary that maps the parameter name to its properties.
+- Input/output artifacts: a dictionary that maps the artifact name to its properties. -->
+
+To define the parameters and artifacts of this OPTemplate: 
+
+```python
+from dflow import InputParameter, InputArtifact, OutputParameter, OutputArtifact
+
+# define input
+simple_example_templ.inputs.parameters = {"msg": InputParameter()}
+simple_example_templ.inputs.artifacts = {"inp_art": InputArtifact(path="/tmp/foo.txt")}
+# define output
+simple_example_templ.outputs.parameters = {
+    "msg": OutputParameter(value_from_path="/tmp/msg.txt")
+}
+simple_example_templ.outputs.parameters = {
+    "out_art": OutputArtifact(path="/tmp/bar.txt")
+}
 ```
 
-####  1.2.3. <a name='Workflow'></a> Workflow
-`Step` and `Steps` are central blocks for building a workflow. A `Step` is the result of instantiating a OP template. When a `Step` is initialized, values of all input parameters and sources of all input artifacts declared in the OP template must be specified. `Steps` is a sequential array of array of concurrent `Step`'s. A simple example goes like `[[s00, s01],  [s10, s11, s12]]`, where inner array represent concurrent tasks while outer array is sequential. A `Workflow` contains a `Steps` as entrypoint for default. Adding a `Step` to a `Workflow` is equivalent to adding the `Step` to the `Steps` of the `Workflow`. For example,
+In the above example, there are three things to clarify. 
+1. The value of the input parameter is optional for the OP template, if provided, it will be regarded as the default value which can be overridden at run time. 
+2. For the output parameter, the source where its value comes from should be specified. For the container OP template, the value may come from a certain file generated in the container (`value_from_path`). 
+3. The paths to the input and output artifact in the container are required to be specified.
+
+On the same level, one can also define a `PythonScriptOPTemplate` to achieve the same operation. 
+<!-- ```python
+simple_example=PythonScriptOPTemplate(name = "Hello",
+                                image = "alpine:latest",
+                                script = "import shutil,sys\nshutil.copy('/tmp/foo.txt','/tmp/bar.txt')\nf=open('/tmp/msg.txt','w')\nf.write({{inputs.parameters.msg}})\nf.close()")
+``` -->
+
+#### 1.2.3 <a name='Step'></a> Step
+`Step` is the central block for building a workflow. A `Step` is created by instantiating an OP template. When a `Step` is initialized, values of all input parameters and sources of all input artifacts declared in the OP template must be specified. 
+<!-- `Steps` is a sequential array of concurrent `Step`'s. A simple example goes like `[[s00, s01],  [s10, s11, s12]]`, where inner array represent concurrent tasks while outer array is sequential. (this part can be put in the User Guide-->
 ```python
-wf = Workflow(name="hhh")
-hello0 = Step(name="hello0", template=hello)
-wf.add(hello0)
+from dflow import Step
+
+simple_example_step = Step(
+    name="step0",
+    template=simple_example_templ,
+    parameters={"msg": "HelloWorld!"},
+    artifacts={"inp_art": foo},
+)
+``` 
+This step will instantiate the OP template created in [1.2.2](#122-a-nameoptemplatea-op-template). Note that foo is an artifact either uploaded from local or output of another step.
+
+
+####  1.2.4. <a name='Workflow'></a> Workflow
+`Workflow` is the connecting block for building a workflow. A `Workflow` is created by adding `Step` together.
+```python
+from dflow import Workflow
+
+wf = Workflow(name="hello-world")
+wf.add(simple_example_step)
 ```
 Submit a workflow by
 ```python
 wf.submit()
 ```
-- [Steps example](examples/test_steps.py)
+An example using all the elements discussed in [1.2](#12-a-namecommonlayera-common-layer) is shown here:
+- [ShellOP example](examples/test_steps.py)
 
-It should be noticed that `Steps` itself is a subclass of OPTemplate and could be used as the template of a higher level `Step`. By virtue of this feature, one can construct complex workflows of nested structure. One is also allowed to recursively use a `Steps` as the template of a building block inside itself to achieve dynamic loop.
-- [Recursion example](examples/test_recurse.py)
+<!-- It should be noticed that `Steps` itself is a subclass of OPTemplate and could be used as the template of a higher level `Step`. By virtue of this feature, one can construct complex workflows of nested structure. One is also allowed to recursively use a `Steps` as the template of a building block inside itself to achieve dynamic loop.
+- [Recursion example](examples/test_recurse.py) -->
 
 ###  1.3. <a name='Interfacelayer'></a> Interface layer
+Interface layer handles more Python-native OPs defined in the form of class.
 ####  1.3.1. <a name='PythonOP'></a> Python OP
-Python `OP` is a kind of OP template defined in the form of Python class. As Python is a weak typed language, we impose strict type checking to `OP`s to alleviate ambiguity and unexpected behaviors.
+`PythonOPTemplate` is another kind of OP template. It inherits from `PythonScriptOPTemplate` but allows users to define operation (OP) in the form of a Python class. As Python is a weak typed language, we impose strict type checking to `PythonOP` to alleviate ambiguity and unexpected behaviors.
 
-The structures of the inputs and outputs of a `OP` are defined in the static methods `get_input_sign` and `get_output_sign`. Each of them returns a `OPIOSign` object (basically a dictionary mapping from the name of a parameter/artifact to its sign). For a parameter, its sign is its variable type, such as `str`, `float`, `list`, or any user-defined Python class. Since argo only accept string as parameter value, dflow encodes all parameters to json (except for string type parameters) before passing them to argo, and decodes argo parameters from json (except for string type parameters). For an artifact, its sign must be an instance of `Artifact`. `Artifact` receives the type of the path variable as the constructor argument, only `str`, `pathlib.Path`, `typing.Set[str]`, `typing.Set[pathlib.Path]`, `typing.List[str]`, `typing.List[pathlib.Path]` are supported. If a `OP` returns a list of path as an artifact, dflow not only collects files or directories in the returned list of path, and package them in an artifact, but also records their relative path in the artifact. Thus dflow can unpack the artifact to a list of path again before passing to the next `OP`. When no file or directory exists, dflow regards it as `None`.
+The structures of the inputs and outputs of a `PythonOP` are defined in the static methods `get_input_sign` and `get_output_sign`. Each of them returns a `OPIOSign` object, which is a dictionary mapping from the name of a parameter/artifact to its sign. 
+<!-- For a parameter, its sign is its variable type, such as `str`, `float`, `list`, or any user-defined Python class. Since argo only accept string as parameter value, dflow encodes all parameters to json (except string type parameters) before passing them to argo, and decodes argo parameters from json (except string type parameters). For an artifact, its sign must be an instance of `Artifact`. `Artifact` receives the type of the path variable as the constructor argument, only `str`, `pathlib.Path`, `typing.Set[str]`, `typing.Set[pathlib.Path]`, `typing.List[str]`, `typing.List[pathlib.Path]` are supported. If a `OP` returns a list of path as an artifact, dflow not only collects files or directories in the returned list of path, and package them in an artifact, but also records their relative path in the artifact. Thus dflow can unpack the artifact to a list of path again before passing to the next `OP`. When no file or directory exists, dflow regards it as `None`. -->
 
-The execution of the `OP` is defined in the `execute` method. The `execute` method receives a `OPIO` object as input and outputs a `OPIO` object. `OPIO` is basically a dictionary mapping from the name of a parameter/artifact to its value/path. The type of the parameter value or the artifact path should be in accord with that declared in the sign. Type checking is implemented before and after the ` execute` method.
+The execution of the `PythonOP` is defined in the `execute` method. The `execute` method receives a `OPIO` object as input and outputs a `OPIO` object. `OPIO` is a dictionary mapping from the name of a parameter/artifact to its value/path. The type of the parameter value or the artifact path should be in accord with that declared in the sign. Type checking is implemented before and after the `execute` method.
 
-Use `PythonOPTemplate` to convert a `OP` to Python script OP template.
-- [Python OP example](examples/test_python.py)
+```python
+from dflow.python import OP, OPIO, OPIOSign, Artifact
+from pathlib import Path
+import shutil
+
+
+class SimpleExample(OP):
+    def __init__(self):
+        pass
+
+    @classmethod
+    def get_input_sign(cls):
+        return OPIOSign(
+            {
+                "msg": str,
+                "inp_art": Artifact(Path),
+            }
+        )
+
+    @classmethod
+    def get_output_sign(cls):
+        return OPIOSign(
+            {
+                "msg": str,
+                "out_art": Artifact(Path),
+            }
+        )
+
+    @OP.exec_sign_check
+    def execute(
+        self,
+        op_in: OPIO,
+    ) -> OPIO:
+        shutil.copy(op_in["inp_art"], "bar.txt")
+        out_msg = op_in["msg"]
+        op_out = OPIO(
+            {
+                "msg": out_msg,
+                "out_art": Path("bar.txt"),
+            }
+        )
+        return op_out
+```
+The above example defines an OP `SimpleExample`. The operation is to copy `foo.txt` to `bar.txt` and write the properties of the parameters with name msg to `msg.txt`. 
+
+To use the above class as a PythonOPTemplate, we need to pass the above class to `PythonOPTemplate` and specify the container image. Note that `pydflow` must be installed in this image
+```python
+from dflow.python import PythonOPTemplate
+
+simple_example_templ = PythonOPTemplate(SimpleExample, image="dptechnology/dflow")
+```
+
+An example using all the elements discussed in [1.3](#12-a-namecommonlayera-common-layer)  is shown here:
+- [PythonOP example](examples/test_python.py)
 
 ##  2. <a name='QuickStart'></a>Quick Start
 ###  2.1. <a name='PrepareKubernetescluster'></a>Prepare Kubernetes cluster
-Firstly, you'll need a Kubernetes cluster. For quick tests, you can set up a [Minikube](https://minikube.sigs.k8s.io) on your PC.
-###  2.2. <a name='Installargoworkflows'></a>Install argo workflows
-To get started quickly, you can use the quick start manifest which will install Argo Workflow as well as some commonly used components:
+Firstly, you will need a Kubernetes cluster. To setup a Kubernetes cluster on your laptop, you can download the [Minikube](https://minikube.sigs.k8s.io) on your PC and make sure you have [Docker](https://www.docker.com/) up and running on you PC.
+
+After downloading, you can initiate the Kubernetes cluster using: 
+```
+minikube start 
+```
+###  2.2. <a name='Setupargoworkflows'></a>Setup [Argo Workflows](https://argoproj.github.io/argo-workflows/quick-start/)
+To get started quickly, you can use the quick start manifest. It will install Argo Workflow as well as some commonly used components:
 ```
 kubectl create ns argo
 kubectl apply -n argo -f https://raw.githubusercontent.com/dptech-corp/dflow/master/manifests/quick-start-postgres.yaml
@@ -120,13 +236,14 @@ If you are running Argo Workflows locally (e.g. using Minikube or Docker for Des
 kubectl -n argo port-forward deployment/argo-server 2746:2746
 ```
 This will serve the user interface on https://localhost:2746
+
 For access to the minio object storage, open a port-forward for minio
 ```
 kubectl -n argo port-forward deployment/minio 9000:9000
 ```
 
 ###  2.3. <a name='Installdflow'></a>Install dflow
-Make sure your Python version is not less than 3.7 and install dflow
+Make sure your Python version is not less than 3.6 and install dflow
 ```
 pip install pydflow
 ```
@@ -138,8 +255,7 @@ python examples/test_steps.py
 ```
 Then you can check the submitted workflow through argo's UI.
 
-##  3. <a name='UserGuide'></a>User Guide
-
+##  3. <a name='UserGuide'></a>User Guide ([dflow-doc](https://deepmodeling.com/dflow/dflow.html))
 ###  3.1. <a name='Commonlayer-1'></a>Common layer
 
 ####  3.1.1. <a name='Workflowmanagement'></a>Workflow management
