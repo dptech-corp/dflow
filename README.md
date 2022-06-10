@@ -195,11 +195,7 @@ class SimpleExample(OP):
         op_in: OPIO,
     ) -> OPIO:
         shutil.copy(op_in["inp_art"], "bar.txt")
-        f = open("msg.txt", "w")
-        f.write(op_io["msg"])
-        f.close()
-        with open("msg.txt", "r") as g:
-            out_msg = g.read()
+        out_msg = op_in["msg"]
         op_out = OPIO(
             {
                 "msg": out_msg,
@@ -218,7 +214,7 @@ simple_example_templ = PythonOPTemplate(SimpleExample, image="dptechnology/dflow
 ```
 
 An example using all the elements discussed in [1.3](#12-a-namecommonlayera-common-layer)  is shown here:
-- [PythonOP example](examples/test_steps.py)
+- [PythonOP example](examples/test_python.py)
 
 ##  2. <a name='QuickStart'></a>Quick Start
 ###  2.1. <a name='PrepareKubernetescluster'></a>Prepare Kubernetes cluster
