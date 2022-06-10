@@ -167,7 +167,7 @@ from pathlib import Path
 import shutil
 
 
-class simpleexample(OP):
+class SimpleExample(OP):
     def __init__(self):
         pass
 
@@ -208,13 +208,13 @@ class simpleexample(OP):
         )
         return op_out
 ```
-The above example defines an OP `simpleexample`. The operation is to copy `foo.txt` to `bar.txt` and write the properties of the parameters with name msg to `msg.txt`. 
+The above example defines an OP `SimpleExample`. The operation is to copy `foo.txt` to `bar.txt` and write the properties of the parameters with name msg to `msg.txt`. 
 
 To use the above class as a PythonOPTemplate, we need to pass the above class to `PythonOPTemplate` and specify the container image. Note that `pydflow` must be installed in this image
 ```python
 from dflow.python import PythonOPTemplate
 
-simple_example_templ = PythonOPTemplate(simpleexample, image="dptechnology/dflow")
+simple_example_templ = PythonOPTemplate(SimpleExample, image="dptechnology/dflow")
 ```
 
 An example using all the elements discussed in [1.3](#12-a-namecommonlayera-common-layer)  is shown here:
