@@ -131,7 +131,8 @@ simple_example_step = Step(
     artifacts={"inp_art": foo},
 )
 ``` 
-This step will instantiate the OP template created in [1.2.2](#122-a-nameoptemplatea-op-template). Note that `foo` is an artifact. 
+This step will instantiate the OP template created in [1.2.2](#122-a-nameoptemplatea-op-template). Note that foo is an artifact either uploaded from local or output of another step。
+
 
 ####  1.2.4. <a name='Workflow'></a> Workflow
 `Workflow` is the connecting block for building a workflow. A `Workflow` is created by adding `Step` together. By default, it contains the `Step` as entrypoint for default. 
