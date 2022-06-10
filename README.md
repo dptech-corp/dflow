@@ -129,8 +129,8 @@ Submit a workflow by
 ```python
 wf.submit()
 ```
-An example using all the elements discussed above is shown here:
-- [Common layer example](examples/test_steps.py)
+An example using all the elements discussed in [1.2](#12-a-namecommonlayera-common-layer) is shown here:
+- [ShellOP example](examples/test_steps.py)
 
 <!-- It should be noticed that `Steps` itself is a subclass of OPTemplate and could be used as the template of a higher level `Step`. By virtue of this feature, one can construct complex workflows of nested structure. One is also allowed to recursively use a `Steps` as the template of a building block inside itself to achieve dynamic loop.
 - [Recursion example](examples/test_recurse.py) -->
@@ -138,7 +138,7 @@ An example using all the elements discussed above is shown here:
 ###  1.3. <a name='Interfacelayer'></a> Interface layer
 Maybe add some interface layer description here?
 ####  1.3.1. <a name='PythonOP'></a> Python OP
-`PythonOPTemplate` is another kind of OP template. It inherits from `PythonScriptOPTemplate` but allow user to define operation (OP) in the from of a Python class. As Python is a weak typed language, we impose strict type checking to `PythonOP` to alleviate ambiguity and unexpected behaviors.
+`PythonOPTemplate` is another kind of OP template. It inherits from `PythonScriptOPTemplate` but allows users to define operation (OP) in the from of a Python class. As Python is a weak typed language, we impose strict type checking to `PythonOP` to alleviate ambiguity and unexpected behaviors.
 
 The structures of the inputs and outputs of a `PythonOP` are defined in the static methods `get_input_sign` and `get_output_sign`. Each of them returns a `OPIOSign` object, which is a dictionary mapping from the name of a parameter/artifact to its sign. 
 <!-- For a parameter, its sign is its variable type, such as `str`, `float`, `list`, or any user-defined Python class. Since argo only accept string as parameter value, dflow encodes all parameters to json (except string type parameters) before passing them to argo, and decodes argo parameters from json (except string type parameters). For an artifact, its sign must be an instance of `Artifact`. `Artifact` receives the type of the path variable as the constructor argument, only `str`, `pathlib.Path`, `typing.Set[str]`, `typing.Set[pathlib.Path]`, `typing.List[str]`, `typing.List[pathlib.Path]` are supported. If a `OP` returns a list of path as an artifact, dflow not only collects files or directories in the returned list of path, and package them in an artifact, but also records their relative path in the artifact. Thus dflow can unpack the artifact to a list of path again before passing to the next `OP`. When no file or directory exists, dflow regards it as `None`. -->
@@ -184,7 +184,7 @@ class simpleexample(OP):
         })
         return op_out
 ```
-The above example defines a OP class `simpleexample`. The operation is to copy `foo.txt` to `bar.txt` and write the properties of the parameters with name msg to `msg.txt`. 
+The above example defines an OP `simpleexample`. The operation is to copy `foo.txt` to `bar.txt` and writeS the properties of the parameters with name msg to `msg.txt`. 
 
 To use the above class as a PythonOPTemplate, we need to pass the above class to `PythonOPTemplate` and specify the container image. Note that `pydflow` must be installed in this image
 ```python
@@ -192,8 +192,8 @@ from dflow.python import PythonOPTemplate
 simple_example_templ=PythonOPTemplate(simpleexample, image="dptechnology/dflow")
 ```
 
-Use `PythonOPTemplate` to convert a `OP` to Python script OP template.
-- [Python OP example](examples/test_python.py)
+An example using all the elements discussed in [1.3](#12-a-namecommonlayera-common-layer)  is shown here:
+- [PythonOP example](examples/test_steps.py)
 
 ##  2. <a name='QuickStart'></a>Quick Start
 ###  2.1. <a name='PrepareKubernetescluster'></a>Prepare Kubernetes cluster
