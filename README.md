@@ -53,7 +53,10 @@ For dflow's developers, dflow wraps on argo SDK, keeps details of computing and 
 
 ###  1.1. <a name='Architecture'></a> Architecture
 The dflow consists of a **common layer** and an **interface layer**.  Interface layer takes various OP templates from users, usually in the form of python classes, and transforms them into base OP templates that common layer can handle. Common layer is an extension over argo client which provides functionalities such as file processing, workflow submission and management, etc.
-<img src="./docs/imgs/dflow_architecture.png" display="block" alt="dflow_architecture" width="400"/>
+
+<p align="center">
+<img src="./docs/imgs/dflow_architecture.png" alt="dflow_architecture" width="400"/>
+</p>
 <!-- <style>
 img {
   display: block;
@@ -116,21 +119,21 @@ simple_example_step = Step(name='step0',
 ``` 
 This step will instantiate the OP template created in [1.2.2](#122-a-nameoptemplatea-op-template). Note that `foo` is an artifact. 
 
-####  1.2.3. <a name='Workflow'></a> Workflow
- A `Workflow` contains the `Step` as entrypoint for default. Adding a `Step` to a `Workflow` is equivalent to adding the `Step` to the `Steps` of the `Workflow`. For example,
+####  1.2.4. <a name='Workflow'></a> Workflow
+`Workflow` is the connecting block for building a workflow. A `Workflow` is created by adding `Step` together. By default, it contains the `Step` as entrypoint for default. 
 ```python
-wf = Workflow(name="hhh")
-hello0 = Step(name="hello0", template=hello)
-wf.add(hello0)
+wf = Workflow(name="hello-world")
+wf.add(simple_example_step)
 ```
 Submit a workflow by
 ```python
 wf.submit()
 ```
-- [Steps example](examples/test_steps.py)
+You can check out a complete example using all the elements discussed above.
+- [Overview example](examples/test_steps.py)
 
-It should be noticed that `Steps` itself is a subclass of OPTemplate and could be used as the template of a higher level `Step`. By virtue of this feature, one can construct complex workflows of nested structure. One is also allowed to recursively use a `Steps` as the template of a building block inside itself to achieve dynamic loop.
-- [Recursion example](examples/test_recurse.py)
+<!-- It should be noticed that `Steps` itself is a subclass of OPTemplate and could be used as the template of a higher level `Step`. By virtue of this feature, one can construct complex workflows of nested structure. One is also allowed to recursively use a `Steps` as the template of a building block inside itself to achieve dynamic loop.
+- [Recursion example](examples/test_recurse.py) -->
 
 ###  1.3. <a name='Interfacelayer'></a> Interface layer
 ####  1.3.1. <a name='PythonOP'></a> Python OP
