@@ -52,6 +52,7 @@ For dflow's developers, dflow wraps on argo SDK, keeps details of computing and 
 
 ###  1.1. <a name='Architecture'></a> Architecture
 The dflow consists of a **common layer** and an **interface layer**.  Interface layer takes various OP templates from users, usually in the form of python classes, and transforms them into base OP templates that common layer can handle. Common layer is an extension over argo client which provides functionalities such as file processing, workflow submission and management, etc.
+![dflow_architecture.png](./docs/imgs/dflow_architecture.png)
 
 ###  1.2. <a name='Commonlayer'></a> Common layer
 ####  1.2.1. <a name='Parametersandartifacts'></a>Parameters and artifacts
@@ -84,8 +85,13 @@ simple_example.outputs.parameters = {"out_art": OutputArtifact(path = "/tmp/bar.
 
 In the above example, there are three things to clarify. 
 1. The value of the input parameter is optional for the OP template, if provided, it will be regarded as the default value which can be overridden at run time. 
-2. For the output parameter, the source where its value comes from should be specified. For the container OP template, the value may be from a certain file generated in the container (`value_from_path`). 
-3. The path to the input and output artifact in the container is required to be specified.
+2. For the output parameter, the source where its value comes from should be specified. For the container OP template, the value may come from a certain file generated in the container (`value_from_path`). 
+3. The paths to the input and output artifact in the container are required to be specified.
+
+If we want to achieve the same operation using `PythonOPTemplate`, we first need to define a class for the 
+```python
+class 
+```
 
 ####  1.2.3. <a name='Workflow'></a> Workflow
 `Step` and `Steps` are central blocks for building a workflow. A `Step` is the result of instantiating a OP template. When a `Step` is initialized, values of all input parameters and sources of all input artifacts declared in the OP template must be specified. `Steps` is a sequential array of array of concurrent `Step`'s. A simple example goes like `[[s00, s01],  [s10, s11, s12]]`, where inner array represent concurrent tasks while outer array is sequential. A `Workflow` contains a `Steps` as entrypoint for default. Adding a `Step` to a `Workflow` is equivalent to adding the `Step` to the `Steps` of the `Workflow`. For example,
