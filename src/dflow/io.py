@@ -13,6 +13,8 @@ from .client import V1alpha1ValueFrom, V1alpha1Artifact
 from .common import S3Artifact
 from .utils import upload_s3, randstr
 
+NotAllowedInputArtifactPath = ["/", "/tmp"]
+
 class AutonamedDict(UserDict):
     def __setitem__(self, key, value):
         value = deepcopy(value)
@@ -269,6 +271,8 @@ class InputArtifact(ArgoVar):
         return artifact
 
     def convert_to_argo(self):
+        if self.path in NotAllowedInputArtifactPath:
+            raise RuntimeError("Path [%s] is not allowed for input artifact" % self.path)
         if self.source is None:
             return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional)
         if isinstance(self.source, (InputArtifact, OutputArtifact)):

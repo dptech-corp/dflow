@@ -1,7 +1,7 @@
 from copy import deepcopy
 from .common import S3Artifact
 from .io import InputArtifact
-from .utils import upload_s3
+from .utils import upload_s3, randstr
 from .op_template import ShellOPTemplate
 from .workflow import config
 from argo.workflows.client import (
@@ -111,6 +111,7 @@ download() {
         new_template.image = self.image
         new_template.command = self.command
         new_template.script = self.get_script(template.command, template.script, template.image)
+        new_template.name += "-" + randstr()
         if self.password is not None:
             pass
         elif self.private_key_file is not None:

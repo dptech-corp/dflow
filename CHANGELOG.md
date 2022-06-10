@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.0.14
+
+### Added
+
+- name of OP template be optional
+- add not allowed input artifact path
+- not use pvc in slurm remote executor for default
+
 ## 1.0.13
 
 ### Added

@@ -173,7 +173,7 @@ class SlurmRemoteExecutor(RemoteExecutor):
     """
     def __init__(self, host, port=22, username="root", password=None, private_key_file=None, workdir="~/dflow/workflows/{{workflow.name}}/{{pod.name}}",
             command=None, remote_command=None, image="dptechnology/dflow-extender", map_tmp_dir=True, docker_executable=None, action_retries=-1,
-            header="", interval=3, pvc="public", size="1Gi", storage_class=None, access_modes=None):
+            header="", interval=3, pvc=None, size="1Gi", storage_class=None, access_modes=None):
         super().__init__(host=host, port=port, username=username, password=password, private_key_file=private_key_file, workdir=workdir, command=command,
                 remote_command=remote_command, image=image, map_tmp_dir=map_tmp_dir, docker_executable=docker_executable, action_retries=action_retries)
         self.header = re.sub(" *#","#",header)
