@@ -70,7 +70,7 @@ maybe add some common layer description here?
 Parameters and artifacts are data stored by the workflow and passed within the workflow. Parameters are saved as strings which can be displayed in the UI, while artifacts are saved as files.
 
 ####  1.2.2. <a name='OPtemplate'></a> OP template
-OP template (shown as base OP in the figure above) is the fundamental building block of a workflow. It defines an operation to be executed given the input and output. Both the input and output can be parameters and/or artifacts. The most common OP template is the container OP template. Necessary arguements to be defined for the operation are the name of the OP Template, the container image and scripts to be executed. Currently, two types of container OP templates are supported: `ShellOPTemplate`, `PythonScriptOPTemplate`. Shell OP template (`ShellOPTemplate`) defines an operation by a shell script and Python script OP template (`PythonScriptOPTemplate`) defines an operation by a Python script.
+OP template (shown as base OP in the figure above) is the fundamental building block of a workflow. It defines an operation to be executed given the input and output. Both the input and output can be parameters and/or artifacts. The most common OP template is the container OP template. Necessary arguments to be defined for the operation are the container image and scripts to be executed. Currently, two types of container OP templates are supported: `ShellOPTemplate`, `PythonScriptOPTemplate`. Shell OP template (`ShellOPTemplate`) defines an operation by a shell script and Python script OP template (`PythonScriptOPTemplate`) defines an operation by a Python script.
 
 To use the `ShellOPTemplate`:
 
@@ -83,7 +83,7 @@ simple_example_templ = ShellOPTemplate(
     script="cp /tmp/foo.txt /tmp/bar.txt && echo {{inputs.parameters.msg}} > /tmp/msg.txt",
 )
 ```
-The above example defines a `ShellOPTemplate` with `name = "Hello"` and container image `alpine:latest`. The operation is to copy `/tmp/foo.txt` (input artifacts) to `/tmp/bar.txt` (output artifacts) and printout the properties of the parameters with name `msg` (input parameters) and pipe it to `/tmp/msg.txt` (value in the file is the properties of the output parameters). 
+The above example defines a `ShellOPTemplate` with `name = "Hello"` and container image `alpine:latest`. The operation is to copy `/tmp/foo.txt` (input artifacts) to `/tmp/bar.txt` (output artifacts) and printout the properties of the parameters with name `msg` (input parameters) and redirect it to `/tmp/msg.txt` (value in the file is the properties of the output parameters). 
 <!-- 
 Parameters and artifacts can be defined as the following:
 - Input/output parameters: a dictionary that maps the parameter name to its properties.
@@ -208,7 +208,7 @@ class simpleexample(OP):
         )
         return op_out
 ```
-The above example defines an OP `simpleexample`. The operation is to copy `foo.txt` to `bar.txt` and writeS the properties of the parameters with name msg to `msg.txt`. 
+The above example defines an OP `simpleexample`. The operation is to copy `foo.txt` to `bar.txt` and write the properties of the parameters with name msg to `msg.txt`. 
 
 To use the above class as a PythonOPTemplate, we need to pass the above class to `PythonOPTemplate` and specify the container image. Note that `pydflow` must be installed in this image
 ```python
@@ -222,9 +222,14 @@ An example using all the elements discussed in [1.3](#12-a-namecommonlayera-comm
 
 ##  2. <a name='QuickStart'></a>Quick Start
 ###  2.1. <a name='PrepareKubernetescluster'></a>Prepare Kubernetes cluster
-Firstly, you'll need a Kubernetes cluster. For quick tests, you can set up a [Minikube](https://minikube.sigs.k8s.io) on your PC.
-###  2.2. <a name='Installargoworkflows'></a>Install argo workflows
-To get started quickly, you can use the quick start manifest which will install Argo Workflow as well as some commonly used components:
+Firstly, you will need a Kubernetes cluster. To setup a Kubernetes cluster on your laptop, you can download the [Minikube](https://minikube.sigs.k8s.io) on your PC and make sure you have [Docker](https://www.docker.com/) up and running on you PC.
+
+After downloading, you can initiate the Kubernetes cluster using: 
+```
+minikube start 
+```
+###  2.2. <a name='Installargoworkflows'></a>Setup [Argo Workflows](https://argoproj.github.io/argo-workflows/quick-start/)
+To get started quickly, you can use the quick start manifest. It will install Argo Workflow as well as some commonly used components:
 ```
 kubectl create ns argo
 kubectl apply -n argo -f https://raw.githubusercontent.com/dptech-corp/dflow/master/manifests/quick-start-postgres.yaml
