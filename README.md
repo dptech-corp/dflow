@@ -15,10 +15,10 @@ For dflow's developers, dflow wraps on argo SDK, keeps details of computing and 
         * 1.2.3. [Step](#Step)
 		* 1.2.4. [Workflow](#Workflow)
 	* 1.3. [ Interface layer](#Interfacelayer)
-		* 1.3.1. [ Python OP](#PythonOP)
+		* 1.3.1. [Python OP](#PythonOP)
 * 2. [Quick Start](#QuickStart)
 	* 2.1. [Prepare Kubernetes cluster](#PrepareKubernetescluster)
-	* 2.2. [Install argo workflows](#Installargoworkflows)
+	* 2.2. [Setup Argo Workflows](#Setupargoworkflows)
 	* 2.3. [Install dflow](#Installdflow)
 	* 2.4. [Run an example](#Runanexample)
 * 3. [User Guide](#UserGuide)
@@ -228,7 +228,7 @@ After downloading, you can initiate the Kubernetes cluster using:
 ```
 minikube start 
 ```
-###  2.2. <a name='Installargoworkflows'></a>Setup [Argo Workflows](https://argoproj.github.io/argo-workflows/quick-start/)
+###  2.2. <a name='Setupargoworkflows'></a>Setup [Argo Workflows](https://argoproj.github.io/argo-workflows/quick-start/)
 To get started quickly, you can use the quick start manifest. It will install Argo Workflow as well as some commonly used components:
 ```
 kubectl create ns argo
