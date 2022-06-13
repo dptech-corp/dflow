@@ -5,11 +5,10 @@ import jsonpickle
 from argo.workflows.client import (
     V1alpha1Inputs,
     V1alpha1Outputs,
-    V1alpha1Parameter,
     V1alpha1RawArtifact,
     V1alpha1ArchiveStrategy
 )
-from .client import V1alpha1ValueFrom, V1alpha1Artifact
+from .client import V1alpha1ValueFrom, V1alpha1Parameter, V1alpha1Artifact
 from .common import S3Artifact
 from .utils import upload_s3, randstr
 
@@ -200,15 +199,21 @@ class InputParameter(ArgoVar):
         return ""
 
     def convert_to_argo(self):
+        description = jsonpickle.dumps({"type": self.type}) if self.type is not None else None
+
         if self.save_as_artifact:
             if self.value is not None:
                 with tempfile.TemporaryDirectory() as tmpdir:
+                    content = {}
+                    if isinstance(self.value, str):
+                        content["value"] = self.value
+                    else:
+                        content["value"] = jsonpickle.dumps(self.value)
+                    if self.type is not None:
+                        content["type"] = self.type
                     path = tmpdir + "/" + self.name
                     with open(path, "w") as f:
-                        if isinstance(self.value, str):
-                            f.write(self.value)
-                        else:
-                            f.write(jsonpickle.dumps(self.value))
+                        f.write(jsonpickle.dumps(content))
                     key = upload_s3(path)
                     s3 = S3Artifact(key=key)
                 return V1alpha1Artifact(name="dflow_bigpar_" + self.name, path=self.path, s3=s3)
@@ -220,13 +225,13 @@ class InputParameter(ArgoVar):
                 return V1alpha1Artifact(name="dflow_bigpar_" + self.name, path=self.path)
 
         if self.value is None:
-            return V1alpha1Parameter(name=self.name)
+            return V1alpha1Parameter(name=self.name, description=description)
         elif isinstance(self.value, ArgoVar):
-            return V1alpha1Parameter(name=self.name, value="{{=%s}}" % self.value.expr)
+            return V1alpha1Parameter(name=self.name, value="{{=%s}}" % self.value.expr, description=description)
         elif isinstance(self.value, str):
-            return V1alpha1Parameter(name=self.name, value=self.value)
+            return V1alpha1Parameter(name=self.name, value=self.value, description=description)
         else:
-            return V1alpha1Parameter(name=self.name, value=jsonpickle.dumps(self.value))
+            return V1alpha1Parameter(name=self.name, value=jsonpickle.dumps(self.value), description=description)
 
 class InputArtifact(ArgoVar):
     """
@@ -345,6 +350,8 @@ class OutputParameter(ArgoVar):
         return ""
 
     def convert_to_argo(self):
+        description = jsonpickle.dumps({"type": self.type}) if self.type is not None else None
+
         if self.save_as_artifact:
             if self.value_from_path is not None:
                 return V1alpha1Artifact(name="dflow_bigpar_" + self.name, path=self.value_from_path, global_name=self.global_name)
@@ -354,12 +361,13 @@ class OutputParameter(ArgoVar):
                 return V1alpha1Artifact(name="dflow_bigpar_" + self.name, from_expression=str(self.value_from_expression), global_name=self.global_name)
             else:
                 raise RuntimeError("Not supported.")
+
         if self.value_from_path is not None:
-            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(path=self.value_from_path, default=self.default), global_name=self.global_name)
+            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(path=self.value_from_path, default=self.default), global_name=self.global_name, description=description)
         elif self.value_from_parameter is not None:
-            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(parameter=str(self.value_from_parameter), default=self.default), global_name=self.global_name)
+            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(parameter=str(self.value_from_parameter), default=self.default), global_name=self.global_name, description=description)
         elif self.value_from_expression is not None:
-            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(expression=str(self.value_from_expression), default=self.default), global_name=self.global_name)
+            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(expression=str(self.value_from_expression), default=self.default), global_name=self.global_name, description=description)
         else:
             raise RuntimeError("Output parameter %s is not specified" % self)
 

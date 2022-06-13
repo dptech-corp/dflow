@@ -40,6 +40,7 @@ class Duplicate(OP):
             op_in : OPIO,
     ) -> OPIO:
         foo = op_in["foo"]
+        print(foo.msg)
         foo.msg = foo.msg * 2
         op_out = OPIO({
             "foo": foo
@@ -55,15 +56,17 @@ if __name__ == "__main__":
 
     step1 = Step(
         name="step1", 
-        template=PythonOPTemplate(Duplicate, image="dptechnology/dflow", image_pull_policy="IfNotPresent"),
-        parameters={"foo": steps.inputs.parameters["foo"]}
+        template=PythonOPTemplate(Duplicate, image="dptechnology/dflow"),
+        parameters={"foo": steps.inputs.parameters["foo"]},
+        key="step1"
     )
     steps.add(step1)
 
     step2 = Step(
         name="step2", 
-        template=PythonOPTemplate(Duplicate, image="dptechnology/dflow", image_pull_policy="IfNotPresent"),
-        parameters={"foo": step1.outputs.parameters["foo"]}
+        template=PythonOPTemplate(Duplicate, image="dptechnology/dflow"),
+        parameters={"foo": step1.outputs.parameters["foo"]},
+        key="step2"
     )
     steps.add(step2)
 
@@ -80,3 +83,8 @@ if __name__ == "__main__":
     step = wf.query_step(name="step1")[0]
     assert(step.phase == "Succeeded")
     print(step.outputs.parameters["foo"].value)
+
+    step.modify_output_parameter("foo", Hello("byebye"))
+    wf = Workflow(name="big-param-resubmit")
+    wf.add(big_step)
+    wf.submit(reuse_step=[step])

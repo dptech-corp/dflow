@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.0.16
+
+### Added
+
+- fix a bug in 1.0.15
+- record parameter type in parameter description
+
 ## 1.0.15
 
 ### Added

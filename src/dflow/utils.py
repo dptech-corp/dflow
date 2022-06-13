@@ -4,6 +4,7 @@ import shutil
 import string
 import random
 import tarfile
+import tempfile
 import jsonpickle
 from minio import Minio
 from minio.api import CopySource
@@ -38,20 +39,19 @@ def download_artifact(artifact, extract=True, **kwargs):
             path = download_s3(key=artifact.s3.key, recursive=False, **kwargs)
             if path[-4:] == ".tgz" and extract:
                 tf = tarfile.open(path, "r:gz")
-                tmpdir = os.path.join(os.path.dirname(path), "tmp-%s" % uuid.uuid4())
-                tf.extractall(tmpdir)
-                tf.close()
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    tf.extractall(tmpdir)
+                    tf.close()
 
-                os.remove(path)
-                path = os.path.join(os.path.dirname(path))
+                    os.remove(path)
+                    path = os.path.dirname(path)
 
-                # if the artifact contains only one directory, merge the directory with the target directory
-                ld = os.listdir(tmpdir)
-                if len(ld) == 1 and os.path.isdir(os.path.join(tmpdir, ld[0])):
-                    merge_dir(os.path.join(tmpdir, ld[0]), path)
-                else:
-                    merge_dir(tmpdir, path)
-                shutil.rmtree(tmpdir)
+                    # if the artifact contains only one directory, merge the directory with the target directory
+                    ld = os.listdir(tmpdir)
+                    if len(ld) == 1 and os.path.isdir(os.path.join(tmpdir, ld[0])):
+                        merge_dir(os.path.join(tmpdir, ld[0]), path)
+                    else:
+                        merge_dir(tmpdir, path)
 
         remove_empty_dir_tag(path)
         return assemble_path_list(path, remove=True)
@@ -74,37 +74,36 @@ def upload_artifact(path, archive="tar", **kwargs):
     if not isinstance(path, list):
         path = [path]
     cwd = os.getcwd()
-    tmpdir = "tmp-%s" % uuid.uuid4()
-    os.makedirs(tmpdir)
-    path_list = []
-    for i, p in enumerate(path):
-        if p is None:
-            continue
-        if not os.path.exists(p):
-            shutil.rmtree(tmpdir)
-            raise RuntimeError("File or directory %s not found" % p)
-        abspath = os.path.abspath(p)
-        if abspath.find(cwd) == 0:
-            relpath = abspath[len(cwd)+1:]
+    with tempfile.TemporaryDirectory() as tmpdir:
+        path_list = []
+        for i, p in enumerate(path):
+            if p is None:
+                continue
+            if not os.path.exists(p):
+                raise RuntimeError("File or directory %s not found" % p)
+            abspath = os.path.abspath(p)
+            if abspath.find(cwd) == 0:
+                relpath = abspath[len(cwd)+1:]
+            else:
+                relpath = abspath[1:]
+            target = os.path.join(tmpdir, relpath)
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            os.symlink(abspath, target)
+            path_list.append({"dflow_list_item": relpath, "order": i})
+        with open(os.path.join(tmpdir, ".dflow.%s" % uuid.uuid4()), "w") as f:
+            f.write(jsonpickle.dumps({"path_list": path_list}))
+
+        if archive == "tar":
+            os.chdir(os.path.dirname(tmpdir))
+            tf = tarfile.open(os.path.basename(tmpdir) + ".tgz", "w:gz", dereference=True)
+            tf.add(os.path.basename(tmpdir))
+            tf.close()
+            os.chdir(cwd)
+            key = upload_s3(path=tmpdir + ".tgz", **kwargs)
+            os.remove(tmpdir + ".tgz")
         else:
-            relpath = abspath[1:]
-        target = os.path.join(tmpdir, relpath)
-        os.makedirs(os.path.dirname(target), exist_ok=True)
-        os.symlink(abspath, target)
-        path_list.append({"dflow_list_item": relpath, "order": i})
-    with open(os.path.join(tmpdir, ".dflow.%s" % uuid.uuid4()), "w") as f:
-        f.write(jsonpickle.dumps({"path_list": path_list}))
+            key = upload_s3(path=tmpdir, **kwargs)
 
-    if archive == "tar":
-        tf = tarfile.open(tmpdir + ".tgz", "w:gz", dereference=True)
-        tf.add(tmpdir)
-        tf.close()
-        key = upload_s3(path=tmpdir + ".tgz", **kwargs)
-        os.remove(tmpdir + ".tgz")
-    else:
-        key = upload_s3(path=tmpdir, **kwargs)
-
-    shutil.rmtree(tmpdir)
     return S3Artifact(key=key)
 
 def copy_artifact(src, dst):
