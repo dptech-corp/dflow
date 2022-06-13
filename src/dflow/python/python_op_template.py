@@ -79,17 +79,17 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         self.dflow_vars = {}
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
-                self.inputs.artifacts[name] = InputArtifact(path="/tmp/inputs/artifacts/" + name, optional=sign.optional)
+                self.inputs.artifacts[name] = InputArtifact(path="/tmp/inputs/artifacts/" + name, optional=sign.optional, type=sign.type)
             elif isinstance(sign, BigParameter):
-                self.inputs.parameters[name] = InputParameter(save_as_artifact=True, path="/tmp/inputs/parameters/" + name)
+                self.inputs.parameters[name] = InputParameter(save_as_artifact=True, path="/tmp/inputs/parameters/" + name, type=sign.type)
             else:
-                self.inputs.parameters[name] = InputParameter()
+                self.inputs.parameters[name] = InputParameter(type=sign.type)
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 self.outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/" + name,
-                    archive=sign.archive, save=sign.save, global_name=sign.global_name)
+                    archive=sign.archive, save=sign.save, global_name=sign.global_name, type=sign.type)
             elif isinstance(sign, BigParameter):
-                self.outputs.parameters[name] = OutputParameter(save_as_artifact=True, value_from_path="/tmp/outputs/parameters/" + name)
+                self.outputs.parameters[name] = OutputParameter(save_as_artifact=True, value_from_path="/tmp/outputs/parameters/" + name, type=sign.type)
             else:
                 default = None
                 if output_parameter_default is not None and name in output_parameter_default:
@@ -100,7 +100,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 global_name = None
                 if output_parameter_global_name is not None and name in output_parameter_global_name:
                     global_name = output_parameter_global_name[name]
-                self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name, default=default, global_name=global_name)
+                self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name, default=default, global_name=global_name, type=sign.type)
 
         if python_packages is None:
             python_packages = upload_packages

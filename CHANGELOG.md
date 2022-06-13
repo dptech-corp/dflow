@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.0.15
+
+### Added
+
+- handle big parameters in query step and reuse step
+
 ## 1.0.14
 
 ### Added

@@ -1,7 +1,8 @@
 import os, re
 import jsonpickle
+import tempfile
 from .io import S3Artifact
-from .utils import download_s3, upload_artifact
+from .utils import upload_s3, download_s3, upload_artifact, download_artifact
 from collections import UserDict, UserList
 
 class ArgoObjectDict(UserDict):
@@ -12,9 +13,6 @@ class ArgoObjectDict(UserDict):
                 self.data[key] = ArgoObjectDict(value)
             elif isinstance(value, list):
                 self.data[key] = ArgoObjectList(value)
-
-            if key in ["parameters", "artifacts"]:
-                self.data[key] = {item.name: item for item in self.data[key]}
 
     def __getattr__(self, key):
         if key == "data":
@@ -43,11 +41,34 @@ class ArgoObjectList(UserList):
 class ArgoStep(ArgoObjectDict):
     def __init__(self, step):
         super().__init__(step)
-        if hasattr(self, "inputs") and hasattr(self.inputs, "parameters") \
-                    and "dflow_key" in self.inputs.parameters and self.inputs.parameters["dflow_key"].value != "":
-            self["key"] = self.inputs.parameters["dflow_key"].value
-        else:
-            self["key"] = None
+        self.key = None
+        if hasattr(self, "inputs"):
+            self.handle_io(self.inputs)
+            if hasattr(self.inputs, "parameters") and "dflow_key" in self.inputs.parameters and self.inputs.parameters["dflow_key"].value != "":
+                self.key = self.inputs.parameters["dflow_key"].value
+
+        if hasattr(self, "outputs"):
+            self.handle_io(self.outputs)
+
+    def handle_io(self, io):
+        if hasattr(io, "parameters"):
+            io.parameters = {par.name: par for par in io.parameters}
+
+        if hasattr(io, "artifacts"):
+            io.artifacts = {art.name: art for art in io.artifacts}
+
+        self.handle_big_parameters(io)
+
+    def handle_big_parameters(self, io):
+        if hasattr(io, "artifacts"):
+            for name, art in io.artifacts.items():
+                if name[:13] == "dflow_bigpar_":
+                    if not hasattr(io, "parameters"):
+                        io.parameters = {}
+                    with tempfile.TemporaryDirectory() as tmpdir:
+                        download_artifact(art, path=tmpdir)
+                        with open(os.path.join(tmpdir, name[13:]), "r") as f:
+                            io.parameters[name[13:]] = ArgoObjectDict({"name": name[13:], "value": f.read(), "save_as_artifact": True})
 
     def modify_output_parameter(self, name, value):
         """
@@ -61,6 +82,15 @@ class ArgoStep(ArgoObjectDict):
             self.outputs.parameters[name].value = value
         else:
             self.outputs.parameters[name].value = jsonpickle.dumps(value)
+
+        if hasattr(self.outputs.parameters[name], "save_as_artifact"):
+            with tempfile.TemporaryDirectory() as tmpdir:
+                path = tmpdir + "/" + name
+                with open(path, "w") as f:
+                    f.write(self.outputs.parameters[name].value)
+                key = upload_s3(path)
+                s3 = S3Artifact(key=key)
+                self.outputs.artifacts["dflow_bigpar_" + name].s3 = s3
 
     def modify_output_artifact(self, name, s3):
         """
