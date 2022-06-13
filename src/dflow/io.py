@@ -1,4 +1,4 @@
-import os
+import tempfile
 from copy import deepcopy
 from collections import UserDict
 import jsonpickle
@@ -176,8 +176,8 @@ class InputParameter(ArgoVar):
             if self.save_as_artifact:
                 if self.name is not None:
                     if self.step_id is not None:
-                        return "steps['%s'].inputs.artifacts['%s']" % (self.step_id, self.name)
-                    return "inputs.artifacts['%s']" % self.name
+                        return "steps['%s'].inputs.artifacts['dflow_bigpar_%s']" % (self.step_id, self.name)
+                    return "inputs.artifacts['dflow_bigpar_%s']" % self.name
                 return ""
             if self.name is not None:
                 if self.step_id is not None:
@@ -190,8 +190,8 @@ class InputParameter(ArgoVar):
         if self.save_as_artifact:
             if self.name is not None:
                 if self.step_id is not None:
-                    return "{{steps.%s.inputs.artifacts.%s}}" % (self.step_id, self.name)
-                return "{{inputs.artifacts.%s}}" % self.name
+                    return "{{steps.%s.inputs.artifacts.dflow_bigpar_%s}}" % (self.step_id, self.name)
+                return "{{inputs.artifacts.dflow_bigpar_%s}}" % self.name
             return ""
         if self.name is not None:
             if self.step_id is not None:
@@ -202,22 +202,22 @@ class InputParameter(ArgoVar):
     def convert_to_argo(self):
         if self.save_as_artifact:
             if self.value is not None:
-                path = ".tmp-%s" % self.name
-                with open(path, "w") as f:
-                    if isinstance(self.value, str):
-                        f.write(self.value)
-                    else:
-                        f.write(jsonpickle.dumps(self.value))
-                key = upload_s3(path)
-                s3 = S3Artifact(key=key)
-                os.remove(path)
-                return V1alpha1Artifact(name=self.name, path=self.path, s3=s3)
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    path = tmpdir + "/" + self.name
+                    with open(path, "w") as f:
+                        if isinstance(self.value, str):
+                            f.write(self.value)
+                        else:
+                            f.write(jsonpickle.dumps(self.value))
+                    key = upload_s3(path)
+                    s3 = S3Artifact(key=key)
+                return V1alpha1Artifact(name="dflow_bigpar_" + self.name, path=self.path, s3=s3)
             elif isinstance(self.source, (InputParameter, OutputParameter)):
-                return V1alpha1Artifact(name=self.name, path=self.path, _from=str(self.source))
+                return V1alpha1Artifact(name="dflow_bigpar_" + self.name, path=self.path, _from=str(self.source))
             elif isinstance(self.source, (InputArtifact, OutputArtifact)):
-                return V1alpha1Artifact(name=self.name, path=self.path, _from=str(self.source))
+                return V1alpha1Artifact(name="dflow_bigpar_" + self.name, path=self.path, _from=str(self.source))
             else:
-                return V1alpha1Artifact(name=self.name, path=self.path)
+                return V1alpha1Artifact(name="dflow_bigpar_" + self.name, path=self.path)
 
         if self.value is None:
             return V1alpha1Parameter(name=self.name)
@@ -315,8 +315,8 @@ class OutputParameter(ArgoVar):
             if self.save_as_artifact:
                 if self.name is not None:
                     if self.step_id is not None:
-                        return "steps['%s'].outputs.artifacts['%s']" % (self.step_id, self.name)
-                    return "outputs.artifacts['%s']" % self.name
+                        return "steps['%s'].outputs.artifacts['dflow_bigpar_%s']" % (self.step_id, self.name)
+                    return "outputs.artifacts['dflow_bigpar_%s']" % self.name
             if self.name is not None:
                 if self.step_id is not None:
                     return "steps['%s'].outputs.parameters['%s']" % (self.step_id, self.name)
@@ -336,8 +336,8 @@ class OutputParameter(ArgoVar):
         if self.save_as_artifact:
             if self.name is not None:
                 if self.step_id is not None:
-                    return "{{steps.%s.outputs.artifacts.%s}}" % (self.step_id, self.name)
-                return "{{outputs.artifacts.%s}}" % self.name
+                    return "{{steps.%s.outputs.artifacts.dflow_bigpar_%s}}" % (self.step_id, self.name)
+                return "{{outputs.artifacts.dflow_bigpar_%s}}" % self.name
         if self.name is not None:
             if self.step_id is not None:
                 return "{{steps.%s.outputs.parameters.%s}}" % (self.step_id, self.name)
@@ -347,11 +347,11 @@ class OutputParameter(ArgoVar):
     def convert_to_argo(self):
         if self.save_as_artifact:
             if self.value_from_path is not None:
-                return V1alpha1Artifact(name=self.name, path=self.value_from_path, global_name=self.global_name)
+                return V1alpha1Artifact(name="dflow_bigpar_" + self.name, path=self.value_from_path, global_name=self.global_name)
             elif self.value_from_parameter is not None:
-                return V1alpha1Artifact(name=self.name, _from=str(self.value_from_parameter), global_name=self.global_name)
+                return V1alpha1Artifact(name="dflow_bigpar_" + self.name, _from=str(self.value_from_parameter), global_name=self.global_name)
             elif self.value_from_expression is not None:
-                return V1alpha1Artifact(name=self.name, from_expression=str(self.value_from_expression), global_name=self.global_name)
+                return V1alpha1Artifact(name="dflow_bigpar_" + self.name, from_expression=str(self.value_from_expression), global_name=self.global_name)
             else:
                 raise RuntimeError("Not supported.")
         if self.value_from_path is not None:

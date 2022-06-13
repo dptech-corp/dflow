@@ -119,6 +119,9 @@ class Workflow:
                     if hasattr(step.outputs, "exitCode"):
                         outputs["exitCode"] = step.outputs.exitCode
                     if hasattr(step.outputs, "parameters"):
+                        for name in list(step.outputs.parameters):
+                            if hasattr(step.outputs.parameters[name], "save_as_artifact"):
+                                del step.outputs.parameters[name]
                         outputs["parameters"] = eval(str(list(step.outputs.parameters.values())))
                     if hasattr(step.outputs, "artifacts"):
                         for name, art in step.outputs.artifacts.items():
