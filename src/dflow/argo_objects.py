@@ -52,7 +52,14 @@ class ArgoStep(ArgoObjectDict):
 
     def handle_io(self, io):
         if hasattr(io, "parameters"):
-            io.parameters = {par.name: par for par in io.parameters}
+            parameters = {}
+            for par in io.parameters:
+                parameters[par.name] = par
+                if hasattr(par, "description") and par.description is not None:
+                    desc = jsonpickle.loads(par.description)
+                    if desc["type"] != str:
+                        parameters[par.name].value = jsonpickle.loads(par.value)
+            io.parameters = parameters
 
         if hasattr(io, "artifacts"):
             io.artifacts = {art.name: art for art in io.artifacts}
@@ -68,7 +75,14 @@ class ArgoStep(ArgoObjectDict):
                     with tempfile.TemporaryDirectory() as tmpdir:
                         download_artifact(art, path=tmpdir)
                         with open(os.path.join(tmpdir, name[13:]), "r") as f:
-                            io.parameters[name[13:]] = ArgoObjectDict({"name": name[13:], "value": f.read(), "save_as_artifact": True})
+                            content = jsonpickle.loads(f.read())
+                            param = {"name": name[13:], "save_as_artifact": True}
+                            if "type" in content and content["type"] == str:
+                                param["type"] = content["type"]
+                                param["value"] = content["value"]
+                            else:
+                                param["value"] = jsonpickle.loads(content["value"])
+                            io.parameters[name[13:]] = ArgoObjectDict(param)
 
     def modify_output_parameter(self, name, value):
         """
@@ -87,7 +101,10 @@ class ArgoStep(ArgoObjectDict):
             with tempfile.TemporaryDirectory() as tmpdir:
                 path = tmpdir + "/" + name
                 with open(path, "w") as f:
-                    f.write(self.outputs.parameters[name].value)
+                    content = {"value": self.outputs.parameters[name].value}
+                    if hasattr(self.outputs.parameters[name], "type"):
+                        content["type"] = self.outputs.parameters[name].type
+                    f.write(jsonpickle.dumps(content))
                 key = upload_s3(path)
                 s3 = S3Artifact(key=key)
                 self.outputs.artifacts["dflow_bigpar_" + name].s3 = s3

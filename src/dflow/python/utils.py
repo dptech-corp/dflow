@@ -42,10 +42,11 @@ def handle_input_parameter(name, value, sign, slices=None, data_root="/tmp"):
         obj = convert_dflow_list(dflow_list)
     elif isinstance(sign, BigParameter):
         with open(data_root + "/inputs/parameters/" + name, "r") as f:
+            content = jsonpickle.loads(f.read())
             if sign.type == str:
-                obj = f.read()
+                obj = content["value"]
             else:
-                obj = jsonpickle.loads(f.read())
+                obj = jsonpickle.loads(content["value"])
     elif sign == str and slices is None:
         obj = value
     else:
@@ -100,11 +101,13 @@ def handle_output_parameter(name, value, sign, slices=None, data_root="/tmp"):
         with open(data_root + '/outputs/parameters/' + name, 'w') as f:
             f.write(jsonpickle.dumps(res))
     elif isinstance(sign, BigParameter):
+        content = {"type": sign.type}
+        if sign.type == str:
+            content["value"] = value
+        else:
+            content["value"] = jsonpickle.dumps(value)
         with open(data_root + "/outputs/parameters/" + name, "w") as f:
-            if sign.type == str:
-                f.write(value)
-            else:
-                f.write(jsonpickle.dumps(value))
+            f.write(jsonpickle.dumps(content))
     elif sign == str:
         with open(data_root + '/outputs/parameters/' + name, 'w') as f:
             f.write(value)

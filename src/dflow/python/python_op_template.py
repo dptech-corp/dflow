@@ -83,7 +83,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             elif isinstance(sign, BigParameter):
                 self.inputs.parameters[name] = InputParameter(save_as_artifact=True, path="/tmp/inputs/parameters/" + name, type=sign.type)
             else:
-                self.inputs.parameters[name] = InputParameter(type=sign.type)
+                self.inputs.parameters[name] = InputParameter(type=sign)
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 self.outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/" + name,
@@ -100,7 +100,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 global_name = None
                 if output_parameter_global_name is not None and name in output_parameter_global_name:
                     global_name = output_parameter_global_name[name]
-                self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name, default=default, global_name=global_name, type=sign.type)
+                self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name, default=default, global_name=global_name, type=sign)
 
         if python_packages is None:
             python_packages = upload_packages
