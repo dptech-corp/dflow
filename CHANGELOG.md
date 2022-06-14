@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.0.19
+
+### Fix
+
+- fix: handle big parameter whose name changes
+
 ## 1.0.18
 
 ### Added
