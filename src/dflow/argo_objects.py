@@ -74,7 +74,9 @@ class ArgoStep(ArgoObjectDict):
                         io.parameters = {}
                     with tempfile.TemporaryDirectory() as tmpdir:
                         download_artifact(art, path=tmpdir)
-                        with open(os.path.join(tmpdir, name[13:]), "r") as f:
+                        fs = os.listdir(tmpdir)
+                        assert len(fs) == 1
+                        with open(os.path.join(tmpdir, fs[0]), "r") as f:
                             content = jsonpickle.loads(f.read())
                             param = {"name": name[13:], "save_as_artifact": True}
                             if "type" in content:
