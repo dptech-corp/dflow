@@ -172,14 +172,20 @@ class Step:
 
     def __repr__(self):
         return self.id
-    
+
     def set_parameters(self, parameters):
         for k, v in parameters.items():
             # if a parameter is saved as artifact, the parameters it pass value to or its value comes from must be saved as artifact as well
-            if self.inputs.parameters[k].save_as_artifact and isinstance(v, (InputParameter, OutputParameter)):
-                v.save_as_artifact = True
-            if isinstance(v, (InputParameter, OutputParameter)) and v.save_as_artifact:
-                self.inputs.parameters[k].save_as_artifact = True
+            if isinstance(v, (InputParameter, OutputParameter)):
+                if self.inputs.parameters[k].type is None and v.type is not None:
+                    self.inputs.parameters[k].type = v.type
+                if v.type is None and self.inputs.parameters[k].type is not None:
+                    v.type = self.inputs.parameters[k].type
+
+                if self.inputs.parameters[k].save_as_artifact:
+                    v.save_as_artifact = True
+                if v.save_as_artifact:
+                    self.inputs.parameters[k].save_as_artifact = True
 
             if self.inputs.parameters[k].save_as_artifact and isinstance(v, (InputParameter, OutputParameter, InputArtifact, OutputArtifact)):
                 self.inputs.parameters[k].source = v

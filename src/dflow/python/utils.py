@@ -101,7 +101,7 @@ def handle_output_parameter(name, value, sign, slices=None, data_root="/tmp"):
         with open(data_root + '/outputs/parameters/' + name, 'w') as f:
             f.write(jsonpickle.dumps(res))
     elif isinstance(sign, BigParameter):
-        content = {"type": sign.type}
+        content = {"type": str(sign.type)}
         if sign.type == str:
             content["value"] = value
         else:

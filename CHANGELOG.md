@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.0.18
+
+### Added
+
+- use str instead of jsonpickle to store parameter types
+
 ## 1.0.17
 
 ### Fix

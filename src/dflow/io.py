@@ -201,10 +201,7 @@ class InputParameter(ArgoVar):
     def convert_to_argo(self):
         description = None
         if self.type is not None:
-            try:
-                description = jsonpickle.dumps({"type": self.type})
-            except:
-                description = jsonpickle.dumps({"type": None})
+            description = jsonpickle.dumps({"type": str(self.type)})
 
         if self.save_as_artifact:
             if self.value is not None:
@@ -215,11 +212,7 @@ class InputParameter(ArgoVar):
                     else:
                         content["value"] = jsonpickle.dumps(self.value)
                     if self.type is not None:
-                        try:
-                            jsonpickle.dumps(self.type)
-                            content["type"] = self.type
-                        except:
-                            content["type"] = None
+                        content["type"] = str(self.type)
                     path = tmpdir + "/" + self.name
                     with open(path, "w") as f:
                         f.write(jsonpickle.dumps(content))
@@ -344,6 +337,10 @@ class OutputParameter(ArgoVar):
                 value.save_as_artifact = True
             if value.save_as_artifact:
                 self.save_as_artifact = True
+            if self.type is None and value.type is not None:
+                self.type = value.type
+            if value.type is None and self.type is not None:
+                value.type = self.type
         return super().__setattr__(key, value)
 
     def __repr__(self):
@@ -361,10 +358,7 @@ class OutputParameter(ArgoVar):
     def convert_to_argo(self):
         description = None
         if self.type is not None:
-            try:
-                description = jsonpickle.dumps({"type": self.type})
-            except:
-                description = jsonpickle.dumps({"type": None})
+            description = jsonpickle.dumps({"type": str(self.type)})
 
         if self.save_as_artifact:
             if self.value_from_path is not None:
