@@ -57,7 +57,7 @@ class ArgoStep(ArgoObjectDict):
                 parameters[par.name] = par
                 if hasattr(par, "description") and par.description is not None:
                     desc = jsonpickle.loads(par.description)
-                    if desc["type"] != str:
+                    if desc["type"] != str(str):
                         parameters[par.name].value = jsonpickle.loads(par.value)
             io.parameters = parameters
 
@@ -77,11 +77,12 @@ class ArgoStep(ArgoObjectDict):
                         with open(os.path.join(tmpdir, name[13:]), "r") as f:
                             content = jsonpickle.loads(f.read())
                             param = {"name": name[13:], "save_as_artifact": True}
-                            if "type" in content and content["type"] == str:
+                            if "type" in content:
                                 param["type"] = content["type"]
-                                param["value"] = content["value"]
-                            else:
+                            if "type" in content and content["type"] != str(str):
                                 param["value"] = jsonpickle.loads(content["value"])
+                            else:
+                                param["value"] = content["value"]
                             io.parameters[name[13:]] = ArgoObjectDict(param)
 
     def modify_output_parameter(self, name, value):
