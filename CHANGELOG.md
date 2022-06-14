@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.0.17
+
+### Fix
+
+- fix: cannot pickle types in typing
+
 ## 1.0.16
 
 ### Added

@@ -199,7 +199,12 @@ class InputParameter(ArgoVar):
         return ""
 
     def convert_to_argo(self):
-        description = jsonpickle.dumps({"type": self.type}) if self.type is not None else None
+        description = None
+        if self.type is not None:
+            try:
+                description = jsonpickle.dumps({"type": self.type})
+            except:
+                description = jsonpickle.dumps({"type": None})
 
         if self.save_as_artifact:
             if self.value is not None:
@@ -210,7 +215,11 @@ class InputParameter(ArgoVar):
                     else:
                         content["value"] = jsonpickle.dumps(self.value)
                     if self.type is not None:
-                        content["type"] = self.type
+                        try:
+                            jsonpickle.dumps(self.type)
+                            content["type"] = self.type
+                        except:
+                            content["type"] = None
                     path = tmpdir + "/" + self.name
                     with open(path, "w") as f:
                         f.write(jsonpickle.dumps(content))
@@ -350,7 +359,12 @@ class OutputParameter(ArgoVar):
         return ""
 
     def convert_to_argo(self):
-        description = jsonpickle.dumps({"type": self.type}) if self.type is not None else None
+        description = None
+        if self.type is not None:
+            try:
+                description = jsonpickle.dumps({"type": self.type})
+            except:
+                description = jsonpickle.dumps({"type": None})
 
         if self.save_as_artifact:
             if self.value_from_path is not None:
