@@ -6,6 +6,10 @@ from .utils import upload_s3, download_s3, upload_artifact, download_artifact
 from collections import UserDict, UserList
 
 class ArgoObjectDict(UserDict):
+    """
+    Generate ArgoObjectDict and ArgoObjectList on initialization rather than on __getattr__,
+    otherwise modify a.b.c will not take effect
+    """
     def __init__(self, d):
         super().__init__(d)
         for key, value in self.items():
@@ -29,6 +33,9 @@ class ArgoObjectDict(UserDict):
 
         self.data[key] = value
 
+    def recover(self):
+        return {key: value.recover() if isinstance(value, (ArgoObjectDict, ArgoObjectList)) else value for key, value in self.data.items()}
+
 class ArgoObjectList(UserList):
     def __init__(self, l):
         super().__init__(l)
@@ -37,6 +44,9 @@ class ArgoObjectList(UserList):
                 self.data[i] = ArgoObjectDict(value)
             elif isinstance(value, list):
                 self.data[i] = ArgoObjectList(value)
+
+    def recover(self):
+        return [value.recover() if isinstance(value, (ArgoObjectDict, ArgoObjectList)) else value for value in self.data]
 
 class ArgoStep(ArgoObjectDict):
     def __init__(self, step):
