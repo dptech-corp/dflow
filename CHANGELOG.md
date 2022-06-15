@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.0.20
+
+### Fix
+
+- fix: jsonize parameters before reusing
+
 ## 1.0.19
 
 ### Fix

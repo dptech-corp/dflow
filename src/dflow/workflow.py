@@ -1,3 +1,6 @@
+import json
+import jsonpickle
+import kubernetes
 from argo.workflows.client import (
     ApiClient, Configuration,
     WorkflowServiceApi,
@@ -9,11 +12,10 @@ from argo.workflows.client import (
     V1PersistentVolumeClaimSpec,
     V1ResourceRequirements
 )
+from .common import S3Artifact
 from .steps import Steps
 from .argo_objects import ArgoWorkflow
 from .utils import copy_s3, randstr
-import json
-import kubernetes
 
 config = {
     "host": "https://127.0.0.1:2746",
@@ -122,7 +124,9 @@ class Workflow:
                         for name in list(step.outputs.parameters):
                             if hasattr(step.outputs.parameters[name], "save_as_artifact"):
                                 del step.outputs.parameters[name]
-                        outputs["parameters"] = eval(str(list(step.outputs.parameters.values())))
+                            elif not isinstance(step.outputs.parameters[name].value, str):
+                                step.outputs.parameters[name].value = jsonpickle.dumps(step.outputs.parameters[name].value)
+                        outputs["parameters"] = [par.recover() for par in step.outputs.parameters.values()]
                     if hasattr(step.outputs, "artifacts"):
                         for name, art in step.outputs.artifacts.items():
                             if hasattr(step, "inputs") and hasattr(step.inputs, "parameters") and "dflow_group_key" in step.inputs.parameters:
@@ -130,7 +134,9 @@ class Workflow:
                                     key = "%s/%s/%s" % (self.id, step.inputs.parameters["dflow_group_key"].value, name)
                                     copy_s3(art.s3.key, key)
                                     copied_keys.append(art.s3.key)
-                        outputs["artifacts"] = eval(str(list(step.outputs.artifacts.values())))
+                            if hasattr(art, "s3") and isinstance(art.s3, S3Artifact):
+                                art.s3 = art.s3.to_dict()
+                        outputs["artifacts"] = [art.recover() for art in step.outputs.artifacts.values()]
                 data["%s-%s" % (self.id, step.key)] = json.dumps({
                     "nodeID": step.id,
                     "outputs": outputs,
