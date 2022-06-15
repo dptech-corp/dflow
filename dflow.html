@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>dflow package &#8212; dflow 1.0.19 documentation</title>
+    <title>dflow package &#8212; dflow 1.0.20 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -26,7 +26,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.0.19 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.0.20 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -77,12 +77,24 @@
 <dt id="dflow.argo_objects.ArgoObjectDict">
 <em class="property">class </em><code class="sig-prename descclassname">dflow.argo_objects.</code><code class="sig-name descname">ArgoObjectDict</code><span class="sig-paren">(</span><em class="sig-param">d</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoObjectDict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserDict</span></code></p>
+<p>Generate ArgoObjectDict and ArgoObjectList on initialization rather than on __getattr__,
+otherwise modify a.b.c will not take effect</p>
+<dl class="method">
+<dt id="dflow.argo_objects.ArgoObjectDict.recover">
+<code class="sig-name descname">recover</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoObjectDict.recover" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="dflow.argo_objects.ArgoObjectList">
 <em class="property">class </em><code class="sig-prename descclassname">dflow.argo_objects.</code><code class="sig-name descname">ArgoObjectList</code><span class="sig-paren">(</span><em class="sig-param">l</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoObjectList" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserList</span></code></p>
+<dl class="method">
+<dt id="dflow.argo_objects.ArgoObjectList.recover">
+<code class="sig-name descname">recover</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoObjectList.recover" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -1114,7 +1126,7 @@ Each argument can be Argo parameter</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.0.19 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.0.20 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
