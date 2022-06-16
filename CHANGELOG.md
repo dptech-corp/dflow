@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.0.21
+
+### Added
+
+- add dispatcher executor
+- with_param receives python list
+
 ## 1.0.20
 
 ### Fix

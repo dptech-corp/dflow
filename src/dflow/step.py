@@ -309,6 +309,8 @@ class Step:
 
         if isinstance(self.with_param, ArgoVar):
             self.with_param = "{{=%s}}" % self.with_param.expr
+        elif self.with_param is not None and not isinstance(self.with_param, str):
+            self.with_param = jsonpickle.dumps(list(self.with_param))
 
         if context is not None:
             self.template = context.render(self.template)
