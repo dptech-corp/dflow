@@ -89,7 +89,8 @@ class DispatcherExecutor(Executor):
 
         if self.remote_command is None:
             self.remote_command = template.command
-        self.task_dict["command"] = "%s script" % "".join(self.remote_command)
+        map_cmd = "sed -i \\\"s#/tmp#$(pwd)/tmp#g\\\" script && " if self.map_tmp_dir else ""
+        self.task_dict["command"] = "%s %s script" % (map_cmd, "".join(self.remote_command))
         self.task_dict["forward_files"] = ["script"]
         for art in template.inputs.artifacts.values():
             self.task_dict["forward_files"].append(art.path)
@@ -109,7 +110,7 @@ class DispatcherExecutor(Executor):
         new_template.script += "os.chdir('/')\n"
         new_template.script += "with open('script', 'w') as f:\n"
         new_template.script += "    f.write('''\n"
-        new_template.script += template.script.replace("/tmp", "tmp") if self.map_tmp_dir else template.script
+        new_template.script += template.script
         new_template.script += "''')\n"
 
         new_template.script += "import json\n"

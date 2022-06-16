@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.0.22
+
+### Added
+
+- map /tmp to pwd/tmp in slurm job
+
 ## 1.0.21
 
 ### Added

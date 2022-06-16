@@ -17,6 +17,7 @@ class LebesgueExecutor(Executor):
         self.extra = extra
 
     def render(self, template):
+        assert "workflow.dp.tech/executor" in template.annotations, "lebesgue context not detected, lebesgue executor will not take effect"
         new_template = deepcopy(template)
         new_template.name += "-" + randstr()
         new_template.annotations["task.dp.tech/extra"] = json.dumps(self.extra) if isinstance(self.extra, dict) else self.extra
@@ -57,6 +58,7 @@ class LebesgueContext(Context):
 
         if isinstance(template, (ShellOPTemplate, PythonScriptOPTemplate)):
             new_template = deepcopy(template)
+            new_template.annotations["workflow.dp.tech/executor"] = self.executor
             new_template.name += "-" + randstr()
             new_template.script = new_template.script.replace("/tmp", "$(pwd)/tmp")
             if isinstance(template, ShellOPTemplate):

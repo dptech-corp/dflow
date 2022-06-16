@@ -15,7 +15,7 @@ from argo.workflows.client import (
 import re
 
 class SlurmJob(Resource):
-    def __init__(self, header="", node_selector=None, prepare=None, results=None):
+    def __init__(self, header="", node_selector=None, prepare=None, results=None, map_tmp_dir=True):
         self.header = header
         self.action = "create"
         self.success_condition = "status.status == Succeeded"
@@ -23,8 +23,10 @@ class SlurmJob(Resource):
         self.node_selector = node_selector
         self.prepare = prepare
         self.results = results
+        self.map_tmp_dir = map_tmp_dir
 
     def get_manifest(self, command, script, workdir="."):
+        map_cmd = " | sed \"s#/tmp#$(pwd)/tmp#g\" " if self.map_tmp_dir else ""
         manifest = {
             "apiVersion": "wlm.sylabs.io/v1alpha1",
             "kind": "SlurmJob",
@@ -32,7 +34,7 @@ class SlurmJob(Resource):
                 "name": "{{pod.name}}"
             },
             "spec": {
-                "batch": self.header + "\nmkdir -p %s\ncd %s\ncat <<EOF | %s\n%s\nEOF" % (workdir, workdir, " ".join(command), script)
+                "batch": self.header + "\nmkdir -p %s\ncd %s\ncat <<EOF %s | %s\n%s\nEOF" % (workdir, workdir, map_cmd, " ".join(command), script)
             }
         }
         if self.node_selector is not None:
@@ -113,7 +115,7 @@ class SlurmJobTemplate(Executor):
 
         slurm_job = SlurmJob(header=self.header, node_selector=self.node_selector, prepare=prepare, results=results)
         command = template.command if self.remote_command is None else self.remote_command
-        script = template.script.replace("/tmp", "tmp")
+        script = template.script
         run_template = ScriptOPTemplate(name=new_template.name + "-run", resource=V1alpha1ResourceTemplate(action=slurm_job.action,
                 success_condition=slurm_job.success_condition, failure_condition=slurm_job.failure_condition,
                 manifest=slurm_job.get_manifest(command=command, script=script, workdir="%s/workdir" % self.workdir)))
@@ -186,7 +188,8 @@ class SlurmRemoteExecutor(RemoteExecutor):
     def run(self, image):
         script = ""
         if self.docker_executable is None:
-            script += "echo '%s\n%s script' > slurm.sh\n" % (self.header, " ".join(self.remote_command))
+            map_cmd = "sed -i \"s#/tmp#$(pwd)/tmp#g\" script" if self.map_tmp_dir else ""
+            script += "echo '%s\n%s\n%s script' > slurm.sh\n" % (self.header, map_cmd, " ".join(self.remote_command))
         else:
             script += "echo '%s\n%s run -v$(pwd)/tmp:/tmp -v$(pwd)/script:/script -ti %s %s /script' > slurm.sh\n" % (self.header, self.docker_executable, image, " ".join(self.remote_command))
         script += self.upload("slurm.sh", "%s/slurm.sh" % self.workdir) + " || exit 1\n"
