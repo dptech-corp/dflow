@@ -53,12 +53,13 @@ class RemoteExecutor(Executor):
 
     def run(self):
         if self.docker_executable is None:
-            return self.execute("cd %s && %s script" % (self.workdir, " ".join(self.remote_command))) + " || exit 1\n"
+            map_cmd = " && sed -i \"s#/tmp#$(pwd)/tmp#g\" script" if self.map_tmp_dir else ""
+            return self.execute("cd %s %s && %s script" % (self.workdir, map_cmd, " ".join(self.remote_command))) + " || exit 1\n"
         else:
             return self.execute("cd %s && %s run -v$(pwd)/tmp:/tmp -v$(pwd)/script:/script -ti %s %s /script" % (self.workdir, self.docker_executable, image, " ".join(self.remote_command))) + " || exit 1\n"
 
     def get_script(self, command, script, image):
-        remote_script = script.replace("/tmp", "tmp") if self.map_tmp_dir else script
+        remote_script = script
         if self.remote_command is None:
             self.remote_command = command
         ssh_pass = "sshpass -p %s " % self.password if self.password is not None else ""
