@@ -4,6 +4,14 @@ dflow.plugins package
 Submodules
 ----------
 
+dflow.plugins.dispatcher module
+-------------------------------
+
+.. automodule:: dflow.plugins.dispatcher
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dflow.plugins.lebesgue module
 -----------------------------
 

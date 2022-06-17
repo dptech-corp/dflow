@@ -1,7 +1,7 @@
-dflow
-=====
+src
+===
 
 .. toctree::
    :maxdepth: 4
 
-   setup
+   dflow
