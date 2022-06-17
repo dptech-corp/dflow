@@ -4,24 +4,24 @@
 
 For dflow's users (e.g. ML application developers), dflow offers user-friendly functional programming interfaces for building their own workflows. Users need not be concerned with process control, task scheduling, observability and disaster tolerance. Users can track workflow status and handle exceptions by APIs as well as from frontend UI. Thereby users are enabled to concentrate on implementing operators and orchestrating workflows.
 
-For dflow's developers, dflow wraps on argo SDK, keeps details of computing and storage resources from users, and provides extension abilities. While argo is a cloud-native workflow engine, dflow uses containers to decouple computing logic and scheduling logic, and uses Kubernetes to make workflows observable, reproducible and robust. Dflow is designed to be based on a distributed, heterogeneous infrastructure. The most common computing resources in scientific computing may be HPC clusters. Users can either use remote executor to manage HPC jobs within dflow ([dflow-extender](https://github.com/dptech-corp/dflow-extender)), or use operator to uniformly abstract HPC resources in the framework of Kubernetes ([wlm-operator](https://github.com/dptech-corp/wlm-operator)).
+For dflow's developers, dflow wraps on argo SDK, keeps details of computing and storage resources from users, and provides extension abilities. While argo is a cloud-native workflow engine, dflow uses containers to decouple computing logic and scheduling logic, and uses Kubernetes to make workflows observable, reproducible and robust. Dflow is designed to be based on a distributed, heterogeneous infrastructure. The most common computing resources in scientific computing may be HPC clusters. User can either use executor to manage HPC jobs within dflow ([dflow-extender](https://github.com/dptech-corp/dflow-extender)) or using [DPDispatcher](https://github.com/deepmodeling/dpdispatcher) plugin, or use virtual node technique to uniformly abstract HPC resources in the framework of Kubernetes ([wlm-operator](https://github.com/dptech-corp/wlm-operator)).
 
 <!-- vscode-markdown-toc -->
 * 1. [Overview](#Overview)
 	* 1.1. [ Architecture](#Architecture)
 	* 1.2. [ Common layer](#Commonlayer)
 		* 1.2.1. [Parameters and artifacts](#Parametersandartifacts)
-		* 1.2.2. [OP template](#OPtemplate)
-        * 1.2.3. [Step](#Step)
-		* 1.2.4. [Workflow](#Workflow)
+		* 1.2.2. [ OP template](#OPtemplate)
+		* 1.2.3. [Step](#Step)
+		* 1.2.4. [ Workflow](#Workflow)
 	* 1.3. [ Interface layer](#Interfacelayer)
-		* 1.3.1. [Python OP](#PythonOP)
+		* 1.3.1. [ Python OP](#PythonOP)
 * 2. [Quick Start](#QuickStart)
 	* 2.1. [Prepare Kubernetes cluster](#PrepareKubernetescluster)
-	* 2.2. [Setup Argo Workflows](#Setupargoworkflows)
+	* 2.2. [Setup [Argo Workflows](https://argoproj.github.io/argo-workflows/quick-start/)](#SetupArgoWorkflowshttps:argoproj.github.ioargo-workflowsquick-start)
 	* 2.3. [Install dflow](#Installdflow)
 	* 2.4. [Run an example](#Runanexample)
-* 3. [User Guide](#UserGuide)
+* 3. [User Guide ([dflow-doc](https://deepmodeling.com/dflow/dflow.html))](#UserGuidedflow-dochttps:deepmodeling.comdflowdflow.html)
 	* 3.1. [Common layer](#Commonlayer-1)
 		* 3.1.1. [Workflow management](#Workflowmanagement)
 		* 3.1.2. [Upload/download artifact](#Uploaddownloadartifact)
@@ -36,7 +36,9 @@ For dflow's developers, dflow wraps on argo SDK, keeps details of computing and 
 		* 3.1.11. [Key of step](#Keyofstep)
 		* 3.1.12. [Reuse step](#Reusestep)
 		* 3.1.13. [Executor](#Executor)
-		* 3.1.14. [Submit Slurm job by wlm-operator](#SubmitSlurmjobbywlm-operator)
+		* 3.1.14. [Submit Slurm job via slurm executor](#SubmitSlurmjobviaslurmexecutor)
+		* 3.1.15. [Submit HPC job via dispatcher plugin](#SubmitHPCjobviadispatcherplugin)
+		* 3.1.16. [Submit Slurm job via virtual node](#SubmitSlurmjobviavirtualnode)
 	* 3.2. [Interface layer](#Interfacelayer-1)
 		* 3.2.1. [Slices](#Slices)
 		* 3.2.2. [Retry and error handling](#Retryanderrorhandling)
@@ -112,13 +114,8 @@ In the above example, there are three things to clarify.
 3. The paths to the input and output artifact in the container are required to be specified.
 
 On the same level, one can also define a `PythonScriptOPTemplate` to achieve the same operation. 
-<!-- ```python
-simple_example=PythonScriptOPTemplate(name = "Hello",
-                                image = "alpine:latest",
-                                script = "import shutil,sys\nshutil.copy('/tmp/foo.txt','/tmp/bar.txt')\nf=open('/tmp/msg.txt','w')\nf.write({{inputs.parameters.msg}})\nf.close()")
-``` -->
 
-#### 1.2.3 <a name='Step'></a> Step
+####  1.2.3. <a name='Step'></a>Step
 `Step` is the central block for building a workflow. A `Step` is created by instantiating an OP template. When a `Step` is initialized, values of all input parameters and sources of all input artifacts declared in the OP template must be specified. 
 <!-- `Steps` is a sequential array of concurrent `Step`'s. A simple example goes like `[[s00, s01],  [s10, s11, s12]]`, where inner array represent concurrent tasks while outer array is sequential. (this part can be put in the User Guide-->
 ```python
@@ -225,7 +222,7 @@ After downloading, you can initiate the Kubernetes cluster using:
 ```
 minikube start 
 ```
-###  2.2. <a name='Setupargoworkflows'></a>Setup [Argo Workflows](https://argoproj.github.io/argo-workflows/quick-start/)
+###  2.2. <a name='SetupArgoWorkflowshttps:argoproj.github.ioargo-workflowsquick-start'></a>Setup [Argo Workflows](https://argoproj.github.io/argo-workflows/quick-start/)
 To get started quickly, you can use the quick start manifest. It will install Argo Workflow as well as some commonly used components:
 ```
 kubectl create ns argo
@@ -255,7 +252,7 @@ python examples/test_steps.py
 ```
 Then you can check the submitted workflow through argo's UI.
 
-##  3. <a name='UserGuide'></a>User Guide ([dflow-doc](https://deepmodeling.com/dflow/dflow.html))
+##  3. <a name='UserGuidedflow-dochttps:deepmodeling.comdflowdflow.html'></a>User Guide ([dflow-doc](https://deepmodeling.com/dflow/dflow.html))
 ###  3.1. <a name='Commonlayer-1'></a>Common layer
 
 ####  3.1.1. <a name='Workflowmanagement'></a>Workflow management
@@ -359,29 +356,44 @@ Workflows often have some steps that are expensive to compute. The outputs of pr
 - [Reuse step example](examples/test_reuse.py)
 
 ####  3.1.13. <a name='Executor'></a>Executor
-By default, for a "script step" (a step whose template is a script OP template), the Shell script or Python script runs in the container directly. Alternatively, one can modify the executor to run the script. Dflow offers an extension point for "script step" `Step(..., executor=my_executor)`. Here, `my_executor` should be an instance of class derived from `Executor`. A `Executor`-derived class should specify `image` and `command` to be used for the executor, as well as a method `get_script` which converts original command and script to new script run by the executor.
+By default, for a "script step" (a step whose template is a script OP template), the Shell script or Python script runs in the container directly. Alternatively, one can modify the executor to run the script. Dflow offers an extension point for "script step" `Step(..., executor=my_executor)`. Here, `my_executor` should be an instance of class derived from `Executor`. A `Executor`-derived class should implement a method `render` which converts original template to a new template.
 ```python
 class Executor(object):
-    image = None
-    command = None
-    def get_script(self, command, script):
+    def render(self, template):
         pass
 ```
+
+####  3.1.14. <a name='SubmitSlurmjobviaslurmexecutor'></a>Submit Slurm job via slurm executor
+
 `SlurmRemoteExecutor` is provided as an example of executor. The executor submits a slurm job to a remote host and synchronize its status and logs to the dflow step. The central logic of the executor is implemented in the Golang project [Dflow-extender](https://github.com/dptech-corp/dflow-extender). If you want to run a step on a slurm cluster remotely, do something like
 ```python
 Step(
     ...,
     executor=SlurmRemoteExecutor(host="1.2.3.4",
         username="myuser",
-        password="mypasswd",
         header="""#!/bin/bash
                   #SBATCH -N 1
                   #SBATCH -n 1
                   #SBATCH -p cpu""")
 )
 ```
+There are 3 options for SSH authentication, using password, specify path of private key file locally, or upload authorized private key to each node (or equivalently add each node to the authorized host list).
 
-####  3.1.14. <a name='SubmitSlurmjobbywlm-operator'></a>Submit Slurm job via virtual node
+####  3.1.15. <a name='SubmitHPCjobviadispatcherplugin'></a>Submit HPC job via dispatcher plugin
+
+[DPDispatcher](https://github.com/deepmodeling/dpdispatcher) is a python package used to generate HPC scheduler systems (Slurm/PBS/LSF) jobs input scripts and submit these scripts to HPC systems and poke until they finish. Dflow provides simple interface to invoke dispatcher as executor to complete script steps. E.g.
+```python
+from dflow.plugins.dispatcher import DispatcherExecutor
+Step(
+    ...,
+    executor=DispatcherExecutor(host="1.2.3.4",
+        username="myuser",
+        queue_name="V100")
+)
+```
+For SSH authentication, one can either specify path of private key file locally, or upload authorized private key to each node (or equivalently add each node to the authorized host list). For configuring extra [machine, resources or task parameters for dispatcher](https://docs.deepmodeling.com/projects/dpdispatcher/en/latest/), use `DispatcherExecutor(..., machine_dict=m, resources_dict=r, task_dict=t)`.
+
+####  3.1.16. <a name='SubmitSlurmjobviavirtualnode'></a>Submit Slurm job via virtual node
 
 Following the installation steps in the [wlm-operator](https://github.com/dptech-corp/wlm-operator) project to add Slurm partitions as virtual nodes to Kubernetes (use manifests [configurator.yaml](manifests/configurator.yaml), [operator-rbac.yaml](manifests/operator-rbac.yaml), [operator.yaml](manifests/operator.yaml) in this project which modified some RBAC configurations)
 ```

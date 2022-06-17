@@ -3,7 +3,7 @@ from dflow import (
     Workflow,
     Step,
     argo_range,
-    SlurmRemoteExecutor
+    SlurmJobTemplate
 )
 from dflow.python import (
     PythonOPTemplate,
@@ -67,9 +67,8 @@ class Check(OP):
         return OPIO()
 
 if __name__ == "__main__":
-    slurm_remote_executor = SlurmRemoteExecutor(host="my-host", username="my-user", header="#!/bin/bash\n#SBATCH -N 1\n#SBATCH -n 1\n#SBATCH -p V100\n")
+    wf = Workflow(name="hello")
 
-    wf = Workflow("remote-slices")
     hello = Step("hello",
             PythonOPTemplate(Hello, image="dptechnology/dflow",
                     slices=Slices("{{item}}",
@@ -80,7 +79,7 @@ if __name__ == "__main__":
             parameters={"filename": ["f1.txt", "f2.txt"]},
             with_param=argo_range(2),
             key="hello-{{item}}",
-            executor=slurm_remote_executor)
+            executor=SlurmJobTemplate(header="#!/bin/sh\n#SBATCH --nodes=1", node_selector={"kubernetes.io/hostname": "slurm-minikube-v100"}))
     wf.add(hello)
     check = Step("check",
             PythonOPTemplate(Check, image="dptechnology/dflow"),

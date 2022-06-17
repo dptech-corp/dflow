@@ -126,6 +126,8 @@ class SlurmJobTemplate(Executor):
         if prepare:
             run_template.inputs.parameters["dflow_vol_path"] = InputParameter()
             parameters["dflow_vol_path"] = "/tmp/{{steps.slurm-prepare.id}}"
+        if results:
+            run_template.outputs.parameters["dflow_vol_path"] = OutputParameter(value="/tmp/{{pod.name}}")
         run_step = Step("slurm-run", template=run_template, parameters=parameters)
         new_template.add(run_step)
 
@@ -143,7 +145,7 @@ class SlurmJobTemplate(Executor):
                 collect_template.inputs.parameters["dflow_group_key"] = InputParameter(value="{{inputs.parameters.dflow_group_key}}")
             collect_template.outputs.parameters = copy.deepcopy(template.outputs.parameters)
             collect_template.outputs.artifacts = copy.deepcopy(template.outputs.artifacts)
-            collect_step = Step("slurm-collect", template=collect_template, parameters={"dflow_vol_path": "/tmp/{{steps.slurm-run.id}}"})
+            collect_step = Step("slurm-collect", template=collect_template, parameters={"dflow_vol_path": run_step.outputs.parameters["dflow_vol_path"]})
             new_template.add(collect_step)
 
             for art_name in template.outputs.artifacts:

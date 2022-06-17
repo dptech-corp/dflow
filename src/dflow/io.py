@@ -304,9 +304,10 @@ class OutputParameter(ArgoVar):
         default: default value
         global_name: global name of the parameter within the workflow
         value_from_expression: the value is from an expression
+        value: specify value directly
     """
     def __init__(self, value_from_path=None, value_from_parameter=None, name=None, step_id=None, type=None, default=None, global_name=None,
-            value_from_expression=None, save_as_artifact=False):
+            value_from_expression=None, save_as_artifact=False, value=None):
         self.value_from_path = value_from_path
         self.value_from_parameter = value_from_parameter
         self.name = name
@@ -316,6 +317,7 @@ class OutputParameter(ArgoVar):
         self.global_name = global_name
         self.value_from_expression = value_from_expression
         self.save_as_artifact = save_as_artifact
+        self.value = value
 
     def __getattr__(self, key):
         if key == "expr":
@@ -376,6 +378,9 @@ class OutputParameter(ArgoVar):
             return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(parameter=str(self.value_from_parameter), default=self.default), global_name=self.global_name, description=description)
         elif self.value_from_expression is not None:
             return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(expression=str(self.value_from_expression), default=self.default), global_name=self.global_name, description=description)
+        elif self.value is not None:
+            value = self.value if isinstance(self.value, str) else jsonpickle.dumps(self.value)
+            return V1alpha1Parameter(name=self.name, value=value, global_name=self.global_name, description=description)
         else:
             raise RuntimeError("Output parameter %s is not specified" % self)
 

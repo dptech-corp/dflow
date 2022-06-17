@@ -1,9 +1,8 @@
-from typing import List
 from dflow import (
     Workflow,
+    Steps,
     Step,
-    argo_range,
-    SlurmRemoteExecutor
+    argo_range
 )
 from dflow.python import (
     PythonOPTemplate,
@@ -13,6 +12,10 @@ from dflow.python import (
     Artifact,
     Slices
 )
+import time
+from typing import List
+
+from dflow import OutputArtifact
 
 class Hello(OP):
     def __init__(self):
@@ -61,16 +64,11 @@ class Check(OP):
             op_in : OPIO,
     ) -> OPIO:
         print(op_in["foo"])
-        for filename in op_in["foo"]:
-            with open(filename, "r") as f:
-                print(f.read())
         return OPIO()
 
 if __name__ == "__main__":
-    slurm_remote_executor = SlurmRemoteExecutor(host="my-host", username="my-user", header="#!/bin/bash\n#SBATCH -N 1\n#SBATCH -n 1\n#SBATCH -p V100\n")
-
-    wf = Workflow("remote-slices")
-    hello = Step("hello",
+    steps = Steps("slices-steps")
+    hello0 = Step("hello0",
             PythonOPTemplate(Hello, image="dptechnology/dflow",
                     slices=Slices("{{item}}",
                         input_parameter=["filename"],
@@ -79,11 +77,37 @@ if __name__ == "__main__":
             ),
             parameters={"filename": ["f1.txt", "f2.txt"]},
             with_param=argo_range(2),
-            key="hello-{{item}}",
-            executor=slurm_remote_executor)
-    wf.add(hello)
-    check = Step("check",
+            key="hello-0-{{item}}")
+    steps.add(hello0)
+    check0 = Step("check0",
             PythonOPTemplate(Check, image="dptechnology/dflow"),
-            artifacts={"foo": hello.outputs.artifacts["foo"]})
-    wf.add(check)
+            artifacts={"foo": hello0.outputs.artifacts["foo"]})
+    steps.add(check0)
+    hello1 = Step("hello1",
+            PythonOPTemplate(Hello, image="dptechnology/dflow",
+                    slices=Slices("{{item}}",
+                        input_parameter=["filename"],
+                        output_artifact=["foo"]
+                    )
+            ),
+            parameters={"filename": []},
+            with_param=argo_range(0),
+            key="hello-1-{{item}}")
+    steps.add(hello1)
+    check1 = Step("check1",
+            PythonOPTemplate(Check, image="dptechnology/dflow"),
+            artifacts={"foo": hello1.outputs.artifacts["foo"]})
+    steps.add(check1)
+    steps.outputs.artifacts["foo"] = OutputArtifact(_from=hello1.outputs.artifacts["foo"])
+
+    wf = Workflow("slices", steps=steps)
     wf.submit()
+
+    while wf.query_status() in ["Pending", "Running"]:
+        time.sleep(1)
+
+    assert(wf.query_status() == "Succeeded")
+    step0 = wf.query_step(key="hello-0-0")[0]
+
+    wf2 = Workflow("slices", steps=steps)
+    wf2.submit(reuse_step=[step0])
