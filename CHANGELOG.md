@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 1.0.23
+
+### Added
+
+- work around pod id != step id
+
+### Fix
+
+- fix: parameter has no attribute value
+
 ## 1.0.22
 
 ### Added
