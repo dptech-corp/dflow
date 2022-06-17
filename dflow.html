@@ -44,6 +44,7 @@
 <li class="toctree-l1"><a class="reference internal" href="dflow.client.html">dflow.client package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="dflow.client.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dflow.client.html#module-dflow.client.v1alpha1_artifact">dflow.client.v1alpha1_artifact module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.client.html#module-dflow.client.v1alpha1_parameter">dflow.client.v1alpha1_parameter module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dflow.client.html#module-dflow.client.v1alpha1_retry_strategy">dflow.client.v1alpha1_retry_strategy module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dflow.client.html#module-dflow.client.v1alpha1_sequence">dflow.client.v1alpha1_sequence module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dflow.client.html#module-dflow.client.v1alpha1_value_from">dflow.client.v1alpha1_value_from module</a></li>
@@ -52,6 +53,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="dflow.plugins.html">dflow.plugins package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#module-dflow.plugins.dispatcher">dflow.plugins.dispatcher module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#module-dflow.plugins.lebesgue">dflow.plugins.lebesgue module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#module-dflow.plugins">Module contents</a></li>
 </ul>
@@ -397,7 +399,7 @@ otherwise modify a.b.c will not take effect</p>
 
 <dl class="class">
 <dt id="dflow.io.OutputParameter">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.io.</code><code class="sig-name descname">OutputParameter</code><span class="sig-paren">(</span><em class="sig-param">value_from_path=None</em>, <em class="sig-param">value_from_parameter=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">step_id=None</em>, <em class="sig-param">type=None</em>, <em class="sig-param">default=None</em>, <em class="sig-param">global_name=None</em>, <em class="sig-param">value_from_expression=None</em>, <em class="sig-param">save_as_artifact=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.OutputParameter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dflow.io.</code><code class="sig-name descname">OutputParameter</code><span class="sig-paren">(</span><em class="sig-param">value_from_path=None</em>, <em class="sig-param">value_from_parameter=None</em>, <em class="sig-param">name=None</em>, <em class="sig-param">step_id=None</em>, <em class="sig-param">type=None</em>, <em class="sig-param">default=None</em>, <em class="sig-param">global_name=None</em>, <em class="sig-param">value_from_expression=None</em>, <em class="sig-param">save_as_artifact=False</em>, <em class="sig-param">value=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.OutputParameter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.io.ArgoVar</span></code></a></p>
 <p>Output parameter for OP template</p>
 <dl class="field-list simple">
@@ -411,6 +413,7 @@ otherwise modify a.b.c will not take effect</p>
 <li><p><strong>default</strong> – default value</p></li>
 <li><p><strong>global_name</strong> – global name of the parameter within the workflow</p></li>
 <li><p><strong>value_from_expression</strong> – the value is from an expression</p></li>
+<li><p><strong>value</strong> – specify value directly</p></li>
 </ul>
 </dd>
 </dl>

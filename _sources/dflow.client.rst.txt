@@ -12,6 +12,14 @@ dflow.client.v1alpha1\_artifact module
    :undoc-members:
    :show-inheritance:
 
+dflow.client.v1alpha1\_parameter module
+---------------------------------------
+
+.. automodule:: dflow.client.v1alpha1_parameter
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dflow.client.v1alpha1\_retry\_strategy module
 ---------------------------------------------
 
