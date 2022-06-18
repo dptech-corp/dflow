@@ -259,7 +259,7 @@ otherwise modify a.b.c will not take effect</p>
 
 <dl class="method">
 <dt id="dflow.executor.RemoteExecutor.run">
-<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.executor.RemoteExecutor.run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">remote_command</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.executor.RemoteExecutor.run" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -598,7 +598,7 @@ otherwise modify a.b.c will not take effect</p>
 
 <dl class="method">
 <dt id="dflow.resource.Resource.get_manifest">
-<code class="sig-name descname">get_manifest</code><span class="sig-paren">(</span><em class="sig-param">command</em>, <em class="sig-param">script</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.resource.Resource.get_manifest" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_manifest</code><span class="sig-paren">(</span><em class="sig-param">template</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.resource.Resource.get_manifest" title="Permalink to this definition">¶</a></dt>
 <dd><p>The method to get the manifest (str)</p>
 </dd></dl>
 
@@ -614,11 +614,11 @@ otherwise modify a.b.c will not take effect</p>
 <span id="dflow-slurm-module"></span><h2>dflow.slurm module<a class="headerlink" href="#module-dflow.slurm" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="dflow.slurm.SlurmJob">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.slurm.</code><code class="sig-name descname">SlurmJob</code><span class="sig-paren">(</span><em class="sig-param">header=''</em>, <em class="sig-param">node_selector=None</em>, <em class="sig-param">prepare=None</em>, <em class="sig-param">results=None</em>, <em class="sig-param">map_tmp_dir=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmJob" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dflow.slurm.</code><code class="sig-name descname">SlurmJob</code><span class="sig-paren">(</span><em class="sig-param">header=''</em>, <em class="sig-param">node_selector=None</em>, <em class="sig-param">prepare=None</em>, <em class="sig-param">results=None</em>, <em class="sig-param">map_tmp_dir=True</em>, <em class="sig-param">workdir='.'</em>, <em class="sig-param">remote_command=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmJob" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dflow.resource.Resource" title="dflow.resource.Resource"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.resource.Resource</span></code></a></p>
 <dl class="method">
 <dt id="dflow.slurm.SlurmJob.get_manifest">
-<code class="sig-name descname">get_manifest</code><span class="sig-paren">(</span><em class="sig-param">command</em>, <em class="sig-param">script</em>, <em class="sig-param">workdir='.'</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmJob.get_manifest" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_manifest</code><span class="sig-paren">(</span><em class="sig-param">template</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmJob.get_manifest" title="Permalink to this definition">¶</a></dt>
 <dd><p>The method to get the manifest (str)</p>
 </dd></dl>
 
@@ -682,7 +682,7 @@ otherwise modify a.b.c will not take effect</p>
 
 <dl class="method">
 <dt id="dflow.slurm.SlurmRemoteExecutor.run">
-<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">image</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmRemoteExecutor.run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">remote_command</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmRemoteExecutor.run" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
