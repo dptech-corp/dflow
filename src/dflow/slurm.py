@@ -15,7 +15,7 @@ from argo.workflows.client import (
 import re
 
 class SlurmJob(Resource):
-    def __init__(self, header="", node_selector=None, prepare=None, results=None, map_tmp_dir=True):
+    def __init__(self, header="", node_selector=None, prepare=None, results=None, map_tmp_dir=True, workdir=".", remote_command=None):
         self.header = header
         self.action = "create"
         self.success_condition = "status.status == Succeeded"
@@ -24,8 +24,13 @@ class SlurmJob(Resource):
         self.prepare = prepare
         self.results = results
         self.map_tmp_dir = map_tmp_dir
+        self.workdir = workdir
+        if remote_command is not None and not isinstance(remote_command, list):
+            remote_command = [remote_command]
+        self.remote_command = remote_command
 
-    def get_manifest(self, command, script, workdir="."):
+    def get_manifest(self, template):
+        remote_command = template.command if self.remote_command is None else self.remote_command
         map_cmd = " | sed \"s#/tmp#$(pwd)/tmp#g\" " if self.map_tmp_dir else ""
         manifest = {
             "apiVersion": "wlm.sylabs.io/v1alpha1",
@@ -34,7 +39,7 @@ class SlurmJob(Resource):
                 "name": "{{pod.name}}"
             },
             "spec": {
-                "batch": self.header + "\nmkdir -p %s\ncd %s\ncat <<EOF %s | %s\n%s\nEOF" % (workdir, workdir, map_cmd, " ".join(command), script)
+                "batch": self.header + "\nmkdir -p %s\ncd %s\ncat <<EOF %s | %s\n%s\nEOF" % (self.workdir, self.workdir, map_cmd, " ".join(remote_command), template.script)
             }
         }
         if self.node_selector is not None:
@@ -64,6 +69,8 @@ class SlurmJobTemplate(Executor):
         self.prepare_image = prepare_image
         self.collect_image = collect_image
         self.workdir = workdir
+        if remote_command is not None and not isinstance(remote_command, list):
+            remote_command = [remote_command]
         self.remote_command = remote_command
 
     def render(self, template):
@@ -113,12 +120,10 @@ class SlurmJobTemplate(Executor):
                 }
             }
 
-        slurm_job = SlurmJob(header=self.header, node_selector=self.node_selector, prepare=prepare, results=results)
-        command = template.command if self.remote_command is None else self.remote_command
-        script = template.script
+        slurm_job = SlurmJob(header=self.header, node_selector=self.node_selector, prepare=prepare, results=results, workdir="%s/workdir" % self.workdir, remote_command=self.remote_command)
         run_template = ScriptOPTemplate(name=new_template.name + "-run", resource=V1alpha1ResourceTemplate(action=slurm_job.action,
                 success_condition=slurm_job.success_condition, failure_condition=slurm_job.failure_condition,
-                manifest=slurm_job.get_manifest(command=command, script=script, workdir="%s/workdir" % self.workdir)))
+                manifest=slurm_job.get_manifest(template=template)))
         run_template.inputs.parameters = copy.deepcopy(template.inputs.parameters)
         parameters = {}
         for par_name in template.inputs.parameters:
@@ -187,13 +192,13 @@ class SlurmRemoteExecutor(RemoteExecutor):
         self.storage_class = storage_class
         self.access_modes = access_modes
 
-    def run(self, image):
+    def run(self, image, remote_command):
         script = ""
         if self.docker_executable is None:
             map_cmd = "sed -i \"s#/tmp#$(pwd)/tmp#g\" script" if self.map_tmp_dir else ""
-            script += "echo '%s\n%s\n%s script' > slurm.sh\n" % (self.header, map_cmd, " ".join(self.remote_command))
+            script += "echo '%s\n%s\n%s script' > slurm.sh\n" % (self.header, map_cmd, " ".join(remote_command))
         else:
-            script += "echo '%s\n%s run -v$(pwd)/tmp:/tmp -v$(pwd)/script:/script -ti %s %s /script' > slurm.sh\n" % (self.header, self.docker_executable, image, " ".join(self.remote_command))
+            script += "echo '%s\n%s run -v$(pwd)/tmp:/tmp -v$(pwd)/script:/script -ti %s %s /script' > slurm.sh\n" % (self.header, self.docker_executable, image, " ".join(remote_command))
         script += self.upload("slurm.sh", "%s/slurm.sh" % self.workdir) + " || exit 1\n"
         if self.pvc:
             script += "echo 'jobIdFile: /mnt/job_id.txt' >> param.yaml\n"

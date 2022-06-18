@@ -256,11 +256,11 @@ Then you can check the submitted workflow through argo's UI.
 ###  3.1. <a name='Commonlayer-1'></a>Common layer
 
 ####  3.1.1. <a name='Workflowmanagement'></a>Workflow management
-After a workflow is submitted by `wf.submit()`, one can track it with APIs
+After submitting a workflow by `wf.submit()`, or getting a history workflow by `wf = Workflow(id="xxx")`, one can track its real-time status with APIs
 
 - `wf.id`: workflow ID in argo
 - `wf.query_status()`: query workflow status, return `"Pending"`, `"Running"`, `"Suceeded"`, etc.
-- `wf.query_step(name=None)`: query step by name (support for regex), return an argo step object
+- `wf.query_step(name=None)`: query step by name (support for regex), return a list of argo step objects
     - `step.phase`: phase of a step, `"Pending"`, `"Running"`, `Succeeded`, etc.
     - `step.outputs.parameters`: a dictionary of output parameters
     - `step.outputs.artifacts`: a dictionary of output artifacts
@@ -279,6 +279,7 @@ User can also download the output artifact of a step queried from a workflow (to
 step = wf.query_step(name="hello")
 download_artifact(step.outputs.artifacts["bar"])
 ```
+Modify `dflow.s3_config` to configure S3 globally.
 Note: dflow retains the relative path of the uploaded file/directory with respect to the current directory during uploading. If file/directory outside current directory is uploaded, its absolute path is used as the relative path in the artifact. If you want a different directory structure in the artifact with the local one, you can make soft links and then upload.
 
 ####  3.1.3. <a name='OutputparameterandartifactofSteps'></a>Output parameter and artifact of Steps
@@ -343,7 +344,7 @@ Set the workflow to continue when certain number/ratio of parallel steps succeed
 Set an input artifact to be optional by `op_template.inputs.artifacts["foo"].optional = True`.
 
 ####  3.1.10. <a name='Defaultvalueforoutputparameter'></a>Default value for output parameter
-Set default value for a output parameter by `op_template.outputs.parameters["msg"].default = default_value`. The default value will be used when the expression in `value_from_expression` fails or the step is skipped.
+Set default value for an output parameter by `op_template.outputs.parameters["msg"].default = default_value`. The default value will be used when the expression in `value_from_expression` fails or the step is skipped.
 
 ####  3.1.11. <a name='Keyofstep'></a>Key of step
 You can set a key for a step by `Step(..., key="some-key")` for the convenience of locating the step. The key can be regarded as an input parameter which may contain reference of other parameters. For instance, the key of a step can change with iterations of a dynamic loop. Once key is assigned to a step, the step can be query by `wf.query_step(key="some-key")`. If the key is unique within the workflow, the `query_step` method returns a list consist of only one element.
@@ -362,6 +363,7 @@ class Executor(object):
     def render(self, template):
         pass
 ```
+A context is similar to an executor, but assigned to a workflow `Workflow(context=...)` and affect every step.
 
 ####  3.1.14. <a name='SubmitSlurmjobviaslurmexecutor'></a>Submit Slurm job via slurm executor
 
@@ -379,6 +381,8 @@ Step(
 ```
 There are 3 options for SSH authentication, using password, specify path of private key file locally, or upload authorized private key to each node (or equivalently add each node to the authorized host list).
 
+- [Slurm executor example](examples/test_slurm.py)
+
 ####  3.1.15. <a name='SubmitHPCjobviadispatcherplugin'></a>Submit HPC job via dispatcher plugin
 
 [DPDispatcher](https://github.com/deepmodeling/dpdispatcher) is a python package used to generate HPC scheduler systems (Slurm/PBS/LSF) jobs input scripts and submit these scripts to HPC systems and poke until they finish. Dflow provides simple interface to invoke dispatcher as executor to complete script steps. E.g.
@@ -392,6 +396,8 @@ Step(
 )
 ```
 For SSH authentication, one can either specify path of private key file locally, or upload authorized private key to each node (or equivalently add each node to the authorized host list). For configuring extra [machine, resources or task parameters for dispatcher](https://docs.deepmodeling.com/projects/dpdispatcher/en/latest/), use `DispatcherExecutor(..., machine_dict=m, resources_dict=r, task_dict=t)`.
+
+- [Dispatcher executor example](examples/test_dispatcher.py)
 
 ####  3.1.16. <a name='SubmitSlurmjobviavirtualnode'></a>Submit Slurm job via virtual node
 
@@ -414,6 +420,20 @@ step = Step(
     )
 )
 ```
+
+#### Use resources in Kubernetes
+
+A step can also be completed by a Kubernetes resource (e.g. Job or custom resources). At the beginning, a manifest is applied to Kubernetes. Then the status of the resource is monitered until the success condition or the failure condition is satisfied.
+```python
+class Resource(object):
+    action = None
+    success_condition = None
+    failure_condition = None
+    def get_manifest(self, template):
+        pass
+```
+
+- [Wlm example](examples/test_wlm.py)
 
 ###  3.2. <a name='Interfacelayer-1'></a>Interface layer
 
@@ -461,7 +481,7 @@ class Progress(OP):
 - [Progress example](examples/test_progress.py)
 
 ####  3.2.4. <a name='Uploadpythonpackagesfordevelopment'></a>Upload python packages for development
-To avoid frequently making image during development, dflow offers a interface to upload local packages into container of `OP` and add them to `$PYTHONPATH`, such as `PythonOPTemplate(python_packages=["/opt/anaconda3/lib/python3.9/site-packages/numpy"])`. One can also globally specify packages to be uploaded, which will affect all `OP`s
+To avoid frequently making image during development, dflow offers an interface to upload local packages into container and add them to `$PYTHONPATH`, such as `PythonOPTemplate(..., python_packages=["/opt/anaconda3/lib/python3.9/site-packages/numpy"])`. One can also globally specify packages to be uploaded, which will affect all `OP`s
 ```python
 from dflow import upload_packages
 upload_packages.append("/opt/anaconda3/lib/python3.9/site-packages/numpy")

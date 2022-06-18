@@ -10,7 +10,7 @@ class Resource(object):
     action = None
     success_condition = None
     failure_condition = None
-    def get_manifest(self, command, script):
+    def get_manifest(self, template):
         """
         The method to get the manifest (str)
         """

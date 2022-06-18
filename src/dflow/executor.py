@@ -51,17 +51,16 @@ class RemoteExecutor(Executor):
     def download(self, src, dst):
         return "download %s '%s' '%s'" % (self.action_retries, src, dst) # add '' in case shell will expand ~
 
-    def run(self):
+    def run(self, image, remote_command):
         if self.docker_executable is None:
             map_cmd = " && sed -i \"s#/tmp#$(pwd)/tmp#g\" script" if self.map_tmp_dir else ""
             return self.execute("cd %s %s && %s script" % (self.workdir, map_cmd, " ".join(self.remote_command))) + " || exit 1\n"
         else:
-            return self.execute("cd %s && %s run -v$(pwd)/tmp:/tmp -v$(pwd)/script:/script -ti %s %s /script" % (self.workdir, self.docker_executable, image, " ".join(self.remote_command))) + " || exit 1\n"
+            return self.execute("cd %s && %s run -v$(pwd)/tmp:/tmp -v$(pwd)/script:/script -ti %s %s /script" % (self.workdir, self.docker_executable, image, " ".join(remote_command))) + " || exit 1\n"
 
     def get_script(self, command, script, image):
         remote_script = script
-        if self.remote_command is None:
-            self.remote_command = command
+        remote_command = command if self.remote_command is None else self.remote_command
         ssh_pass = "sshpass -p %s " % self.password if self.password is not None else ""
         script = """
 execute() {
@@ -103,7 +102,7 @@ download() {
         script += self.execute("mkdir -p %s/tmp" % self.workdir) + " || exit 1\n"
         script += "if [ -d /tmp ]; then " + self.upload("/tmp", self.workdir) + " || exit 1; fi\n"
         script += self.upload("script", "%s/script" % self.workdir) + " || exit 1\n"
-        script += self.run(image)
+        script += self.run(image, remote_command)
         script += self.download("%s/tmp/*" % self.workdir, "/tmp") + " || exit 1\n"
         return script
 
