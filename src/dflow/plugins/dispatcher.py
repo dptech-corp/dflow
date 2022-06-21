@@ -109,7 +109,7 @@ class DispatcherExecutor(Executor):
         new_template.script = "import os\n"
         new_template.script += "os.chdir('/')\n"
         new_template.script += "with open('script', 'w') as f:\n"
-        new_template.script += "    f.write('''\n"
+        new_template.script += "    f.write(r'''\n"
         new_template.script += template.script
         new_template.script += "''')\n"
 

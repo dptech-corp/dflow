@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.0.24
+
+- fix \n in code for dispatcher executor
+- handle io in slurm remote executor
+
 ## 1.0.23
 
 ### Added

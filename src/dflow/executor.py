@@ -1,3 +1,4 @@
+import os
 from copy import deepcopy
 from .common import S3Artifact
 from .io import InputArtifact
@@ -58,9 +59,17 @@ class RemoteExecutor(Executor):
         else:
             return self.execute("cd %s && %s run -v$(pwd)/tmp:/tmp -v$(pwd)/script:/script -ti %s %s /script" % (self.workdir, self.docker_executable, image, " ".join(remote_command))) + " || exit 1\n"
 
-    def get_script(self, command, script, image):
-        remote_script = script
-        remote_command = command if self.remote_command is None else self.remote_command
+    def mkdir_and_upload(self, path):
+        return self.execute("mkdir -p %s/%s" % (self.workdir, os.path.dirname(path))) + "\n" + \
+                ("if [ -e %s ]; then " % path) + self.upload(path, "%s/%s" % (self.workdir, path)) + "; fi\n"
+
+    def mkdir_and_download(self, path):
+        return "mkdir -p %s" % os.path.dirname(path) + "\n" + \
+                self.download("%s/%s" % (self.workdir, path), path) + "\n"
+
+    def get_script(self, template):
+        remote_script = template.script
+        remote_command = template.command if self.remote_command is None else self.remote_command
         ssh_pass = "sshpass -p %s " % self.password if self.password is not None else ""
         script = """
 execute() {
@@ -99,18 +108,27 @@ download() {
 }
 """ % (ssh_pass, self.port, self.username, self.host)
         script += "cat <<EOF> script\n" + remote_script + "\nEOF\n"
-        script += self.execute("mkdir -p %s/tmp" % self.workdir) + " || exit 1\n"
-        script += "if [ -d /tmp ]; then " + self.upload("/tmp", self.workdir) + " || exit 1; fi\n"
-        script += self.upload("script", "%s/script" % self.workdir) + " || exit 1\n"
-        script += self.run(image, remote_command)
-        script += self.download("%s/tmp/*" % self.workdir, "/tmp") + " || exit 1\n"
+        for art in template.inputs.artifacts.values():
+            script += self.mkdir_and_upload(art.path)
+        for par in template.inputs.parameters.values():
+            if par.save_as_artifact:
+                script += self.mkdir_and_upload(par.path)
+        script += self.mkdir_and_upload("script")
+        script += self.run(template.image, remote_command)
+        for art in template.outputs.artifacts.values():
+            script += self.mkdir_and_download(art.path)
+        for par in template.outputs.parameters.values():
+            if par.save_as_artifact:
+                script += self.mkdir_and_download(par.path)
+            else:
+                script += self.mkdir_and_download(par.value_from_path)
         return script
 
     def render(self, template):
         new_template = deepcopy(template)
         new_template.image = self.image
         new_template.command = self.command
-        new_template.script = self.get_script(template.command, template.script, template.image)
+        new_template.script = self.get_script(template)
         new_template.name += "-" + randstr()
         if self.password is not None:
             pass
