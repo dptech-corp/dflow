@@ -212,8 +212,6 @@ class SlurmRemoteExecutor(RemoteExecutor):
         script += "echo 'username: %s' >> param.yaml\n" % self.username
         if self.password is not None:
             script += "echo 'password: %s' >> param.yaml\n" % self.password
-        else:
-            script += "echo 'privateKeyFile: /root/.ssh/id_rsa' >> param.yaml\n"
         script += "./bin/slurm param.yaml || exit 1\n"
         return script
 

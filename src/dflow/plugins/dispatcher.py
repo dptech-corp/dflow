@@ -1,3 +1,4 @@
+import os
 import json
 from copy import deepcopy
 from ..executor import Executor
@@ -29,8 +30,8 @@ class DispatcherExecutor(Executor):
         resources_dict: resources config for dispatcher
         task_dict: task config for dispatcher
     """
-    def __init__(self, host, queue_name, port=22, username="root", private_key_file=None, image="dptechnology/dpdispatcher", command="python", remote_command=None,
-            map_tmp_dir=True, machine_dict=None, resources_dict=None, task_dict=None):
+    def __init__(self, host=None, queue_name=None, port=22, username="root", private_key_file=None, image="dptechnology/dpdispatcher", command="python", remote_command=None,
+            map_tmp_dir=True, machine_dict=None, resources_dict=None, task_dict=None, json_file=None):
         self.host = host
         self.queue_name = queue_name
         self.port = port
@@ -42,6 +43,14 @@ class DispatcherExecutor(Executor):
         self.command = command
         self.remote_command = remote_command
         self.map_tmp_dir = map_tmp_dir
+
+        if json_file is not None:
+            with open(json_file, "r") as f:
+                config = json.load(f)
+            if "machine" in config:
+                machine_dict = config["machine"]
+            if "resources" in config:
+                resources_dict = config["resources"]
 
         self.machine_dict = {
             "batch_type": "Slurm",
@@ -124,8 +133,8 @@ class DispatcherExecutor(Executor):
         if self.private_key_file is not None:
             key = upload_s3(self.private_key_file)
             private_key_artifact = S3Artifact(key=key)
-            new_template.inputs.artifacts["dflow_private_key"] = InputArtifact(path="/root/.ssh/id_rsa", source=private_key_artifact)
+            new_template.inputs.artifacts["dflow_private_key"] = InputArtifact(path="/root/.ssh/" + os.path.basename(self.private_key_file), source=private_key_artifact, mode=0o600)
         else:
             new_template.volumes.append(V1Volume(name="dflow-private-key", host_path=V1HostPathVolumeSource(path=config["private_key_host_path"])))
-            new_template.mounts.append(V1VolumeMount(name="dflow-private-key", mount_path="/root/.ssh/id_rsa"))
+            new_template.mounts.append(V1VolumeMount(name="dflow-private-key", mount_path="/root/.ssh"))
         return new_template

@@ -22,7 +22,7 @@ config = {
     "token": None,
     "k8s_config_file": None,
     "k8s_api_server": None,
-    "private_key_host_path": "/home/docker/.ssh/id_rsa"
+    "private_key_host_path": "/home/docker/.ssh"
 }
 
 class Workflow:

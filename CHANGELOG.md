@@ -1,6 +1,14 @@
 # CHANGELOG
 
+## 1.0.25
+
+### Added
+
+- support for id_rsa, id_dsa, id_ecdsa, id_ed25519
+
 ## 1.0.24
+
+### Added
 
 - fix \n in code for dispatcher executor
 - handle io in slurm remote executor
