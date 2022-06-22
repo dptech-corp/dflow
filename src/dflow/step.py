@@ -158,8 +158,9 @@ class Step:
                 self.prepare_step = Step(name="%s-init-artifact" % self.name, template=init_template,
                     parameters={"dflow_group_key": str(self.key).replace("{{item}}", "group")})
             else:
+                init_template.outputs.parameters["dflow_artifact_key"] = OutputParameter(value="{{workflow.name}}/{{pod.name}}")
                 new_template.inputs.parameters["dflow_artifact_key"] = InputParameter(value="")
-                self.inputs.parameters["dflow_artifact_key"] = InputParameter(value="{{workflow.name}}/{{steps.%s-init-artifact.id}}" % self.name)
+                self.inputs.parameters["dflow_artifact_key"] = InputParameter(value="{{steps.%s-init-artifact.outputs.parameters.dflow_artifact_key}}" % self.name)
                 for name in new_template.slices.output_artifact:
                     init_template.outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/%s" % name,
                         save=S3Artifact(key="{{workflow.name}}/{{pod.name}}/%s" % name), archive=None)

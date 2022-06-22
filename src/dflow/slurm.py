@@ -91,6 +91,7 @@ class SlurmJobTemplate(Executor):
                 script += "cp --path -r %s /workdir\n" % art.path
             prepare_template = ShellOPTemplate(name=new_template.name + "-prepare", image=self.prepare_image, script=script, volumes=[volume], mounts=[mount])
             prepare_template.inputs.artifacts = copy.deepcopy(template.inputs.artifacts)
+            prepare_template.outputs.parameters["dflow_vol_path"] = OutputParameter(value="/tmp/{{pod.name}}")
             artifacts = {}
             for art_name in template.inputs.artifacts:
                 artifacts[art_name] = new_template.inputs.artifacts[art_name]
@@ -130,7 +131,7 @@ class SlurmJobTemplate(Executor):
             parameters[par_name] = "{{inputs.parameters.%s}}" % par_name
         if prepare:
             run_template.inputs.parameters["dflow_vol_path"] = InputParameter()
-            parameters["dflow_vol_path"] = "/tmp/{{steps.slurm-prepare.id}}"
+            parameters["dflow_vol_path"] = "{{steps.slurm-prepare.outputs.parameters.dflow_vol_path}}"
         if results:
             run_template.outputs.parameters["dflow_vol_path"] = OutputParameter(value="/tmp/{{pod.name}}")
         run_step = Step("slurm-run", template=run_template, parameters=parameters)
