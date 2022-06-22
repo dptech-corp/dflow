@@ -135,8 +135,8 @@ download() {
         elif self.private_key_file is not None:
             key = upload_s3(self.private_key_file)
             private_key_artifact = S3Artifact(key=key)
-            new_template.inputs.artifacts["dflow_private_key"] = InputArtifact(path="/root/.ssh/id_rsa", source=private_key_artifact)
+            new_template.inputs.artifacts["dflow_private_key"] = InputArtifact(path="/root/.ssh/" + os.path.basename(self.private_key_file), source=private_key_artifact, mode=0o600)
         else:
             new_template.volumes.append(V1Volume(name="dflow-private-key", host_path=V1HostPathVolumeSource(path=config["private_key_host_path"])))
-            new_template.mounts.append(V1VolumeMount(name="dflow-private-key", mount_path="/root/.ssh/id_rsa"))
+            new_template.mounts.append(V1VolumeMount(name="dflow-private-key", mount_path="/root/.ssh"))
         return new_template

@@ -247,7 +247,7 @@ class InputArtifact(ArgoVar):
         type: artifact type
         source: default source
     """
-    def __init__(self, path=None, name=None, step_id=None, optional=False, type=None, source=None):
+    def __init__(self, path=None, name=None, step_id=None, optional=False, type=None, source=None, mode=None):
         self.path = path
         self.name = name
         self.step_id = step_id
@@ -255,6 +255,7 @@ class InputArtifact(ArgoVar):
         self.type = type
         self.source = source
         self._sub_path = None
+        self.mode = mode
 
     def __getattr__(self, key):
         if key == "expr":
@@ -281,13 +282,13 @@ class InputArtifact(ArgoVar):
         if self.path in NotAllowedInputArtifactPath:
             raise RuntimeError("Path [%s] is not allowed for input artifact" % self.path)
         if self.source is None:
-            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional)
+            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, mode=self.mode)
         if isinstance(self.source, (InputArtifact, OutputArtifact)):
-            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, _from=str(self.source), sub_path=self.source._sub_path)
+            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, _from=str(self.source), sub_path=self.source._sub_path, mode=self.mode)
         elif isinstance(self.source, S3Artifact):
-            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, s3=self.source, sub_path=self.source._sub_path)
+            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, s3=self.source, sub_path=self.source._sub_path, mode=self.mode)
         elif isinstance(self.source, str):
-            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, raw=V1alpha1RawArtifact(data=self.source))
+            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, raw=V1alpha1RawArtifact(data=self.source), mode=self.mode)
         else:
             raise RuntimeError("Cannot pass an object of type %s to artifact %s" % (type(self.source)), self)
 
