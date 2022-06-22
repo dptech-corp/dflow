@@ -69,7 +69,7 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
             assert isinstance(slices, int)
         else:
             slices = 0
-        if os.path.exists(value):
+        if value and os.path.exists(value):
             path_list.append({"dflow_list_item": copy_results(value, name, data_root), "order": slices})
         else:
             path_list.append({"dflow_list_item": None, "order": slices})
@@ -80,7 +80,7 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
         else:
             slices = list(range(len(value)))
         for path, s in zip(value, slices):
-            if os.path.exists(path):
+            if path and os.path.exists(path):
                 path_list.append({"dflow_list_item": copy_results(path, name, data_root), "order": s})
             else:
                 path_list.append({"dflow_list_item": None, "order": s})

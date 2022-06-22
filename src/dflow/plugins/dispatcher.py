@@ -29,6 +29,7 @@ class DispatcherExecutor(Executor):
         machine_dict: machine config for dispatcher
         resources_dict: resources config for dispatcher
         task_dict: task config for dispatcher
+        json_file: JSON file containing machine and resources config
     """
     def __init__(self, host=None, queue_name=None, port=22, username="root", private_key_file=None, image="dptechnology/dpdispatcher", command="python", remote_command=None,
             map_tmp_dir=True, machine_dict=None, resources_dict=None, task_dict=None, json_file=None):
@@ -44,13 +45,10 @@ class DispatcherExecutor(Executor):
         self.remote_command = remote_command
         self.map_tmp_dir = map_tmp_dir
 
+        config = {}
         if json_file is not None:
             with open(json_file, "r") as f:
                 config = json.load(f)
-            if "machine" in config:
-                machine_dict = config["machine"]
-            if "resources" in config:
-                resources_dict = config["resources"]
 
         self.machine_dict = {
             "batch_type": "Slurm",
@@ -64,6 +62,8 @@ class DispatcherExecutor(Executor):
                 "timeout": 10
             }
         }
+        if "machine" in config:
+            self.machine_dict.update(config["machine"])
         if machine_dict is not None:
             self.machine_dict.update(machine_dict)
 
@@ -79,6 +79,8 @@ class DispatcherExecutor(Executor):
                 "DFLOW_POD": "{{pod.name}}"
             }
         }
+        if "resources" in config:
+            self.resources_dict.update(config["resources"])
         if resources_dict is not None:
             self.resources_dict.update(resources_dict)
 

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 1.0.26
+
+### Added
+
+- fix a typo in io
+- dicts override json_file in dispatcher executor
+- allow for returning None for output artifact in OP
+- work around Argo pod id != step id for slices and slurm job template
+
 ## 1.0.25
 
 ### Added

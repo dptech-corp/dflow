@@ -290,7 +290,7 @@ class InputArtifact(ArgoVar):
         elif isinstance(self.source, str):
             return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, raw=V1alpha1RawArtifact(data=self.source), mode=self.mode)
         else:
-            raise RuntimeError("Cannot pass an object of type %s to artifact %s" % (type(self.source)), self)
+            raise RuntimeError("Cannot pass an object of type %s to artifact %s" % (type(self.source), self))
 
 class OutputParameter(ArgoVar):
     """
