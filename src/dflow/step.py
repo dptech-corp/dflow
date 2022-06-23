@@ -1,19 +1,21 @@
 from copy import deepcopy
-
 import jsonpickle
-from argo.workflows.client import (
-    V1alpha1WorkflowStep,
-    V1alpha1Arguments,
-    V1VolumeMount,
-    V1alpha1ContinueOn,
-    V1alpha1ResourceTemplate
-)
+try:
+    from argo.workflows.client import (
+        V1alpha1WorkflowStep,
+        V1alpha1Arguments,
+        V1VolumeMount,
+        V1alpha1ContinueOn,
+        V1alpha1ResourceTemplate
+    )
+    from .client import V1alpha1Sequence
+except:
+    pass
 from .common import S3Artifact
 from .io import InputArtifact, InputParameter, OutputArtifact, OutputParameter, PVC, ArgoVar
 from .op_template import ShellOPTemplate, PythonScriptOPTemplate
 from .utils import copy_file
 from .util_ops import CheckNumSuccess, CheckSuccessRatio
-from .client import V1alpha1Sequence
 
 def argo_range(*args):
     """
@@ -106,7 +108,8 @@ class Step:
         use_resource: use k8s resource
     """
     def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None, continue_on_failed=False,
-            continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None, executor=None, use_resource=None):
+            continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None, executor=None,
+            use_resource=None, util_image="alpine:latest"):
         self.name = name
         self.id = self.name
         self.template = template
@@ -132,6 +135,7 @@ class Step:
         self.key = key
         self.executor = executor
         self.use_resource = use_resource
+        self.util_image = util_image
 
         if self.key is not None:
             self.template.inputs.parameters["dflow_key"] = InputParameter(value="")
@@ -144,7 +148,7 @@ class Step:
             for name in new_template.slices.output_artifact:
                 script += "mkdir -p /tmp/outputs/artifacts/%s\n" % name
                 script += "echo '{\"path_list\": []}' > /tmp/outputs/artifacts/%s/.dflow.init\n" % name
-            init_template = ShellOPTemplate(name="%s-init-artifact" % new_template.name, image=new_template.image,
+            init_template = ShellOPTemplate(name="%s-init-artifact" % new_template.name, image=self.util_image,
                 image_pull_policy=new_template.image_pull_policy, script=script)
             if self.key is not None:
                 new_template.inputs.parameters["dflow_group_key"] = InputParameter(value="")
@@ -293,7 +297,7 @@ class Step:
 
         if self.continue_on_num_success is not None:
             self.check_step = Step(
-                name="%s-check-num-success" % self.name, template=CheckNumSuccess(image=self.template.image),
+                name="%s-check-num-success" % self.name, template=CheckNumSuccess(image=self.util_image),
                 parameters={
                     "success": self.outputs.parameters["dflow_success_tag"],
                     "threshold": self.continue_on_num_success
@@ -301,7 +305,7 @@ class Step:
             )
         elif self.continue_on_success_ratio is not None:
             self.check_step = Step(
-                name="%s-check-success-ratio" % self.name, template=CheckSuccessRatio(image=self.template.image),
+                name="%s-check-success-ratio" % self.name, template=CheckSuccessRatio(image=self.util_image),
                 parameters={
                     "success": self.outputs.parameters["dflow_success_tag"],
                     "threshold": self.continue_on_success_ratio

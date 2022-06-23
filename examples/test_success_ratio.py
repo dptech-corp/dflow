@@ -1,8 +1,6 @@
 from dflow import (
     Workflow,
     Step,
-    upload_artifact,
-    download_artifact,
     argo_range
 )
 from dflow.python import (
@@ -10,13 +8,8 @@ from dflow.python import (
     OP,
     OPIO,
     OPIOSign,
-    Artifact,
     TransientError,
-    FatalError
 )
-from typing import List
-from pathlib import Path
-import time
 import random
 
 class Hello(OP):
@@ -38,11 +31,11 @@ class Hello(OP):
         return OPIO()
 
 if __name__ == "__main__":
-    wf = Workflow(name="hello")
+    wf = Workflow(name="success-ratio")
 
     step = Step(
         name="hello0", 
-        template=PythonOPTemplate(Hello, image="dptechnology/dflow"),
+        template=PythonOPTemplate(Hello, image="python:3.8"),
         continue_on_success_ratio=0.6,
         # continue_on_num_success=3,
         with_param=argo_range(5)

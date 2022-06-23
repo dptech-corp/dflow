@@ -1,6 +1,9 @@
 from copy import deepcopy
-from argo.workflows.client import V1alpha1S3Artifact
-from argo.workflows.client.configuration import Configuration
+try:
+    from argo.workflows.client import V1alpha1S3Artifact
+    from argo.workflows.client.configuration import Configuration
+except:
+    V1alpha1S3Artifact = object
 
 class S3Artifact(V1alpha1S3Artifact):
     """

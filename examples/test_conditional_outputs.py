@@ -56,14 +56,14 @@ if __name__ == "__main__":
 
     random = Step(
         name="random", 
-        template=PythonOPTemplate(Random, image="dptechnology/dflow")
+        template=PythonOPTemplate(Random, image="python:3.8")
     )
     steps.add(random)
 
     steps.outputs.parameters["msg"].value_from_expression = if_expression(
             _if=random.outputs.parameters["is_head"] == True,
             _then=random.outputs.parameters["msg1"], _else=random.outputs.parameters["msg2"])
-    
+
     steps.outputs.artifacts["res"].from_expression = if_expression(
             _if=random.outputs.parameters["is_head"] == True,
             _then=random.outputs.artifacts["foo"], _else=random.outputs.artifacts["bar"])

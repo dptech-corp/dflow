@@ -3,12 +3,9 @@ from dflow import (
     InputParameter,
     OutputParameter,
     Inputs,
-    InputArtifact,
-    OutputArtifact,
     Workflow,
     Steps,
-    Step,
-    download_artifact
+    Step
 )
 import time
 

@@ -9,10 +9,8 @@ from dflow.python import (
     PythonOPTemplate,
     OP,
     OPIO,
-    OPIOSign,
-    Artifact
+    OPIOSign
 )
-from pathlib import Path
 import time
 
 class Plus1(OP):
@@ -44,7 +42,7 @@ if __name__ == "__main__":
     steps = Steps(name="iter", inputs=Inputs(parameters={"iter": InputParameter(value=0), "limit": InputParameter(value=5)}))
     plus1 = Step(name="plus1",
             template=PythonOPTemplate(Plus1,
-                    image="dptechnology/dflow"),
+                    image="python:3.8"),
             parameters={"iter": steps.inputs.parameters["iter"]},
             key="iter-%s" % steps.inputs.parameters["iter"])
     steps.add(plus1)
@@ -63,5 +61,5 @@ if __name__ == "__main__":
     step1 = wf.query_step(key="iter-1")[0]
     step1.modify_output_parameter("iter", 3)
 
-    wf = Workflow("recurse", steps=steps)
+    wf = Workflow("recurse-resubmit", steps=steps)
     wf.submit(reuse_step=[step0, step1])

@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.1.0
+
+### Added
+
+- support for using Python OP without dflow in the image
+
 ## 1.0.26
 
 ### Added

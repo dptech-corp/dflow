@@ -6,11 +6,14 @@ from ..io import InputArtifact
 from ..utils import upload_s3, randstr
 from ..common import S3Artifact
 from ..workflow import config
-from argo.workflows.client import (
-    V1Volume,
-    V1VolumeMount,
-    V1HostPathVolumeSource
-)
+try:
+    from argo.workflows.client import (
+        V1Volume,
+        V1VolumeMount,
+        V1HostPathVolumeSource
+    )
+except:
+    pass
 
 class DispatcherExecutor(Executor):
     """

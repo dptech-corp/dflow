@@ -65,7 +65,7 @@ class Check(OP):
 if __name__ == "__main__":
     wf = Workflow("slices")
     hello = Step("hello",
-            PythonOPTemplate(Hello, image="dptechnology/dflow",
+            PythonOPTemplate(Hello, image="python:3.8",
                     slices=Slices("{{item}}",
                         input_parameter=["filename"],
                         output_artifact=["foo"]
@@ -75,7 +75,7 @@ if __name__ == "__main__":
             with_param=argo_range(2))
     wf.add(hello)
     check = Step("check",
-            PythonOPTemplate(Check, image="dptechnology/dflow"),
+            PythonOPTemplate(Check, image="python:3.8"),
             artifacts={"foo": hello.outputs.artifacts["foo"]})
     wf.add(check)
     wf.submit()

@@ -2,13 +2,16 @@ import tempfile
 from copy import deepcopy
 from collections import UserDict
 import jsonpickle
-from argo.workflows.client import (
-    V1alpha1Inputs,
-    V1alpha1Outputs,
-    V1alpha1RawArtifact,
-    V1alpha1ArchiveStrategy
-)
-from .client import V1alpha1ValueFrom, V1alpha1Parameter, V1alpha1Artifact
+try:
+    from argo.workflows.client import (
+        V1alpha1Inputs,
+        V1alpha1Outputs,
+        V1alpha1RawArtifact,
+        V1alpha1ArchiveStrategy
+    )
+    from .client import V1alpha1ValueFrom, V1alpha1Parameter, V1alpha1Artifact
+except:
+    pass
 from .common import S3Artifact
 from .utils import upload_s3, randstr
 

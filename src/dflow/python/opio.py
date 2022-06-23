@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union, Any, Set, List
+from typing import Any, Set, List
 from collections.abc import MutableMapping
 
 ArtifactAllowedTypes = [str, Path, Set[str], Set[Path], List[str], List[Path]]

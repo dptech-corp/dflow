@@ -67,10 +67,10 @@ class Check(OP):
         return OPIO()
 
 if __name__ == "__main__":
-    wf = Workflow(name="hello")
+    wf = Workflow(name="wlm")
 
     hello = Step("hello",
-            PythonOPTemplate(Hello, image="dptechnology/dflow",
+            PythonOPTemplate(Hello, image="python:3.8",
                     slices=Slices("{{item}}",
                         input_parameter=["filename"],
                         output_artifact=["foo"]
@@ -82,7 +82,7 @@ if __name__ == "__main__":
             executor=SlurmJobTemplate(header="#!/bin/sh\n#SBATCH --nodes=1", node_selector={"kubernetes.io/hostname": "slurm-minikube-v100"}))
     wf.add(hello)
     check = Step("check",
-            PythonOPTemplate(Check, image="dptechnology/dflow"),
+            PythonOPTemplate(Check, image="python:3.8"),
             artifacts={"foo": hello.outputs.artifacts["foo"]})
     wf.add(check)
     wf.submit()

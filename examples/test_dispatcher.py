@@ -66,7 +66,7 @@ def make_idir():
 
 
 if __name__ == "__main__":
-    wf = Workflow(name="hello")
+    wf = Workflow(name="dispatcher")
 
     with open("foo.txt", "w") as f:
         f.write("Hi")
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     dispatcher_executor = DispatcherExecutor(host="my-host", username="my-user", queue_name="V100")
     step = Step(
         name="step", 
-        template=PythonOPTemplate(Duplicate, image="dptechnology/dflow", image_pull_policy="IfNotPresent"),
+        template=PythonOPTemplate(Duplicate, image="python:3.8"),
         parameters={"msg": "Hello", "num": 3}, 
         artifacts={"foo": artifact0, "idir": artifact1},
         executor=dispatcher_executor

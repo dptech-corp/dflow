@@ -25,7 +25,7 @@ if __name__ == "__main__":
     duplicate.inputs.artifacts = {"foo": InputArtifact(path="/tmp/foo.txt")}
     duplicate.outputs.artifacts = {"bar": OutputArtifact(path="/tmp/bar.txt")}
 
-    wf = Workflow(name="hhh")
+    wf = Workflow(name="steps")
     hello0 = Step(name="hello0", template=hello)
     # This step will give output parameter "msg" with value 1, and output artifact "bar" which contains "Hello"
     wf.add(hello0)

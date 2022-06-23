@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     step1 = Step(
         name="step1", 
-        template=PythonOPTemplate(Duplicate, image="dptechnology/dflow"),
+        template=PythonOPTemplate(Duplicate, image="python:3.8"),
         parameters={"foo": steps.inputs.parameters["foo"]},
         key="step1"
     )
@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     step2 = Step(
         name="step2", 
-        template=PythonOPTemplate(Duplicate, image="dptechnology/dflow"),
+        template=PythonOPTemplate(Duplicate, image="python:3.8"),
         parameters={"foo": step1.outputs.parameters["foo"]},
         key="step2"
     )

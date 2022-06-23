@@ -16,8 +16,7 @@ class OP(ABC):
     def __init__(
             self,
             *args,
-            **kwargs,
-    )->None:
+            **kwargs) -> None:
         pass
 
     def __setattr__(self, key, value):
@@ -63,10 +62,10 @@ class OP(ABC):
     ) -> None:
         for ii in sign.keys() :
             if ii not in opio.keys():
-                raise RuntimeError(f'key {ii} required in signature is not provided by the opio')
+                raise RuntimeError('key %s required in signature is not provided by the opio' % ii)
         for ii in opio.keys() :
             if ii not in sign.keys():
-                raise RuntimeError(f'key {ii} in OPIO is not in its signature')
+                raise RuntimeError('key %s in OPIO is not in its signature' % ii)
             io = opio[ii]
             ss = sign[ii]
             if isinstance(ss, Artifact):

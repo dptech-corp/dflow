@@ -69,7 +69,7 @@ class Check(OP):
 if __name__ == "__main__":
     steps = Steps("slices-steps")
     hello0 = Step("hello0",
-            PythonOPTemplate(Hello, image="dptechnology/dflow",
+            PythonOPTemplate(Hello, image="python:3.8",
                     slices=Slices("{{item}}",
                         input_parameter=["filename"],
                         output_artifact=["foo"]
@@ -80,11 +80,11 @@ if __name__ == "__main__":
             key="hello-0-{{item}}")
     steps.add(hello0)
     check0 = Step("check0",
-            PythonOPTemplate(Check, image="dptechnology/dflow"),
+            PythonOPTemplate(Check, image="python:3.8"),
             artifacts={"foo": hello0.outputs.artifacts["foo"]})
     steps.add(check0)
     hello1 = Step("hello1",
-            PythonOPTemplate(Hello, image="dptechnology/dflow",
+            PythonOPTemplate(Hello, image="python:3.8",
                     slices=Slices("{{item}}",
                         input_parameter=["filename"],
                         output_artifact=["foo"]
@@ -95,12 +95,12 @@ if __name__ == "__main__":
             key="hello-1-{{item}}")
     steps.add(hello1)
     check1 = Step("check1",
-            PythonOPTemplate(Check, image="dptechnology/dflow"),
+            PythonOPTemplate(Check, image="python:3.8"),
             artifacts={"foo": hello1.outputs.artifacts["foo"]})
     steps.add(check1)
     steps.outputs.artifacts["foo"] = OutputArtifact(_from=hello1.outputs.artifacts["foo"])
 
-    wf = Workflow("slices", steps=steps)
+    wf = Workflow("loop-slices", steps=steps)
     wf.submit()
 
     while wf.query_status() in ["Pending", "Running"]:
@@ -109,5 +109,5 @@ if __name__ == "__main__":
     assert(wf.query_status() == "Succeeded")
     step0 = wf.query_step(key="hello-0-0")[0]
 
-    wf2 = Workflow("slices", steps=steps)
+    wf2 = Workflow("loop-slices-resubmit", steps=steps)
     wf2.submit(reuse_step=[step0])
