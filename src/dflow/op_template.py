@@ -1,13 +1,16 @@
-from argo.workflows.client import (
-    V1alpha1Template,
-    V1alpha1ScriptTemplate,
-    V1alpha1Metadata,
-    V1ConfigMapKeySelector,
-    V1alpha1Memoize,
-    V1alpha1Cache,
-    V1ResourceRequirements
-)
-from argo.workflows.client.configuration import Configuration
+try:
+    from argo.workflows.client import (
+        V1alpha1Template,
+        V1alpha1ScriptTemplate,
+        V1alpha1Metadata,
+        V1ConfigMapKeySelector,
+        V1alpha1Memoize,
+        V1alpha1Cache,
+        V1ResourceRequirements
+    )
+    from argo.workflows.client.configuration import Configuration
+except:
+    pass
 from .io import Inputs, Outputs, InputParameter
 from .utils import randstr
 

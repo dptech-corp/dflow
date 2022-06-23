@@ -1,4 +1,7 @@
-from argo.workflows.client import V1alpha1Template, V1alpha1Metadata
+try:
+    from argo.workflows.client import V1alpha1Template, V1alpha1Metadata
+except:
+    pass
 from .op_template import OPTemplate
 
 class Steps(OPTemplate):

@@ -69,9 +69,9 @@ class Check(OP):
 if __name__ == "__main__":
     slurm_remote_executor = SlurmRemoteExecutor(host="my-host", username="my-user", header="#!/bin/bash\n#SBATCH -N 1\n#SBATCH -n 1\n#SBATCH -p V100\n")
 
-    wf = Workflow("remote-slices")
+    wf = Workflow("slurm-slices")
     hello = Step("hello",
-            PythonOPTemplate(Hello, image="dptechnology/dflow",
+            PythonOPTemplate(Hello, image="python:3.8",
                     slices=Slices("{{item}}",
                         input_parameter=["filename"],
                         output_artifact=["foo"]
@@ -83,7 +83,7 @@ if __name__ == "__main__":
             executor=slurm_remote_executor)
     wf.add(hello)
     check = Step("check",
-            PythonOPTemplate(Check, image="dptechnology/dflow"),
+            PythonOPTemplate(Check, image="python:3.8"),
             artifacts={"foo": hello.outputs.artifacts["foo"]})
     wf.add(check)
     wf.submit()

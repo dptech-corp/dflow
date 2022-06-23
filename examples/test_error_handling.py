@@ -1,19 +1,15 @@
 from dflow import (
     Workflow,
-    Step,
-    upload_artifact,
-    download_artifact
+    Step
 )
 from dflow.python import (
     PythonOPTemplate,
     OP,
     OPIO,
     OPIOSign,
-    Artifact,
     TransientError,
     FatalError
 )
-from pathlib import Path
 import time
 
 class Hello(OP):
@@ -77,23 +73,23 @@ class Goodbye(OP):
         return OPIO()
 
 if __name__ == "__main__":
-    wf = Workflow(name="hello")
+    wf = Workflow(name="error-handling")
 
     step = Step(
         name="hello0", 
-        template=PythonOPTemplate(Hello, image="dptechnology/dflow", retry_on_transient_error=1),
+        template=PythonOPTemplate(Hello, image="python:3.8", retry_on_transient_error=1),
         continue_on_failed=True
     )
     wf.add(step)
     step = Step(
         name="hello1", 
-        template=PythonOPTemplate(Timeout, image="dptechnology/dflow", timeout=10, retry_on_transient_error=1, timeout_as_transient_error=True),
+        template=PythonOPTemplate(Timeout, image="python:3.8", timeout=10, retry_on_transient_error=1, timeout_as_transient_error=True),
         continue_on_failed=True
     )
     wf.add(step)
     step = Step(
         name="hello2", 
-        template=PythonOPTemplate(Goodbye, image="dptechnology/dflow", retry_on_transient_error=1)
+        template=PythonOPTemplate(Goodbye, image="python:3.8", retry_on_transient_error=1)
     )
     wf.add(step)
     wf.submit()

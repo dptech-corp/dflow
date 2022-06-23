@@ -6,8 +6,11 @@ import random
 import tarfile
 import tempfile
 import jsonpickle
-from minio import Minio
-from minio.api import CopySource
+try:
+    from minio import Minio
+    from minio.api import CopySource
+except:
+    pass
 from .common import S3Artifact
 
 s3_config = {
@@ -71,7 +74,7 @@ def upload_artifact(path, archive="tar", **kwargs):
         secure: secure or not for Minio
         bucket_name: bucket name for Minio
     """
-    if not isinstance(path, list):
+    if not isinstance(path, (list, set)):
         path = [path]
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmpdir:

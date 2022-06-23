@@ -1,10 +1,15 @@
-import inspect, uuid, jsonpickle, random, string
-
+import inspect, random, string
+import jsonpickle
+import typeguard
+from .. import __path__
 from .opio import Artifact, BigParameter
 from ..op_template import PythonScriptOPTemplate
-from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact, S3Artifact
+from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact
 from ..utils import upload_artifact
-from ..client import V1alpha1RetryStrategy
+try:
+    from ..client import V1alpha1RetryStrategy
+except:
+    pass
 upload_packages = []
 
 class PythonOPTemplate(PythonScriptOPTemplate):
@@ -43,7 +48,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None,
                  timeout=None, retry_on_transient_error=None, output_parameter_default=None, output_parameter_global_name=None,
                  timeout_as_transient_error=False, memoize_key=None, volumes=None, mounts=None, image_pull_policy=None,
-                 cpu_requests=None, memory_requests=None, cpu_limits=None, memory_limits=None):
+                 cpu_requests=None, memory_requests=None, cpu_limits=None, memory_limits=None, upload_dflow=True):
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
         output_sign = op_class.get_output_sign()
@@ -103,18 +108,28 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name, default=default, global_name=global_name, type=sign)
 
         if python_packages is None:
-            python_packages = upload_packages
+            python_packages = upload_packages.copy()
         elif isinstance(python_packages, list):
             python_packages = upload_packages + python_packages
         else:
             python_packages = upload_packages + [python_packages]
 
+        if upload_dflow:
+            python_packages += __path__
+            python_packages += jsonpickle.__path__
+            python_packages += typeguard.__path__
+
         script = ""
         if python_packages:
             self.inputs.artifacts["dflow_python_packages"] = InputArtifact(path="/tmp/inputs/artifacts/dflow_python_packages",
-                    source=upload_artifact(python_packages))
-            script += "from dflow.python.utils import handle_python_packages\n"
-            script += "handle_python_packages('/tmp')\n"
+                    source=upload_artifact(set(python_packages)))
+            script += "import os, sys, json\n"
+            script += "package_root = '/tmp/inputs/artifacts/dflow_python_packages'\n"
+            script += "for f in os.listdir(package_root):\n"
+            script += "    if f[:6] == '.dflow':\n"
+            script += "        with open(os.path.join(package_root, f), 'r') as fd:\n"
+            script += "            for item in json.load(fd)['path_list']:\n"
+            script += "                sys.path.insert(0, os.path.join(package_root, os.path.dirname(item['dflow_list_item'])))\n"
 
         if op_class.__module__ == "__main__":
             source_lines, start_line = inspect.getsourcelines(op_class)

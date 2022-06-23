@@ -1,18 +1,22 @@
 import copy
-import yaml
+import os
+import re
 from .io import InputArtifact, InputParameter, OutputArtifact, OutputParameter, PVC
 from .op_template import ScriptOPTemplate, ShellOPTemplate
 from .step import Step
 from .steps import Steps
 from .executor import Executor, RemoteExecutor
 from .resource import Resource
-from argo.workflows.client import (
-    V1HostPathVolumeSource,
-    V1Volume,
-    V1VolumeMount,
-    V1alpha1ResourceTemplate
-)
-import re
+try:
+    import yaml
+    from argo.workflows.client import (
+        V1HostPathVolumeSource,
+        V1Volume,
+        V1VolumeMount,
+        V1alpha1ResourceTemplate
+    )
+except:
+    pass
 
 class SlurmJob(Resource):
     def __init__(self, header="", node_selector=None, prepare=None, results=None, map_tmp_dir=True, workdir=".", remote_command=None):
@@ -62,7 +66,7 @@ class SlurmJobTemplate(Executor):
         workdir: remote working directory
         remote_command: command for running the script remotely
     """
-    def __init__(self, header="", node_selector=None, prepare_image="dptechnology/dflow", collect_image="dptechnology/dflow",
+    def __init__(self, header="", node_selector=None, prepare_image="alpine:latest", collect_image="alpine:latest",
             workdir="dflow/workflows/{{workflow.name}}/{{pod.name}}", remote_command=None):
         self.header = header
         self.node_selector = node_selector
@@ -88,7 +92,8 @@ class SlurmJobTemplate(Executor):
             mount = V1VolumeMount(name="workdir", mount_path="/workdir")
             script = ""
             for art in template.inputs.artifacts.values():
-                script += "cp --path -r %s /workdir\n" % art.path
+                script += "mkdir -p /workdir/%s\n" % os.path.dirname(art.path)
+                script += "cp -r %s /workdir/%s\n" % (art.path, art.path)
             prepare_template = ShellOPTemplate(name=new_template.name + "-prepare", image=self.prepare_image, script=script, volumes=[volume], mounts=[mount])
             prepare_template.inputs.artifacts = copy.deepcopy(template.inputs.artifacts)
             prepare_template.outputs.parameters["dflow_vol_path"] = OutputParameter(value="/tmp/{{pod.name}}")

@@ -67,7 +67,7 @@ def make_idir():
 
 
 def test_python():
-    wf = Workflow(name="hello")
+    wf = Workflow(name="python")
 
     with open("foo.txt", "w") as f:
         f.write("Hi")
@@ -79,7 +79,7 @@ def test_python():
     print(artifact1)
     step = Step(
         name="step", 
-        template=PythonOPTemplate(Duplicate, image="dptechnology/dflow"),
+        template=PythonOPTemplate(Duplicate, image="python:3.8"),
         parameters={"msg": "Hello", "num": 3}, 
         artifacts={"foo": artifact0, "idir": artifact1},
     )

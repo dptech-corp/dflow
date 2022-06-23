@@ -1,9 +1,9 @@
-import os, shutil, sys
+import os, shutil
 import uuid
 import jsonpickle
 from typing import Set, List
 from pathlib import Path
-from .opio import Artifact, BigParameter
+from .opio import BigParameter
 from ..utils import assemble_path_list, convert_dflow_list, copy_file, remove_empty_dir_tag
 
 def handle_input_artifact(name, sign, slices=None, data_root="/tmp"):
@@ -69,7 +69,7 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
             assert isinstance(slices, int)
         else:
             slices = 0
-        if value and os.path.exists(value):
+        if value and os.path.exists(str(value)):
             path_list.append({"dflow_list_item": copy_results(value, name, data_root), "order": slices})
         else:
             path_list.append({"dflow_list_item": None, "order": slices})
@@ -80,7 +80,7 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
         else:
             slices = list(range(len(value)))
         for path, s in zip(value, slices):
-            if path and os.path.exists(path):
+            if path and os.path.exists(str(path)):
                 path_list.append({"dflow_list_item": copy_results(path, name, data_root), "order": s})
             else:
                 path_list.append({"dflow_list_item": None, "order": s})
@@ -129,11 +129,6 @@ def copy_results(source, name, data_root="/tmp"):
         except:
             copy_file(source, target, shutil.copy)
         return source
-
-def handle_python_packages(data_root="/tmp"):
-    python_packages = handle_input_artifact('dflow_python_packages', Artifact(List[str]), None, data_root)
-    for package in python_packages:
-        sys.path.append(os.path.dirname(package))
 
 def handle_empty_dir(path):
     # touch an empty file in each empty dir, as object storage will ignore empty dirs

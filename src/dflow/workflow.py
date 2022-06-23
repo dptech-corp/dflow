@@ -1,17 +1,20 @@
 import json
 import jsonpickle
-import kubernetes
-from argo.workflows.client import (
-    ApiClient, Configuration,
-    WorkflowServiceApi,
-    V1alpha1Workflow,
-    V1alpha1WorkflowCreateRequest,
-    V1alpha1WorkflowSpec,
-    V1ObjectMeta,
-    V1PersistentVolumeClaim,
-    V1PersistentVolumeClaimSpec,
-    V1ResourceRequirements
-)
+try:
+    import kubernetes
+    from argo.workflows.client import (
+        ApiClient, Configuration,
+        WorkflowServiceApi,
+        V1alpha1Workflow,
+        V1alpha1WorkflowCreateRequest,
+        V1alpha1WorkflowSpec,
+        V1ObjectMeta,
+        V1PersistentVolumeClaim,
+        V1PersistentVolumeClaimSpec,
+        V1ResourceRequirements
+    )
+except:
+    pass
 from .common import S3Artifact
 from .steps import Steps
 from .argo_objects import ArgoWorkflow
