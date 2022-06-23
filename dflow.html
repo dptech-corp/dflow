@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>dflow package &#8212; dflow 1.0.26 documentation</title>
+    <title>dflow package &#8212; dflow 1.1.0 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -26,7 +26,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.0.26 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -636,7 +636,7 @@ otherwise modify a.b.c will not take effect</p>
 
 <dl class="class">
 <dt id="dflow.slurm.SlurmJobTemplate">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.slurm.</code><code class="sig-name descname">SlurmJobTemplate</code><span class="sig-paren">(</span><em class="sig-param">header=''</em>, <em class="sig-param">node_selector=None</em>, <em class="sig-param">prepare_image='dptechnology/dflow'</em>, <em class="sig-param">collect_image='dptechnology/dflow'</em>, <em class="sig-param">workdir='dflow/workflows/{{workflow.name}}/{{pod.name}}'</em>, <em class="sig-param">remote_command=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmJobTemplate" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dflow.slurm.</code><code class="sig-name descname">SlurmJobTemplate</code><span class="sig-paren">(</span><em class="sig-param">header=''</em>, <em class="sig-param">node_selector=None</em>, <em class="sig-param">prepare_image='alpine:latest'</em>, <em class="sig-param">collect_image='alpine:latest'</em>, <em class="sig-param">workdir='dflow/workflows/{{workflow.name}}/{{pod.name}}'</em>, <em class="sig-param">remote_command=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.slurm.SlurmJobTemplate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.executor.Executor</span></code></a></p>
 <p>Slurm job template</p>
 <dl class="field-list simple">
@@ -702,7 +702,7 @@ otherwise modify a.b.c will not take effect</p>
 <span id="dflow-step-module"></span><h2>dflow.step module<a class="headerlink" href="#module-dflow.step" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="dflow.step.Step">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.step.</code><code class="sig-name descname">Step</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">template</em>, <em class="sig-param">parameters=None</em>, <em class="sig-param">artifacts=None</em>, <em class="sig-param">when=None</em>, <em class="sig-param">with_param=None</em>, <em class="sig-param">continue_on_failed=False</em>, <em class="sig-param">continue_on_num_success=None</em>, <em class="sig-param">continue_on_success_ratio=None</em>, <em class="sig-param">with_sequence=None</em>, <em class="sig-param">key=None</em>, <em class="sig-param">executor=None</em>, <em class="sig-param">use_resource=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dflow.step.</code><code class="sig-name descname">Step</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">template</em>, <em class="sig-param">parameters=None</em>, <em class="sig-param">artifacts=None</em>, <em class="sig-param">when=None</em>, <em class="sig-param">with_param=None</em>, <em class="sig-param">continue_on_failed=False</em>, <em class="sig-param">continue_on_num_success=None</em>, <em class="sig-param">continue_on_success_ratio=None</em>, <em class="sig-param">with_sequence=None</em>, <em class="sig-param">key=None</em>, <em class="sig-param">executor=None</em>, <em class="sig-param">use_resource=None</em>, <em class="sig-param">util_image='alpine:latest'</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1139,7 +1139,7 @@ Each argument can be Argo parameter</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.0.26 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
