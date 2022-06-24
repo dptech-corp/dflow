@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.1.1
+
+### Added
+
+- support for parallel step and sliced step
+
 ## 1.1.0
 
 ### Added
