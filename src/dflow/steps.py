@@ -43,17 +43,23 @@ class Steps(OPTemplate):
             # each step of steps should be a list of parallel steps, if not, create a sigleton
             if not isinstance(step, list):
                 step = [step]
+            argo_prepare_steps = []
             argo_parallel_steps = []
+            argo_check_steps = []
             for ps in step:
+                if ps.prepare_step is not None:
+                    argo_prepare_steps.append(ps.prepare_step.convert_to_argo(context))
+                    templates.append(ps.prepare_step.template)
                 argo_parallel_steps.append(ps.convert_to_argo(context))
                 templates.append(ps.template) # template may change after conversion
-            if len(step) == 1 and step[0].prepare_step is not None:
-                argo_steps.append([step[0].prepare_step.convert_to_argo(context)])
-                templates.append(step[0].prepare_step.template)
+                if ps.check_step is not None:
+                    argo_check_steps.append(ps.check_step.convert_to_argo(context))
+                    templates.append(ps.check_step.template)
+            if argo_prepare_steps:
+                argo_steps.append(argo_prepare_steps)
             argo_steps.append(argo_parallel_steps)
-            if len(step) == 1 and step[0].check_step is not None:
-                argo_steps.append([step[0].check_step.convert_to_argo(context)])
-                templates.append(step[0].check_step.template)
+            if argo_check_steps:
+                argo_steps.append(argo_check_steps)
 
         self.handle_key(memoize_prefix, memoize_configmap)
         argo_template = V1alpha1Template(name=self.name,
