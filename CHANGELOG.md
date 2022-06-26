@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.1.2
+
+### Fix
+
+- fix: line break in input parameter of Python OP
+
 ## 1.1.1
 
 ### Added
