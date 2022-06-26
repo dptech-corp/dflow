@@ -50,6 +50,11 @@ jobs:
       with:
         path: ./VERSION
 
+    - name: git tag and push
+      run: |
+        git tag ${{ steps.read.outputs.content }}
+        git push --tags
+
     - name: send email
       uses: dawidd6/action-send-mail@v3
       with:

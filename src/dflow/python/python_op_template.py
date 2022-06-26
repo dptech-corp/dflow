@@ -154,7 +154,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 if isinstance(sign, BigParameter):
                     script += "input['%s'] = handle_input_parameter('%s', '', input_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
                 else:
-                    script += "input['%s'] = handle_input_parameter('%s', r'{{inputs.parameters.%s}}', input_sign['%s'], %s, '/tmp')\n" % (name, name, name, name, slices)
+                    script += "input['%s'] = handle_input_parameter('%s', r'''{{inputs.parameters.%s}}''', input_sign['%s'], %s, '/tmp')\n" % (name, name, name, name, slices)
 
         script += "try:\n"
         script += "    output = op_obj.execute(input)\n"
