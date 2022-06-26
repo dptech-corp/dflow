@@ -117,15 +117,15 @@ class DispatcherExecutor(Executor):
         for par in template.outputs.parameters.values():
             if par.save_as_artifact:
                 self.task_dict["backward_files"].append("./" + par.path)
-            else:
+            elif par.value_from_path is not None:
                 self.task_dict["backward_files"].append("./" + par.value_from_path)
 
         new_template.script = "import os\n"
         new_template.script += "os.chdir('/')\n"
         new_template.script += "with open('script', 'w') as f:\n"
-        new_template.script += "    f.write(r'''\n"
+        new_template.script += "    f.write(r\"\"\"\n"
         new_template.script += template.script
-        new_template.script += "''')\n"
+        new_template.script += "\"\"\")\n"
 
         new_template.script += "import json\n"
         new_template.script += "from dpdispatcher import Machine, Resources, Task, Submission\n"

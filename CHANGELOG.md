@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.1.3
+
+### Fix
+
+- fix: the conflict between input parameter of Python OP and dispatcher script
+
 ## 1.1.2
 
 ### Fix
