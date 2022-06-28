@@ -52,7 +52,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         output_sign = op_class.get_output_sign()
         if slices is not None:
             assert isinstance(slices, Slices)
-            if slices.input_artifact is not None and not slices.sub_path: input_artifact_slices = {name: slices.slices for name in slices.input_artifact}
+            if slices.input_artifact is not None: input_artifact_slices = {name: slices.slices for name in slices.input_artifact}
             if slices.input_parameter is not None: input_parameter_slices = {name: slices.slices for name in slices.input_parameter}
             if slices.output_artifact is not None:
                 output_artifact_slices = {}
@@ -168,8 +168,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "output_sign = %s.get_output_sign()\n" % class_name
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
-                self.outputs.parameters["dflow_%s_path_list" % name].value_from_path = "/tmp/outputs/parameters/dflow_%s_path_list" % name
                 slices = self.get_slices(output_artifact_slices, name)
+                if slices is not None:
+                    self.outputs.parameters["dflow_%s_path_list" % name] = OutputParameter(value_from_path="/tmp/outputs/parameters/dflow_%s_path_list" % name)
                 script += "handle_output_artifact('%s', output['%s'], output_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
             else:
                 slices = self.get_slices(output_parameter_slices, name)
@@ -221,13 +222,12 @@ class Slices:
         output_parameter: list of output parameters to be stacked
         output_artifact: list of output artifacts to be stacked
     """
-    def __init__(self, slices="{{item}}", input_parameter=None, input_artifact=None, output_parameter=None, output_artifact=None, sub_path=False):
+    def __init__(self, slices=None, input_parameter=None, input_artifact=None, output_parameter=None, output_artifact=None):
         self.slices = slices
         self.input_parameter = input_parameter
         self.input_artifact = input_artifact
         self.output_parameter = output_parameter
         self.output_artifact = output_artifact
-        self.sub_path = sub_path
 
 class TransientError(Exception):
     pass

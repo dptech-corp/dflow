@@ -85,7 +85,8 @@ def upload_artifact(path, archive="tar", **kwargs):
             if not os.path.exists(p):
                 raise RuntimeError("File or directory %s not found" % p)
             abspath = os.path.abspath(p)
-            if abspath.find(cwd) == 0:
+            # subpath of current dir
+            if abspath.find(cwd) == 0 and len(abspath) > len(cwd):
                 relpath = abspath[len(cwd)+1:]
             else:
                 if abspath[0] == "/":
@@ -111,7 +112,7 @@ def upload_artifact(path, archive="tar", **kwargs):
         else:
             key = upload_s3(path=tmpdir, **kwargs)
 
-    return S3Artifact(key=key, path_list=path_list)
+    return S3Artifact(key=key)
 
 def copy_artifact(src, dst):
     """

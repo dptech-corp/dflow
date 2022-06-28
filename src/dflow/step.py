@@ -68,12 +68,7 @@ def argo_len(param):
     Args:
         param: the Argo parameter which is a list
     """
-    if isinstance(param, InputArtifact):
-        return ArgoVar("len(sprig.fromJson(%s))" % param.get_path_list_parameter())
-    elif isinstance(param, OutputArtifact):
-        return ArgoVar("len(sprig.fromJson(%s))" % param.get_path_list_parameter())
-    else:
-        return ArgoVar("len(sprig.fromJson(%s))" % param.expr)
+    return ArgoVar("len(sprig.fromJson(%s))" % param.expr)
 
 class Step:
     """
@@ -195,21 +190,6 @@ class Step:
                 self.template.inputs.artifacts[k].optional = True
             else:
                 self.inputs.artifacts[k].source = v
-                if isinstance(v, S3Artifact) and v.path_list is not None:
-                    self.inputs.parameters["dflow_%s_path_list" % k] = InputParameter(value=v.path_list)
-                    if hasattr(self.template, "slices") and self.template.slices is not None and self.template.slices.sub_path and self.template.slices.input_artifact is not None and k in self.template.slices.input_artifact:
-                        self.inputs.artifacts[k].source = deepcopy(v)
-                        self.inputs.artifacts[k].source.key = v.key + "/{{=%s[asInt(%s)]['dflow_list_item']}}" % (v.path_list, self.template.slices.slices.replace("{{", "").replace("}}", ""))
-                elif isinstance(v, OutputArtifact) and v.step is not None and "dflow_%s_path_list" % v.name in v.step.outputs.parameters:
-                    self.inputs.parameters["dflow_%s_path_list" % k] = InputParameter(value=v.step.outputs.parameters["dflow_%s_path_list" % v.name])
-                    # This feature is unavailable due to Argo's bug: https://github.com/argoproj/argo-workflows/issues/8224
-                    if hasattr(self.template, "slices") and self.template.slices is not None and self.template.slices.sub_path and self.template.slices.input_artifact is not None and k in self.template.slices.input_artifact:
-                        self.inputs.artifacts[k].sub_path = "{{=jsonpath(%s, '$')[asInt(%s)]['dflow_list_item']}}" % (v.step.outputs.parameters["dflow_%s_path_list" % v.name].expr, self.template.slices.slices.replace("{{", "").replace("}}", ""))
-                elif isinstance(v, InputArtifact) and v.template is not None and "dflow_%s_path_list" % v.name in v.template.inputs.parameters:
-                    self.inputs.parameters["dflow_%s_path_list" % k] = InputParameter(value=v.template.inputs.parameters["dflow_%s_path_list" % v.name])
-                    # ditto
-                    if hasattr(self.template, "slices") and self.template.slices is not None and self.template.slices.sub_path and self.template.slices.input_artifact is not None and k in self.template.slices.input_artifact:
-                        self.inputs.artifacts[k].sub_path = "{{=jsonpath(%s, '$')[asInt(%s)]['dflow_list_item']}}" % (v.template.inputs.parameters["dflow_%s_path_list" % v.name].expr, self.template.slices.slices.replace("{{", "").replace("}}", ""))
 
     def convert_to_argo(self, context=None):
         argo_parameters = []
