@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Index &#8212; dflow 1.1.3 documentation</title>
+    <title>Index &#8212; dflow 1.1.4 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -27,7 +27,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.4 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -127,8 +127,6 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="dflow.html#dflow.step.backup">backup() (in module dflow.step)</a>
-</li>
       <li><a href="dflow.python.html#dflow.python.opio.BigParameter">BigParameter (class in dflow.python.opio)</a>
 </li>
   </ul></td>
@@ -174,6 +172,8 @@
       <li><a href="dflow.html#dflow.utils.copy_file">copy_file() (in module dflow.utils)</a>
 </li>
       <li><a href="dflow.python.html#dflow.python.utils.copy_results">copy_results() (in module dflow.python.utils)</a>
+</li>
+      <li><a href="dflow.python.html#dflow.python.utils.copy_results_and_return_path_item">copy_results_and_return_path_item() (in module dflow.python.utils)</a>
 </li>
       <li><a href="dflow.html#dflow.utils.copy_s3">copy_s3() (in module dflow.utils)</a>
 </li>
@@ -270,8 +270,6 @@
       <li><a href="dflow.client.html#dflow.client.v1alpha1_sequence.V1alpha1Sequence.end">end() (dflow.client.v1alpha1_sequence.V1alpha1Sequence property)</a>
 </li>
       <li><a href="dflow.client.html#dflow.client.v1alpha1_parameter.V1alpha1Parameter.enum">enum() (dflow.client.v1alpha1_parameter.V1alpha1Parameter property)</a>
-</li>
-      <li><a href="dflow.html#dflow.step.eval_bool_expr">eval_bool_expr() (in module dflow.step)</a>
 </li>
       <li><a href="dflow.client.html#dflow.client.v1alpha1_value_from.V1alpha1ValueFrom.event">event() (dflow.client.v1alpha1_value_from.V1alpha1ValueFrom property)</a>
 </li>
@@ -379,13 +377,19 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="dflow.html#dflow.step.if_expression">if_expression() (in module dflow.step)</a>
+      <li><a href="dflow.html#dflow.io.if_expression">if_expression() (in module dflow.io)</a>
+</li>
+      <li><a href="dflow.html#dflow.io.IfExpression">IfExpression (class in dflow.io)</a>
 </li>
       <li><a href="dflow.html#dflow.io.InputArtifact">InputArtifact (class in dflow.io)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="dflow.html#dflow.io.InputArtifacts">InputArtifacts (class in dflow.io)</a>
+</li>
       <li><a href="dflow.html#dflow.io.InputParameter">InputParameter (class in dflow.io)</a>
+</li>
+      <li><a href="dflow.html#dflow.io.InputParameters">InputParameters (class in dflow.io)</a>
 </li>
       <li><a href="dflow.html#dflow.io.Inputs">Inputs (class in dflow.io)</a>
 </li>
@@ -469,10 +473,10 @@
       </ul></li>
       <li><a href="dflow.python.html#dflow.python.opio.OPIO">OPIO (class in dflow.python.opio)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dflow.python.html#dflow.python.opio.OPIOSign">OPIOSign (class in dflow.python.opio)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dflow.html#dflow.op_template.OPTemplate">OPTemplate (class in dflow.op_template)</a>
 </li>
       <li><a href="dflow.client.html#dflow.client.v1alpha1_artifact.V1alpha1Artifact.optional">optional() (dflow.client.v1alpha1_artifact.V1alpha1Artifact property)</a>
@@ -481,7 +485,11 @@
 </li>
       <li><a href="dflow.html#dflow.io.OutputArtifact">OutputArtifact (class in dflow.io)</a>
 </li>
+      <li><a href="dflow.html#dflow.io.OutputArtifacts">OutputArtifacts (class in dflow.io)</a>
+</li>
       <li><a href="dflow.html#dflow.io.OutputParameter">OutputParameter (class in dflow.io)</a>
+</li>
+      <li><a href="dflow.html#dflow.io.OutputParameters">OutputParameters (class in dflow.io)</a>
 </li>
       <li><a href="dflow.html#dflow.io.Outputs">Outputs (class in dflow.io)</a>
 </li>
@@ -582,10 +590,6 @@
       <ul>
         <li><a href="dflow.html#dflow.slurm.SlurmRemoteExecutor.run">(dflow.slurm.SlurmRemoteExecutor method)</a>
 </li>
-        <li><a href="dflow.html#dflow.step.Step.run">(dflow.step.Step method)</a>
-</li>
-        <li><a href="dflow.html#dflow.steps.Steps.run">(dflow.steps.Steps method)</a>
-</li>
       </ul></li>
   </ul></td>
 </tr></table>
@@ -603,22 +607,32 @@
 </li>
       <li><a href="dflow.html#dflow.step.Step.set_parameters">set_parameters() (dflow.step.Step method)</a>
 </li>
-      <li><a href="dflow.html#dflow.io.Inputs.set_step_id">set_step_id() (dflow.io.Inputs method)</a>
+      <li><a href="dflow.html#dflow.io.AutonamedDict.set_step">set_step() (dflow.io.AutonamedDict method)</a>
 
       <ul>
-        <li><a href="dflow.html#dflow.io.Outputs.set_step_id">(dflow.io.Outputs method)</a>
+        <li><a href="dflow.html#dflow.io.Inputs.set_step">(dflow.io.Inputs method)</a>
+</li>
+        <li><a href="dflow.html#dflow.io.Outputs.set_step">(dflow.io.Outputs method)</a>
+</li>
+      </ul></li>
+      <li><a href="dflow.html#dflow.io.AutonamedDict.set_template">set_template() (dflow.io.AutonamedDict method)</a>
+
+      <ul>
+        <li><a href="dflow.html#dflow.io.Inputs.set_template">(dflow.io.Inputs method)</a>
+</li>
+        <li><a href="dflow.html#dflow.io.Outputs.set_template">(dflow.io.Outputs method)</a>
 </li>
       </ul></li>
       <li><a href="dflow.html#dflow.op_template.ShellOPTemplate">ShellOPTemplate (class in dflow.op_template)</a>
 </li>
       <li><a href="dflow.python.html#dflow.python.python_op_template.Slices">Slices (class in dflow.python.python_op_template)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dflow.html#dflow.slurm.SlurmJob">SlurmJob (class in dflow.slurm)</a>
 </li>
       <li><a href="dflow.html#dflow.slurm.SlurmJobTemplate">SlurmJobTemplate (class in dflow.slurm)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dflow.html#dflow.slurm.SlurmRemoteExecutor">SlurmRemoteExecutor (class in dflow.slurm)</a>
 </li>
       <li><a href="dflow.client.html#dflow.client.v1alpha1_sequence.V1alpha1Sequence.start">start() (dflow.client.v1alpha1_sequence.V1alpha1Sequence property)</a>
@@ -756,7 +770,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.3 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.4 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
