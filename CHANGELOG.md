@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 1.1.4
+
+### Added
+
+- add some verifications
+- prevent mapping relative path repeatedly in dispatcher
+- support for a sliced step outputing a list of paths with a single slice
+- fix file processing on Windows
+- modify interface of resource requests and limits
+
 ## 1.1.3
 
 ### Fix

@@ -85,10 +85,15 @@ def upload_artifact(path, archive="tar", **kwargs):
             if not os.path.exists(p):
                 raise RuntimeError("File or directory %s not found" % p)
             abspath = os.path.abspath(p)
-            if abspath.find(cwd) == 0:
+            # subpath of current dir
+            if abspath.find(cwd) == 0 and len(abspath) > len(cwd):
                 relpath = abspath[len(cwd)+1:]
             else:
-                relpath = abspath[1:]
+                if abspath[0] == "/":
+                    relpath = abspath[1:]
+                else:
+                    # For Windows
+                    relpath = abspath[abspath.find(":")+2:]
             target = os.path.join(tmpdir, relpath)
             os.makedirs(os.path.dirname(target), exist_ok=True)
             os.symlink(abspath, target)

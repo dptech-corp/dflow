@@ -38,17 +38,15 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         volumes: volumes to use in the OP template
         mounts: volumes to mount in the OP template
         image_pull_policy: Always, IfNotPresent, Never
-        cpu_requests: CPU requests
-        memory_requests: memory requests
-        cpu_limits: CPU limits
-        memory_limits: memory limits
+        requests: a dict of resource requests
+        limits: a dict of resource limits
     """
     def __init__(self, op_class, image=None, command=None, input_artifact_slices=None, output_artifact_save=None,
                  output_artifact_archive=None, input_parameter_slices=None, output_artifact_slices=None,
                  output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None,
                  timeout=None, retry_on_transient_error=None, output_parameter_default=None, output_parameter_global_name=None,
                  timeout_as_transient_error=False, memoize_key=None, volumes=None, mounts=None, image_pull_policy=None,
-                 cpu_requests=None, memory_requests=None, cpu_limits=None, memory_limits=None, upload_dflow=True):
+                 requests=None, limits=None, upload_dflow=True):
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
         output_sign = op_class.get_output_sign()
@@ -72,7 +70,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             for name, global_name in output_artifact_global_name.items():
                 output_sign[name].global_name = global_name
         super().__init__(name="%s-%s" % (class_name, "".join(random.sample(string.digits + string.ascii_lowercase, 5))), inputs=Inputs(), outputs=Outputs(),
-                volumes=volumes, mounts=mounts, cpu_requests=cpu_requests, memory_requests=memory_requests, cpu_limits=cpu_limits, memory_limits=memory_limits)
+                volumes=volumes, mounts=mounts, requests=requests, limits=limits)
         self.slices = slices
         if timeout is not None: self.timeout = "%ss" % timeout
         if retry_on_transient_error is not None:

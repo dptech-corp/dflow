@@ -1,5 +1,5 @@
 from .workflow import Workflow, config
-from .step import Step, argo_range, argo_sequence, argo_len, if_expression
+from .step import Step, argo_range, argo_sequence, argo_len
 from .io import (
     AutonamedDict,
     Inputs,
@@ -8,7 +8,9 @@ from .io import (
     Outputs,
     OutputArtifact,
     OutputParameter,
-    S3Artifact
+    S3Artifact,
+    IfExpression,
+    if_expression
 )
 from .steps import Steps
 from .op_template import OPTemplate, ShellOPTemplate, PythonScriptOPTemplate

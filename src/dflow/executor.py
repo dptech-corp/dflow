@@ -123,7 +123,7 @@ download() {
         for par in template.outputs.parameters.values():
             if par.save_as_artifact:
                 script += self.mkdir_and_download(par.path)
-            else:
+            elif par.value_from_path is not None:
                 script += self.mkdir_and_download(par.value_from_path)
         return script
 

@@ -76,14 +76,21 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
     elif sign.type in [List[str], List[Path], Set[str], Set[Path]]:
         os.makedirs(data_root + '/outputs/artifacts/' + name, exist_ok=True)
         if slices is not None:
-            assert isinstance(slices, list) and len(slices) == len(value)
-        else:
-            slices = list(range(len(value)))
-        for path, s in zip(value, slices):
-            if path and os.path.exists(str(path)):
-                path_list.append({"dflow_list_item": copy_results(path, name, data_root), "order": s})
+            if isinstance(slices, int):
+                for path in value:
+                    path_list.append(copy_results_and_return_path_item(path, name, slices, data_root))
             else:
-                path_list.append({"dflow_list_item": None, "order": s})
+                assert len(slices) == len(value)
+                for path, s in zip(value, slices):
+                    if isinstance(path, list):
+                        for p in path:
+                            path_list.append(copy_results_and_return_path_item(p, name, s, data_root))
+                    else:
+                        path_list.append(copy_results_and_return_path_item(path, name, s, data_root))
+        else:
+            for s, path in enumerate(value):
+                path_list.append(copy_results_and_return_path_item(path, name, s, data_root))
+
     with open(data_root + "/outputs/artifacts/%s/.dflow.%s" % (name, uuid.uuid4()), "w") as f:
         f.write(jsonpickle.dumps({"path_list": path_list}))
     handle_empty_dir(data_root + "/outputs/artifacts/%s" % name)
@@ -114,6 +121,12 @@ def handle_output_parameter(name, value, sign, slices=None, data_root="/tmp"):
     else:
         with open(data_root + '/outputs/parameters/' + name, 'w') as f:
             f.write(jsonpickle.dumps(value))
+
+def copy_results_and_return_path_item(path, name, order, data_root="/tmp"):
+    if path and os.path.exists(str(path)):
+        return {"dflow_list_item": copy_results(path, name, data_root), "order": order}
+    else:
+        return {"dflow_list_item": None, "order": order}
 
 def copy_results(source, name, data_root="/tmp"):
     source = str(source)

@@ -85,17 +85,14 @@ class Workflow:
         """
         self.entrypoint.add(step)
 
-    def submit(self, backend="argo", reuse_step=None):
+    def submit(self, reuse_step=None):
         """
         Submit the workflow
 
         Args:
-            backend: "debug" for local run
             reuse_step: a list of steps to be reused in the workflow
         """
         assert self.id is None, "Do not submit a workflow repeatedly"
-        if backend == "debug":
-            return self.entrypoint.run()
 
         manifest = self.convert_to_argo(reuse_step=reuse_step)
 
