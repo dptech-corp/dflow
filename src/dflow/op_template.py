@@ -23,11 +23,11 @@ class OPTemplate:
         if inputs is not None:
             self.inputs = inputs
         else:
-            self.inputs = Inputs()
+            self.inputs = Inputs(template=self)
         if outputs is not None:
             self.outputs = outputs
         else:
-            self.outputs = Outputs()
+            self.outputs = Outputs(template=self)
         self.memoize_key = memoize_key
         self.memoize = None
         if pvcs is None:
@@ -36,6 +36,15 @@ class OPTemplate:
         if annotations is None:
             annotations = {}
         self.annotations = annotations
+
+    def __setattr__(self, key, value):
+        super().__setattr__(key, value)
+        if key == "inputs":
+            assert isinstance(value, Inputs)
+            value.set_template(self)
+        elif key == "outputs":
+            assert isinstance(value, Outputs)
+            value.set_template(self)
 
     def handle_key(self, memoize_prefix=None, memoize_configmap="dflow-config"):
         if "dflow_key" in self.inputs.parameters:
@@ -71,14 +80,12 @@ class ScriptOPTemplate(OPTemplate):
         pvcs: PVCs need to be declared
         image_pull_policy: Always, IfNotPresent, Never
         annotations: annotations for the OP template
-        cpu_requests: CPU requests
-        memory_requests: memory requests
-        cpu_limits: CPU limits
-        memory_limits: memory limits
+        requests: a dict of resource requests
+        limits: a dict of resource limits
     """
     def __init__(self, name=None, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, resource=None,
-            image_pull_policy=None, annotations=None, cpu_requests=None, memory_requests=None, cpu_limits=None, memory_limits=None):
+            image_pull_policy=None, annotations=None, requests=None, limits=None):
         super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, pvcs=pvcs, annotations=annotations)
         self.image = image
         self.command = command
@@ -94,10 +101,8 @@ class ScriptOPTemplate(OPTemplate):
         self.retry_strategy = retry_strategy
         self.resource = resource
         self.image_pull_policy = image_pull_policy
-        self.cpu_requests = cpu_requests
-        self.memory_requests = memory_requests
-        self.cpu_limits = cpu_limits
-        self.memory_limits = memory_limits
+        self.requests = requests
+        self.limits = limits
 
     def convert_to_argo(self, memoize_prefix=None, memoize_configmap="dflow-config"):
         self.handle_key(memoize_prefix, memoize_configmap)
@@ -113,16 +118,6 @@ class ScriptOPTemplate(OPTemplate):
                 volumes=self.volumes,
                 resource=self.resource)
         else:
-            requests = {}
-            if self.cpu_requests is not None:
-                requests["cpu"] = self.cpu_requests
-            if self.memory_requests is not None:
-                requests["memory"] = self.memory_requests
-            limits = {}
-            if self.cpu_limits is not None:
-                limits["cpu"] = self.cpu_limits
-            if self.memory_limits is not None:
-                limits["memory"] = self.memory_limits
             return V1alpha1Template(name=self.name,
                 metadata=V1alpha1Metadata(annotations=self.annotations),
                 inputs=self.inputs.convert_to_argo(),
@@ -132,7 +127,7 @@ class ScriptOPTemplate(OPTemplate):
                 memoize=self.memoize,
                 volumes=self.volumes,
                 script=V1alpha1ScriptTemplate(image=self.image, image_pull_policy=self.image_pull_policy,
-                    command=self.command, source=self.script, volume_mounts=self.mounts, resources=V1ResourceRequirements(limits=limits, requests=requests)))
+                    command=self.command, source=self.script, volume_mounts=self.mounts, resources=V1ResourceRequirements(limits=self.limits, requests=self.requests)))
 
 class ShellOPTemplate(ScriptOPTemplate):
     """
@@ -154,20 +149,17 @@ class ShellOPTemplate(ScriptOPTemplate):
         pvcs: PVCs need to be declared
         image_pull_policy: Always, IfNotPresent, Never
         annotations: annotations for the OP template
-        cpu_requests: CPU requests
-        memory_requests: memory requests
-        cpu_limits: CPU limits
-        memory_limits: memory limits
+        requests: a dict of resource requests
+        limits: a dict of resource limits
     """
     def __init__(self, name=None, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, image_pull_policy=None,
-            annotations=None, cpu_requests=None, memory_requests=None, cpu_limits=None, memory_limits=None):
+            annotations=None, requests=None, limits=None):
         if command is None:
             command = ["sh"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
                 mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key,
-                pvcs=pvcs, image_pull_policy=image_pull_policy, annotations=annotations, cpu_requests=cpu_requests, memory_requests=memory_requests,
-                cpu_limits=cpu_limits, memory_limits=memory_limits)
+                pvcs=pvcs, image_pull_policy=image_pull_policy, annotations=annotations, requests=requests, limits=limits)
 
 class PythonScriptOPTemplate(ScriptOPTemplate):
     """
@@ -189,17 +181,14 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         pvcs: PVCs need to be declared
         image_pull_policy: Always, IfNotPresent, Never
         annotations: annotations for the OP template
-        cpu_requests: CPU requests
-        memory_requests: memory requests
-        cpu_limits: CPU limits
-        memory_limits: memory limits
+        requests: a dict of resource requests
+        limits: a dict of resource limits
     """
     def __init__(self, name=None, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, image_pull_policy=None,
-            annotations=None, cpu_requests=None, memory_requests=None, cpu_limits=None, memory_limits=None):
+            annotations=None, requests=None, limits=None):
         if command is None:
             command = ["python"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
                 mounts=mounts, init_progress=init_progress, timeout=timeout, retry_strategy=retry_strategy, memoize_key=memoize_key,
-                pvcs=pvcs, image_pull_policy=image_pull_policy, annotations=annotations, cpu_requests=cpu_requests, memory_requests=memory_requests,
-                cpu_limits=cpu_limits, memory_limits=memory_limits)
+                pvcs=pvcs, image_pull_policy=image_pull_policy, annotations=annotations, requests=requests, limits=limits)

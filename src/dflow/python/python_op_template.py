@@ -38,23 +38,21 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         volumes: volumes to use in the OP template
         mounts: volumes to mount in the OP template
         image_pull_policy: Always, IfNotPresent, Never
-        cpu_requests: CPU requests
-        memory_requests: memory requests
-        cpu_limits: CPU limits
-        memory_limits: memory limits
+        requests: a dict of resource requests
+        limits: a dict of resource limits
     """
     def __init__(self, op_class, image=None, command=None, input_artifact_slices=None, output_artifact_save=None,
                  output_artifact_archive=None, input_parameter_slices=None, output_artifact_slices=None,
                  output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None,
                  timeout=None, retry_on_transient_error=None, output_parameter_default=None, output_parameter_global_name=None,
                  timeout_as_transient_error=False, memoize_key=None, volumes=None, mounts=None, image_pull_policy=None,
-                 cpu_requests=None, memory_requests=None, cpu_limits=None, memory_limits=None, upload_dflow=True):
+                 requests=None, limits=None, upload_dflow=True):
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
         output_sign = op_class.get_output_sign()
         if slices is not None:
             assert isinstance(slices, Slices)
-            if slices.input_artifact is not None: input_artifact_slices = {name: slices.slices for name in slices.input_artifact}
+            if slices.input_artifact is not None and not slices.sub_path: input_artifact_slices = {name: slices.slices for name in slices.input_artifact}
             if slices.input_parameter is not None: input_parameter_slices = {name: slices.slices for name in slices.input_parameter}
             if slices.output_artifact is not None:
                 output_artifact_slices = {}
@@ -72,7 +70,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             for name, global_name in output_artifact_global_name.items():
                 output_sign[name].global_name = global_name
         super().__init__(name="%s-%s" % (class_name, "".join(random.sample(string.digits + string.ascii_lowercase, 5))), inputs=Inputs(), outputs=Outputs(),
-                volumes=volumes, mounts=mounts, cpu_requests=cpu_requests, memory_requests=memory_requests, cpu_limits=cpu_limits, memory_limits=memory_limits)
+                volumes=volumes, mounts=mounts, requests=requests, limits=limits)
         self.slices = slices
         if timeout is not None: self.timeout = "%ss" % timeout
         if retry_on_transient_error is not None:
@@ -170,9 +168,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "output_sign = %s.get_output_sign()\n" % class_name
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
+                self.outputs.parameters["dflow_%s_path_list" % name].value_from_path = "/tmp/outputs/parameters/dflow_%s_path_list" % name
                 slices = self.get_slices(output_artifact_slices, name)
-                if slices is not None:
-                    self.outputs.parameters["dflow_%s_path_list" % name] = OutputParameter(value_from_path="/tmp/outputs/parameters/dflow_%s_path_list" % name)
                 script += "handle_output_artifact('%s', output['%s'], output_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
             else:
                 slices = self.get_slices(output_parameter_slices, name)
@@ -224,12 +221,13 @@ class Slices:
         output_parameter: list of output parameters to be stacked
         output_artifact: list of output artifacts to be stacked
     """
-    def __init__(self, slices=None, input_parameter=None, input_artifact=None, output_parameter=None, output_artifact=None):
+    def __init__(self, slices="{{item}}", input_parameter=None, input_artifact=None, output_parameter=None, output_artifact=None, sub_path=False):
         self.slices = slices
         self.input_parameter = input_parameter
         self.input_artifact = input_artifact
         self.output_parameter = output_parameter
         self.output_artifact = output_artifact
+        self.sub_path = sub_path
 
 class TransientError(Exception):
     pass

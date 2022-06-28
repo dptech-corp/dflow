@@ -88,7 +88,11 @@ def upload_artifact(path, archive="tar", **kwargs):
             if abspath.find(cwd) == 0:
                 relpath = abspath[len(cwd)+1:]
             else:
-                relpath = abspath[1:]
+                if abspath[0] == "/":
+                    relpath = abspath[1:]
+                else:
+                    # For Windows
+                    relpath = abspath[abspath.find(":")+2:]
             target = os.path.join(tmpdir, relpath)
             os.makedirs(os.path.dirname(target), exist_ok=True)
             os.symlink(abspath, target)
@@ -107,7 +111,7 @@ def upload_artifact(path, archive="tar", **kwargs):
         else:
             key = upload_s3(path=tmpdir, **kwargs)
 
-    return S3Artifact(key=key)
+    return S3Artifact(key=key, path_list=path_list)
 
 def copy_artifact(src, dst):
     """

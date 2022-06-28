@@ -18,41 +18,109 @@ from .utils import upload_s3, randstr
 NotAllowedInputArtifactPath = ["/", "/tmp"]
 
 class AutonamedDict(UserDict):
+    def __init__(self, *args, **kwargs):
+        self.step = kwargs.get("step", None)
+        self.template = kwargs.get("template", None)
+        super().__init__(*args)
+
     def __setitem__(self, key, value):
-        value = deepcopy(value)
         value.name = key
+        value.step = self.step
+        value.template = self.template
         super().__setitem__(key, value)
+
+    def set_step(self, step):
+        self.step = step
+        for value in self.values():
+            value.step = step
+
+    def set_template(self, template):
+        self.template = template
+        for value in self.values():
+            value.template = template
+
+class InputParameters(AutonamedDict):
+    def __setitem__(self, key, value):
+        assert isinstance(value, InputParameter)
+        super().__setitem__(key, value)
+
+class InputArtifacts(AutonamedDict):
+    def __setitem__(self, key, value):
+        assert isinstance(value, InputArtifact)
+        super().__setitem__(key, value)
+        if self.template is not None:
+            if isinstance(value.source, S3Artifact):
+                self.template.inputs.parameters["dflow_%s_path_list" % key] = InputParameter(value=value.source.path_list)
+            else:
+                self.template.inputs.parameters["dflow_%s_path_list" % key] = InputParameter(value=".")
+
+    def set_template(self, template):
+        super().set_template(template)
+        for name, art in self.items():
+            if isinstance(art.source, S3Artifact):
+                self.template.inputs.parameters["dflow_%s_path_list" % name] = InputParameter(value=art.source.path_list)
+            else:
+                self.template.inputs.parameters["dflow_%s_path_list" % name] = InputParameter(value=".")
+
+class OutputParameters(AutonamedDict):
+    def __setitem__(self, key, value):
+        assert isinstance(value, OutputParameter)
+        super().__setitem__(key, value)
+
+class OutputArtifacts(AutonamedDict):
+    def __setitem__(self, key, value):
+        assert isinstance(value, OutputArtifact)
+        super().__setitem__(key, value)
+        if self.template is not None:
+            self.template.outputs.parameters["dflow_%s_path_list" % key] = OutputParameter(value=".")
+            value.handle_path_list()
+
+    def set_template(self, template):
+        super().set_template(template)
+        for name, art in self.items():
+            self.template.outputs.parameters["dflow_%s_path_list" % name] = OutputParameter(value=".")
+            art.handle_path_list()
 
 class Inputs:
     """
     Inputs for OP template
 
     Args:
-        paramters: input parameters
+        parameters: input parameters
         artifacts: input artifacts
     """
-    def __init__(self, parameters=None, artifacts=None):
+    def __init__(self, parameters=None, artifacts=None, step=None, template=None):
+        self.step = step
+        self.template = template
         if parameters is not None:
             self.parameters = parameters
         else:
-            self.parameters = AutonamedDict()
+            self.parameters = InputParameters(step=self.step, template=self.template)
         
         if artifacts is not None:
             self.artifacts = artifacts
         else:
-            self.artifacts = AutonamedDict()
+            self.artifacts = InputArtifacts(step=self.step, template=self.template)
 
     def __setattr__(self, key, value):
-        if key in ["parameters", "artifacts"] and isinstance(value, dict):
-            super().__setattr__(key, AutonamedDict(value))
+        if key == "parameters":
+            assert isinstance(value, (dict, UserDict))
+            super().__setattr__(key, InputParameters(value, step=self.step, template=self.template))
+        elif key == "artifacts":
+            assert isinstance(value, (dict, UserDict))
+            super().__setattr__(key, InputArtifacts(value, step=self.step, template=self.template))
         else:
             super().__setattr__(key, value)
 
-    def set_step_id(self, step_id):
-        for par in self.parameters.values():
-            par.step_id = step_id
-        for art in self.artifacts.values():
-            art.step_id = step_id
+    def set_step(self, step):
+        self.step = step
+        self.parameters.set_step(step)
+        self.artifacts.set_step(step)
+
+    def set_template(self, template):
+        self.template = template
+        self.parameters.set_template(template)
+        self.artifacts.set_template(template)
 
     def convert_to_argo(self):
         parameters = []
@@ -74,28 +142,38 @@ class Outputs:
         paramters: output parameters
         artifacts: output artifacts
     """
-    def __init__(self, parameters=None, artifacts=None):
+    def __init__(self, parameters=None, artifacts=None, step=None, template=None):
+        self.step = step
+        self.template = template
         if parameters is not None:
             self.parameters = parameters
         else:
-            self.parameters = AutonamedDict()
+            self.parameters = OutputParameters(step=self.step, template=self.template)
         
         if artifacts is not None:
             self.artifacts = artifacts
         else:
-            self.artifacts = AutonamedDict()
+            self.artifacts = OutputArtifacts(step=self.step, template=self.template)
 
     def __setattr__(self, key, value):
-        if key in ["parameters", "artifacts"] and isinstance(value, dict):
-            super().__setattr__(key, AutonamedDict(value))
+        if key == "parameters":
+            assert isinstance(value, (dict, UserDict))
+            super().__setattr__(key, OutputParameters(value, step=self.step, template=self.template))
+        elif key == "artifacts":
+            assert isinstance(value, (dict, UserDict))
+            super().__setattr__(key, OutputArtifacts(value, step=self.step, template=self.template))
         else:
             super().__setattr__(key, value)
 
-    def set_step_id(self, step_id):
-        for par in self.parameters.values():
-            par.step_id = step_id
-        for art in self.artifacts.values():
-            art.step_id = step_id
+    def set_step(self, step):
+        self.step = step
+        self.parameters.set_step(step)
+        self.artifacts.set_step(step)
+
+    def set_template(self, template):
+        self.template = template
+        self.parameters.set_template(template)
+        self.artifacts.set_template(template)
 
     def convert_to_argo(self):
         parameters = []
@@ -160,13 +238,13 @@ class InputParameter(ArgoVar):
 
     Args:
         name: name of the input parameter
-        step_id:
         type: parameter type
         value: default value
     """
-    def __init__(self, name=None, step_id=None, type=None, value=None, save_as_artifact=False, path=None, source=None):
+    def __init__(self, name=None, step=None, template=None, type=None, value=None, save_as_artifact=False, path=None, source=None):
         self.name = name
-        self.step_id = step_id
+        self.step = step
+        self.template = template
         self.type = type
         self.value = value
         self.save_as_artifact = save_as_artifact
@@ -177,13 +255,13 @@ class InputParameter(ArgoVar):
         if key == "expr":
             if self.save_as_artifact:
                 if self.name is not None:
-                    if self.step_id is not None:
-                        return "steps['%s'].inputs.artifacts['dflow_bigpar_%s']" % (self.step_id, self.name)
+                    if self.step is not None:
+                        return "steps['%s'].inputs.artifacts['dflow_bigpar_%s']" % (self.step.id, self.name)
                     return "inputs.artifacts['dflow_bigpar_%s']" % self.name
                 return ""
             if self.name is not None:
-                if self.step_id is not None:
-                    return "steps['%s'].inputs.parameters['%s']" % (self.step_id, self.name)
+                if self.step is not None:
+                    return "steps['%s'].inputs.parameters['%s']" % (self.step.id, self.name)
                 return "inputs.parameters['%s']" % self.name
             return ""
         return super().__getattr__(key)
@@ -191,13 +269,13 @@ class InputParameter(ArgoVar):
     def __repr__(self):
         if self.save_as_artifact:
             if self.name is not None:
-                if self.step_id is not None:
-                    return "{{steps.%s.inputs.artifacts.dflow_bigpar_%s}}" % (self.step_id, self.name)
+                if self.step is not None:
+                    return "{{steps.%s.inputs.artifacts.dflow_bigpar_%s}}" % (self.step.id, self.name)
                 return "{{inputs.artifacts.dflow_bigpar_%s}}" % self.name
             return ""
         if self.name is not None:
-            if self.step_id is not None:
-                return "{{steps.%s.inputs.parameters.%s}}" % (self.step_id, self.name)
+            if self.step is not None:
+                return "{{steps.%s.inputs.parameters.%s}}" % (self.step.id, self.name)
             return "{{inputs.parameters.%s}}" % self.name
         return ""
 
@@ -245,34 +323,35 @@ class InputArtifact(ArgoVar):
     Args:
         path: path where the input artifact is placed in the container
         name: name of the input artifact
-        step_id:
         optional: optional artifact or not
         type: artifact type
         source: default source
     """
-    def __init__(self, path=None, name=None, step_id=None, optional=False, type=None, source=None, mode=None):
+    def __init__(self, path=None, name=None, step=None, template=None, optional=False, type=None, source=None, mode=None, sub_path=None):
         self.path = path
         self.name = name
-        self.step_id = step_id
+        self.step = step
+        self.template = template
         self.optional = optional
         self.type = type
         self.source = source
         self._sub_path = None
         self.mode = mode
+        self.sub_path = sub_path
 
     def __getattr__(self, key):
         if key == "expr":
             if self.name is not None:
-                if self.step_id is not None:
-                    return "steps['%s'].inputs.artifacts['%s']" % (self.step_id, self.name)
+                if self.step is not None:
+                    return "steps['%s'].inputs.artifacts['%s']" % (self.step.id, self.name)
                 return "inputs.artifacts['%s']" % self.name
             return ""
         return super().__getattr__(key)
 
     def __repr__(self):
         if self.name is not None:
-            if self.step_id is not None:
-                return "{{steps.%s.inputs.artifacts.%s}}" % (self.step_id, self.name)
+            if self.step is not None:
+                return "{{steps.%s.inputs.artifacts.%s}}" % (self.step.id, self.name)
             return "{{inputs.artifacts.%s}}" % self.name
         return ""
 
@@ -281,15 +360,20 @@ class InputArtifact(ArgoVar):
         artifact._sub_path = path
         return artifact
 
+    def get_path_list_parameter(self):
+        return self.template.inputs.parameters["dflow_%s_path_list" % self.name]
+
     def convert_to_argo(self):
         if self.path in NotAllowedInputArtifactPath:
             raise RuntimeError("Path [%s] is not allowed for input artifact" % self.path)
         if self.source is None:
             return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, mode=self.mode)
         if isinstance(self.source, (InputArtifact, OutputArtifact)):
-            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, _from=str(self.source), sub_path=self.source._sub_path, mode=self.mode)
+            sub_path = self.sub_path if self.sub_path is not None else self.source._sub_path
+            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, _from=str(self.source), sub_path=sub_path, mode=self.mode)
         elif isinstance(self.source, S3Artifact):
-            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, s3=self.source, sub_path=self.source._sub_path, mode=self.mode)
+            sub_path = self.sub_path if self.sub_path is not None else self.source._sub_path
+            return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, s3=self.source, sub_path=sub_path, mode=self.mode)
         elif isinstance(self.source, str):
             return V1alpha1Artifact(name=self.name, path=self.path, optional=self.optional, raw=V1alpha1RawArtifact(data=self.source), mode=self.mode)
         else:
@@ -303,19 +387,19 @@ class OutputParameter(ArgoVar):
         value_from_path: the value is read from file generated in the container
         value_from_parameter: the value is from another parameter
         name: name of the output parameter
-        step_id:
         type: parameter type
         default: default value
         global_name: global name of the parameter within the workflow
         value_from_expression: the value is from an expression
         value: specify value directly
     """
-    def __init__(self, value_from_path=None, value_from_parameter=None, name=None, step_id=None, type=None, default=None, global_name=None,
+    def __init__(self, value_from_path=None, value_from_parameter=None, name=None, step=None, template=None, type=None, default=None, global_name=None,
             value_from_expression=None, save_as_artifact=False, value=None):
         self.value_from_path = value_from_path
         self.value_from_parameter = value_from_parameter
         self.name = name
-        self.step_id = step_id
+        self.step = step
+        self.template = template
         self.type = type
         self.default = default
         self.global_name = global_name
@@ -327,12 +411,12 @@ class OutputParameter(ArgoVar):
         if key == "expr":
             if self.save_as_artifact:
                 if self.name is not None:
-                    if self.step_id is not None:
-                        return "steps['%s'].outputs.artifacts['dflow_bigpar_%s']" % (self.step_id, self.name)
+                    if self.step is not None:
+                        return "steps['%s'].outputs.artifacts['dflow_bigpar_%s']" % (self.step.id, self.name)
                     return "outputs.artifacts['dflow_bigpar_%s']" % self.name
             if self.name is not None:
-                if self.step_id is not None:
-                    return "steps['%s'].outputs.parameters['%s']" % (self.step_id, self.name)
+                if self.step is not None:
+                    return "steps['%s'].outputs.parameters['%s']" % (self.step.id, self.name)
                 return "outputs.parameters['%s']" % self.name
             return ""
         return super().__getattr__(key)
@@ -352,12 +436,12 @@ class OutputParameter(ArgoVar):
     def __repr__(self):
         if self.save_as_artifact:
             if self.name is not None:
-                if self.step_id is not None:
-                    return "{{steps.%s.outputs.artifacts.dflow_bigpar_%s}}" % (self.step_id, self.name)
+                if self.step is not None:
+                    return "{{steps.%s.outputs.artifacts.dflow_bigpar_%s}}" % (self.step.id, self.name)
                 return "{{outputs.artifacts.dflow_bigpar_%s}}" % self.name
         if self.name is not None:
-            if self.step_id is not None:
-                return "{{steps.%s.outputs.parameters.%s}}" % (self.step_id, self.name)
+            if self.step is not None:
+                return "{{steps.%s.outputs.parameters.%s}}" % (self.step.id, self.name)
             return "{{outputs.parameters.%s}}" % self.name
         return ""
 
@@ -396,19 +480,18 @@ class OutputArtifact(ArgoVar):
         path: path of the output artifact in the container
         _from: the artifact is from another artifact
         name: name of the output artifact
-        step_id:
         type: artifact type
         save: place to store the output artifact instead of default storage, can be a list
         archive: compress format of the artifact, None for no compression
         global_name: global name of the artifact within the workflow
         from_expression: the artifact is from an expression
     """
-    def __init__(self, path=None, _from=None, name=None, step_id=None, type=None, save=None, archive="tar", global_name=None,
+    def __init__(self, path=None, _from=None, name=None, step=None, template=None, type=None, save=None, archive="tar", global_name=None,
             from_expression=None):
         self.path = path
-        self._from = _from
         self.name = name
-        self.step_id = step_id
+        self.step = step
+        self.template = template
         self.type = type
         if save is None:
             save = []
@@ -420,6 +503,7 @@ class OutputArtifact(ArgoVar):
         self.global_name = global_name
         self.from_expression = from_expression
         self.redirect = None
+        self._from = _from
 
     def sub_path(self, path):
         artifact = deepcopy(self)
@@ -433,11 +517,32 @@ class OutputArtifact(ArgoVar):
             if self.global_name is not None:
                 return "workflow.outputs.artifacts['%s']" % (self.global_name)
             elif self.name is not None:
-                if self.step_id is not None:
-                    return "steps['%s'].outputs.artifacts['%s']" % (self.step_id, self.name)
+                if self.step is not None:
+                    return "steps['%s'].outputs.artifacts['%s']" % (self.step.id, self.name)
                 return "outputs.artifacts['%s']" % self.name
             return ""
         return super().__getattr__(key)
+
+    def __setattr__(self, key, value):
+        super().__setattr__(key, value)
+        if key in ["_from", "from_expression"]:
+            self.handle_path_list()
+
+    def handle_path_list(self):
+        if self.template is not None:
+            if hasattr(self, "_from") and self._from is not None:
+                self.template.outputs.parameters["dflow_%s_path_list" % self.name].default = "."
+                self.template.outputs.parameters["dflow_%s_path_list" % self.name].value_from_parameter = self._from.get_path_list_parameter()
+            elif hasattr(self, "from_expression") and self.from_expression is not None:
+                self.template.outputs.parameters["dflow_%s_path_list" % self.name].default = "."
+                self.template.outputs.parameters["dflow_%s_path_list" % self.name].value_from_expression = if_expression(
+                    _if = self.from_expression._if,
+                    _then = self.from_expression._then.get_path_list_parameter(),
+                    _else = self.from_expression._else.get_path_list_parameter(),
+                )
+
+    def get_path_list_parameter(self):
+        return self.step.outputs.parameters["dflow_%s_path_list" % self.name]
 
     def __repr__(self):
         if self.redirect is not None:
@@ -445,8 +550,8 @@ class OutputArtifact(ArgoVar):
         if self.global_name is not None:
             return "{{workflow.outputs.artifacts.%s}}" % (self.global_name)
         elif self.name is not None:
-            if self.step_id is not None:
-                return "{{steps.%s.outputs.artifacts.%s}}" % (self.step_id, self.name)
+            if self.step is not None:
+                return "{{steps.%s.outputs.artifacts.%s}}" % (self.step.id, self.name)
             return "{{outputs.artifacts.%s}}" % self.name
         return ""
 
@@ -490,3 +595,25 @@ class PVC:
             access_modes = ["ReadWriteOnce"]
         self.access_modes = access_modes
 
+def if_expression(_if, _then, _else):
+    """
+    Return an if expression in Argo
+
+    Args:
+        _if: a bool expression, which may be a comparison of two Argo parameters
+        _then: value returned if the condition is satisfied
+        _else: value returned if the condition is not satisfied
+    """
+    return IfExpression(_if, _then, _else)
+
+class IfExpression:
+    def __init__(self, _if, _then, _else):
+        self._if = _if
+        self._then = _then
+        self._else = _else
+
+    def __repr__(self):
+        _if = self._if.expr if isinstance(self._if, ArgoVar) else self._if
+        _then = self._then.expr if isinstance(self._then, ArgoVar) else self._then
+        _else = self._else.expr if isinstance(self._else, ArgoVar) else self._else
+        return "%s ? %s : %s" % (_if, _then, _else)

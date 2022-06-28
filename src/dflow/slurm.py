@@ -149,7 +149,8 @@ class SlurmJobTemplate(Executor):
             for art in template.outputs.artifacts.values():
                 script += "mkdir -p `dirname %s` && cp -r /mnt/workdir/%s %s\n" % (art.path, art.path, art.path)
             for par in template.outputs.parameters.values():
-                script += "mkdir -p `dirname %s` && cp -r /mnt/workdir/%s %s\n" % (par.value_from_path, par.value_from_path, par.value_from_path)
+                if par.value_from_path is not None:
+                    script += "mkdir -p `dirname %s` && cp -r /mnt/workdir/%s %s\n" % (par.value_from_path, par.value_from_path, par.value_from_path)
             collect_template = ShellOPTemplate(name=new_template.name + "-collect", image=self.collect_image, script=script, volumes=[volume], mounts=[mount])
             collect_template.inputs.parameters["dflow_vol_path"] = InputParameter()
             if "dflow_group_key" in template.inputs.parameters:

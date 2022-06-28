@@ -14,7 +14,6 @@ except:
 from .common import S3Artifact
 from .io import InputArtifact, InputParameter, OutputArtifact, OutputParameter, PVC, ArgoVar
 from .op_template import ShellOPTemplate, PythonScriptOPTemplate
-from .utils import copy_file
 from .util_ops import CheckNumSuccess, CheckSuccessRatio
 
 def argo_range(*args):
@@ -69,24 +68,12 @@ def argo_len(param):
     Args:
         param: the Argo parameter which is a list
     """
-    return ArgoVar("len(sprig.fromJson(%s))" % param.expr)
-
-def if_expression(_if, _then, _else):
-    """
-    Return an if expression in Argo
-
-    Args:
-        _if: a bool expression, which may be a comparison of two Argo parameters
-        _then: value returned if the condition is satisfied
-        _else: value returned if the condition is not satisfied
-    """
-    if isinstance(_if, ArgoVar):
-        _if = _if.expr
-    if isinstance(_then, ArgoVar):
-        _then = _then.expr
-    if isinstance(_else, ArgoVar):
-        _else = _else.expr
-    return "%s ? %s : %s" % (_if, _then, _else)
+    if isinstance(param, InputArtifact):
+        return ArgoVar("len(sprig.fromJson(%s))" % param.get_path_list_parameter())
+    elif isinstance(param, OutputArtifact):
+        return ArgoVar("len(sprig.fromJson(%s))" % param.get_path_list_parameter())
+    else:
+        return ArgoVar("len(sprig.fromJson(%s))" % param.expr)
 
 class Step:
     """
@@ -115,8 +102,8 @@ class Step:
         self.template = template
         self.inputs = deepcopy(self.template.inputs)
         self.outputs = deepcopy(self.template.outputs)
-        self.inputs.set_step_id(self.id)
-        self.outputs.set_step_id(self.id)
+        self.inputs.set_step(self)
+        self.outputs.set_step(self)
         self.continue_on_failed = continue_on_failed
         self.continue_on_num_success = continue_on_num_success
         self.continue_on_success_ratio = continue_on_success_ratio
@@ -208,6 +195,21 @@ class Step:
                 self.template.inputs.artifacts[k].optional = True
             else:
                 self.inputs.artifacts[k].source = v
+                if isinstance(v, S3Artifact) and v.path_list is not None:
+                    self.inputs.parameters["dflow_%s_path_list" % k] = InputParameter(value=v.path_list)
+                    if hasattr(self.template, "slices") and self.template.slices is not None and self.template.slices.sub_path and self.template.slices.input_artifact is not None and k in self.template.slices.input_artifact:
+                        self.inputs.artifacts[k].source = deepcopy(v)
+                        self.inputs.artifacts[k].source.key = v.key + "/{{=%s[asInt(%s)]['dflow_list_item']}}" % (v.path_list, self.template.slices.slices.replace("{{", "").replace("}}", ""))
+                elif isinstance(v, OutputArtifact) and v.step is not None and "dflow_%s_path_list" % v.name in v.step.outputs.parameters:
+                    self.inputs.parameters["dflow_%s_path_list" % k] = InputParameter(value=v.step.outputs.parameters["dflow_%s_path_list" % v.name])
+                    # This feature is unavailable due to Argo's bug: https://github.com/argoproj/argo-workflows/issues/8224
+                    if hasattr(self.template, "slices") and self.template.slices is not None and self.template.slices.sub_path and self.template.slices.input_artifact is not None and k in self.template.slices.input_artifact:
+                        self.inputs.artifacts[k].sub_path = "{{=jsonpath(%s, '$')[asInt(%s)]['dflow_list_item']}}" % (v.step.outputs.parameters["dflow_%s_path_list" % v.name].expr, self.template.slices.slices.replace("{{", "").replace("}}", ""))
+                elif isinstance(v, InputArtifact) and v.template is not None and "dflow_%s_path_list" % v.name in v.template.inputs.parameters:
+                    self.inputs.parameters["dflow_%s_path_list" % k] = InputParameter(value=v.template.inputs.parameters["dflow_%s_path_list" % v.name])
+                    # ditto
+                    if hasattr(self.template, "slices") and self.template.slices is not None and self.template.slices.sub_path and self.template.slices.input_artifact is not None and k in self.template.slices.input_artifact:
+                        self.inputs.artifacts[k].sub_path = "{{=jsonpath(%s, '$')[asInt(%s)]['dflow_list_item']}}" % (v.template.inputs.parameters["dflow_%s_path_list" % v.name].expr, self.template.slices.slices.replace("{{", "").replace("}}", ""))
 
     def convert_to_argo(self, context=None):
         argo_parameters = []
@@ -293,7 +295,7 @@ class Step:
         if new_template is not None:
             self.template = new_template
             self.outputs = deepcopy(self.template.outputs)
-            self.outputs.set_step_id(self.id)
+            self.outputs.set_step(self)
 
         if self.continue_on_num_success is not None:
             self.check_step = Step(
@@ -335,154 +337,3 @@ class Step:
             ), when=self.when, with_param=self.with_param, with_sequence=self.with_sequence,
             continue_on=V1alpha1ContinueOn(failed=self.continue_on_failed)
         )
-
-    def run(self, context):
-        import os
-        import shutil
-        import random, string
-        from .io import InputParameter, OutputParameter, InputArtifact, OutputArtifact
-        from .steps import Steps
-        from copy import copy
-
-        expr = self.when
-        if expr is not None:
-            # render variables
-            i = expr.find("{{")
-            while i >= 0:
-                j = expr.find("}}", i+2)
-                var = expr[i+2:j]
-                fields = var.split(".")
-                if fields[0] == "inputs" and fields[1] == "parameters":
-                    name = fields[2]
-                    value = context.inputs.parameters[name].value
-                elif fields[0] == "steps" and fields[2] == "outputs" and fields[3] == "parameters":
-                    step_name = fields[1]
-                    name = fields[4]
-                    value = None
-                    for step in context.steps:
-                        if step.name == step_name:
-                            value = step.outputs.parameters[name].value
-                            break
-                    if value is None:
-                        raise RuntimeError("Parse failed: ", var)
-                else:
-                    raise RuntimeError("Not supported: ", var)
-
-                value = value if isinstance(value, str) else jsonpickle.dumps(value)
-                expr = expr[:i] + value.strip() + expr[j+2:]
-                i = expr.find("{{")
-
-            if not eval_bool_expr(expr):
-                return
-
-        if isinstance(self.template, Steps):
-            steps = copy(self.template) # shallow copy to avoid changing each step
-            steps.inputs = deepcopy(self.template.inputs)
-
-            # override default inputs with arguments
-            for name, par in self.inputs.parameters.items():
-                if isinstance(par.value, (InputParameter, OutputParameter)):
-                    steps.inputs.parameters[name].value = par.value.value
-                else:
-                    steps.inputs.parameters[name].value = par.value
-
-            for name, art in self.inputs.artifacts.items():
-                steps.inputs.artifacts[name].source = art.source
-
-            steps.run()
-            return
-
-        workdir = self.name + "-" + "".join(random.sample(string.digits + string.ascii_lowercase, 5))
-        os.makedirs(workdir, exist_ok=True)
-        os.chdir(workdir)
-
-        # render artifacts
-        os.makedirs("inputs/artifacts", exist_ok=True)
-        for art in self.inputs.artifacts.values():
-            if isinstance(art.source, (InputArtifact, OutputArtifact)):
-                os.symlink(art.source.local_path, "inputs/artifacts/%s" % art.name)
-            elif isinstance(art.source, str):
-                with open("inputs/artifacts/%s" % art.name, "w") as f:
-                    f.write(art.source)
-            else:
-                raise RuntimeError("Not supported: ", art.source)
-            os.makedirs(os.path.dirname(os.path.abspath(art.path)), exist_ok=True)
-            backup(art.path)
-            os.symlink(os.path.abspath("inputs/artifacts/%s" % art.name), art.path)
-
-        # clean output path
-        for art in self.outputs.artifacts.values():
-            backup(art.path)
-
-        # render parameters
-        os.makedirs("inputs/parameters", exist_ok=True)
-        parameters = deepcopy(self.inputs.parameters)
-        for par in parameters.values():
-            value = par.value
-            if isinstance(value, (InputParameter, OutputParameter)):
-                if value.step_id is None: # obtain steps parameters from context
-                    par.value = context.inputs.parameters[value.name].value
-                else:
-                    par.value = value.value
-            with open("inputs/parameters/%s" % par.name, "w") as f:
-                f.write(par.value if isinstance(par.value, str) else jsonpickle.dumps(par.value))
-
-        script = self.template.script
-        # render variables in the script
-        i = script.find("{{")
-        while i >= 0:
-            j = script.find("}}", i+2)
-            var = script[i+2:j]
-            fields = var.split(".")
-            if fields[0] == "inputs" and fields[1] == "parameters":
-                par = fields[2]
-                value = parameters[par].value
-                script = script[:i] + (value if isinstance(value, str) else jsonpickle.dumps(value)) + script[j+2:]
-            else:
-                raise RuntimeError("Not supported: ", var)
-            i = script.find("{{")
-        with open("script", "w") as f:
-            f.write(script)
-
-        os.system(" ".join(self.template.command) + " script")
-
-        # save parameters
-        os.makedirs("outputs/parameters", exist_ok=True)
-        for par in self.outputs.parameters.values():
-            with open(par.value_from_path, "r") as f:
-                par.value = f.read()
-            with open("outputs/parameters/%s" % par.name, "w") as f:
-                f.write(par.value)
-
-        # save artifacts
-        os.makedirs("outputs/artifacts", exist_ok=True)
-        for art in self.outputs.artifacts.values():
-            copy_file(art.path, "outputs/artifacts/%s" % art.name)
-            art.local_path = os.path.abspath("outputs/artifacts/%s" % art.name)
-
-        os.chdir("..")
-
-def eval_bool_expr(expr):
-    # For the original evaluator in argo, please refer to https://github.com/antonmedv/expr
-    import os
-    expr = expr.replace("<=", "-le")
-    expr = expr.replace(">=", "-ge")
-    expr = expr.replace("<", "-lt")
-    expr = expr.replace(">", "-gt")
-    result = os.popen("sh -c 'if [[ %s ]]; then echo 1; else echo 0; fi'" % expr).read().strip()
-    if result == "1":
-        return True
-    elif result == "0":
-        return False
-    else:
-        raise RuntimeError("Evaluate expression failed: ", expr)
-
-def backup(path):
-    import os, shutil
-    cnt = 0
-    bk = path
-    while os.path.exists(bk) or os.path.islink(bk):
-        cnt += 1
-        bk = path + ".bk%s" % cnt
-    if bk != path:
-        shutil.move(path, bk)

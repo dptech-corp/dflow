@@ -103,7 +103,7 @@ class DispatcherExecutor(Executor):
 
         if self.remote_command is None:
             self.remote_command = template.command
-        map_cmd = "sed -i \\\"s#/tmp#$(pwd)/tmp#g\\\" script && " if self.map_tmp_dir else ""
+        map_cmd = "if [ \\\"$(head -n 1 script)\\\" != \\\"# modified by dflow\\\" ]; then sed -i \\\"s#/tmp#$(pwd)/tmp#g\\\" script; sed -i \\\"1i # modified by dflow\\\" script; fi && " if self.map_tmp_dir else ""
         self.task_dict["command"] = "%s %s script" % (map_cmd, "".join(self.remote_command))
         self.task_dict["forward_files"] = ["script"]
         for art in template.inputs.artifacts.values():
