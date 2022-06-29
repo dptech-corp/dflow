@@ -12,11 +12,12 @@ class S3Artifact(V1alpha1S3Artifact):
     Args:
         key: key of the s3 artifact
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, path_list=None, *args, **kwargs):
         config = Configuration()
         config.client_side_validation = False
         super().__init__(local_vars_configuration=config, *args, **kwargs)
         self._sub_path = None
+        self.path_list = path_list
 
     def sub_path(self, path):
         artifact = deepcopy(self)

@@ -2,6 +2,7 @@ import inspect, random, string
 import jsonpickle
 import typeguard
 from .. import __path__
+from ..config import config
 from .opio import Artifact, BigParameter
 from ..op_template import PythonScriptOPTemplate
 from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact
@@ -52,14 +53,14 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         output_sign = op_class.get_output_sign()
         if slices is not None:
             assert isinstance(slices, Slices)
-            if slices.input_artifact is not None: input_artifact_slices = {name: slices.slices for name in slices.input_artifact}
-            if slices.input_parameter is not None: input_parameter_slices = {name: slices.slices for name in slices.input_parameter}
-            if slices.output_artifact is not None:
+            if slices.input_artifact and not slices.sub_path: input_artifact_slices = {name: slices.slices for name in slices.input_artifact}
+            if slices.input_parameter: input_parameter_slices = {name: slices.slices for name in slices.input_parameter}
+            if slices.output_artifact:
                 output_artifact_slices = {}
                 for name in slices.output_artifact:
                     output_artifact_slices[name] = slices.slices
                     output_sign[name].archive = None # not archive for default
-            if slices.output_parameter is not None: output_parameter_slices = {name: slices.slices for name in slices.output_parameter}
+            if slices.output_parameter: output_parameter_slices = {name: slices.slices for name in slices.output_parameter}
         if output_artifact_save is not None:
             for name, save in output_artifact_save.items():
                 output_sign[name].save = save
@@ -168,9 +169,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "output_sign = %s.get_output_sign()\n" % class_name
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
+                if config["save_path_as_parameter"]:
+                    self.outputs.parameters["dflow_%s_path_list" % name].value_from_path = "/tmp/outputs/parameters/dflow_%s_path_list" % name
                 slices = self.get_slices(output_artifact_slices, name)
-                if slices is not None:
-                    self.outputs.parameters["dflow_%s_path_list" % name] = OutputParameter(value_from_path="/tmp/outputs/parameters/dflow_%s_path_list" % name)
                 script += "handle_output_artifact('%s', output['%s'], output_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
             else:
                 slices = self.get_slices(output_parameter_slices, name)
@@ -222,12 +223,18 @@ class Slices:
         output_parameter: list of output parameters to be stacked
         output_artifact: list of output artifacts to be stacked
     """
-    def __init__(self, slices=None, input_parameter=None, input_artifact=None, output_parameter=None, output_artifact=None):
-        self.slices = slices
-        self.input_parameter = input_parameter
-        self.input_artifact = input_artifact
-        self.output_parameter = output_parameter
-        self.output_artifact = output_artifact
+    def __init__(self, slices=None, input_parameter=None, input_artifact=None, output_parameter=None, output_artifact=None, sub_path=False):
+        self.input_parameter = input_parameter if input_parameter is not None else []
+        self.input_artifact = input_artifact if input_artifact is not None else []
+        self.output_parameter = output_parameter if output_parameter is not None else []
+        self.output_artifact = output_artifact if output_artifact is not None else []
+        self.sub_path = sub_path
+        if slices is not None:
+            self.slices = slices
+        elif self.sub_path:
+            self.slices = "{{item.order}}"
+        else:
+            self.slices = "{{item}}"
 
 class TransientError(Exception):
     pass

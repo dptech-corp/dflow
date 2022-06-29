@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.1.5
+
+### Added
+
+- save path_list as parameter for each artifact
+- add sub_path mode for slices
+
 ## 1.1.4
 
 ### Added
