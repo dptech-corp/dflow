@@ -13,6 +13,7 @@ try:
 except:
     pass
 from .common import S3Artifact
+from .config import config
 from .utils import upload_s3, randstr
 
 NotAllowedInputArtifactPath = ["/", "/tmp"]
@@ -48,6 +49,20 @@ class InputArtifacts(AutonamedDict):
     def __setitem__(self, key, value):
         assert isinstance(value, InputArtifact)
         super().__setitem__(key, value)
+        if config["save_path_as_parameter"] and self.template is not None:
+            if isinstance(value.source, S3Artifact):
+                self.template.inputs.parameters["dflow_%s_path_list" % key] = InputParameter(value=value.source.path_list)
+            else:
+                self.template.inputs.parameters["dflow_%s_path_list" % key] = InputParameter(value=".")
+
+    def set_template(self, template):
+        super().set_template(template)
+        if config["save_path_as_parameter"]:
+            for name, art in self.items():
+                if isinstance(art.source, S3Artifact):
+                    self.template.inputs.parameters["dflow_%s_path_list" % name] = InputParameter(value=art.source.path_list)
+                else:
+                    self.template.inputs.parameters["dflow_%s_path_list" % name] = InputParameter(value=".")
 
 class OutputParameters(AutonamedDict):
     def __setitem__(self, key, value):
@@ -58,6 +73,16 @@ class OutputArtifacts(AutonamedDict):
     def __setitem__(self, key, value):
         assert isinstance(value, OutputArtifact)
         super().__setitem__(key, value)
+        if config["save_path_as_parameter"] and self.template is not None:
+            self.template.outputs.parameters["dflow_%s_path_list" % key] = OutputParameter(value=".")
+            value.handle_path_list()
+
+    def set_template(self, template):
+        super().set_template(template)
+        if config["save_path_as_parameter"]:
+            for name, art in self.items():
+                self.template.outputs.parameters["dflow_%s_path_list" % name] = OutputParameter(value=".")
+                art.handle_path_list()
 
 class Inputs:
     """
@@ -338,6 +363,9 @@ class InputArtifact(ArgoVar):
         artifact._sub_path = path
         return artifact
 
+    def get_path_list_parameter(self):
+        return self.template.inputs.parameters["dflow_%s_path_list" % self.name]
+
     def convert_to_argo(self):
         if self.path in NotAllowedInputArtifactPath:
             raise RuntimeError("Path [%s] is not allowed for input artifact" % self.path)
@@ -497,6 +525,27 @@ class OutputArtifact(ArgoVar):
                 return "outputs.artifacts['%s']" % self.name
             return ""
         return super().__getattr__(key)
+
+    def __setattr__(self, key, value):
+        super().__setattr__(key, value)
+        if config["save_path_as_parameter"] and key in ["_from", "from_expression"]:
+            self.handle_path_list()
+
+    def handle_path_list(self):
+        if self.template is not None:
+            if hasattr(self, "_from") and self._from is not None:
+                self.template.outputs.parameters["dflow_%s_path_list" % self.name].default = "."
+                self.template.outputs.parameters["dflow_%s_path_list" % self.name].value_from_parameter = self._from.get_path_list_parameter()
+            elif hasattr(self, "from_expression") and self.from_expression is not None:
+                self.template.outputs.parameters["dflow_%s_path_list" % self.name].default = "."
+                self.template.outputs.parameters["dflow_%s_path_list" % self.name].value_from_expression = if_expression(
+                    _if = self.from_expression._if,
+                    _then = self.from_expression._then.get_path_list_parameter(),
+                    _else = self.from_expression._else.get_path_list_parameter(),
+                )
+
+    def get_path_list_parameter(self):
+        return self.step.outputs.parameters["dflow_%s_path_list" % self.name]
 
     def __repr__(self):
         if self.redirect is not None:

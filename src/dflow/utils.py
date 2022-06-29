@@ -112,7 +112,7 @@ def upload_artifact(path, archive="tar", **kwargs):
         else:
             key = upload_s3(path=tmpdir, **kwargs)
 
-    return S3Artifact(key=key)
+    return S3Artifact(key=key, path_list=path_list)
 
 def copy_artifact(src, dst):
     """

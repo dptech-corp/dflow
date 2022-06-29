@@ -16,17 +16,10 @@ try:
 except:
     pass
 from .common import S3Artifact
+from .config import config
 from .steps import Steps
 from .argo_objects import ArgoWorkflow
 from .utils import copy_s3, randstr
-
-config = {
-    "host": "https://127.0.0.1:2746",
-    "token": None,
-    "k8s_config_file": None,
-    "k8s_api_server": None,
-    "private_key_host_path": "/home/docker/.ssh"
-}
 
 class Workflow:
     """

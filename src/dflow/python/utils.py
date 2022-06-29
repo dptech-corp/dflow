@@ -3,6 +3,7 @@ import uuid
 import jsonpickle
 from typing import Set, List
 from pathlib import Path
+from ..config import config
 from .opio import BigParameter
 from ..utils import assemble_path_list, convert_dflow_list, copy_file, remove_empty_dir_tag
 
@@ -94,7 +95,7 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
     with open(data_root + "/outputs/artifacts/%s/.dflow.%s" % (name, uuid.uuid4()), "w") as f:
         f.write(jsonpickle.dumps({"path_list": path_list}))
     handle_empty_dir(data_root + "/outputs/artifacts/%s" % name)
-    if slices is not None:
+    if config["save_path_as_parameter"]:
         with open(data_root + '/outputs/parameters/dflow_%s_path_list' % name, 'w') as f:
             f.write(jsonpickle.dumps(path_list))
 
