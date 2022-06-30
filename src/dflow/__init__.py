@@ -19,3 +19,5 @@ from .common import S3Artifact
 from .executor import Executor, RemoteExecutor
 from .resource import Resource
 from .slurm import SlurmJob, SlurmJobTemplate, SlurmRemoteExecutor
+from .task import Task
+from .dag import DAG

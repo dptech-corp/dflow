@@ -95,10 +95,12 @@ class Step:
         key: the key of the step
         executor: define the executor to execute the script
         use_resource: use k8s resource
+        util_image: image for utility step
+        util_command: command for utility step
     """
     def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None, continue_on_failed=False,
             continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None, executor=None,
-            use_resource=None, util_image="python:3.8"):
+            use_resource=None, util_image="python:3.8", util_command=None, **kwargs):
         self.name = name
         self.id = self.name
         self.template = template
@@ -125,6 +127,7 @@ class Step:
         self.executor = executor
         self.use_resource = use_resource
         self.util_image = util_image
+        self.util_command = util_command
 
         if self.key is not None:
             self.template.inputs.parameters["dflow_key"] = InputParameter(value="")
@@ -138,10 +141,10 @@ class Step:
             script = "import os, json\n"
             for name in new_template.slices.output_artifact:
                 script += "os.makedirs('/tmp/outputs/artifacts/%s', exist_ok=True)\n" % name
-                script += "with open('/tmp/outputs/artifacts/%s/.dflow.init', 'w') as f:\n" % name
+                script += "with open('/tmp/outputs/artifacts/%s/%s.init', 'w') as f:\n" % (name, config["catalog_file_name"])
                 script += "    json.dump({'path_list': []}, f)\n"
             init_template = PythonScriptOPTemplate(name="%s-init-artifact" % new_template.name, image=self.util_image,
-                image_pull_policy=new_template.image_pull_policy, script=script)
+                command=self.util_command, image_pull_policy=new_template.image_pull_policy, script=script)
             if self.key is not None:
                 new_template.inputs.parameters["dflow_group_key"] = InputParameter(value="")
                 self.inputs.parameters["dflow_group_key"] = InputParameter(value=re.sub("{{item.*}}", "group", str(self.key)))
@@ -154,7 +157,6 @@ class Step:
             else:
                 init_template.outputs.parameters["dflow_artifact_key"] = OutputParameter(value="{{workflow.name}}/{{pod.name}}")
                 new_template.inputs.parameters["dflow_artifact_key"] = InputParameter(value="")
-                self.inputs.parameters["dflow_artifact_key"] = InputParameter(value="{{steps.%s-init-artifact.outputs.parameters.dflow_artifact_key}}" % self.name)
                 for name in new_template.slices.output_artifact:
                     init_template.outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/%s" % name,
                         save=S3Artifact(key="{{workflow.name}}/{{pod.name}}/%s" % name), archive=None)
@@ -181,10 +183,13 @@ class Step:
                 init_template.script += "    json.dump(slices_path, f)\n"
 
             if self.key is not None:
-                self.prepare_step = Step(name="%s-init-artifact" % self.name, template=init_template,
+                self.prepare_step = self.__class__(name="%s-init-artifact" % self.name, template=init_template,
                         parameters={"dflow_group_key": re.sub("{{item.*}}", "group", str(self.key))})
             else:
-                self.prepare_step = Step(name="%s-init-artifact" % self.name, template=init_template)
+                self.prepare_step = self.__class__(name="%s-init-artifact" % self.name, template=init_template)
+
+            if key is None:
+                self.inputs.parameters["dflow_artifact_key"] = InputParameter(value=self.prepare_step.outputs.parameters["dflow_artifact_key"])
 
             if new_template.slices.sub_path and new_template.slices.input_artifact:
                 for name in new_template.slices.input_artifact:
@@ -246,14 +251,14 @@ class Step:
                     elif isinstance(v, InputArtifact) and v.template is not None and "dflow_%s_path_list" % v.name in v.template.inputs.parameters:
                         self.inputs.parameters["dflow_%s_path_list" % k] = InputParameter(value=v.template.inputs.parameters["dflow_%s_path_list" % v.name])
 
-    def convert_to_argo(self, context=None):
-        argo_parameters = []
-        argo_artifacts = []
+    def prepare_argo_arguments(self, context=None):
+        self.argo_parameters = []
+        self.argo_artifacts = []
         for par in self.inputs.parameters.values():
             if par.save_as_artifact:
-                argo_artifacts.append(par.convert_to_argo())
+                self.argo_artifacts.append(par.convert_to_argo())
             else:
-                argo_parameters.append(par.convert_to_argo())
+                self.argo_parameters.append(par.convert_to_argo())
 
         new_template = None
 
@@ -264,7 +269,7 @@ class Step:
             elif art.source is None and art.optional == True:
                 pass
             else:
-                argo_artifacts.append(art.convert_to_argo())
+                self.argo_artifacts.append(art.convert_to_argo())
 
         if len(pvc_arts) > 0:
             if new_template is None:
@@ -333,7 +338,7 @@ class Step:
             self.outputs.set_step(self)
 
         if self.continue_on_num_success is not None:
-            self.check_step = Step(
+            self.check_step = self.__class__(
                 name="%s-check-num-success" % self.name, template=CheckNumSuccess(image=self.util_image),
                 parameters={
                     "success": self.outputs.parameters["dflow_success_tag"],
@@ -341,7 +346,7 @@ class Step:
                 }
             )
         elif self.continue_on_success_ratio is not None:
-            self.check_step = Step(
+            self.check_step = self.__class__(
                 name="%s-check-success-ratio" % self.name, template=CheckSuccessRatio(image=self.util_image),
                 parameters={
                     "success": self.outputs.parameters["dflow_success_tag"],
@@ -365,10 +370,12 @@ class Step:
                 success_condition=self.use_resource.success_condition, failure_condition=self.use_resource.failure_condition,
                 manifest=self.use_resource.get_manifest(self.template.command, self.template.script))
 
+    def convert_to_argo(self, context=None):
+        self.prepare_argo_arguments(context)
         return V1alpha1WorkflowStep(
             name=self.name, template=self.template.name, arguments=V1alpha1Arguments(
-                parameters=argo_parameters,
-                artifacts=argo_artifacts
+                parameters=self.argo_parameters,
+                artifacts=self.argo_artifacts
             ), when=self.when, with_param=self.with_param, with_sequence=self.with_sequence,
             continue_on=V1alpha1ContinueOn(failed=self.continue_on_failed)
         )

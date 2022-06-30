@@ -3,6 +3,7 @@ try:
 except:
     pass
 from .op_template import OPTemplate
+from .step import Step
 
 class Steps(OPTemplate):
     """
@@ -47,6 +48,7 @@ class Steps(OPTemplate):
             argo_parallel_steps = []
             argo_check_steps = []
             for ps in step:
+                assert isinstance(ps, Step)
                 if ps.prepare_step is not None:
                     argo_prepare_steps.append(ps.prepare_step.convert_to_argo(context))
                     templates.append(ps.prepare_step.template)

@@ -92,7 +92,7 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
             for s, path in enumerate(value):
                 path_list.append(copy_results_and_return_path_item(path, name, s, data_root))
 
-    with open(data_root + "/outputs/artifacts/%s/.dflow.%s" % (name, uuid.uuid4()), "w") as f:
+    with open(data_root + "/outputs/artifacts/%s/%s.%s" % (name, config["catalog_file_name"], uuid.uuid4()), "w") as f:
         f.write(jsonpickle.dumps({"path_list": path_list}))
     handle_empty_dir(data_root + "/outputs/artifacts/%s" % name)
     if config["save_path_as_parameter"]:

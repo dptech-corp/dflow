@@ -18,6 +18,7 @@ except:
 from .common import S3Artifact
 from .config import config
 from .steps import Steps
+from .dag import DAG
 from .argo_objects import ArgoWorkflow
 from .utils import copy_s3, randstr
 
@@ -28,6 +29,7 @@ class Workflow:
     Args:
         name: the name of the workflow
         steps: steps used as the entrypoint of the workflow, if not provided, a empty steps will be used
+        dag: dag used as the entrypoint of the workflow
         id: workflow ID in Argo, you can provide it to track an existing workflow
         host: URL of the Argo server, will override global config
         token: request the Argo server with the token, will override global config
@@ -36,7 +38,7 @@ class Workflow:
         context: context for the workflow
         annotations: annotations for the workflow
     """
-    def __init__(self, name="workflow", steps=None, id=None, host=None, token=None, k8s_config_file=None,
+    def __init__(self, name="workflow", steps=None, dag=None, id=None, host=None, token=None, k8s_config_file=None,
             k8s_api_server=None, context=None, annotations=None):
         self.host = host if host is not None else config["host"]
         self.token = token if token is not None else config["token"]
@@ -61,7 +63,11 @@ class Workflow:
         else:
             self.name = name
             if steps is not None:
+                assert isinstance(steps, Steps)
                 self.entrypoint = steps
+            elif dag is not None:
+                assert isinstance(dag, DAG)
+                self.entrypoint = dag
             else:
                 self.entrypoint = Steps(self.name + "-steps")
             self.templates = {}
@@ -187,7 +193,7 @@ class Workflow:
             assert template == self.templates[template.name], "Duplication of template name: %s" % template.name
         else:
             self.templates[template.name] = template
-            if isinstance(template, Steps): # if the template is steps, handle involved templates
+            if isinstance(template, (Steps, DAG)): # if the template is steps or dag, handle involved templates
                 argo_template, templates = template.convert_to_argo(memoize_prefix, memoize_configmap, self.context) # breadth first algorithm
                 self.argo_templates[template.name] = argo_template
                 for template in templates:

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 1.1.6
+
+### Added
+
+- support for DAG
+- add catalog_file_name to configuration
+- support for passing OP object instead of a derived class of OP to PythonOPTemplate
+- add util_command argument to Step
+
 ## 1.1.5
 
 ### Added

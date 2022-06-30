@@ -3,6 +3,7 @@ import jsonpickle
 import typeguard
 from .. import __path__
 from ..config import config
+from .op import OP
 from .opio import Artifact, BigParameter
 from ..op_template import PythonScriptOPTemplate
 from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact
@@ -47,7 +48,11 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None,
                  timeout=None, retry_on_transient_error=None, output_parameter_default=None, output_parameter_global_name=None,
                  timeout_as_transient_error=False, memoize_key=None, volumes=None, mounts=None, image_pull_policy=None,
-                 requests=None, limits=None, upload_dflow=True):
+                 requests=None, limits=None, upload_dflow=True, **kwargs):
+        op = None
+        if isinstance(op_class, OP):
+            op = op_class
+            op_class = op.__class__
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
         output_sign = op_class.get_output_sign()
@@ -125,7 +130,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "import os, sys, json\n"
             script += "package_root = '/tmp/inputs/artifacts/dflow_python_packages'\n"
             script += "for f in os.listdir(package_root):\n"
-            script += "    if f[:6] == '.dflow':\n"
+            script += "    if f[:%s] == '%s':\n" % (len(config["catalog_file_name"]), config["catalog_file_name"])
             script += "        with open(os.path.join(package_root, f), 'r') as fd:\n"
             script += "            for item in json.load(fd)['path_list']:\n"
             script += "                sys.path.insert(0, os.path.join(package_root, os.path.dirname(item['dflow_list_item'])))\n"
@@ -141,7 +146,10 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "from dflow.python.utils import handle_input_artifact, handle_input_parameter\n"
         script += "from dflow.python.utils import handle_output_artifact, handle_output_parameter\n"
         script += "from %s import %s\n\n" % (op_class.__module__, class_name)
-        script += "op_obj = %s()\n" % class_name
+        if op is None:
+            script += "op_obj = %s()\n" % class_name
+        else:
+            script += "op_obj = jsonpickle.loads(r'''%s''')\n" % jsonpickle.dumps(op)
         script += "input = OPIO()\n"
         script += "input_sign = %s.get_input_sign()\n" % class_name
         for name, sign in input_sign.items():
