@@ -12,6 +12,7 @@ try:
 except:
     pass
 from .common import S3Artifact
+from .config import config
 
 s3_config = {
     "endpoint": "127.0.0.1:9000",
@@ -98,7 +99,7 @@ def upload_artifact(path, archive="tar", **kwargs):
             os.makedirs(os.path.dirname(target), exist_ok=True)
             os.symlink(abspath, target)
             path_list.append({"dflow_list_item": relpath, "order": i})
-        with open(os.path.join(tmpdir, ".dflow.%s" % uuid.uuid4()), "w") as f:
+        with open(os.path.join(tmpdir, config["catalog_file_name"] + ".%s" % uuid.uuid4()), "w") as f:
             f.write(jsonpickle.dumps({"path_list": path_list}))
 
         if archive == "tar":
@@ -245,7 +246,7 @@ def assemble_path_list(art_path, remove=False):
     if os.path.isdir(art_path):
         dflow_list = []
         for f in os.listdir(art_path):
-            if f[:6] == ".dflow":
+            if f[:len(config["catalog_file_name"])] == config["catalog_file_name"]:
                 with open('%s/%s' % (art_path, f), 'r') as fd:
                     for item in jsonpickle.loads(fd.read())['path_list']:
                         if item not in dflow_list: dflow_list.append(item) # remove duplicate

@@ -15,7 +15,7 @@ from .io import Inputs, Outputs, InputParameter
 from .utils import randstr
 
 class OPTemplate:
-    def __init__(self, name=None, inputs=None, outputs=None, memoize_key=None, pvcs=None, annotations=None):
+    def __init__(self, name=None, inputs=None, outputs=None, memoize_key=None, pvcs=None, annotations=None, **kwargs):
         if name is None:
             name = randstr()
         # force lowercase to fix RFC 1123
@@ -85,7 +85,7 @@ class ScriptOPTemplate(OPTemplate):
     """
     def __init__(self, name=None, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, resource=None,
-            image_pull_policy=None, annotations=None, requests=None, limits=None):
+            image_pull_policy=None, annotations=None, requests=None, limits=None, **kwargs):
         super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, pvcs=pvcs, annotations=annotations)
         self.image = image
         self.command = command
@@ -154,7 +154,7 @@ class ShellOPTemplate(ScriptOPTemplate):
     """
     def __init__(self, name=None, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, image_pull_policy=None,
-            annotations=None, requests=None, limits=None):
+            annotations=None, requests=None, limits=None, **kwargs):
         if command is None:
             command = ["sh"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
@@ -186,7 +186,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
     """
     def __init__(self, name=None, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
             init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, image_pull_policy=None,
-            annotations=None, requests=None, limits=None):
+            annotations=None, requests=None, limits=None, **kwargs):
         if command is None:
             command = ["python"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
