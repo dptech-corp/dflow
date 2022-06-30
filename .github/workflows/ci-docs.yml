@@ -13,10 +13,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - uses: ammaraskar/sphinx-action@master
-      with:
-        docs-folder: "docs/"
-        build-command: "mkdir -p /tmp && sphinx-apidoc -o ./source ../src && make html"
+    - name: Sphinx apidoc
+      run: |
+        cd docs
+        sphinx-apidoc -o ./source ../src && make html
+        cd ..
 
     - name: Commit documentation changes
       run: |
