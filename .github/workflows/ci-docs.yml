@@ -16,7 +16,7 @@ jobs:
     - uses: ammaraskar/sphinx-action@master
       with:
         docs-folder: "docs/"
-        build-command: "sphinx-apidoc -o ./source ../src && make html"
+        build-command: "mkdir -p /tmp && sphinx-apidoc -o ./source ../src && make html"
 
     - name: Commit documentation changes
       run: |
