@@ -1,18 +1,20 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
     <title>dflow.plugins package &#8212; dflow 1.1.6 documentation</title>
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -23,10 +25,8 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">dflow.plugins package</a></li> 
       </ul>
     </div>  
 
@@ -35,115 +35,42 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="dflow-plugins-package">
-<h1>dflow.plugins package<a class="headerlink" href="#dflow-plugins-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-dflow.plugins.dispatcher">
-<span id="dflow-plugins-dispatcher-module"></span><h2>dflow.plugins.dispatcher module<a class="headerlink" href="#module-dflow.plugins.dispatcher" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="dflow.plugins.dispatcher.DispatcherExecutor">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.plugins.dispatcher.</code><code class="sig-name descname">DispatcherExecutor</code><span class="sig-paren">(</span><em class="sig-param">host=None</em>, <em class="sig-param">queue_name=None</em>, <em class="sig-param">port=22</em>, <em class="sig-param">username='root'</em>, <em class="sig-param">private_key_file=None</em>, <em class="sig-param">image='dptechnology/dpdispatcher'</em>, <em class="sig-param">command='python'</em>, <em class="sig-param">remote_command=None</em>, <em class="sig-param">map_tmp_dir=True</em>, <em class="sig-param">machine_dict=None</em>, <em class="sig-param">resources_dict=None</em>, <em class="sig-param">task_dict=None</em>, <em class="sig-param">json_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.dispatcher.DispatcherExecutor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.executor.Executor</span></code></a></p>
-<p>Dispatcher executor</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>host</strong> – remote host</p></li>
-<li><p><strong>queue_name</strong> – queue name</p></li>
-<li><p><strong>port</strong> – SSH port</p></li>
-<li><p><strong>username</strong> – username</p></li>
-<li><p><strong>private_key_file</strong> – private key file for SSH</p></li>
-<li><p><strong>image</strong> – image for dispatcher</p></li>
-<li><p><strong>command</strong> – command for dispatcher</p></li>
-<li><p><strong>remote_command</strong> – command for running the script remotely</p></li>
-<li><p><strong>map_tmp_dir</strong> – map /tmp to ./tmp</p></li>
-<li><p><strong>machine_dict</strong> – machine config for dispatcher</p></li>
-<li><p><strong>resources_dict</strong> – resources config for dispatcher</p></li>
-<li><p><strong>task_dict</strong> – task config for dispatcher</p></li>
-<li><p><strong>json_file</strong> – JSON file containing machine and resources config</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="dflow.plugins.dispatcher.DispatcherExecutor.render">
-<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">template</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.dispatcher.DispatcherExecutor.render" title="Permalink to this definition">¶</a></dt>
-<dd><p>render original template and return a new template, do not modify self in this method to make the executor reusable</p>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-dflow.plugins.lebesgue">
-<span id="dflow-plugins-lebesgue-module"></span><h2>dflow.plugins.lebesgue module<a class="headerlink" href="#module-dflow.plugins.lebesgue" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="dflow.plugins.lebesgue.LebesgueContext">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.plugins.lebesgue.</code><code class="sig-name descname">LebesgueContext</code><span class="sig-paren">(</span><em class="sig-param">app_name=None</em>, <em class="sig-param">org_id=None</em>, <em class="sig-param">user_id=None</em>, <em class="sig-param">tag=None</em>, <em class="sig-param">executor=None</em>, <em class="sig-param">extra=None</em>, <em class="sig-param">authorization=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueContext" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.context.Context" title="dflow.context.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.context.Context</span></code></a></p>
-<p>Lebesgue context</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>app_name</strong> – application name</p></li>
-<li><p><strong>org_id</strong> – organization ID</p></li>
-<li><p><strong>user_id</strong> – user ID</p></li>
-<li><p><strong>tag</strong> – tag</p></li>
-<li><p><strong>executor</strong> – executor</p></li>
-<li><p><strong>extra</strong> – extra arguments</p></li>
-<li><p><strong>authorization</strong> – JWT token</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="dflow.plugins.lebesgue.LebesgueContext.render">
-<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">template</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueContext.render" title="Permalink to this definition">¶</a></dt>
-<dd><p>render original template and return a new template</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="dflow.plugins.lebesgue.LebesgueExecutor">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.plugins.lebesgue.</code><code class="sig-name descname">LebesgueExecutor</code><span class="sig-paren">(</span><em class="sig-param">extra=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueExecutor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.executor.Executor</span></code></a></p>
-<p>Lebesgue executor</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>extra</strong> – extra arguments, will override extra defined in global context</p>
-</dd>
-</dl>
-<dl class="method">
-<dt id="dflow.plugins.lebesgue.LebesgueExecutor.render">
-<code class="sig-name descname">render</code><span class="sig-paren">(</span><em class="sig-param">template</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueExecutor.render" title="Permalink to this definition">¶</a></dt>
-<dd><p>render original template and return a new template, do not modify self in this method to make the executor reusable</p>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-dflow.plugins">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dflow.plugins" title="Permalink to this headline">¶</a></h2>
-</div>
-</div>
+  <section id="dflow-plugins-package">
+<h1>dflow.plugins package<a class="headerlink" href="#dflow-plugins-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="dflow-plugins-dispatcher-module">
+<h2>dflow.plugins.dispatcher module<a class="headerlink" href="#dflow-plugins-dispatcher-module" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="dflow-plugins-lebesgue-module">
+<h2>dflow.plugins.lebesgue module<a class="headerlink" href="#dflow-plugins-lebesgue-module" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">dflow.plugins package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-dflow.plugins.dispatcher">dflow.plugins.dispatcher module</a></li>
-<li><a class="reference internal" href="#module-dflow.plugins.lebesgue">dflow.plugins.lebesgue module</a></li>
-<li><a class="reference internal" href="#module-dflow.plugins">Module contents</a></li>
+<li><a class="reference internal" href="#dflow-plugins-dispatcher-module">dflow.plugins.dispatcher module</a></li>
+<li><a class="reference internal" href="#dflow-plugins-lebesgue-module">dflow.plugins.lebesgue module</a></li>
+<li><a class="reference internal" href="#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
 
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -155,12 +82,12 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -171,15 +98,13 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">dflow.plugins package</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, zjgemi.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>

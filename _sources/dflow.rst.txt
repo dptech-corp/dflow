@@ -30,10 +30,26 @@ dflow.common module
    :undoc-members:
    :show-inheritance:
 
+dflow.config module
+-------------------
+
+.. automodule:: dflow.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dflow.context module
 --------------------
 
 .. automodule:: dflow.context
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dflow.dag module
+----------------
+
+.. automodule:: dflow.dag
    :members:
    :undoc-members:
    :show-inheritance:
@@ -90,6 +106,14 @@ dflow.steps module
 ------------------
 
 .. automodule:: dflow.steps
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dflow.task module
+-----------------
+
+.. automodule:: dflow.task
    :members:
    :undoc-members:
    :show-inheritance:

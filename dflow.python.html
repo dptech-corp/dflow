@@ -1,18 +1,20 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
     <title>dflow.python package &#8212; dflow 1.1.6 documentation</title>
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -23,10 +25,8 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">dflow.python package</a></li> 
       </ul>
     </div>  
 
@@ -35,244 +35,50 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="dflow-python-package">
-<h1>dflow.python package<a class="headerlink" href="#dflow-python-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-dflow.python.op">
-<span id="dflow-python-op-module"></span><h2>dflow.python.op module<a class="headerlink" href="#module-dflow.python.op" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="dflow.python.op.OP">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.python.op.</code><code class="sig-name descname">OP</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.op.OP" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
-<p>Python class OP</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>progress_total</strong> – an int representing total progress</p></li>
-<li><p><strong>progress_current</strong> – an int representing currenet progress</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="dflow.python.op.OP.exec_sign_check">
-<code class="sig-name descname">exec_sign_check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.op.OP.exec_sign_check" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="dflow.python.op.OP.execute">
-<em class="property">abstract </em><code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param">op_in: dflow.python.opio.OPIO</em><span class="sig-paren">)</span> &#x2192; dflow.python.opio.OPIO<a class="headerlink" href="#dflow.python.op.OP.execute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run the OP</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="dflow.python.op.OP.get_input_sign">
-<em class="property">abstract classmethod </em><code class="sig-name descname">get_input_sign</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dflow.python.opio.OPIOSign<a class="headerlink" href="#dflow.python.op.OP.get_input_sign" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the signature of the inputs</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="dflow.python.op.OP.get_output_sign">
-<em class="property">abstract classmethod </em><code class="sig-name descname">get_output_sign</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dflow.python.opio.OPIOSign<a class="headerlink" href="#dflow.python.op.OP.get_output_sign" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the signature of the outputs</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="dflow.python.op.OP.progress_current">
-<code class="sig-name descname">progress_current</code><em class="property"> = 0</em><a class="headerlink" href="#dflow.python.op.OP.progress_current" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="dflow.python.op.OP.progress_total">
-<code class="sig-name descname">progress_total</code><em class="property"> = 1</em><a class="headerlink" href="#dflow.python.op.OP.progress_total" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-dflow.python.opio">
-<span id="dflow-python-opio-module"></span><h2>dflow.python.opio module<a class="headerlink" href="#module-dflow.python.opio" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="dflow.python.opio.Artifact">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.python.opio.</code><code class="sig-name descname">Artifact</code><span class="sig-paren">(</span><em class="sig-param">type</em>, <em class="sig-param">archive='tar'</em>, <em class="sig-param">save=None</em>, <em class="sig-param">optional=False</em>, <em class="sig-param">global_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.opio.Artifact" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>OPIO signature of artifact</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>type</strong> – str, Path, Set[str], Set[Path], List[str] or List[Path]</p></li>
-<li><p><strong>archive</strong> – compress format of the artifact, None for no compression</p></li>
-<li><p><strong>save</strong> – place to store the output artifact instead of default storage, can be a list</p></li>
-<li><p><strong>optional</strong> – optional input artifact or not</p></li>
-<li><p><strong>global_name</strong> – global name of the artifact within the workflow</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="class">
-<dt id="dflow.python.opio.BigParameter">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.python.opio.</code><code class="sig-name descname">BigParameter</code><span class="sig-paren">(</span><em class="sig-param">type</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.opio.BigParameter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="dflow.python.opio.OPIO">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.python.opio.</code><code class="sig-name descname">OPIO</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.opio.OPIO" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableMapping</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="dflow.python.opio.OPIOSign">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.python.opio.</code><code class="sig-name descname">OPIOSign</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.opio.OPIOSign" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableMapping</span></code></p>
-<p>The signature of OPIO.
-A signature of OPIO includes the key and its typing</p>
-</dd></dl>
-
-</div>
-<div class="section" id="module-dflow.python.python_op_template">
-<span id="dflow-python-python-op-template-module"></span><h2>dflow.python.python_op_template module<a class="headerlink" href="#module-dflow.python.python_op_template" title="Permalink to this headline">¶</a></h2>
-<dl class="exception">
-<dt id="dflow.python.python_op_template.FatalError">
-<em class="property">exception </em><code class="sig-prename descclassname">dflow.python.python_op_template.</code><code class="sig-name descname">FatalError</code><a class="headerlink" href="#dflow.python.python_op_template.FatalError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="dflow.python.python_op_template.PythonOPTemplate">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.python.python_op_template.</code><code class="sig-name descname">PythonOPTemplate</code><span class="sig-paren">(</span><em class="sig-param">op_class</em>, <em class="sig-param">image=None</em>, <em class="sig-param">command=None</em>, <em class="sig-param">input_artifact_slices=None</em>, <em class="sig-param">output_artifact_save=None</em>, <em class="sig-param">output_artifact_archive=None</em>, <em class="sig-param">input_parameter_slices=None</em>, <em class="sig-param">output_artifact_slices=None</em>, <em class="sig-param">output_parameter_slices=None</em>, <em class="sig-param">output_artifact_global_name=None</em>, <em class="sig-param">slices=None</em>, <em class="sig-param">python_packages=None</em>, <em class="sig-param">timeout=None</em>, <em class="sig-param">retry_on_transient_error=None</em>, <em class="sig-param">output_parameter_default=None</em>, <em class="sig-param">output_parameter_global_name=None</em>, <em class="sig-param">timeout_as_transient_error=False</em>, <em class="sig-param">memoize_key=None</em>, <em class="sig-param">volumes=None</em>, <em class="sig-param">mounts=None</em>, <em class="sig-param">image_pull_policy=None</em>, <em class="sig-param">requests=None</em>, <em class="sig-param">limits=None</em>, <em class="sig-param">upload_dflow=True</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.python_op_template.PythonOPTemplate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.op_template.PythonScriptOPTemplate" title="dflow.op_template.PythonScriptOPTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.op_template.PythonScriptOPTemplate</span></code></a></p>
-<p>Convert from Python class OP to OP template</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>op_class</strong> – Python class OP</p></li>
-<li><p><strong>image</strong> – image of the OP template</p></li>
-<li><p><strong>command</strong> – python executable</p></li>
-<li><p><strong>input_artifact_slices</strong> – a dict specifying input artifacts to use slices</p></li>
-<li><p><strong>output_artifact_save</strong> – a dict specifying storage of output artifacts overriding default storage</p></li>
-<li><p><strong>output_artifact_archive</strong> – a dict specifying compress format of output artifacts, None for no compression</p></li>
-<li><p><strong>input_parameter_slices</strong> – a dict specifying input parameters to use slices</p></li>
-<li><p><strong>output_artifact_slices</strong> – a dict specifying output artifacts to use slices</p></li>
-<li><p><strong>output_parameter_slices</strong> – a dict specifying output parameters to use slices</p></li>
-<li><p><strong>output_artifact_global_name</strong> – a dict specifying global names of output artifacts within the workflow</p></li>
-<li><p><strong>slices</strong> – use slices to generate parallel steps</p></li>
-<li><p><strong>python_packages</strong> – local python packages to be uploaded to the OP</p></li>
-<li><p><strong>timeout</strong> – timeout of the OP template</p></li>
-<li><p><strong>retry_on_transient_error</strong> – maximum retries on TrasientError</p></li>
-<li><p><strong>output_parameter_default</strong> – a dict specifying default values for output parameters</p></li>
-<li><p><strong>output_parameter_global_name</strong> – a dict specifying global names of output parameters within the workflow</p></li>
-<li><p><strong>timeout_as_transient_error</strong> – regard timeout as transient error or fatal one</p></li>
-<li><p><strong>memoize_key</strong> – memoized key of the OP template</p></li>
-<li><p><strong>volumes</strong> – volumes to use in the OP template</p></li>
-<li><p><strong>mounts</strong> – volumes to mount in the OP template</p></li>
-<li><p><strong>image_pull_policy</strong> – Always, IfNotPresent, Never</p></li>
-<li><p><strong>requests</strong> – a dict of resource requests</p></li>
-<li><p><strong>limits</strong> – a dict of resource limits</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="dflow.python.python_op_template.PythonOPTemplate.get_slices">
-<code class="sig-name descname">get_slices</code><span class="sig-paren">(</span><em class="sig-param">slices_dict</em>, <em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.python_op_template.PythonOPTemplate.get_slices" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="dflow.python.python_op_template.PythonOPTemplate.render_slices">
-<code class="sig-name descname">render_slices</code><span class="sig-paren">(</span><em class="sig-param">slices=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.python_op_template.PythonOPTemplate.render_slices" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="dflow.python.python_op_template.Slices">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.python.python_op_template.</code><code class="sig-name descname">Slices</code><span class="sig-paren">(</span><em class="sig-param">slices=None</em>, <em class="sig-param">input_parameter=None</em>, <em class="sig-param">input_artifact=None</em>, <em class="sig-param">output_parameter=None</em>, <em class="sig-param">output_artifact=None</em>, <em class="sig-param">sub_path=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.python_op_template.Slices" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Slices specified in PythonOPTemplate</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>slices</strong> – slice pattern</p></li>
-<li><p><strong>input_parameter</strong> – list of input parameters to be sliced</p></li>
-<li><p><strong>input_artifact</strong> – list of input artifacts to be sliced</p></li>
-<li><p><strong>output_parameter</strong> – list of output parameters to be stacked</p></li>
-<li><p><strong>output_artifact</strong> – list of output artifacts to be stacked</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="exception">
-<dt id="dflow.python.python_op_template.TransientError">
-<em class="property">exception </em><code class="sig-prename descclassname">dflow.python.python_op_template.</code><code class="sig-name descname">TransientError</code><a class="headerlink" href="#dflow.python.python_op_template.TransientError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-</dd></dl>
-
-</div>
-<div class="section" id="module-dflow.python.utils">
-<span id="dflow-python-utils-module"></span><h2>dflow.python.utils module<a class="headerlink" href="#module-dflow.python.utils" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="dflow.python.utils.copy_results">
-<code class="sig-prename descclassname">dflow.python.utils.</code><code class="sig-name descname">copy_results</code><span class="sig-paren">(</span><em class="sig-param">source</em>, <em class="sig-param">name</em>, <em class="sig-param">data_root='/tmp'</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.utils.copy_results" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="dflow.python.utils.copy_results_and_return_path_item">
-<code class="sig-prename descclassname">dflow.python.utils.</code><code class="sig-name descname">copy_results_and_return_path_item</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">name</em>, <em class="sig-param">order</em>, <em class="sig-param">data_root='/tmp'</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.utils.copy_results_and_return_path_item" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="dflow.python.utils.handle_empty_dir">
-<code class="sig-prename descclassname">dflow.python.utils.</code><code class="sig-name descname">handle_empty_dir</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.utils.handle_empty_dir" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="dflow.python.utils.handle_input_artifact">
-<code class="sig-prename descclassname">dflow.python.utils.</code><code class="sig-name descname">handle_input_artifact</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">sign</em>, <em class="sig-param">slices=None</em>, <em class="sig-param">data_root='/tmp'</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.utils.handle_input_artifact" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="dflow.python.utils.handle_input_parameter">
-<code class="sig-prename descclassname">dflow.python.utils.</code><code class="sig-name descname">handle_input_parameter</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">value</em>, <em class="sig-param">sign</em>, <em class="sig-param">slices=None</em>, <em class="sig-param">data_root='/tmp'</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.utils.handle_input_parameter" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="dflow.python.utils.handle_output_artifact">
-<code class="sig-prename descclassname">dflow.python.utils.</code><code class="sig-name descname">handle_output_artifact</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">value</em>, <em class="sig-param">sign</em>, <em class="sig-param">slices=None</em>, <em class="sig-param">data_root='/tmp'</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.utils.handle_output_artifact" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="dflow.python.utils.handle_output_parameter">
-<code class="sig-prename descclassname">dflow.python.utils.</code><code class="sig-name descname">handle_output_parameter</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">value</em>, <em class="sig-param">sign</em>, <em class="sig-param">slices=None</em>, <em class="sig-param">data_root='/tmp'</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.utils.handle_output_parameter" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-<div class="section" id="module-dflow.python">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dflow.python" title="Permalink to this headline">¶</a></h2>
-</div>
-</div>
+  <section id="dflow-python-package">
+<h1>dflow.python package<a class="headerlink" href="#dflow-python-package" title="Permalink to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="dflow-python-op-module">
+<h2>dflow.python.op module<a class="headerlink" href="#dflow-python-op-module" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="dflow-python-opio-module">
+<h2>dflow.python.opio module<a class="headerlink" href="#dflow-python-opio-module" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="dflow-python-python-op-template-module">
+<h2>dflow.python.python_op_template module<a class="headerlink" href="#dflow-python-python-op-template-module" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="dflow-python-utils-module">
+<h2>dflow.python.utils module<a class="headerlink" href="#dflow-python-utils-module" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">¶</a></h2>
+</section>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">dflow.python package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-dflow.python.op">dflow.python.op module</a></li>
-<li><a class="reference internal" href="#module-dflow.python.opio">dflow.python.opio module</a></li>
-<li><a class="reference internal" href="#module-dflow.python.python_op_template">dflow.python.python_op_template module</a></li>
-<li><a class="reference internal" href="#module-dflow.python.utils">dflow.python.utils module</a></li>
-<li><a class="reference internal" href="#module-dflow.python">Module contents</a></li>
+<li><a class="reference internal" href="#dflow-python-op-module">dflow.python.op module</a></li>
+<li><a class="reference internal" href="#dflow-python-opio-module">dflow.python.opio module</a></li>
+<li><a class="reference internal" href="#dflow-python-python-op-template-module">dflow.python.python_op_template module</a></li>
+<li><a class="reference internal" href="#dflow-python-utils-module">dflow.python.utils module</a></li>
+<li><a class="reference internal" href="#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
 
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -284,12 +90,12 @@ A signature of OPIO includes the key and its typing</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -300,15 +106,13 @@ A signature of OPIO includes the key and its typing</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.6 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">dflow.python package</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, zjgemi.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.0.2.
     </div>
   </body>
 </html>
