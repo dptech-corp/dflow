@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-n-publish:
-    if: github.repository_owner == 'dptech-corp'
+    if: github.repository_owner == 'deepmodeling'
     name: Build and publish Python distributions to PyPI
     runs-on: ubuntu-latest
     steps:

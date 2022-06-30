@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-n-push:
-    if: github.repository_owner == 'dptech-corp'
+    if: github.repository_owner == 'deepmodeling'
     name: Build docker image and push to Docker Hub
     runs-on: ubuntu-latest
     steps:

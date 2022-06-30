@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-n-push:
-    if: github.repository_owner == 'dptech-corp'
+    if: github.repository_owner == 'deepmodeling'
     name: Build docs
     runs-on: ubuntu-latest
     steps:
@@ -16,11 +16,11 @@ jobs:
     - uses: ammaraskar/sphinx-action@master
       with:
         docs-folder: "docs/"
-        build-command: "make html"
+        build-command: "sphinx-apidoc -o ./source ../src && make html"
 
     - name: Commit documentation changes
       run: |
-        git clone https://github.com/dptech-corp/dflow.git --branch docs --single-branch dflow-docs
+        git clone https://github.com/deepmodeling/dflow.git --branch docs --single-branch dflow-docs
         cp -r docs/build/html/* dflow-docs
         cd dflow-docs
         git config --local user.email "action@github.com"
@@ -43,7 +43,7 @@ jobs:
         username: ${{ secrets.MAILUSERNAME }}
         password: ${{ secrets.MAILPASSWORD }}
         subject: Documentation Auto Build For Dflow
-        body: Docs has been published to https://dptech-corp.github.io/dflow/
+        body: Docs has been published to https://deepmodeling.com/dflow/
         to: ${{ secrets.MAIL_RECEIVER_LIST }}
         from: Github Actions
         content_type: text

@@ -226,7 +226,7 @@ minikube start
 To get started quickly, you can use the quick start manifest. It will install Argo Workflow as well as some commonly used components:
 ```
 kubectl create ns argo
-kubectl apply -n argo -f https://raw.githubusercontent.com/dptech-corp/dflow/master/manifests/quick-start-postgres.yaml
+kubectl apply -n argo -f https://raw.githubusercontent.com/deepmodeling/dflow/master/manifests/quick-start-postgres.yaml
 ```
 If you are running Argo Workflows locally (e.g. using Minikube or Docker for Desktop), open a port-forward so you can access the namespace:
 ```
