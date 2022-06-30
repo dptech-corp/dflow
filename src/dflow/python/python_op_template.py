@@ -135,6 +135,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "            for item in json.load(fd)['path_list']:\n"
             script += "                sys.path.insert(0, os.path.join(package_root, os.path.dirname(item['dflow_list_item'])))\n"
 
+        script += "from dflow import config\n"
+        script += "config['save_path_as_parameter'] = %s\n" % config["save_path_as_parameter"]
+        script += "config['catalog_file_name'] = '%s'\n" % config["catalog_file_name"]
         if op_class.__module__ == "__main__":
             source_lines, start_line = inspect.getsourcelines(op_class)
             with open(inspect.getsourcefile(op_class), "r") as fd:
