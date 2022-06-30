@@ -15,6 +15,7 @@ jobs:
 
     - name: Sphinx apidoc
       run: |
+        python -m pip install sphinx
         cd docs
         sphinx-apidoc -o ./source ../src && make html
         cd ..
