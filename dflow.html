@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>dflow package &#8212; dflow 1.1.5 documentation</title>
+    <title>dflow package &#8212; dflow 1.1.6 documentation</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -26,7 +26,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -556,7 +556,7 @@ otherwise modify a.b.c will not take effect</p>
 <span id="dflow-op-template-module"></span><h2>dflow.op_template module<a class="headerlink" href="#module-dflow.op_template" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="dflow.op_template.OPTemplate">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.op_template.</code><code class="sig-name descname">OPTemplate</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">inputs=None</em>, <em class="sig-param">outputs=None</em>, <em class="sig-param">memoize_key=None</em>, <em class="sig-param">pvcs=None</em>, <em class="sig-param">annotations=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.OPTemplate" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dflow.op_template.</code><code class="sig-name descname">OPTemplate</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">inputs=None</em>, <em class="sig-param">outputs=None</em>, <em class="sig-param">memoize_key=None</em>, <em class="sig-param">pvcs=None</em>, <em class="sig-param">annotations=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.OPTemplate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="method">
 <dt id="dflow.op_template.OPTemplate.handle_key">
@@ -567,7 +567,7 @@ otherwise modify a.b.c will not take effect</p>
 
 <dl class="class">
 <dt id="dflow.op_template.PythonScriptOPTemplate">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.op_template.</code><code class="sig-name descname">PythonScriptOPTemplate</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">inputs=None</em>, <em class="sig-param">outputs=None</em>, <em class="sig-param">image=None</em>, <em class="sig-param">command=None</em>, <em class="sig-param">script=None</em>, <em class="sig-param">volumes=None</em>, <em class="sig-param">mounts=None</em>, <em class="sig-param">init_progress='0/1'</em>, <em class="sig-param">timeout=None</em>, <em class="sig-param">retry_strategy=None</em>, <em class="sig-param">memoize_key=None</em>, <em class="sig-param">pvcs=None</em>, <em class="sig-param">image_pull_policy=None</em>, <em class="sig-param">annotations=None</em>, <em class="sig-param">requests=None</em>, <em class="sig-param">limits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.PythonScriptOPTemplate" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dflow.op_template.</code><code class="sig-name descname">PythonScriptOPTemplate</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">inputs=None</em>, <em class="sig-param">outputs=None</em>, <em class="sig-param">image=None</em>, <em class="sig-param">command=None</em>, <em class="sig-param">script=None</em>, <em class="sig-param">volumes=None</em>, <em class="sig-param">mounts=None</em>, <em class="sig-param">init_progress='0/1'</em>, <em class="sig-param">timeout=None</em>, <em class="sig-param">retry_strategy=None</em>, <em class="sig-param">memoize_key=None</em>, <em class="sig-param">pvcs=None</em>, <em class="sig-param">image_pull_policy=None</em>, <em class="sig-param">annotations=None</em>, <em class="sig-param">requests=None</em>, <em class="sig-param">limits=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.PythonScriptOPTemplate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dflow.op_template.ScriptOPTemplate" title="dflow.op_template.ScriptOPTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.op_template.ScriptOPTemplate</span></code></a></p>
 <p>Python script OP template</p>
 <dl class="field-list simple">
@@ -597,7 +597,7 @@ otherwise modify a.b.c will not take effect</p>
 
 <dl class="class">
 <dt id="dflow.op_template.ScriptOPTemplate">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.op_template.</code><code class="sig-name descname">ScriptOPTemplate</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">inputs=None</em>, <em class="sig-param">outputs=None</em>, <em class="sig-param">image=None</em>, <em class="sig-param">command=None</em>, <em class="sig-param">script=None</em>, <em class="sig-param">volumes=None</em>, <em class="sig-param">mounts=None</em>, <em class="sig-param">init_progress='0/1'</em>, <em class="sig-param">timeout=None</em>, <em class="sig-param">retry_strategy=None</em>, <em class="sig-param">memoize_key=None</em>, <em class="sig-param">pvcs=None</em>, <em class="sig-param">resource=None</em>, <em class="sig-param">image_pull_policy=None</em>, <em class="sig-param">annotations=None</em>, <em class="sig-param">requests=None</em>, <em class="sig-param">limits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.ScriptOPTemplate" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dflow.op_template.</code><code class="sig-name descname">ScriptOPTemplate</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">inputs=None</em>, <em class="sig-param">outputs=None</em>, <em class="sig-param">image=None</em>, <em class="sig-param">command=None</em>, <em class="sig-param">script=None</em>, <em class="sig-param">volumes=None</em>, <em class="sig-param">mounts=None</em>, <em class="sig-param">init_progress='0/1'</em>, <em class="sig-param">timeout=None</em>, <em class="sig-param">retry_strategy=None</em>, <em class="sig-param">memoize_key=None</em>, <em class="sig-param">pvcs=None</em>, <em class="sig-param">resource=None</em>, <em class="sig-param">image_pull_policy=None</em>, <em class="sig-param">annotations=None</em>, <em class="sig-param">requests=None</em>, <em class="sig-param">limits=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.ScriptOPTemplate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.op_template.OPTemplate</span></code></a></p>
 <p>Script OP template</p>
 <dl class="field-list simple">
@@ -632,7 +632,7 @@ otherwise modify a.b.c will not take effect</p>
 
 <dl class="class">
 <dt id="dflow.op_template.ShellOPTemplate">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.op_template.</code><code class="sig-name descname">ShellOPTemplate</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">inputs=None</em>, <em class="sig-param">outputs=None</em>, <em class="sig-param">image=None</em>, <em class="sig-param">command=None</em>, <em class="sig-param">script=None</em>, <em class="sig-param">volumes=None</em>, <em class="sig-param">mounts=None</em>, <em class="sig-param">init_progress='0/1'</em>, <em class="sig-param">timeout=None</em>, <em class="sig-param">retry_strategy=None</em>, <em class="sig-param">memoize_key=None</em>, <em class="sig-param">pvcs=None</em>, <em class="sig-param">image_pull_policy=None</em>, <em class="sig-param">annotations=None</em>, <em class="sig-param">requests=None</em>, <em class="sig-param">limits=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.ShellOPTemplate" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dflow.op_template.</code><code class="sig-name descname">ShellOPTemplate</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">inputs=None</em>, <em class="sig-param">outputs=None</em>, <em class="sig-param">image=None</em>, <em class="sig-param">command=None</em>, <em class="sig-param">script=None</em>, <em class="sig-param">volumes=None</em>, <em class="sig-param">mounts=None</em>, <em class="sig-param">init_progress='0/1'</em>, <em class="sig-param">timeout=None</em>, <em class="sig-param">retry_strategy=None</em>, <em class="sig-param">memoize_key=None</em>, <em class="sig-param">pvcs=None</em>, <em class="sig-param">image_pull_policy=None</em>, <em class="sig-param">annotations=None</em>, <em class="sig-param">requests=None</em>, <em class="sig-param">limits=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.ShellOPTemplate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dflow.op_template.ScriptOPTemplate" title="dflow.op_template.ScriptOPTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">dflow.op_template.ScriptOPTemplate</span></code></a></p>
 <p>Shell script OP template</p>
 <dl class="field-list simple">
@@ -782,7 +782,7 @@ otherwise modify a.b.c will not take effect</p>
 <span id="dflow-step-module"></span><h2>dflow.step module<a class="headerlink" href="#module-dflow.step" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="dflow.step.Step">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.step.</code><code class="sig-name descname">Step</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">template</em>, <em class="sig-param">parameters=None</em>, <em class="sig-param">artifacts=None</em>, <em class="sig-param">when=None</em>, <em class="sig-param">with_param=None</em>, <em class="sig-param">continue_on_failed=False</em>, <em class="sig-param">continue_on_num_success=None</em>, <em class="sig-param">continue_on_success_ratio=None</em>, <em class="sig-param">with_sequence=None</em>, <em class="sig-param">key=None</em>, <em class="sig-param">executor=None</em>, <em class="sig-param">use_resource=None</em>, <em class="sig-param">util_image='python:3.8'</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dflow.step.</code><code class="sig-name descname">Step</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">template</em>, <em class="sig-param">parameters=None</em>, <em class="sig-param">artifacts=None</em>, <em class="sig-param">when=None</em>, <em class="sig-param">with_param=None</em>, <em class="sig-param">continue_on_failed=False</em>, <em class="sig-param">continue_on_num_success=None</em>, <em class="sig-param">continue_on_success_ratio=None</em>, <em class="sig-param">with_sequence=None</em>, <em class="sig-param">key=None</em>, <em class="sig-param">executor=None</em>, <em class="sig-param">use_resource=None</em>, <em class="sig-param">util_image='python:3.8'</em>, <em class="sig-param">util_command=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -800,12 +800,19 @@ otherwise modify a.b.c will not take effect</p>
 <li><p><strong>key</strong> – the key of the step</p></li>
 <li><p><strong>executor</strong> – define the executor to execute the script</p></li>
 <li><p><strong>use_resource</strong> – use k8s resource</p></li>
+<li><p><strong>util_image</strong> – image for utility step</p></li>
+<li><p><strong>util_command</strong> – command for utility step</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="method">
 <dt id="dflow.step.Step.convert_to_argo">
 <code class="sig-name descname">convert_to_argo</code><span class="sig-paren">(</span><em class="sig-param">context=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.convert_to_argo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dflow.step.Step.prepare_argo_arguments">
+<code class="sig-name descname">prepare_argo_arguments</code><span class="sig-paren">(</span><em class="sig-param">context=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.prepare_argo_arguments" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -1013,13 +1020,14 @@ Each argument can be Argo parameter</p>
 <span id="dflow-workflow-module"></span><h2>dflow.workflow module<a class="headerlink" href="#module-dflow.workflow" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="dflow.workflow.Workflow">
-<em class="property">class </em><code class="sig-prename descclassname">dflow.workflow.</code><code class="sig-name descname">Workflow</code><span class="sig-paren">(</span><em class="sig-param">name='workflow'</em>, <em class="sig-param">steps=None</em>, <em class="sig-param">id=None</em>, <em class="sig-param">host=None</em>, <em class="sig-param">token=None</em>, <em class="sig-param">k8s_config_file=None</em>, <em class="sig-param">k8s_api_server=None</em>, <em class="sig-param">context=None</em>, <em class="sig-param">annotations=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dflow.workflow.</code><code class="sig-name descname">Workflow</code><span class="sig-paren">(</span><em class="sig-param">name='workflow'</em>, <em class="sig-param">steps=None</em>, <em class="sig-param">dag=None</em>, <em class="sig-param">id=None</em>, <em class="sig-param">host=None</em>, <em class="sig-param">token=None</em>, <em class="sig-param">k8s_config_file=None</em>, <em class="sig-param">k8s_api_server=None</em>, <em class="sig-param">context=None</em>, <em class="sig-param">annotations=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> – the name of the workflow</p></li>
 <li><p><strong>steps</strong> – steps used as the entrypoint of the workflow, if not provided, a empty steps will be used</p></li>
+<li><p><strong>dag</strong> – dag used as the entrypoint of the workflow</p></li>
 <li><p><strong>id</strong> – workflow ID in Argo, you can provide it to track an existing workflow</p></li>
 <li><p><strong>host</strong> – URL of the Argo server, will override global config</p></li>
 <li><p><strong>token</strong> – request the Argo server with the token, will override global config</p></li>
@@ -1181,7 +1189,7 @@ Each argument can be Argo parameter</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.5 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.6 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
