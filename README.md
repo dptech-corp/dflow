@@ -282,6 +282,11 @@ download_artifact(step.outputs.artifacts["bar"])
 Modify `dflow.s3_config` to configure S3 globally.
 Note: dflow retains the relative path of the uploaded file/directory with respect to the current directory during uploading. If file/directory outside current directory is uploaded, its absolute path is used as the relative path in the artifact. If you want a different directory structure in the artifact with the local one, you can make soft links and then upload.
 
+####  3.1.3. <a name="StepvsSteps"></a> Step vs Steps
+`Step` was introduced in [1.2.3](#123-a-namestepastep). It is the central block of a workflow. There is another concept, `Steps`, in dflow. `Steps` is a subclass of OPTemplate. So it can be used as the template of `Step`. `Steps` is a sequential array of concurrent `Step`. A simple example goes like `[[s00,s01],[s10,s11,s12]]`, where inner array represent concurrent tasks while outer array is sequential. One can construct complext workflows of nested structure. One is also allowed to recursively use a `Steps` as the template of a building bloack inside it self to achieve dynamic loop.
+
+- [Steps example](examples/test_recurse.py)
+
 ####  3.1.3. <a name='OutputparameterandartifactofSteps'></a>Output parameter and artifact of Steps
 The output parameter of a `Steps` can be set to come from a step of it by `steps.outputs.parameters["msg"].value_from_parameter = step.outputs.parameters["msg"]`. Here, `step` must be contained in `steps`. For assigning output artifact for a `Steps`, use `steps.outputs.artifacts["foo"]._from = step.outputs.parameters["foo"]`.
 
