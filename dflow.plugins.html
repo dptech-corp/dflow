@@ -25,6 +25,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.6 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">dflow.plugins package</a></li> 
       </ul>
@@ -40,14 +43,90 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 </section>
-<section id="dflow-plugins-dispatcher-module">
-<h2>dflow.plugins.dispatcher module<a class="headerlink" href="#dflow-plugins-dispatcher-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-dflow.plugins.dispatcher">
+<span id="dflow-plugins-dispatcher-module"></span><h2>dflow.plugins.dispatcher module<a class="headerlink" href="#module-dflow.plugins.dispatcher" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.plugins.dispatcher.DispatcherExecutor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.dispatcher.</span></span><span class="sig-name descname"><span class="pre">DispatcherExecutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">22</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'root'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">private_key_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dptechnology/dpdispatcher'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'python'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_tmp_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">machine_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resources_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.dispatcher.DispatcherExecutor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a></p>
+<p>Dispatcher executor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> – remote host</p></li>
+<li><p><strong>queue_name</strong> – queue name</p></li>
+<li><p><strong>port</strong> – SSH port</p></li>
+<li><p><strong>username</strong> – username</p></li>
+<li><p><strong>private_key_file</strong> – private key file for SSH</p></li>
+<li><p><strong>image</strong> – image for dispatcher</p></li>
+<li><p><strong>command</strong> – command for dispatcher</p></li>
+<li><p><strong>remote_command</strong> – command for running the script remotely</p></li>
+<li><p><strong>map_tmp_dir</strong> – map /tmp to ./tmp</p></li>
+<li><p><strong>machine_dict</strong> – machine config for dispatcher</p></li>
+<li><p><strong>resources_dict</strong> – resources config for dispatcher</p></li>
+<li><p><strong>task_dict</strong> – task config for dispatcher</p></li>
+<li><p><strong>json_file</strong> – JSON file containing machine and resources config</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.dispatcher.DispatcherExecutor.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.dispatcher.DispatcherExecutor.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template, do not modify self in this method to make the executor reusable</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="dflow-plugins-lebesgue-module">
-<h2>dflow.plugins.lebesgue module<a class="headerlink" href="#dflow-plugins-lebesgue-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-dflow.plugins.lebesgue">
+<span id="dflow-plugins-lebesgue-module"></span><h2>dflow.plugins.lebesgue module<a class="headerlink" href="#module-dflow.plugins.lebesgue" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.plugins.lebesgue.LebesgueContext">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.lebesgue.</span></span><span class="sig-name descname"><span class="pre">LebesgueContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">org_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">executor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authorization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.context.Context" title="dflow.context.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a></p>
+<p>Lebesgue context</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>app_name</strong> – application name</p></li>
+<li><p><strong>org_id</strong> – organization ID</p></li>
+<li><p><strong>user_id</strong> – user ID</p></li>
+<li><p><strong>tag</strong> – tag</p></li>
+<li><p><strong>executor</strong> – executor</p></li>
+<li><p><strong>extra</strong> – extra arguments</p></li>
+<li><p><strong>authorization</strong> – JWT token</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.lebesgue.LebesgueContext.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueContext.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.plugins.lebesgue.LebesgueExecutor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.lebesgue.</span></span><span class="sig-name descname"><span class="pre">LebesgueExecutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueExecutor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a></p>
+<p>Lebesgue executor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>extra</strong> – extra arguments, will override extra defined in global context</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.lebesgue.LebesgueExecutor.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueExecutor.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template, do not modify self in this method to make the executor reusable</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">¶</a></h2>
+<section id="module-dflow.plugins">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dflow.plugins" title="Permalink to this heading">¶</a></h2>
 </section>
 </section>
 
@@ -63,9 +142,9 @@
     <ul>
 <li><a class="reference internal" href="#">dflow.plugins package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#dflow-plugins-dispatcher-module">dflow.plugins.dispatcher module</a></li>
-<li><a class="reference internal" href="#dflow-plugins-lebesgue-module">dflow.plugins.lebesgue module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-dflow.plugins.dispatcher">dflow.plugins.dispatcher module</a></li>
+<li><a class="reference internal" href="#module-dflow.plugins.lebesgue">dflow.plugins.lebesgue module</a></li>
+<li><a class="reference internal" href="#module-dflow.plugins">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -98,6 +177,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.6 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">dflow.plugins package</a></li> 
       </ul>
