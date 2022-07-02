@@ -4,7 +4,7 @@ import jsonpickle
 from typing import Set, List
 from pathlib import Path
 from ..config import config
-from .opio import BigParameter
+from .opio import Parameter, BigParameter
 from ..utils import assemble_path_list, convert_dflow_list, copy_file, remove_empty_dir_tag
 
 def handle_input_artifact(name, sign, slices=None, data_root="/tmp"):
@@ -48,10 +48,13 @@ def handle_input_parameter(name, value, sign, slices=None, data_root="/tmp"):
                 obj = content["value"]
             else:
                 obj = jsonpickle.loads(content["value"])
-    elif sign == str and slices is None:
-        obj = value
     else:
-        obj = jsonpickle.loads(value)
+        if isinstance(sign, Parameter):
+            sign = sign.type
+        if sign == str and slices is None:
+            obj = value
+        else:
+            obj = jsonpickle.loads(value)
 
     if slices is not None:
         assert isinstance(obj, list), "Only parameters of type list can be sliced, while %s is not list" % obj
@@ -116,12 +119,15 @@ def handle_output_parameter(name, value, sign, slices=None, data_root="/tmp"):
             content["value"] = jsonpickle.dumps(value)
         with open(data_root + "/outputs/parameters/" + name, "w") as f:
             f.write(jsonpickle.dumps(content))
-    elif sign == str:
-        with open(data_root + '/outputs/parameters/' + name, 'w') as f:
-            f.write(value)
     else:
-        with open(data_root + '/outputs/parameters/' + name, 'w') as f:
-            f.write(jsonpickle.dumps(value))
+        if isinstance(sign, Parameter):
+            sign = sign.type
+        if sign == str:
+            with open(data_root + '/outputs/parameters/' + name, 'w') as f:
+                f.write(value)
+        else:
+            with open(data_root + '/outputs/parameters/' + name, 'w') as f:
+                f.write(jsonpickle.dumps(value))
 
 def copy_results_and_return_path_item(path, name, order, data_root="/tmp"):
     if path and os.path.exists(str(path)):

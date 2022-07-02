@@ -4,7 +4,7 @@ import typeguard
 from .. import __path__
 from ..config import config
 from .op import OP
-from .opio import Artifact, BigParameter
+from .opio import Artifact, Parameter, BigParameter
 from ..op_template import PythonScriptOPTemplate
 from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact
 from ..utils import upload_artifact
@@ -91,6 +91,11 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 self.inputs.artifacts[name] = InputArtifact(path="/tmp/inputs/artifacts/" + name, optional=sign.optional, type=sign.type)
             elif isinstance(sign, BigParameter):
                 self.inputs.parameters[name] = InputParameter(save_as_artifact=True, path="/tmp/inputs/parameters/" + name, type=sign.type)
+            elif isinstance(sign, Parameter):
+                if hasattr(sign, "default"):
+                    self.inputs.parameters[name] = InputParameter(type=sign.type, value=sign.default)
+                else:
+                    self.inputs.parameters[name] = InputParameter(type=sign.type)
             else:
                 self.inputs.parameters[name] = InputParameter(type=sign)
         for name, sign in output_sign.items():
@@ -99,6 +104,11 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     archive=sign.archive, save=sign.save, global_name=sign.global_name, type=sign.type)
             elif isinstance(sign, BigParameter):
                 self.outputs.parameters[name] = OutputParameter(save_as_artifact=True, value_from_path="/tmp/outputs/parameters/" + name, type=sign.type)
+            elif isinstance(sign, Parameter):
+                if hasattr(sign, "default"):
+                    self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name, default=sign.default, global_name=sign.global_name, type=sign.type)
+                else:
+                    self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name, global_name=sign.global_name, type=sign.type)
             else:
                 default = None
                 if output_parameter_default is not None and name in output_parameter_default:

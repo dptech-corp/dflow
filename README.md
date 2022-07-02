@@ -493,6 +493,27 @@ In this example, each item in `msg_list` is passed to a parallel step as the inp
 
 - [Slices example](examples/test_slices.py)
 
+It should be noticed that this feature by default passes full input artifacts to each parallel step which may only use some slices of these artifacts. In comparison, the subpath mode of slices only passes one single slice of the input artifacts to each parallel step. To use the subpath mode of slices,
+```python
+step = Step(name="parallel-tasks",
+    template=PythonOPTemplate(
+        ...,
+        slices=Slices(sub_path=True,
+            input_parameter=["msg"],
+            input_artifact=["data"],
+            output_artifact=["log"])
+    ),
+    parameters = {
+        "msg": msg_list
+    },
+    artifacts={
+        "data": data_list
+    })
+```
+Here, the slice pattern (`{{item}}`) of `PythonOPTemplate` and the `with_param` argument of the `Step` need not to be set, because they are fixed in this mode. Each input parameter and artifact to be sliced must be of the same length, and the parallelism equals to this length. Another noticeable point is that in order to use the subpath of the artifacts, these artifacts must be saved without compression when they are generated. E.g. declare `Artifact(..., archive=None)` in the output signs of Python OP, or specify `upload_artifact(..., archive=None)` while uploading artifacts. Besides, one can use `dflow.config["archive_mode"] = None` to set default archive mode to no compression globally.
+
+- [Subpath mode of slices example](examples/test_subpath_slices.py)
+
 ####  3.2.2. <a name='Retryanderrorhandling'></a> Retry and error handling
 Dflow catches `TransientError` and `FatalError` thrown from `OP`. User can set maximum number of retries on `TransientError` by `PythonOPTemplate(..., retry_on_transient_error=n)`. Timeout error is regarded as fatal error for default. To treat timeout error as transient error, set `PythonOPTemplate(..., timeout_as_transient_error=True)`.
 

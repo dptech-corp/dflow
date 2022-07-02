@@ -244,12 +244,13 @@ class InputParameter(ArgoVar):
         type: parameter type
         value: default value
     """
-    def __init__(self, name=None, step=None, template=None, type=None, value=None, save_as_artifact=False, path=None, source=None):
+    def __init__(self, name=None, step=None, template=None, type=None, save_as_artifact=False, path=None, source=None, **kwargs):
         self.name = name
         self.step = step
         self.template = template
         self.type = type
-        self.value = value
+        if "value" in kwargs:
+            self.value = kwargs["value"]
         self.save_as_artifact = save_as_artifact
         self.path = path
         self.source = source
@@ -300,7 +301,7 @@ class InputParameter(ArgoVar):
             description = jsonpickle.dumps({"type": str(self.type)})
 
         if self.save_as_artifact:
-            if self.value is not None:
+            if hasattr(self, "value"):
                 with tempfile.TemporaryDirectory() as tmpdir:
                     content = {}
                     if isinstance(self.value, str):
@@ -322,7 +323,7 @@ class InputParameter(ArgoVar):
             else:
                 return V1alpha1Artifact(name="dflow_bigpar_" + self.name, path=self.path)
 
-        if self.value is None:
+        if not hasattr(self, "value"):
             return V1alpha1Parameter(name=self.name, description=description)
         elif isinstance(self.value, ArgoVar):
             return V1alpha1Parameter(name=self.name, value="{{=%s}}" % self.value.expr, description=description)
@@ -414,19 +415,21 @@ class OutputParameter(ArgoVar):
         value_from_expression: the value is from an expression
         value: specify value directly
     """
-    def __init__(self, value_from_path=None, value_from_parameter=None, name=None, step=None, template=None, type=None, default=None, global_name=None,
-            value_from_expression=None, save_as_artifact=False, value=None):
+    def __init__(self, value_from_path=None, value_from_parameter=None, name=None, step=None, template=None, type=None, global_name=None,
+            value_from_expression=None, save_as_artifact=False, **kwargs):
         self.value_from_path = value_from_path
         self.value_from_parameter = value_from_parameter
         self.name = name
         self.step = step
         self.template = template
         self.type = type
-        self.default = default
         self.global_name = global_name
         self.value_from_expression = value_from_expression
         self.save_as_artifact = save_as_artifact
-        self.value = value
+        if "default" in kwargs:
+            self.default = kwargs["default"]
+        if "value" in kwargs:
+            self.value = kwargs["value"]
 
     def __getattr__(self, key):
         if key == "expr":
@@ -493,13 +496,17 @@ class OutputParameter(ArgoVar):
             else:
                 raise RuntimeError("Not supported.")
 
+        default = None
+        if hasattr(self, "default"):
+            default = self.default if isinstance(self.default, str) else jsonpickle.dumps(self.default)
+
         if self.value_from_path is not None:
-            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(path=self.value_from_path, default=self.default), global_name=self.global_name, description=description)
+            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(path=self.value_from_path, default=default), global_name=self.global_name, description=description)
         elif self.value_from_parameter is not None:
-            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(parameter=str(self.value_from_parameter), default=self.default), global_name=self.global_name, description=description)
+            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(parameter=str(self.value_from_parameter), default=default), global_name=self.global_name, description=description)
         elif self.value_from_expression is not None:
-            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(expression=str(self.value_from_expression), default=self.default), global_name=self.global_name, description=description)
-        elif self.value is not None:
+            return V1alpha1Parameter(name=self.name, value_from=V1alpha1ValueFrom(expression=str(self.value_from_expression), default=default), global_name=self.global_name, description=description)
+        elif hasattr(self, "value"):
             value = self.value if isinstance(self.value, str) else jsonpickle.dumps(self.value)
             return V1alpha1Parameter(name=self.name, value=value, global_name=self.global_name, description=description)
         else:
@@ -519,7 +526,7 @@ class OutputArtifact(ArgoVar):
         global_name: global name of the artifact within the workflow
         from_expression: the artifact is from an expression
     """
-    def __init__(self, path=None, _from=None, name=None, step=None, template=None, type=None, save=None, archive="tar", global_name=None,
+    def __init__(self, path=None, _from=None, name=None, step=None, template=None, type=None, save=None, archive="default", global_name=None,
             from_expression=None):
         self.path = path
         self.name = name
@@ -531,6 +538,8 @@ class OutputArtifact(ArgoVar):
         elif not isinstance(save, list):
             save = [save]
         self.save = save
+        if archive == "default":
+            archive = config["archive_mode"]
         self.archive = archive
         self._sub_path = None
         self.global_name = global_name

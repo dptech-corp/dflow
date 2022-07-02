@@ -1,7 +1,7 @@
 import abc,os,functools
 from abc import ABC
 from typeguard import check_type
-from .opio import Artifact, OPIO, OPIOSign
+from .opio import Artifact, Parameter, OPIO, OPIOSign
 
 class OP(ABC):
     """
@@ -62,13 +62,18 @@ class OP(ABC):
     ) -> None:
         for ii in sign.keys() :
             if ii not in opio.keys():
-                raise RuntimeError('key %s required in signature is not provided by the opio' % ii)
+                if isinstance(sign[ii], Parameter) and hasattr(sign[ii], "default"):
+                    opio[ii] = sign[ii].default
+                else:
+                    raise RuntimeError('key %s required in signature is not provided by the opio' % ii)
         for ii in opio.keys() :
             if ii not in sign.keys():
                 raise RuntimeError('key %s in OPIO is not in its signature' % ii)
             io = opio[ii]
             ss = sign[ii]
             if isinstance(ss, Artifact):
+                ss = ss.type
+            if isinstance(ss, Parameter):
                 ss = ss.type
             # skip type checking if the variable is None
             if io is not None:
