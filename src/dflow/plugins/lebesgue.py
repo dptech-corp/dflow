@@ -7,6 +7,8 @@ from ..executor import Executor
 from ..context import Context
 from ..utils import randstr
 
+succ_code = [0, "0000"]
+
 class LebesgueExecutor(Executor):
     """
     Lebesgue executor
@@ -60,8 +62,13 @@ class LebesgueContext(Context):
             }
             rsp = requests.post(login_url, headers={"Content-type": "application/json"}, json=data)
             res = json.loads(rsp.text)
-            if res["code"] != 0:
-                raise RuntimeError("Login failed: %s" % res["error"]["msg"])
+            if res["code"] not in succ_code:
+                if "error" in res:
+                    raise RuntimeError("Login failed: %s" % res["error"]["msg"])
+                elif "message" in res:
+                    raise RuntimeError("Login failed: %s" % res["message"])
+                else:
+                    raise RuntimeError("Login failed")
             self.authorization = res["data"]["token"]
 
     def render(self, template):
