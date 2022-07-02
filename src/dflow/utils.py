@@ -62,7 +62,7 @@ def download_artifact(artifact, extract=True, **kwargs):
     else:
         raise NotImplementedError()
 
-def upload_artifact(path, archive="tar", **kwargs):
+def upload_artifact(path, archive="default", **kwargs):
     """
     Upload an artifact from local to Argo
 
@@ -75,6 +75,8 @@ def upload_artifact(path, archive="tar", **kwargs):
         secure: secure or not for Minio
         bucket_name: bucket name for Minio
     """
+    if archive is "default":
+        archive = config["archive_mode"]
     if not isinstance(path, (list, set)):
         path = [path]
     cwd = os.getcwd()

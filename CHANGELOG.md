@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 1.1.7
+
+### Added
+
+- add Parameter type sign for Python OP
+- add username and password authentication for Lebesgue executor
+- add global config archive_mode
+
+### Fix
+
+- fix: local config does not take effect for remote OP
+- fix: dflow_dflow_private_key_path_list was not supplied
+
 ## 1.1.6
 
 ### Added

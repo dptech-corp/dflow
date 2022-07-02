@@ -1,4 +1,5 @@
 import json
+import requests
 from copy import deepcopy
 from ..workflow import Workflow
 from ..op_template import ShellOPTemplate, PythonScriptOPTemplate
@@ -28,6 +29,9 @@ class LebesgueContext(Context):
     Lebesgue context
 
     Args:
+        username: user name for Lebesgue
+        password: password for Lebesgue
+        login_url: login url for Lebesgue
         app_name: application name
         org_id: organization ID
         user_id: user ID
@@ -36,14 +40,29 @@ class LebesgueContext(Context):
         extra: extra arguments
         authorization: JWT token
     """
-    def __init__(self, app_name=None, org_id=None, user_id=None, tag=None, executor=None, extra=None, authorization=None):
+    def __init__(self, username=None, password=None, login_url="https://workflow.dp.tech/account_gw/login", app_name=None,
+            org_id=None, user_id=None, tag=None, executor=None, extra=None, authorization=None):
+        self.login_url = login_url
+        self.username = username
+        self.password = password
         self.app_name = app_name
         self.org_id = org_id
         self.user_id = user_id
         self.tag = tag
         self.executor = executor
         self.extra = extra
-        self.authorization = authorization
+        if authorization is not None:
+            self.authorization = authorization
+        else:
+            data = {
+                "username": username,
+                "password": password,
+            }
+            rsp = requests.post(login_url, headers={"Content-type": "application/json"}, json=data)
+            res = json.loads(rsp.text)
+            if res["code"] != 0:
+                raise RuntimeError("Login failed: %s" % res["error"]["msg"])
+            self.authorization = res["data"]["token"]
 
     def render(self, template):
         if isinstance(template, Workflow):

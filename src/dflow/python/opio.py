@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Any, Set, List
 from collections.abc import MutableMapping
+from ..config import config
 
 ArtifactAllowedTypes = [str, Path, Set[str], Set[Path], List[str], List[Path]]
 
@@ -15,8 +16,10 @@ class Artifact:
         optional: optional input artifact or not
         global_name: global name of the artifact within the workflow
     """
-    def __init__(self, type, archive="tar", save=None, optional=False, global_name=None):
+    def __init__(self, type, archive="default", save=None, optional=False, global_name=None):
         self.type = type
+        if archive is "default":
+            archive = config["archive_mode"]
         self.archive = archive
         self.save = save
         self.optional = optional
@@ -27,7 +30,28 @@ class Artifact:
             assert (value in ArtifactAllowedTypes), "%s is not allowed artifact type, only %s are allowed." % (value, ArtifactAllowedTypes)
         super().__setattr__(key, value)
 
+class Parameter:
+    """
+    OPIO signature of parameter
+
+    Args:
+        type: parameter type
+        global_name: global name of the parameter within the workflow
+        default: default value of the parameter
+    """
+    def __init__(self, type, global_name=None, **kwargs):
+        self.type = type
+        self.global_name = global_name
+        if "default" in kwargs:
+            self.default = kwargs["default"]
+
 class BigParameter:
+    """
+    OPIO signature of big parameter
+
+    Args:
+        type: parameter type
+    """
     def __init__(self, type):
         self.type = type
 
