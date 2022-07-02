@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.1.8
+
+### Added
+
+- modify the interface with Lebesgue
+
 ## 1.1.7
 
 ### Added
