@@ -9,7 +9,7 @@ with open('README.md', 'r') as f:
 setup(
     name='pydflow',
     version=VERSION,
-    description='Dflow is a concurrent learning framework based on Argo Workflows.',
+    description='Dflow is a Python framework for constructing scientific computing workflows based on Argo.',
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     author="Xinzijian Liu",
