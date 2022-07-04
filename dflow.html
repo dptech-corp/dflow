@@ -1081,6 +1081,56 @@ Each argument can be Argo parameter</p>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="dflow.utils.run_command">
+<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">run_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dflow.utils.run_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run shell command in subprocess</p>
+<dl class="simple">
+<dt>cmd: list of str, or str</dt><dd><p>Command to execute</p>
+</dd>
+<dt>raise_error: bool</dt><dd><p>Wheter to raise an error if the command failed</p>
+</dd>
+<dt>input: str, optional</dt><dd><p>Input string for the command</p>
+</dd>
+<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs:</dt><dd><p>Arguments in subprocess.Popen</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>AssertionError:</dt><dd><p>Raises if the error failed to execute and <cite>raise_error</cite> set to <cite>True</cite></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>return_code: int</dt><dd><p>The return code of the command</p>
+</dd>
+<dt>out: str</dt><dd><p>stdout content of the executed command</p>
+</dd>
+<dt>err: str</dt><dd><p>stderr content of the executed command</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.utils.set_directory">
+<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">set_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mkdir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.set_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set current workding directory within context</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dirname</strong> (<em>os.PathLike</em>) – The directory path to change to</p></li>
+<li><p><strong>mkdir</strong> (<em>bool</em>) – Whether make directory if <cite>dirname</cite> does not exist</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>path</strong> (<em>Path</em>) – The absolute path of the changed working directory</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">set_directory</span><span class="p">(</span><span class="s2">&quot;some_path&quot;</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="n">do_something</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="dflow.utils.upload_artifact">
 <span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">upload_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.upload_artifact" title="Permalink to this definition">¶</a></dt>
 <dd><p>Upload an artifact from local to Argo</p>
