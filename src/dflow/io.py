@@ -1,20 +1,21 @@
+import os
 import tempfile
-from copy import deepcopy
 from collections import UserDict
+from copy import deepcopy
+from typing import Any, Dict, List, Union
+
 import jsonpickle
+
 try:
-    from argo.workflows.client import (
-        V1alpha1Inputs,
-        V1alpha1Outputs,
-        V1alpha1RawArtifact,
-        V1alpha1ArchiveStrategy
-    )
-    from .client import V1alpha1ValueFrom, V1alpha1Parameter, V1alpha1Artifact
+    from argo.workflows.client import (V1alpha1ArchiveStrategy, V1alpha1Inputs,
+                                       V1alpha1Outputs, V1alpha1RawArtifact)
+
+    from .client import V1alpha1Artifact, V1alpha1Parameter, V1alpha1ValueFrom
 except:
     pass
 from .common import S3Artifact
 from .config import config
-from .utils import upload_s3, randstr
+from .utils import randstr, upload_s3
 
 NotAllowedInputArtifactPath = ["/", "/tmp"]
 
@@ -84,112 +85,6 @@ class OutputArtifacts(AutonamedDict):
                 self.template.outputs.parameters["dflow_%s_path_list" % name] = OutputParameter(value=".")
                 art.handle_path_list()
 
-class Inputs:
-    """
-    Inputs for OP template
-
-    Args:
-        parameters: input parameters
-        artifacts: input artifacts
-    """
-    def __init__(self, parameters=None, artifacts=None, step=None, template=None):
-        self.step = step
-        self.template = template
-        if parameters is not None:
-            self.parameters = parameters
-        else:
-            self.parameters = InputParameters(step=self.step, template=self.template)
-        
-        if artifacts is not None:
-            self.artifacts = artifacts
-        else:
-            self.artifacts = InputArtifacts(step=self.step, template=self.template)
-
-    def __setattr__(self, key, value):
-        if key == "parameters":
-            assert isinstance(value, (dict, UserDict))
-            super().__setattr__(key, InputParameters(value, step=self.step, template=self.template))
-        elif key == "artifacts":
-            assert isinstance(value, (dict, UserDict))
-            super().__setattr__(key, InputArtifacts(value, step=self.step, template=self.template))
-        else:
-            super().__setattr__(key, value)
-
-    def set_step(self, step):
-        self.step = step
-        self.parameters.set_step(step)
-        self.artifacts.set_step(step)
-
-    def set_template(self, template):
-        self.template = template
-        self.parameters.set_template(template)
-        self.artifacts.set_template(template)
-
-    def convert_to_argo(self):
-        parameters = []
-        artifacts = []
-        for par in self.parameters.values():
-            if par.save_as_artifact:
-                artifacts.append(par.convert_to_argo())
-            else:
-                parameters.append(par.convert_to_argo())
-        for art in self.artifacts.values():
-            artifacts.append(art.convert_to_argo())
-        return V1alpha1Inputs(parameters=parameters, artifacts=artifacts)
-
-class Outputs:
-    """
-    Outputs for OP template
-
-    Args:
-        paramters: output parameters
-        artifacts: output artifacts
-    """
-    def __init__(self, parameters=None, artifacts=None, step=None, template=None):
-        self.step = step
-        self.template = template
-        if parameters is not None:
-            self.parameters = parameters
-        else:
-            self.parameters = OutputParameters(step=self.step, template=self.template)
-        
-        if artifacts is not None:
-            self.artifacts = artifacts
-        else:
-            self.artifacts = OutputArtifacts(step=self.step, template=self.template)
-
-    def __setattr__(self, key, value):
-        if key == "parameters":
-            assert isinstance(value, (dict, UserDict))
-            super().__setattr__(key, OutputParameters(value, step=self.step, template=self.template))
-        elif key == "artifacts":
-            assert isinstance(value, (dict, UserDict))
-            super().__setattr__(key, OutputArtifacts(value, step=self.step, template=self.template))
-        else:
-            super().__setattr__(key, value)
-
-    def set_step(self, step):
-        self.step = step
-        self.parameters.set_step(step)
-        self.artifacts.set_step(step)
-
-    def set_template(self, template):
-        self.template = template
-        self.parameters.set_template(template)
-        self.artifacts.set_template(template)
-
-    def convert_to_argo(self):
-        parameters = []
-        artifacts = []
-        for par in self.parameters.values():
-            if par.save_as_artifact:
-                artifacts.append(par.convert_to_argo())
-            else:
-                parameters.append(par.convert_to_argo())
-        for art in self.artifacts.values():
-            artifacts.append(art.convert_to_argo())
-        return V1alpha1Outputs(parameters=parameters, artifacts=artifacts)
-
 class ArgoVar:
     def __init__(self, expr=None):
         self.expr = expr
@@ -235,6 +130,55 @@ class ArgoVar:
             other = "asFloat(%s)" % other.expr
         return ArgoVar("asFloat(%s) >= %s" % (self.expr, other))
 
+class IfExpression:
+    def __init__(
+            self,
+            _if : Union[str, ArgoVar],
+            _then : Union[str, ArgoVar],
+            _else: Union[str, ArgoVar],
+    ) -> None:
+        self._if = _if
+        self._then = _then
+        self._else = _else
+
+    def __repr__(self) -> str:
+        _if = self._if.expr if isinstance(self._if, ArgoVar) else self._if
+        _then = self._then.expr if isinstance(self._then, ArgoVar) else self._then
+        _else = self._else.expr if isinstance(self._else, ArgoVar) else self._else
+        return "%s ? %s : %s" % (_if, _then, _else)
+
+def if_expression(
+            _if : Union[str, ArgoVar],
+            _then : Union[str, ArgoVar],
+            _else: Union[str, ArgoVar],
+    ) -> IfExpression:
+    """
+    Return an if expression in Argo
+
+    Args:
+        _if: a bool expression, which may be a comparison of two Argo parameters
+        _then: value returned if the condition is satisfied
+        _else: value returned if the condition is not satisfied
+    """
+    return IfExpression(_if, _then, _else)
+
+class PVC:
+    def __init__(
+            self,
+            name : str,
+            subpath : str,
+            size : str = "1Gi",
+            storage_class : str = None,
+            access_modes : List[str] = None,
+    ) -> None:
+        self.name = name
+        self.subpath = subpath
+        self.size = size
+        self.storage_class = storage_class
+        if access_modes is None:
+            access_modes = ["ReadWriteOnce"]
+        self.access_modes = access_modes
+
 class InputParameter(ArgoVar):
     """
     Input parameter for OP template
@@ -244,7 +188,17 @@ class InputParameter(ArgoVar):
         type: parameter type
         value: default value
     """
-    def __init__(self, name=None, step=None, template=None, type=None, save_as_artifact=False, path=None, source=None, **kwargs):
+    def __init__(
+            self,
+            name : str = None,
+            step = None,
+            template = None,
+            type : Any = None,
+            save_as_artifact : bool = False,
+            path : str = None,
+            source : Union["InputArtifact", "OutputArtifact", S3Artifact] = None,
+            **kwargs,
+    ) -> None:
         self.name = name
         self.step = step
         self.template = template
@@ -343,7 +297,19 @@ class InputArtifact(ArgoVar):
         type: artifact type
         source: default source
     """
-    def __init__(self, path=None, name=None, step=None, template=None, optional=False, type=None, source=None, mode=None, sub_path=None):
+    def __init__(
+            self,
+            path: str = None,
+            name : str = None,
+            step = None,
+            template = None,
+            optional: bool = False,
+            type : Any = None,
+            source : Union[str, "InputArtifact", "OutputArtifact", S3Artifact] = None,
+            mode : int = None,
+            sub_path : str = None,
+            **kwargs,
+    ) -> None:
         self.path = path
         self.name = name
         self.step = step
@@ -415,8 +381,19 @@ class OutputParameter(ArgoVar):
         value_from_expression: the value is from an expression
         value: specify value directly
     """
-    def __init__(self, value_from_path=None, value_from_parameter=None, name=None, step=None, template=None, type=None, global_name=None,
-            value_from_expression=None, save_as_artifact=False, **kwargs):
+    def __init__(
+            self,
+            value_from_path : str = None,
+            value_from_parameter : Union[InputParameter, "OutputParameter"] = None,
+            name : str = None,
+            step = None,
+            template = None,
+            type : Any = None,
+            global_name : str = None,
+            value_from_expression : Union[str, IfExpression] = None,
+            save_as_artifact : bool = False,
+            **kwargs,
+    ) -> None:
         self.value_from_path = value_from_path
         self.value_from_parameter = value_from_parameter
         self.name = name
@@ -526,8 +503,20 @@ class OutputArtifact(ArgoVar):
         global_name: global name of the artifact within the workflow
         from_expression: the artifact is from an expression
     """
-    def __init__(self, path=None, _from=None, name=None, step=None, template=None, type=None, save=None, archive="default", global_name=None,
-            from_expression=None):
+    def __init__(
+            self,
+            path : os.PathLike = None,
+            _from : Union[InputArtifact, "OutputArtifact"] = None,
+            name : str = None,
+            step = None,
+            template = None,
+            type : Any = None,
+            save : List[Union[PVC, S3Artifact]] = None,
+            archive : str = None,
+            global_name : str = None,
+            from_expression : Union[IfExpression, str] = None,
+            **kwargs,
+    ) -> None:
         self.path = path
         self.name = name
         self.step = step
@@ -633,35 +622,120 @@ class OutputArtifact(ArgoVar):
         else:
             raise RuntimeError("Output artifact %s is not specified" % self)
 
-class PVC:
-    def __init__(self, name, subpath, size="1Gi", storage_class=None, access_modes=None):
-        self.name = name
-        self.subpath = subpath
-        self.size = size
-        self.storage_class = storage_class
-        if access_modes is None:
-            access_modes = ["ReadWriteOnce"]
-        self.access_modes = access_modes
-
-def if_expression(_if, _then, _else):
+class Inputs:
     """
-    Return an if expression in Argo
+    Inputs for OP template
 
     Args:
-        _if: a bool expression, which may be a comparison of two Argo parameters
-        _then: value returned if the condition is satisfied
-        _else: value returned if the condition is not satisfied
+        parameters: input parameters
+        artifacts: input artifacts
     """
-    return IfExpression(_if, _then, _else)
+    def __init__(
+            self,
+            parameters : Dict[str, InputParameter] = None,
+            artifacts : Dict[str, InputArtifact] = None,
+            step = None,
+            template = None,
+    ) -> None:
+        self.step = step
+        self.template = template
+        if parameters is not None:
+            self.parameters = parameters
+        else:
+            self.parameters = InputParameters(step=self.step, template=self.template)
 
-class IfExpression:
-    def __init__(self, _if, _then, _else):
-        self._if = _if
-        self._then = _then
-        self._else = _else
+        if artifacts is not None:
+            self.artifacts = artifacts
+        else:
+            self.artifacts = InputArtifacts(step=self.step, template=self.template)
 
-    def __repr__(self):
-        _if = self._if.expr if isinstance(self._if, ArgoVar) else self._if
-        _then = self._then.expr if isinstance(self._then, ArgoVar) else self._then
-        _else = self._else.expr if isinstance(self._else, ArgoVar) else self._else
-        return "%s ? %s : %s" % (_if, _then, _else)
+    def __setattr__(self, key, value):
+        if key == "parameters":
+            assert isinstance(value, (dict, UserDict))
+            super().__setattr__(key, InputParameters(value, step=self.step, template=self.template))
+        elif key == "artifacts":
+            assert isinstance(value, (dict, UserDict))
+            super().__setattr__(key, InputArtifacts(value, step=self.step, template=self.template))
+        else:
+            super().__setattr__(key, value)
+
+    def set_step(self, step):
+        self.step = step
+        self.parameters.set_step(step)
+        self.artifacts.set_step(step)
+
+    def set_template(self, template):
+        self.template = template
+        self.parameters.set_template(template)
+        self.artifacts.set_template(template)
+
+    def convert_to_argo(self):
+        parameters = []
+        artifacts = []
+        for par in self.parameters.values():
+            if par.save_as_artifact:
+                artifacts.append(par.convert_to_argo())
+            else:
+                parameters.append(par.convert_to_argo())
+        for art in self.artifacts.values():
+            artifacts.append(art.convert_to_argo())
+        return V1alpha1Inputs(parameters=parameters, artifacts=artifacts)
+
+class Outputs:
+    """
+    Outputs for OP template
+
+    Args:
+        paramters: output parameters
+        artifacts: output artifacts
+    """
+    def __init__(
+            self,
+            parameters : Dict[str, OutputParameter] = None,
+            artifacts : Dict[str, OutputArtifact] = None,
+            step = None,
+            template = None,
+    ) -> None:
+        self.step = step
+        self.template = template
+        if parameters is not None:
+            self.parameters = parameters
+        else:
+            self.parameters = OutputParameters(step=self.step, template=self.template)
+
+        if artifacts is not None:
+            self.artifacts = artifacts
+        else:
+            self.artifacts = OutputArtifacts(step=self.step, template=self.template)
+
+    def __setattr__(self, key, value):
+        if key == "parameters":
+            assert isinstance(value, (dict, UserDict))
+            super().__setattr__(key, OutputParameters(value, step=self.step, template=self.template))
+        elif key == "artifacts":
+            assert isinstance(value, (dict, UserDict))
+            super().__setattr__(key, OutputArtifacts(value, step=self.step, template=self.template))
+        else:
+            super().__setattr__(key, value)
+
+    def set_step(self, step):
+        self.step = step
+        self.parameters.set_step(step)
+        self.artifacts.set_step(step)
+
+    def set_template(self, template):
+        self.template = template
+        self.parameters.set_template(template)
+        self.artifacts.set_template(template)
+
+    def convert_to_argo(self):
+        parameters = []
+        artifacts = []
+        for par in self.parameters.values():
+            if par.save_as_artifact:
+                artifacts.append(par.convert_to_argo())
+            else:
+                parameters.append(par.convert_to_argo())
+        for art in self.artifacts.values():
+            artifacts.append(art.convert_to_argo())
+        return V1alpha1Outputs(parameters=parameters, artifacts=artifacts)

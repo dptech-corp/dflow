@@ -1,21 +1,37 @@
+from typing import Dict, List, Union
+
 try:
-    from argo.workflows.client import (
-        V1alpha1Template,
-        V1alpha1ScriptTemplate,
-        V1alpha1Metadata,
-        V1ConfigMapKeySelector,
-        V1alpha1Memoize,
-        V1alpha1Cache,
-        V1ResourceRequirements
-    )
+    from argo.workflows.client import (V1alpha1Cache, V1alpha1Memoize,
+                                       V1alpha1Metadata,
+                                       V1alpha1ResourceTemplate,
+                                       V1alpha1ScriptTemplate,
+                                       V1alpha1Template,
+                                       V1ConfigMapKeySelector,
+                                       V1ResourceRequirements, V1Volume,
+                                       V1VolumeMount)
     from argo.workflows.client.configuration import Configuration
+
+    from .client.v1alpha1_retry_strategy import V1alpha1RetryStrategy
 except:
-    pass
-from .io import Inputs, Outputs, InputParameter
+    V1alpha1ResourceTemplate = object
+    V1alpha1RetryStrategy = object
+    V1Volume = object
+    V1VolumeMount = object
+from .io import PVC, InputParameter, Inputs, Outputs
 from .utils import randstr
 
+
 class OPTemplate:
-    def __init__(self, name=None, inputs=None, outputs=None, memoize_key=None, pvcs=None, annotations=None, **kwargs):
+    def __init__(
+            self,
+            name : str = None,
+            inputs : Inputs = None,
+            outputs : Outputs = None,
+            memoize_key : str = None,
+            pvcs : List[PVC] = None,
+            annotations : Dict[str, str] = None,
+            **kwargs,
+    ) -> None:
         if name is None:
             name = randstr()
         # force lowercase to fix RFC 1123
@@ -83,11 +99,32 @@ class ScriptOPTemplate(OPTemplate):
         requests: a dict of resource requests
         limits: a dict of resource limits
     """
-    def __init__(self, name=None, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, resource=None,
-            image_pull_policy=None, annotations=None, requests=None, limits=None, **kwargs):
+    def __init__(
+            self,
+            name : str = None,
+            inputs : Inputs = None,
+            outputs : Outputs = None,
+            memoize_key : str = None,
+            pvcs : List[PVC] = None,
+            annotations : Dict[str, str] = None,
+            image : str = None,
+            command : Union[str, List[str]] = None,
+            script : str = None,
+            volumes : List[V1Volume] = None,
+            mounts : List[V1VolumeMount] = None,
+            init_progress : str = "0/1",
+            timeout : str = None,
+            retry_strategy : V1alpha1RetryStrategy = None,
+            resource : V1alpha1ResourceTemplate = None,
+            image_pull_policy : str = None,
+            requests : Dict[str, str] = None,
+            limits : Dict[str, str] = None,
+            **kwargs,
+    ) -> None:
         super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, pvcs=pvcs, annotations=annotations)
         self.image = image
+        if isinstance(command, str):
+            command = [command]
         self.command = command
         self.script = script
         if volumes is None:
@@ -152,9 +189,27 @@ class ShellOPTemplate(ScriptOPTemplate):
         requests: a dict of resource requests
         limits: a dict of resource limits
     """
-    def __init__(self, name=None, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, image_pull_policy=None,
-            annotations=None, requests=None, limits=None, **kwargs):
+    def __init__(
+            self,
+            name : str = None,
+            inputs : Inputs = None,
+            outputs : Outputs = None,
+            memoize_key : str = None,
+            pvcs : List[PVC] = None,
+            annotations : Dict[str, str] = None,
+            image : str = None,
+            command : Union[str, List[str]] = None,
+            script : str = None,
+            volumes : List[V1Volume] = None,
+            mounts : List[V1VolumeMount] = None,
+            init_progress : str = "0/1",
+            timeout : str = None,
+            retry_strategy : V1alpha1RetryStrategy = None,
+            image_pull_policy : str = None,
+            requests : Dict[str, str] = None,
+            limits : Dict[str, str] = None,
+            **kwargs,
+        ) -> None:
         if command is None:
             command = ["sh"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,
@@ -184,9 +239,27 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         requests: a dict of resource requests
         limits: a dict of resource limits
     """
-    def __init__(self, name=None, inputs=None, outputs=None, image=None, command=None, script=None, volumes=None, mounts=None,
-            init_progress="0/1", timeout=None, retry_strategy=None, memoize_key=None, pvcs=None, image_pull_policy=None,
-            annotations=None, requests=None, limits=None, **kwargs):
+    def __init__(
+            self,
+            name : str = None,
+            inputs : Inputs = None,
+            outputs : Outputs = None,
+            memoize_key : str = None,
+            pvcs : List[PVC] = None,
+            annotations : Dict[str, str] = None,
+            image : str = None,
+            command : Union[str, List[str]] = None,
+            script : str = None,
+            volumes : List[V1Volume] = None,
+            mounts : List[V1VolumeMount] = None,
+            init_progress : str = "0/1",
+            timeout : str = None,
+            retry_strategy : V1alpha1RetryStrategy = None,
+            image_pull_policy : str = None,
+            requests : Dict[str, str] = None,
+            limits : Dict[str, str] = None,
+            **kwargs,
+        ) -> None:
         if command is None:
             command = ["python"]
         super().__init__(name=name, inputs=inputs, outputs=outputs, image=image, command=command, script=script, volumes=volumes,

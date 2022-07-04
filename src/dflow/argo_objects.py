@@ -1,9 +1,14 @@
-import os, re
-import jsonpickle
+import os
+import re
 import tempfile
-from .io import S3Artifact
-from .utils import upload_s3, download_s3, upload_artifact, download_artifact
 from collections import UserDict, UserList
+from typing import Any, List, Union
+
+import jsonpickle
+
+from .io import S3Artifact
+from .utils import download_artifact, download_s3, upload_artifact, upload_s3
+
 
 class ArgoObjectDict(UserDict):
     """
@@ -97,7 +102,11 @@ class ArgoStep(ArgoObjectDict):
                                 param["value"] = content["value"]
                             io.parameters[name[13:]] = ArgoObjectDict(param)
 
-    def modify_output_parameter(self, name, value):
+    def modify_output_parameter(
+            self,
+            name : str,
+            value : Any,
+    ) -> None:
         """
         Modify output parameter of an Argo step
 
@@ -122,7 +131,11 @@ class ArgoStep(ArgoObjectDict):
                 s3 = S3Artifact(key=key)
                 self.outputs.artifacts["dflow_bigpar_" + name].s3 = s3
 
-    def modify_output_artifact(self, name, s3):
+    def modify_output_artifact(
+            self,
+            name : str,
+            s3 : S3Artifact,
+    ) -> None:
         """
         Modify output artifact of an Argo step
 
@@ -137,7 +150,11 @@ class ArgoStep(ArgoObjectDict):
         elif s3.key[-4:] != ".tgz" and not hasattr(self.outputs.artifacts[name], "archive"):
             self.outputs.artifacts[name]["archive"] = {"none": {}}
 
-    def download_sliced_output_artifact(self, name, path="."):
+    def download_sliced_output_artifact(
+            self,
+            name : str,
+            path : os.PathLike = ".",
+    ) -> None:
         """
         Download output artifact of a sliced step
 
@@ -150,7 +167,11 @@ class ArgoStep(ArgoObjectDict):
         for item in path_list:
             download_s3(self.outputs.artifacts[name].s3.key + "/" + item["dflow_list_item"], path=os.path.join(path, item["dflow_list_item"]))
 
-    def upload_and_modify_sliced_output_artifact(self, name, path):
+    def upload_and_modify_sliced_output_artifact(
+            self,
+            name : str,
+            path : Union[os.PathLike, List[os.PathLike]],
+    ) -> None:
         """
         Upload and modify output artifact of a sliced step
 
@@ -171,7 +192,13 @@ class ArgoStep(ArgoObjectDict):
         self.modify_output_artifact(name, s3)
 
 class ArgoWorkflow(ArgoObjectDict):
-    def get_step(self, name=None, key=None, phase=None, id=None):
+    def get_step(
+            self,
+            name : str = None,
+            key : str = None,
+            phase : str = None,
+            id : str = None,
+    ) -> List[ArgoStep]:
         step_list = []
         if hasattr(self.status, "nodes"):
             for step in self.status.nodes.values():

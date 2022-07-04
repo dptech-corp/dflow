@@ -1,3 +1,6 @@
+from .op_template import OPTemplate
+
+
 class Resource(object):
     """
     Resource
@@ -7,10 +10,13 @@ class Resource(object):
         success_condition: expression representing success
         failure_condition: expression representing failure
     """
-    action = None
-    success_condition = None
-    failure_condition = None
-    def get_manifest(self, template):
+    action : str = None
+    success_condition : str = None
+    failure_condition : str = None
+    def get_manifest(
+            self,
+            template : OPTemplate,
+    ) -> OPTemplate:
         """
         The method to get the manifest (str)
         """

@@ -100,7 +100,7 @@ if __name__ == "__main__":
     dag.add(check1)
     dag.outputs.artifacts["foo"] = OutputArtifact(_from=hello1.outputs.artifacts["foo"])
 
-    wf = Workflow("loop-slices", dag=dag)
+    wf = Workflow("dag-slices", dag=dag)
     wf.submit()
 
     while wf.query_status() in ["Pending", "Running"]:
@@ -109,5 +109,5 @@ if __name__ == "__main__":
     assert(wf.query_status() == "Succeeded")
     step0 = wf.query_step(key="hello-0-0")[0]
 
-    wf2 = Workflow("loop-slices-resubmit", dag=dag)
+    wf2 = Workflow("dag-slices-resubmit", dag=dag)
     wf2.submit(reuse_step=[step0])

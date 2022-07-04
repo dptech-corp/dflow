@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 1.1.9
+
+### Added
+
+- add type hints
+- add interactive mode for Lebesgue's login
+- add maximum parallelism for workflows
+- add set_directory and run_command to utils
+
 ## 1.1.8
 
 ### Added

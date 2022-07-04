@@ -1,17 +1,17 @@
-import os
 import json
+import os
 from copy import deepcopy
+from typing import List, Union
+
+from ..common import S3Artifact
+from ..config import config
 from ..executor import Executor
 from ..io import InputArtifact
-from ..utils import upload_s3, randstr
-from ..common import S3Artifact
-from ..workflow import config
+from ..utils import randstr, upload_s3
+
 try:
-    from argo.workflows.client import (
-        V1Volume,
-        V1VolumeMount,
-        V1HostPathVolumeSource
-    )
+    from argo.workflows.client import (V1HostPathVolumeSource, V1Volume,
+                                       V1VolumeMount)
 except:
     pass
 
@@ -34,17 +34,32 @@ class DispatcherExecutor(Executor):
         task_dict: task config for dispatcher
         json_file: JSON file containing machine and resources config
     """
-    def __init__(self, host=None, queue_name=None, port=22, username="root", private_key_file=None, image="dptechnology/dpdispatcher", command="python", remote_command=None,
-            map_tmp_dir=True, machine_dict=None, resources_dict=None, task_dict=None, json_file=None):
+    def __init__(self,
+            host : str = None,
+            queue_name : str = None,
+            port : int = 22,
+            username : str = "root",
+            private_key_file : os.PathLike = None,
+            image : str = "dptechnology/dpdispatcher",
+            command : Union[str, List[str]] = "python",
+            remote_command : Union[str, List[str]] = None,
+            map_tmp_dir : bool = True,
+            machine_dict : dict = None,
+            resources_dict : dict = None,
+            task_dict : dict = None,
+            json_file : os.PathLike = None,
+    ) -> None:
         self.host = host
         self.queue_name = queue_name
         self.port = port
         self.username = username
         self.private_key_file = private_key_file
         self.image = image
-        if not isinstance(command, list):
+        if isinstance(command, str):
             command = [command]
         self.command = command
+        if isinstance(remote_command, str):
+            remote_command = [remote_command]
         self.remote_command = remote_command
         self.map_tmp_dir = map_tmp_dir
 

@@ -1,24 +1,30 @@
-from copy import deepcopy
-import jsonpickle
 import re
+from copy import deepcopy
+from typing import Any, Dict, List, Union
+
+import jsonpickle
+
 try:
-    from argo.workflows.client import (
-        V1alpha1WorkflowStep,
-        V1alpha1Arguments,
-        V1VolumeMount,
-        V1alpha1ContinueOn,
-        V1alpha1ResourceTemplate
-    )
+    from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
+                                       V1alpha1ResourceTemplate,
+                                       V1alpha1WorkflowStep, V1VolumeMount)
+
     from .client import V1alpha1Sequence
 except:
-    pass
+    V1alpha1Sequence = object
 from .common import S3Artifact
 from .config import config
-from .io import InputArtifact, InputParameter, OutputArtifact, OutputParameter, PVC, ArgoVar
-from .op_template import ShellOPTemplate, PythonScriptOPTemplate
+from .executor import Executor
+from .io import (PVC, ArgoVar, InputArtifact, InputParameter, OutputArtifact,
+                 OutputParameter)
+from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
+from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio
 
-def argo_range(*args):
+
+def argo_range(
+        *args,
+) -> ArgoVar:
     """
     Return a str representing a range of integer in Argo
     It receives 1-3 arguments, which is similar to the function `range` in Python
@@ -45,7 +51,12 @@ def argo_range(*args):
         end = "sprig.atoi(%s)" % end.expr
     return ArgoVar("toJson(sprig.untilStep(%s, %s, %s))" % (start, end, step))
 
-def argo_sequence(count=None, start=None, end=None, format=None):
+def argo_sequence(
+        count : Union[int, ArgoVar] = None,
+        start : Union[int, ArgoVar] = None,
+        end : Union[int, ArgoVar] = None,
+        format : str = None,
+) -> V1alpha1Sequence:
     """
     Return a numeric sequence in Argo
 
@@ -63,7 +74,9 @@ def argo_sequence(count=None, start=None, end=None, format=None):
         end = "{{=%s}}" % end.expr
     return V1alpha1Sequence(count=count, start=start, end=end, format=format)
 
-def argo_len(param):
+def argo_len(
+        param : ArgoVar,
+) -> ArgoVar:
     """
     Return the length of a list which is an Argo parameter
 
@@ -98,9 +111,25 @@ class Step:
         util_image: image for utility step
         util_command: command for utility step
     """
-    def __init__(self, name, template, parameters=None, artifacts=None, when=None, with_param=None, continue_on_failed=False,
-            continue_on_num_success=None, continue_on_success_ratio=None, with_sequence=None, key=None, executor=None,
-            use_resource=None, util_image="python:3.8", util_command=None, **kwargs):
+    def __init__(
+            self,
+            name : str,
+            template : OPTemplate,
+            parameters : Dict[str, Any] = None,
+            artifacts : Dict[str, Union[S3Artifact, InputArtifact, OutputArtifact]] = None,
+            when : str = None,
+            with_param : Union[str, list, InputParameter, OutputParameter] = None,
+            continue_on_failed : bool = False,
+            continue_on_num_success : int = None,
+            continue_on_success_ratio : float = None,
+            with_sequence : V1alpha1Sequence = None,
+            key : str = None,
+            executor : Executor = None,
+            use_resource : Resource = None,
+            util_image : str = "python:3.8",
+            util_command : Union[str, List[str]] = None,
+            **kwargs,
+    ) -> None:
         self.name = name
         self.id = self.name
         self.template = template
@@ -127,6 +156,8 @@ class Step:
         self.executor = executor
         self.use_resource = use_resource
         self.util_image = util_image
+        if isinstance(util_command, str):
+            util_command = [util_command]
         self.util_command = util_command
 
         if self.key is not None:
@@ -363,6 +394,7 @@ class Step:
             self.template = context.render(self.template)
 
         if self.executor is not None:
+            assert isinstance(self.executor, Executor)
             self.template = self.executor.render(self.template)
 
         if self.use_resource is not None:

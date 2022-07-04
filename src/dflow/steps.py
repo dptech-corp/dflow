@@ -1,9 +1,13 @@
 try:
-    from argo.workflows.client import V1alpha1Template, V1alpha1Metadata
+    from argo.workflows.client import V1alpha1Metadata, V1alpha1Template
 except:
     pass
+from typing import Dict, List, Union
+
+from .io import Inputs, Outputs
 from .op_template import OPTemplate
 from .step import Step
+
 
 class Steps(OPTemplate):
     """
@@ -17,7 +21,15 @@ class Steps(OPTemplate):
         memoize_key: memoized key of the steps
         annotations: annotations for the OP template
         """
-    def __init__(self, name=None, inputs=None, outputs=None, steps=None, memoize_key=None, annotations=None):
+    def __init__(
+            self,
+            name : str = None,
+            inputs : Inputs = None,
+            outputs : Outputs = None,
+            steps : List[Union[Step, List[Step]]] = None,
+            memoize_key : str = None,
+            annotations : Dict[str, str] = None,
+    ) -> None:
         super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, annotations=annotations)
         if steps is not None:
             self.steps = steps
@@ -27,7 +39,10 @@ class Steps(OPTemplate):
     def __iter__(self):
         return iter(self.steps)
 
-    def add(self, step):
+    def add(
+            self,
+            step : Union[Step, List[Step]],
+    ) -> None:
         """
         Add a step or a list of parallel steps to the steps
 

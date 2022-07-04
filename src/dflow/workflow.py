@@ -1,26 +1,31 @@
 import json
+import os
+from typing import Dict, List, Union
+
 import jsonpickle
+
 try:
     import kubernetes
-    from argo.workflows.client import (
-        ApiClient, Configuration,
-        WorkflowServiceApi,
-        V1alpha1Workflow,
-        V1alpha1WorkflowCreateRequest,
-        V1alpha1WorkflowSpec,
-        V1ObjectMeta,
-        V1PersistentVolumeClaim,
-        V1PersistentVolumeClaimSpec,
-        V1ResourceRequirements
-    )
+    from argo.workflows.client import (ApiClient, Configuration,
+                                       V1alpha1Workflow,
+                                       V1alpha1WorkflowCreateRequest,
+                                       V1alpha1WorkflowSpec, V1ObjectMeta,
+                                       V1PersistentVolumeClaim,
+                                       V1PersistentVolumeClaimSpec,
+                                       V1ResourceRequirements,
+                                       WorkflowServiceApi)
 except:
     pass
+from .argo_objects import ArgoStep, ArgoWorkflow
 from .common import S3Artifact
 from .config import config
-from .steps import Steps
+from .context import Context
 from .dag import DAG
-from .argo_objects import ArgoWorkflow
+from .step import Step
+from .steps import Steps
+from .task import Task
 from .utils import copy_s3, randstr
+
 
 class Workflow:
     """
@@ -37,9 +42,22 @@ class Workflow:
         k8s_api_server: Url of kubernetes API server, will override global config
         context: context for the workflow
         annotations: annotations for the workflow
+        parallelism: maximum number of running pods for the workflow
     """
-    def __init__(self, name="workflow", steps=None, dag=None, id=None, host=None, token=None, k8s_config_file=None,
-            k8s_api_server=None, context=None, annotations=None):
+    def __init__(
+            self,
+            name : str = "workflow",
+            steps : Steps = None,
+            dag : DAG = None,
+            id : str = None,
+            host : str = None,
+            token : str = None,
+            k8s_config_file : os.PathLike = None,
+            k8s_api_server : str = None,
+            context : Context = None,
+            annotations : Dict[str, str] = None,
+            parallelism : int = None
+    ) -> None:
         self.host = host if host is not None else config["host"]
         self.token = token if token is not None else config["token"]
         self.k8s_config_file = k8s_config_file if k8s_config_file is not None else config["k8s_config_file"]
@@ -48,6 +66,7 @@ class Workflow:
         if annotations is None:
             annotations = {}
         self.annotations = annotations
+        self.parallelism = parallelism
 
         configuration = Configuration(host=self.host)
         configuration.verify_ssl = False
@@ -75,7 +94,10 @@ class Workflow:
             self.pvcs = {}
             self.id = None
 
-    def add(self, step):
+    def add(
+            self,
+            step : Union[Step, List[Step], Task, List[Task]],
+    ) -> None:
         """
         Add a step or a list of parallel steps to the workflow
 
@@ -84,7 +106,10 @@ class Workflow:
         """
         self.entrypoint.add(step)
 
-    def submit(self, reuse_step=None):
+    def submit(
+            self,
+            reuse_step : List[ArgoStep] = None,
+    ) -> ArgoWorkflow:
         """
         Submit the workflow
 
@@ -106,6 +131,7 @@ class Workflow:
 
     def convert_to_argo(self, reuse_step=None):
         if self.context is not None:
+            assert isinstance(self.context, Context)
             self = self.context.render(self)
 
         status = None
@@ -185,6 +211,7 @@ class Workflow:
                 service_account_name='argo',
                 entrypoint=self.entrypoint.name,
                 templates=list(self.argo_templates.values()),
+                parallelism=self.parallelism,
                 volume_claim_templates=argo_pvcs),
             status=status)
 
@@ -204,7 +231,9 @@ class Workflow:
                     if pvc.name not in self.pvcs:
                         self.pvcs[pvc.name] = pvc
 
-    def query(self):
+    def query(
+            self,
+    ) -> ArgoWorkflow:
         """
         Query the workflow from Argo
 
@@ -218,7 +247,9 @@ class Workflow:
         workflow = ArgoWorkflow(response)
         return workflow
 
-    def query_status(self):
+    def query_status(
+            self,
+    ) -> str:
         """
         Query the status of the workflow from Argo
 
@@ -231,7 +262,13 @@ class Workflow:
         else:
             return workflow.status.phase
 
-    def query_step(self, name=None, key=None, phase=None, id=None):
+    def query_step(
+            self,
+            name : str = None,
+            key : str = None,
+            phase : str = None,
+            id : str = None,
+    ) -> List[ArgoStep]:
         """
         Query the existing steps of the workflow from Argo
 
@@ -245,7 +282,9 @@ class Workflow:
         """
         return self.query().get_step(name=name, key=key, phase=phase, id=id)
 
-    def query_keys_of_steps(self):
+    def query_keys_of_steps(
+            self,
+    ) -> List[str]:
         """
         Query the keys of existing steps of the workflow from Argo
 
