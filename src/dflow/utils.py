@@ -1,10 +1,15 @@
 import os
+import sys
 import uuid
 import shutil
 import string
 import random
 import tarfile
 import tempfile
+import subprocess
+import contextlib
+from pathlib import Path
+from typing import List, Union, Optional, Tuple
 import jsonpickle
 try:
     from minio import Minio
@@ -269,3 +274,89 @@ def remove_empty_dir_tag(path):
 
 def randstr(l=5):
     return "".join(random.sample(string.digits + string.ascii_lowercase, l))
+
+@contextlib.contextmanager
+def set_directory(dirname: os.PathLike, mkdir: bool = False):
+    """
+    Set current workding directory within context
+
+    Parameters
+    ----------
+    dirname : os.PathLike
+        The directory path to change to
+    mkdir: bool
+        Whether make directory if `dirname` does not exist
+    
+    Yields
+    ------
+    path: Path
+        The absolute path of the changed working directory
+    
+    Examples
+    --------
+    >>> with set_directory("some_path"):
+    ...    do_something()
+    """
+    pwd = os.getcwd()
+    path = Path(dirname).resolve()
+    if mkdir:
+        path.mkdir(exist_ok=True, parents=True)
+    os.chdir(path)
+    yield path
+    os.chdir(pwd)
+
+def run_command(
+    cmd: Union[List[str], str], 
+    raise_error: bool = True, 
+    input: Optional[str] = None, 
+    **kwargs
+) -> Tuple[int, str, str]:
+    """
+    Run shell command in subprocess
+
+    Parameters:
+    ----------
+    cmd: list of str, or str
+        Command to execute
+    raise_error: bool
+        Wheter to raise an error if the command failed
+    input: str, optional
+        Input string for the command
+    **kwargs:
+        Arguments in subprocess.Popen
+    
+    Raises:
+    ------
+    AssertionError:
+        Raises if the error failed to execute and `raise_error` set to `True`
+    
+    Return:
+    ------
+    return_code: int
+        The return code of the command
+    out: str
+        stdout content of the executed command
+    err: str
+        stderr content of the executed command  
+    """
+    if isinstance(cmd, str):
+        cmd = cmd.split()
+    elif isinstance(cmd, list):
+        cmd = [str(x) for x in cmd]
+
+    sub = subprocess.Popen(
+        args=cmd, 
+        stdin=subprocess.PIPE, 
+        stdout=subprocess.PIPE, 
+        stderr=subprocess.PIPE, 
+        **kwargs
+    )
+    if input is not None:
+        sub.stdin.write(bytes(input, encoding=sys.stdin.encoding))
+    out, err = sub.communicate()
+    return_code = sub.poll()
+    out = out.decode(sys.stdin.encoding)
+    err = err.decode(sys.stdin.encoding)
+    if raise_error:
+        assert return_code == 0, f"Command {cmd} failed: \n{err}"
+    return return_code, out, err
