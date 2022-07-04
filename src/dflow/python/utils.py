@@ -1,11 +1,16 @@
-import os, shutil
+import os
+import shutil
 import uuid
-import jsonpickle
-from typing import Set, List
 from pathlib import Path
+from typing import List, Set
+
+import jsonpickle
+
 from ..config import config
-from .opio import Parameter, BigParameter
-from ..utils import assemble_path_list, convert_dflow_list, copy_file, remove_empty_dir_tag
+from ..utils import (assemble_path_list, convert_dflow_list, copy_file,
+                     remove_empty_dir_tag)
+from .opio import BigParameter, Parameter
+
 
 def handle_input_artifact(name, sign, slices=None, data_root="/tmp"):
     art_path = data_root + '/inputs/artifacts/' + name

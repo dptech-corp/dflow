@@ -1,11 +1,14 @@
 import json
-import requests
 from copy import deepcopy
-from ..workflow import Workflow
-from ..op_template import ShellOPTemplate, PythonScriptOPTemplate
-from ..executor import Executor
+from getpass import getpass
+
+import requests
+
 from ..context import Context
+from ..executor import Executor
+from ..op_template import PythonScriptOPTemplate, ShellOPTemplate
 from ..utils import randstr
+from ..workflow import Workflow
 
 succ_code = [0, "0000"]
 
@@ -16,7 +19,10 @@ class LebesgueExecutor(Executor):
     Args:
         extra: extra arguments, will override extra defined in global context
     """
-    def __init__(self, extra=None):
+    def __init__(
+            self,
+            extra : dict = None,
+    ) -> None:
         self.extra = extra
 
     def render(self, template):
@@ -42,8 +48,19 @@ class LebesgueContext(Context):
         extra: extra arguments
         authorization: JWT token
     """
-    def __init__(self, username=None, password=None, login_url="https://workflow.dp.tech/account_gw/login", app_name=None,
-            org_id=None, user_id=None, tag=None, executor=None, extra=None, authorization=None):
+    def __init__(
+            self,
+            username : str = None,
+            password : str = None,
+            login_url : str = "https://workflow.dp.tech/account_gw/login",
+            app_name : str = None,
+            org_id : str = None,
+            user_id : str = None,
+            tag : str = None,
+            executor : str = None,
+            extra : dict = None,
+            authorization : str = None,
+    ) -> None:
         self.login_url = login_url
         self.username = username
         self.password = password
@@ -53,14 +70,20 @@ class LebesgueContext(Context):
         self.tag = tag
         self.executor = executor
         self.extra = extra
-        if authorization is not None:
-            self.authorization = authorization
-        else:
+        self.authorization = authorization
+        self.login()
+
+    def login(self):
+        if self.authorization is None:
+            if self.username is None:
+                self.username = input("Lebesgue username: ")
+            if self.password is None:
+                self.password = getpass("Lebesgue password: ")
             data = {
-                "username": username,
-                "password": password,
+                "username": self.username,
+                "password": self.password,
             }
-            rsp = requests.post(login_url, headers={"Content-type": "application/json"}, json=data)
+            rsp = requests.post(self.login_url, headers={"Content-type": "application/json"}, json=data)
             res = json.loads(rsp.text)
             if res["code"] not in succ_code:
                 if "error" in res:

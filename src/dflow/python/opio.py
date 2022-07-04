@@ -1,7 +1,10 @@
-from pathlib import Path
-from typing import Any, Set, List
 from collections.abc import MutableMapping
+from pathlib import Path
+from typing import Any, List, Set, Union
+
+from ..common import S3Artifact
 from ..config import config
+from ..io import PVC
 
 ArtifactAllowedTypes = [str, Path, Set[str], Set[Path], List[str], List[Path]]
 
@@ -16,7 +19,14 @@ class Artifact:
         optional: optional input artifact or not
         global_name: global name of the artifact within the workflow
     """
-    def __init__(self, type, archive="default", save=None, optional=False, global_name=None):
+    def __init__(
+            self,
+            type : Any,
+            archive : str = "default",
+            save : List[Union[PVC, S3Artifact]] = None,
+            optional : bool = False,
+            global_name : str = None,
+    ) -> None:
         self.type = type
         if archive is "default":
             archive = config["archive_mode"]
@@ -39,7 +49,12 @@ class Parameter:
         global_name: global name of the parameter within the workflow
         default: default value of the parameter
     """
-    def __init__(self, type, global_name=None, **kwargs):
+    def __init__(
+            self,
+            type : Any,
+            global_name : str = None,
+            **kwargs,
+    ) -> None:
         self.type = type
         self.global_name = global_name
         if "default" in kwargs:
@@ -52,7 +67,10 @@ class BigParameter:
     Args:
         type: parameter type
     """
-    def __init__(self, type):
+    def __init__(
+            self,
+            type : Any,
+    ) -> None:
         self.type = type
 
 class OPIOSign(MutableMapping):

@@ -1,5 +1,6 @@
+from .io import InputParameter, Inputs
 from .op_template import ShellOPTemplate
-from .io import Inputs, InputParameter
+
 
 class CheckNumSuccess(ShellOPTemplate):
     def __init__(self, name="check-num-success", image=None):

@@ -1,13 +1,14 @@
 try:
-    from argo.workflows.client import (
-        V1alpha1DAGTemplate,
-        V1alpha1Metadata,
-        V1alpha1Template,
-    )
+    from argo.workflows.client import (V1alpha1DAGTemplate, V1alpha1Metadata,
+                                       V1alpha1Template)
 except:
     pass
+from typing import Dict, List, Union
+
+from .io import Inputs, Outputs
 from .op_template import OPTemplate
 from .task import Task
+
 
 class DAG(OPTemplate):
     """
@@ -21,7 +22,15 @@ class DAG(OPTemplate):
         memoize_key: memoized key of the dag
         annotations: annotations for the OP template
         """
-    def __init__(self, name=None, inputs=None, outputs=None, tasks=None, memoize_key=None, annotations=None):
+    def __init__(
+            self,
+            name : str = None,
+            inputs : Inputs = None,
+            outputs : Outputs = None,
+            tasks : List[Task] = None,
+            memoize_key : str = None,
+            annotations : Dict[str, str] = None,
+    ) -> None:
         super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, annotations=annotations)
         if tasks is not None:
             self.tasks = tasks
@@ -31,7 +40,10 @@ class DAG(OPTemplate):
     def __iter__(self):
         return iter(self.tasks)
 
-    def add(self, task):
+    def add(
+            self,
+            task : Union[Task, List[Task]],
+    ) -> None:
         """
         Add a task or a list of tasks to the dag
 

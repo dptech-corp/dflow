@@ -1,18 +1,62 @@
-import inspect, random, string
+import inspect
+import os
+import random
+import string
+from typing import Any, Dict, List, Union
+
 import jsonpickle
 import typeguard
+
 from .. import __path__
+from ..common import S3Artifact
 from ..config import config
-from .op import OP
-from .opio import Artifact, Parameter, BigParameter
+from ..io import (PVC, InputArtifact, InputParameter, Inputs, OutputArtifact,
+                  OutputParameter, Outputs)
 from ..op_template import PythonScriptOPTemplate
-from ..io import Inputs, Outputs, InputParameter, OutputParameter, InputArtifact, OutputArtifact
 from ..utils import upload_artifact
+from .op import OP
+from .opio import Artifact, BigParameter, Parameter
+
 try:
+    from argo.workflows.client import V1Volume, V1VolumeMount
+
     from ..client import V1alpha1RetryStrategy
 except:
-    pass
+    V1Volume = object
+    V1VolumeMount = object
 upload_packages = []
+
+class Slices:
+    """
+    Slices specified in PythonOPTemplate
+
+    Args:
+        slices: slice pattern
+        input_parameter: list of input parameters to be sliced
+        input_artifact: list of input artifacts to be sliced
+        output_parameter: list of output parameters to be stacked
+        output_artifact: list of output artifacts to be stacked
+    """
+    def __init__(
+            self,
+            slices : str = None,
+            input_parameter : List[str] = None,
+            input_artifact : List[str] = None,
+            output_parameter : List[str] = None,
+            output_artifact : List[str] = None,
+            sub_path : bool = False,
+    ) -> None:
+        self.input_parameter = input_parameter if input_parameter is not None else []
+        self.input_artifact = input_artifact if input_artifact is not None else []
+        self.output_parameter = output_parameter if output_parameter is not None else []
+        self.output_artifact = output_artifact if output_artifact is not None else []
+        self.sub_path = sub_path
+        if slices is not None:
+            self.slices = slices
+        elif self.sub_path:
+            self.slices = "{{item.order}}"
+        else:
+            self.slices = "{{item}}"
 
 class PythonOPTemplate(PythonScriptOPTemplate):
     """
@@ -43,12 +87,33 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         requests: a dict of resource requests
         limits: a dict of resource limits
     """
-    def __init__(self, op_class, image=None, command=None, input_artifact_slices=None, output_artifact_save=None,
-                 output_artifact_archive=None, input_parameter_slices=None, output_artifact_slices=None,
-                 output_parameter_slices=None, output_artifact_global_name=None, slices=None, python_packages=None,
-                 timeout=None, retry_on_transient_error=None, output_parameter_default=None, output_parameter_global_name=None,
-                 timeout_as_transient_error=False, memoize_key=None, volumes=None, mounts=None, image_pull_policy=None,
-                 requests=None, limits=None, upload_dflow=True, **kwargs):
+    def __init__(self,
+            op_class : OP,
+            image : str = None,
+            command : Union[str, List[str]] = None,
+            output_artifact_save : Dict[str, List[Union[PVC, S3Artifact]]] = None,
+            output_artifact_archive : Dict[str, str] = None,
+            output_parameter_default : Dict[str, Any] = None,
+            input_artifact_slices : Dict[str, str] = None,
+            input_parameter_slices : Dict[str, str] = None,
+            output_artifact_slices : Dict[str, str] = None,
+            output_parameter_slices : Dict[str, str] = None,
+            output_artifact_global_name : Dict[str, str] = None,
+            output_parameter_global_name : Dict[str, str] = None,
+            slices : Slices = None,
+            python_packages : List[os.PathLike] = None,
+            timeout : int = None,
+            retry_on_transient_error : int = None,
+            timeout_as_transient_error : bool = False,
+            memoize_key : str = None,
+            volumes : List[V1Volume] = None,
+            mounts : List[V1VolumeMount] = None,
+            image_pull_policy : str = None,
+            requests : Dict[str, str] = None,
+            limits : Dict[str, str] = None,
+            upload_dflow : bool = True,
+            **kwargs,
+    ) -> None:
         op = None
         if isinstance(op_class, OP):
             op = op_class
@@ -200,7 +265,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
         self.image = image
         self.image_pull_policy = image_pull_policy
-        if command is not None:
+        if isinstance(command, str):
+            self.command = [command]
+        elif command is not None:
             self.command = command
         else:
             self.command = ["python"]
@@ -232,30 +299,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             slices = slices.replace(var, "{{inputs.parameters.%s}}" % var_name)
             i = slices.find("{{item")
         return slices
-
-class Slices:
-    """
-    Slices specified in PythonOPTemplate
-
-    Args:
-        slices: slice pattern
-        input_parameter: list of input parameters to be sliced
-        input_artifact: list of input artifacts to be sliced
-        output_parameter: list of output parameters to be stacked
-        output_artifact: list of output artifacts to be stacked
-    """
-    def __init__(self, slices=None, input_parameter=None, input_artifact=None, output_parameter=None, output_artifact=None, sub_path=False):
-        self.input_parameter = input_parameter if input_parameter is not None else []
-        self.input_artifact = input_artifact if input_artifact is not None else []
-        self.output_parameter = output_parameter if output_parameter is not None else []
-        self.output_artifact = output_artifact if output_artifact is not None else []
-        self.sub_path = sub_path
-        if slices is not None:
-            self.slices = slices
-        elif self.sub_path:
-            self.slices = "{{item.order}}"
-        else:
-            self.slices = "{{item}}"
 
 class TransientError(Exception):
     pass

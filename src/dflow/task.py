@@ -1,13 +1,14 @@
 try:
-    from argo.workflows.client import (
-        V1alpha1Arguments,
-        V1alpha1ContinueOn,
-        V1alpha1DAGTask
-    )
+    from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
+                                       V1alpha1DAGTask)
 except:
     pass
+from typing import List
+
+from .io import OutputArtifact, OutputParameter
+from .op_template import OPTemplate
 from .step import Step
-from .io import OutputParameter, OutputArtifact
+
 
 class Task(Step):
     """
@@ -31,7 +32,13 @@ class Task(Step):
         util_command: command for utility step
         dependencies: extra dependencies of the task
     """
-    def __init__(self, name, template, dependencies=None, **kwargs):
+    def __init__(
+            self,
+            name : str,
+            template : OPTemplate,
+            dependencies : List["Task"] = None,
+            **kwargs,
+    ) -> None:
         # work around circular import problem
         self.is_task = True
         if dependencies is None:

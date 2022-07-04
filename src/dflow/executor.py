@@ -1,16 +1,16 @@
 import os
 from copy import deepcopy
+from typing import List, Union
+
 from .common import S3Artifact
+from .config import config
 from .io import InputArtifact
-from .utils import upload_s3, randstr
-from .op_template import ShellOPTemplate
-from .workflow import config
+from .op_template import OPTemplate
+from .utils import randstr, upload_s3
+
 try:
-    from argo.workflows.client import (
-        V1Volume,
-        V1VolumeMount,
-        V1HostPathVolumeSource
-    )
+    from argo.workflows.client import (V1HostPathVolumeSource, V1Volume,
+                                       V1VolumeMount)
 except:
     pass
 
@@ -18,25 +18,43 @@ class Executor(object):
     """
     Executor
     """
-    def render(self, template):
+    def render(
+            self,
+            template : OPTemplate,
+    ) -> OPTemplate:
         """
         render original template and return a new template, do not modify self in this method to make the executor reusable
         """
         raise NotImplementedError()
 
 class RemoteExecutor(Executor):
-    def __init__(self, host, port=22, username="root", password=None, private_key_file=None, workdir="~/dflow/workflows/{{workflow.name}}/{{pod.name}}",
-            command=None, remote_command=None, image="dptechnology/dflow-extender", map_tmp_dir=True, docker_executable=None, action_retries=-1):
+    def __init__(
+            self,
+            host : str,
+            port : int = 22,
+            username : str = "root",
+            password : str = None,
+            private_key_file : os.PathLike = None,
+            workdir : str = "~/dflow/workflows/{{workflow.name}}/{{pod.name}}",
+            command : Union[str, List[str]] = None,
+            remote_command : Union[str, List[str]] = None,
+            image : str = "dptechnology/dflow-extender",
+            map_tmp_dir : bool = True,
+            docker_executable : str = None,
+            action_retries : int = -1,
+    ) -> None:
         self.host = host
         self.port = port
         self.username = username
         self.password = password
         self.private_key_file = private_key_file
         self.workdir = workdir
+        if isinstance(command, str):
+            command = [command]
         if command is None:
             command = ["sh"]
         self.command = command
-        if remote_command is not None and not isinstance(remote_command, list):
+        if isinstance(remote_command, str):
             remote_command = [remote_command]
         self.remote_command = remote_command
         self.image = image

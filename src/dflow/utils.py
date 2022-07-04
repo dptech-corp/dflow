@@ -1,16 +1,18 @@
+import contextlib
 import os
-import sys
-import uuid
+import random
 import shutil
 import string
-import random
+import subprocess
+import sys
 import tarfile
 import tempfile
-import subprocess
-import contextlib
+import uuid
 from pathlib import Path
-from typing import List, Union, Optional, Tuple
+from typing import List, Optional, Set, Tuple, Union
+
 import jsonpickle
+
 try:
     from minio import Minio
     from minio.api import CopySource
@@ -27,7 +29,11 @@ s3_config = {
     "bucket_name": "my-bucket"
 }
 
-def download_artifact(artifact, extract=True, **kwargs):
+def download_artifact(
+        artifact,
+        extract : bool = True,
+        **kwargs,
+) -> List[str]:
     """
     Download an artifact from Argo to local
 
@@ -67,7 +73,11 @@ def download_artifact(artifact, extract=True, **kwargs):
     else:
         raise NotImplementedError()
 
-def upload_artifact(path, archive="default", **kwargs):
+def upload_artifact(
+        path : Union[os.PathLike, List[os.PathLike], Set[os.PathLike]],
+        archive : str = "default",
+        **kwargs,
+) -> S3Artifact:
     """
     Upload an artifact from local to Argo
 
@@ -122,7 +132,7 @@ def upload_artifact(path, archive="default", **kwargs):
 
     return S3Artifact(key=key, path_list=path_list)
 
-def copy_artifact(src, dst):
+def copy_artifact(src, dst) -> S3Artifact:
     """
     Copy an artifact to another on server side
 
@@ -147,8 +157,17 @@ def copy_artifact(src, dst):
     copy_s3(src_key, dst_key)
     return S3Artifact(key=dst_key)
 
-def download_s3(key, path=None, recursive=True, endpoint=None, access_key=None, secret_key=None,
-        secure=None, bucket_name=None, **kwargs):
+def download_s3(
+        key : str,
+        path : os.PathLike = None,
+        recursive : bool = True,
+        endpoint : str = None,
+        access_key : str = None,
+        secret_key : str = None,
+        secure : bool = None,
+        bucket_name : str = None,
+        **kwargs,
+) -> str:
     if endpoint is None:
         endpoint = s3_config["endpoint"]
     if access_key is None:
@@ -176,8 +195,16 @@ def download_s3(key, path=None, recursive=True, endpoint=None, access_key=None, 
         client.fget_object(bucket_name=bucket_name, object_name=key, file_path=path)
     return path
 
-def upload_s3(path, key=None, endpoint=None, access_key=None, secret_key=None, secure=None,
-        bucket_name=None, **kwargs):
+def upload_s3(
+        path : os.PathLike,
+        key : str = None,
+        endpoint : str = None,
+        access_key : str = None,
+        secret_key : str = None,
+        secure : bool = None,
+        bucket_name : str = None,
+        **kwargs,
+) -> str:
     if endpoint is None:
         endpoint = s3_config["endpoint"]
     if access_key is None:
@@ -204,8 +231,17 @@ def upload_s3(path, key=None, endpoint=None, access_key=None, secret_key=None, s
                 client.fput_object(bucket_name=bucket_name, object_name="%s%s/%s" % (key, rel_path, f), file_path=os.path.join(dn, f))
     return key
 
-def copy_s3(src_key, dst_key, recursive=True, key=None, endpoint=None, access_key=None, secret_key=None,
-        secure=None, bucket_name=None, **kwargs):
+def copy_s3(
+        src_key : str,
+        dst_key : str,
+        recursive : bool = True,
+        endpoint : str = None,
+        access_key : str = None,
+        secret_key : str = None,
+        secure : bool = None,
+        bucket_name : str = None,
+        **kwargs,
+) -> None:
     if endpoint is None:
         endpoint = s3_config["endpoint"]
     if access_key is None:
@@ -272,7 +308,7 @@ def remove_empty_dir_tag(path):
         if ".empty_dir" in fs:
             os.remove(os.path.join(dn, ".empty_dir"))
 
-def randstr(l=5):
+def randstr(l : int = 5) -> str:
     return "".join(random.sample(string.digits + string.ascii_lowercase, l))
 
 @contextlib.contextmanager
@@ -309,7 +345,7 @@ def run_command(
     cmd: Union[List[str], str], 
     raise_error: bool = True, 
     input: Optional[str] = None, 
-    **kwargs
+    **kwargs,
 ) -> Tuple[int, str, str]:
     """
     Run shell command in subprocess

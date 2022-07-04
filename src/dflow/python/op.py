@@ -1,7 +1,12 @@
-import abc,os,functools
+import abc
+import functools
+import os
 from abc import ABC
+
 from typeguard import check_type
-from .opio import Artifact, Parameter, OPIO, OPIOSign
+
+from .opio import OPIO, Artifact, OPIOSign, Parameter
+
 
 class OP(ABC):
     """
@@ -16,7 +21,8 @@ class OP(ABC):
     def __init__(
             self,
             *args,
-            **kwargs) -> None:
+            **kwargs,
+    ) -> None:
         pass
 
     def __setattr__(self, key, value):

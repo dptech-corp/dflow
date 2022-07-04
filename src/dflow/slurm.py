@@ -1,20 +1,21 @@
 import copy
 import os
 import re
-from .io import InputArtifact, InputParameter, OutputArtifact, OutputParameter, PVC
+from typing import Dict, List, Union
+
+from .executor import Executor, RemoteExecutor
+from .io import (PVC, InputArtifact, InputParameter, OutputArtifact,
+                 OutputParameter)
 from .op_template import ScriptOPTemplate, ShellOPTemplate
+from .resource import Resource
 from .step import Step
 from .steps import Steps
-from .executor import Executor, RemoteExecutor
-from .resource import Resource
+
 try:
     import yaml
-    from argo.workflows.client import (
-        V1HostPathVolumeSource,
-        V1Volume,
-        V1VolumeMount,
-        V1alpha1ResourceTemplate
-    )
+    from argo.workflows.client import (V1alpha1ResourceTemplate,
+                                       V1HostPathVolumeSource, V1Volume,
+                                       V1VolumeMount)
 except:
     pass
 
@@ -29,7 +30,7 @@ class SlurmJob(Resource):
         self.results = results
         self.map_tmp_dir = map_tmp_dir
         self.workdir = workdir
-        if remote_command is not None and not isinstance(remote_command, list):
+        if isinstance(remote_command, str):
             remote_command = [remote_command]
         self.remote_command = remote_command
 
@@ -66,14 +67,21 @@ class SlurmJobTemplate(Executor):
         workdir: remote working directory
         remote_command: command for running the script remotely
     """
-    def __init__(self, header="", node_selector=None, prepare_image="alpine:latest", collect_image="alpine:latest",
-            workdir="dflow/workflows/{{workflow.name}}/{{pod.name}}", remote_command=None):
+    def __init__(
+            self,
+            header : str = "",
+            node_selector : Dict[str, str] = None,
+            prepare_image : str = "alpine:latest",
+            collect_image : str = "alpine:latest",
+            workdir : str = "dflow/workflows/{{workflow.name}}/{{pod.name}}",
+            remote_command : Union[str, List[str]] = None,
+    ) -> None:
         self.header = header
         self.node_selector = node_selector
         self.prepare_image = prepare_image
         self.collect_image = collect_image
         self.workdir = workdir
-        if remote_command is not None and not isinstance(remote_command, list):
+        if isinstance(remote_command, str):
             remote_command = [remote_command]
         self.remote_command = remote_command
 
@@ -187,17 +195,29 @@ class SlurmRemoteExecutor(RemoteExecutor):
         header: header for Slurm job
         interval: query interval for Slurm
     """
-    def __init__(self, host, port=22, username="root", password=None, private_key_file=None, workdir="~/dflow/workflows/{{workflow.name}}/{{pod.name}}",
-            command=None, remote_command=None, image="dptechnology/dflow-extender", map_tmp_dir=True, docker_executable=None, action_retries=-1,
-            header="", interval=3, pvc=None, size="1Gi", storage_class=None, access_modes=None):
+    def __init__(
+            self,
+            host : str,
+            port : int = 22,
+            username : str = "root",
+            password : str = None,
+            private_key_file : os.PathLike = None,
+            workdir : str = "~/dflow/workflows/{{workflow.name}}/{{pod.name}}",
+            command : Union[str, List[str]] = None,
+            remote_command : Union[str, List[str]] = None,
+            image : str = "dptechnology/dflow-extender",
+            map_tmp_dir : bool = True,
+            docker_executable : str = None,
+            action_retries : int = -1,
+            header : str = "",
+            interval : int = 3,
+            pvc : PVC = None,
+    ) -> None:
         super().__init__(host=host, port=port, username=username, password=password, private_key_file=private_key_file, workdir=workdir, command=command,
                 remote_command=remote_command, image=image, map_tmp_dir=map_tmp_dir, docker_executable=docker_executable, action_retries=action_retries)
         self.header = re.sub(" *#","#",header)
         self.interval = interval
         self.pvc = pvc
-        self.size = size
-        self.storage_class = storage_class
-        self.access_modes = access_modes
 
     def run(self, image, remote_command):
         script = ""
@@ -225,6 +245,6 @@ class SlurmRemoteExecutor(RemoteExecutor):
     def render(self, template):
         new_template = super().render(template)
         if self.pvc is not None:
-            new_template.pvcs.append(PVC(self.pvc, ".", size=self.size, storage_class=self.storage_class, access_modes=self.access_modes))
-            new_template.mounts.append(V1VolumeMount(name=self.pvc, mount_path="/mnt", sub_path="{{pod.name}}"))
+            new_template.pvcs.append(self.pvc)
+            new_template.mounts.append(V1VolumeMount(name=self.pvc.name, mount_path="/mnt", sub_path="{{pod.name}}"))
         return new_template
