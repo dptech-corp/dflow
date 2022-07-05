@@ -6,6 +6,10 @@ from typing import Any, Dict, List, Union
 
 import jsonpickle
 
+from .common import S3Artifact
+from .config import config
+from .utils import randstr, upload_s3
+
 try:
     from argo.workflows.client import (V1alpha1ArchiveStrategy, V1alpha1Inputs,
                                        V1alpha1Outputs, V1alpha1RawArtifact)
@@ -13,9 +17,6 @@ try:
     from .client import V1alpha1Artifact, V1alpha1Parameter, V1alpha1ValueFrom
 except:
     pass
-from .common import S3Artifact
-from .config import config
-from .utils import randstr, upload_s3
 
 NotAllowedInputArtifactPath = ["/", "/tmp"]
 
@@ -54,7 +55,7 @@ class InputArtifacts(AutonamedDict):
             if isinstance(value.source, S3Artifact):
                 self.template.inputs.parameters["dflow_%s_path_list" % key] = InputParameter(value=value.source.path_list)
             else:
-                self.template.inputs.parameters["dflow_%s_path_list" % key] = InputParameter(value=".")
+                self.template.inputs.parameters["dflow_%s_path_list" % key] = InputParameter(value=[])
 
     def set_template(self, template):
         super().set_template(template)
@@ -63,7 +64,7 @@ class InputArtifacts(AutonamedDict):
                 if isinstance(art.source, S3Artifact):
                     self.template.inputs.parameters["dflow_%s_path_list" % name] = InputParameter(value=art.source.path_list)
                 else:
-                    self.template.inputs.parameters["dflow_%s_path_list" % name] = InputParameter(value=".")
+                    self.template.inputs.parameters["dflow_%s_path_list" % name] = InputParameter(value=[])
 
 class OutputParameters(AutonamedDict):
     def __setitem__(self, key, value):
@@ -75,14 +76,14 @@ class OutputArtifacts(AutonamedDict):
         assert isinstance(value, OutputArtifact)
         super().__setitem__(key, value)
         if config["save_path_as_parameter"] and self.template is not None:
-            self.template.outputs.parameters["dflow_%s_path_list" % key] = OutputParameter(value=".")
+            self.template.outputs.parameters["dflow_%s_path_list" % key] = OutputParameter(value=[])
             value.handle_path_list()
 
     def set_template(self, template):
         super().set_template(template)
         if config["save_path_as_parameter"]:
             for name, art in self.items():
-                self.template.outputs.parameters["dflow_%s_path_list" % name] = OutputParameter(value=".")
+                self.template.outputs.parameters["dflow_%s_path_list" % name] = OutputParameter(value=[])
                 art.handle_path_list()
 
 class ArgoVar:

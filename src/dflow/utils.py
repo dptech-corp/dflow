@@ -13,13 +13,14 @@ from typing import List, Optional, Set, Tuple, Union
 
 import jsonpickle
 
+from .common import S3Artifact
+from .config import config
+
 try:
     from minio import Minio
     from minio.api import CopySource
 except:
     pass
-from .common import S3Artifact
-from .config import config
 
 s3_config = {
     "endpoint": "127.0.0.1:9000",
@@ -90,7 +91,7 @@ def upload_artifact(
         secure: secure or not for Minio
         bucket_name: bucket name for Minio
     """
-    if archive is "default":
+    if archive == "default":
         archive = config["archive_mode"]
     if not isinstance(path, (list, set)):
         path = [path]
@@ -104,7 +105,7 @@ def upload_artifact(
                 raise RuntimeError("File or directory %s not found" % p)
             abspath = os.path.abspath(p)
             # subpath of current dir
-            if abspath.find(cwd) == 0 and len(abspath) > len(cwd):
+            if abspath.find(cwd + "/") == 0 or abspath.find(cwd + "\\") == 0:
                 relpath = abspath[len(cwd)+1:]
             else:
                 if abspath[0] == "/":
@@ -254,10 +255,49 @@ def copy_s3(
         bucket_name = s3_config["bucket_name"]
     client = Minio(endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
     if recursive:
+        if src_key[-1] != "/": src_key += "/"
+        src_objs = list(client.list_objects(bucket_name=bucket_name, prefix=src_key))
+        if len(src_objs) == 1 and src_objs[0].object_name[-1] == "/":
+            src_key = src_objs[0].object_name
+        if dst_key[-1] != "/": dst_key += "/"
+        dst_objs = list(client.list_objects(bucket_name=bucket_name, prefix=dst_key))
+        if len(dst_objs) == 1 and dst_objs[0].object_name[-1] == "/":
+            dst_key = dst_objs[0].object_name
         for obj in client.list_objects(bucket_name=bucket_name, prefix=src_key, recursive=True):
             client.copy_object(bucket_name, dst_key + obj.object_name[len(src_key):], CopySource(bucket_name, obj.object_name))
     else:
         client.copy_object(bucket_name, dst_key, CopySource(bucket_name, src_key))
+
+def catalog_of_artifact(art, **kwargs) -> List[dict]:
+    if hasattr(art, "s3"):
+        key = art.s3.key
+    elif hasattr(art, "key"):
+        key = art.key
+    else:
+        return []
+
+    endpoint = kwargs["endpoint"] if "endpoint" in kwargs else s3_config["endpoint"]
+    access_key = kwargs["access_key"] if "access_key" in kwargs else s3_config["access_key"]
+    secret_key = kwargs["secret_key"] if "secret_key" in kwargs else s3_config["secret_key"]
+    secure = kwargs["secure"] if "secure" in kwargs else s3_config["secure"]
+    bucket_name = kwargs["bucket_name"] if "bucket_name" in kwargs else s3_config["bucket_name"]
+
+    client = Minio(endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
+    catalog = []
+    with tempfile.TemporaryDirectory() as tmpdir:
+        objs = list(client.list_objects(bucket_name=bucket_name, prefix=key))
+        if len(objs) == 1 and objs[0].object_name[-1] == "/":
+            key = objs[0].object_name
+        for obj in client.list_objects(bucket_name=bucket_name, prefix=key):
+            fname = obj.object_name[len(key):]
+            if fname[:len(config["catalog_file_name"])] == config["catalog_file_name"]:
+                client.fget_object(bucket_name=bucket_name, object_name=obj.object_name, file_path=os.path.join(tmpdir, fname))
+                with open(os.path.join(tmpdir, fname), "r") as f:
+                    catalog += jsonpickle.loads(f.read())['path_list']
+    return catalog
+
+def path_list_of_artifact(art, **kwargs) -> List[str]:
+    return convert_dflow_list(catalog_of_artifact(art, **kwargs))
 
 def merge_dir(src, dst):
     for f in os.listdir(src):

@@ -1,5 +1,8 @@
 from typing import Dict, List, Union
 
+from .io import PVC, InputParameter, Inputs, Outputs
+from .utils import randstr
+
 try:
     from argo.workflows.client import (V1alpha1Cache, V1alpha1Memoize,
                                        V1alpha1Metadata,
@@ -17,9 +20,6 @@ except:
     V1alpha1RetryStrategy = object
     V1Volume = object
     V1VolumeMount = object
-from .io import PVC, InputParameter, Inputs, Outputs
-from .utils import randstr
-
 
 class OPTemplate:
     def __init__(

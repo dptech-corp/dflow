@@ -4,14 +4,6 @@ from typing import Any, Dict, List, Union
 
 import jsonpickle
 
-try:
-    from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
-                                       V1alpha1ResourceTemplate,
-                                       V1alpha1WorkflowStep, V1VolumeMount)
-
-    from .client import V1alpha1Sequence
-except:
-    V1alpha1Sequence = object
 from .common import S3Artifact
 from .config import config
 from .executor import Executor
@@ -20,6 +12,16 @@ from .io import (PVC, ArgoVar, InputArtifact, InputParameter, OutputArtifact,
 from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio
+from .utils import catalog_of_artifact
+
+try:
+    from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
+                                       V1alpha1ResourceTemplate,
+                                       V1alpha1WorkflowStep, V1VolumeMount)
+
+    from .client import V1alpha1Sequence
+except:
+    V1alpha1Sequence = object
 
 
 def argo_range(
@@ -75,7 +77,7 @@ def argo_sequence(
     return V1alpha1Sequence(count=count, start=start, end=end, format=format)
 
 def argo_len(
-        param : ArgoVar,
+        param : Union[ArgoVar, S3Artifact],
 ) -> ArgoVar:
     """
     Return the length of a list which is an Argo parameter
@@ -83,6 +85,12 @@ def argo_len(
     Args:
         param: the Argo parameter which is a list
     """
+    if isinstance(param, S3Artifact):
+        try:
+            param.path_list = catalog_of_artifact(param)
+        except:
+            pass
+        return ArgoVar(str(len(param.path_list)))
     if isinstance(param, InputArtifact):
         return ArgoVar("len(sprig.fromJson(%s))" % param.get_path_list_parameter())
     elif isinstance(param, OutputArtifact):
@@ -196,7 +204,7 @@ class Step:
 
             if new_template.slices.sub_path and new_template.slices.input_artifact:
                 for i, name in enumerate(new_template.slices.input_artifact):
-                    init_template.inputs.parameters["dflow_%s_path_list" % name] = InputParameter(value=".")
+                    init_template.inputs.parameters["dflow_%s_path_list" % name] = InputParameter(value=[])
                     init_template.outputs.parameters["dflow_slices_path"] = OutputParameter(value_from_path="/tmp/outputs/parameters/dflow_slices_path")
                     init_template.script += "path_list_%s = json.loads('{{inputs.parameters.dflow_%s_path_list}}')\n" % (i, name)
                     init_template.script += "path_list_%s.sort(key=lambda x: x['order'])\n" % i
@@ -228,7 +236,10 @@ class Step:
                     if isinstance(v, S3Artifact) and v.path_list is not None:
                         self.prepare_step.inputs.parameters["dflow_%s_path_list" % name] = InputParameter(value=v.path_list)
                         self.inputs.artifacts[name].source = deepcopy(self.inputs.artifacts[name].source)
-                        self.inputs.artifacts[name].source.key = self.inputs.artifacts[name].source.key + "/{{item.%s}}" % name
+                        if self.inputs.artifacts[name].source.key[-1] == "/":
+                            self.inputs.artifacts[name].source.key += "{{item.%s}}" % name
+                        else:
+                            self.inputs.artifacts[name].source.key += "/{{item.%s}}" % name
                     elif isinstance(v, OutputArtifact) and v.step is not None and "dflow_%s_path_list" % v.name in v.step.outputs.parameters:
                         self.prepare_step.inputs.parameters["dflow_%s_path_list" % name] = InputParameter(value=v.step.outputs.parameters["dflow_%s_path_list" % v.name])
                         self.inputs.artifacts[name].sub_path = "{{item.%s}}" % name
@@ -276,6 +287,10 @@ class Step:
                 self.inputs.artifacts[k].source = v
                 if config["save_path_as_parameter"]:
                     if isinstance(v, S3Artifact) and v.path_list is not None:
+                        try:
+                            v.path_list = catalog_of_artifact(v)
+                        except:
+                            pass
                         self.inputs.parameters["dflow_%s_path_list" % k] = InputParameter(value=v.path_list)
                     elif isinstance(v, OutputArtifact) and v.step is not None and "dflow_%s_path_list" % v.name in v.step.outputs.parameters:
                         self.inputs.parameters["dflow_%s_path_list" % k] = InputParameter(value=v.step.outputs.parameters["dflow_%s_path_list" % v.name])

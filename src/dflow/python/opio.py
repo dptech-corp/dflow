@@ -28,7 +28,7 @@ class Artifact:
             global_name : str = None,
     ) -> None:
         self.type = type
-        if archive is "default":
+        if archive == "default":
             archive = config["archive_mode"]
         self.archive = archive
         self.save = save

@@ -1,12 +1,13 @@
-try:
-    from argo.workflows.client import V1alpha1Metadata, V1alpha1Template
-except:
-    pass
 from typing import Dict, List, Union
 
 from .io import Inputs, Outputs
 from .op_template import OPTemplate
 from .step import Step
+
+try:
+    from argo.workflows.client import V1alpha1Metadata, V1alpha1Template
+except:
+    pass
 
 
 class Steps(OPTemplate):

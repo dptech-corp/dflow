@@ -1,11 +1,11 @@
 from copy import deepcopy
+from typing import Any, Union
 
 try:
     from argo.workflows.client import V1alpha1S3Artifact
     from argo.workflows.client.configuration import Configuration
 except:
     V1alpha1S3Artifact = object
-from typing import Any, Union
 
 
 class S3Artifact(V1alpha1S3Artifact):
@@ -17,7 +17,7 @@ class S3Artifact(V1alpha1S3Artifact):
     """
     def __init__(
             self,
-            path_list : Union[str, list] = ".",
+            path_list : Union[str, list] = None,
             *args,
             **kwargs,
     ) -> None:
@@ -25,6 +25,8 @@ class S3Artifact(V1alpha1S3Artifact):
         config.client_side_validation = False
         super().__init__(local_vars_configuration=config, *args, **kwargs)
         self._sub_path = None
+        if path_list is None:
+            path_list = []
         self.path_list = path_list
 
     def sub_path(

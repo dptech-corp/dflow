@@ -1,13 +1,14 @@
-try:
-    from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
-                                       V1alpha1DAGTask)
-except:
-    pass
 from typing import List
 
 from .io import OutputArtifact, OutputParameter
 from .op_template import OPTemplate
 from .step import Step
+
+try:
+    from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
+                                       V1alpha1DAGTask)
+except:
+    pass
 
 
 class Task(Step):
