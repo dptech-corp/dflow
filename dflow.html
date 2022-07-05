@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>dflow package &#8212; dflow 1.1.9 documentation</title>
+    <title>dflow package &#8212; dflow 1.1.10 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -28,7 +28,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.9 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.10 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">dflow package</a></li> 
       </ul>
     </div>  
@@ -190,7 +190,7 @@ otherwise modify a.b.c will not take effect</p>
 <span id="dflow-common-module"></span><h2>dflow.common module<a class="headerlink" href="#module-dflow.common" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="dflow.common.S3Artifact">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.common.</span></span><span class="sig-name descname"><span class="pre">S3Artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.common.S3Artifact" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.common.</span></span><span class="sig-name descname"><span class="pre">S3Artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.common.S3Artifact" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>S3 artifact</p>
 <dl class="field-list simple">
@@ -872,7 +872,7 @@ otherwise modify a.b.c will not take effect</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dflow.step.argo_len">
-<span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">argo_len</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></span><a class="headerlink" href="#dflow.step.argo_len" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">argo_len</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#dflow.common.S3Artifact" title="dflow.common.S3Artifact"><span class="pre">S3Artifact</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></span><a class="headerlink" href="#dflow.step.argo_len" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the length of a list which is an Argo parameter</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1012,6 +1012,11 @@ Each argument can be Argo parameter</p>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="dflow.utils.catalog_of_artifact">
+<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">catalog_of_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">art</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dflow.utils.catalog_of_artifact" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="dflow.utils.convert_dflow_list">
 <span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">convert_dflow_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dflow_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.convert_dflow_list" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1068,6 +1073,11 @@ Each argument can be Argo parameter</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="dflow.utils.merge_dir">
 <span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">merge_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.merge_dir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.utils.path_list_of_artifact">
+<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">path_list_of_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">art</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dflow.utils.path_list_of_artifact" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1335,7 +1345,7 @@ Each argument can be Argo parameter</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.9 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dflow 1.1.10 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">dflow package</a></li> 
       </ul>
     </div>
