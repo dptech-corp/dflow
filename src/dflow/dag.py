@@ -1,13 +1,14 @@
-try:
-    from argo.workflows.client import (V1alpha1DAGTemplate, V1alpha1Metadata,
-                                       V1alpha1Template)
-except:
-    pass
 from typing import Dict, List, Union
 
 from .io import Inputs, Outputs
 from .op_template import OPTemplate
 from .task import Task
+
+try:
+    from argo.workflows.client import (V1alpha1DAGTemplate, V1alpha1Metadata,
+                                       V1alpha1Template)
+except:
+    pass
 
 
 class DAG(OPTemplate):

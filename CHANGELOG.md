@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.1.10
+
+### Added
+
+- update path list of S3Artifact when used
+
 ## 1.1.9
 
 ### Added

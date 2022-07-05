@@ -1,23 +1,16 @@
-from .workflow import Workflow, config
-from .step import Step, argo_range, argo_sequence, argo_len
-from .io import (
-    AutonamedDict,
-    Inputs,
-    InputArtifact,
-    InputParameter,
-    Outputs,
-    OutputArtifact,
-    OutputParameter,
-    S3Artifact,
-    IfExpression,
-    if_expression
-)
-from .steps import Steps
-from .op_template import OPTemplate, ShellOPTemplate, PythonScriptOPTemplate
-from .utils import s3_config, upload_s3, download_s3, copy_s3, upload_artifact, download_artifact, copy_artifact
 from .common import S3Artifact
+from .dag import DAG
 from .executor import Executor, RemoteExecutor
+from .io import (AutonamedDict, IfExpression, InputArtifact, InputParameter,
+                 Inputs, OutputArtifact, OutputParameter, Outputs, S3Artifact,
+                 if_expression)
+from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .resource import Resource
 from .slurm import SlurmJob, SlurmJobTemplate, SlurmRemoteExecutor
+from .step import Step, argo_len, argo_range, argo_sequence
+from .steps import Steps
 from .task import Task
-from .dag import DAG
+from .utils import (copy_artifact, copy_s3, download_artifact, download_s3,
+                    path_list_of_artifact, s3_config, upload_artifact,
+                    upload_s3)
+from .workflow import Workflow, config

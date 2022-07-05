@@ -4,6 +4,16 @@ from typing import Dict, List, Union
 
 import jsonpickle
 
+from .argo_objects import ArgoStep, ArgoWorkflow
+from .common import S3Artifact
+from .config import config
+from .context import Context
+from .dag import DAG
+from .step import Step
+from .steps import Steps
+from .task import Task
+from .utils import copy_s3, randstr
+
 try:
     import kubernetes
     from argo.workflows.client import (ApiClient, Configuration,
@@ -16,15 +26,6 @@ try:
                                        WorkflowServiceApi)
 except:
     pass
-from .argo_objects import ArgoStep, ArgoWorkflow
-from .common import S3Artifact
-from .config import config
-from .context import Context
-from .dag import DAG
-from .step import Step
-from .steps import Steps
-from .task import Task
-from .utils import copy_s3, randstr
 
 
 class Workflow:
