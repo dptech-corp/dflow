@@ -536,6 +536,6 @@ class Progress(OP):
 ####  3.2.4. <a name='Uploadpythonpackagesfordevelopment'></a> Upload python packages for development
 To avoid frequently making image during development, dflow offers an interface to upload local packages into container and add them to `$PYTHONPATH`, such as `PythonOPTemplate(..., python_packages=["/opt/anaconda3/lib/python3.9/site-packages/numpy"])`. One can also globally specify packages to be uploaded, which will affect all `OP`s
 ```python
-from dflow import upload_packages
+from dflow.python import upload_packages
 upload_packages.append("/opt/anaconda3/lib/python3.9/site-packages/numpy")
 ```
