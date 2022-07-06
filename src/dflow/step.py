@@ -63,10 +63,10 @@ def argo_sequence(
     Return a numeric sequence in Argo
 
     Args:
-        count: length of the sequence, can be an Argo parameter
-        start: start number of the sequence, can be an Argo parameter
-        end: end number of the sequence, can be an Argo parameter
-        format: output the sequence with format
+        count: number of elements in the sequence (default: 0), not to be used with end, can be an Argo parameter
+        start: number at which to start the sequence (default: 0), can be an Argo parameter
+        end: number at which to end the sequence (default: 0), not to be used with count, can be an Argo parameter
+        format: a printf format string to format the value in the sequence
     """
     if isinstance(count, ArgoVar):
         count = "{{=%s}}" % count.expr

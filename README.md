@@ -340,7 +340,7 @@ steps.outputs.artifacts["foo"].from_expression = if_expression(
 ####  3.1.7. <a name='Produceparallelstepsusingloop'></a> Produce parallel steps using loop
 `with_param` and `with_sequence` are 2 arguments of `Step` for automatically generating a list of parallel steps. These steps share a common OP template, and only differ in the input parameters.
 
-A step using `with_param` option generates parallel steps on a list (usually from another parameter), the parallelism equals to the length of the list. Each parallel step picks an item from the list by `"{{item}}"`, such as
+A step using `with_param` option generates parallel steps on a list (either a constant list or referring to another parameter, e.g. an output parameter of another step or an input parameter of the `steps` or `DAG` context), the parallelism equals to the length of the list. Each parallel step picks an item from the list by `"{{item}}"`, such as
 ```python
 step = Step(
     ...
@@ -348,7 +348,7 @@ step = Step(
     with_param=steps.inputs.parameters["msg_list"]
 )
 ```
-A step using `with_sequence` option generates parallel steps on a numeric sequence. `with_sequence` is usually used in coordination with `argo_sequence` (return a sequence, start from 0 for default) and `argo_len` (return length of a list). Each parallel step picks a number from the sequence by `"{{item}}"`, such as
+A step using `with_sequence` option generates parallel steps on a numeric sequence. `with_sequence` is usually used in coordination with `argo_sequence` which returns an Argo's sequence. For `argo_sequence`, the number at which to start the sequence is specified by `start` (default: 0). One can either specify the number of elements in the sequence by `count` or the number at which to end the sequence by `end`. The printf format string can be specified by `format` to format the value in the sequence. Each argument can be passed with a parameter, `argo_len` which returns the length of a list may be useful. Each parallel step picks an element from the sequence by `"{{item}}"`, such as
 ```python
 step = Step(
     ...
