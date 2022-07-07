@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.1.11
+
+### Added
+
+- support for successive sub-path slices steps
+- support for path of output artifact referring to path of input artifact in sub-path slices
+
 ## 1.1.10
 
 ### Added

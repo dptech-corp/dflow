@@ -12,8 +12,11 @@ from ..utils import (assemble_path_list, convert_dflow_list, copy_file,
 from .opio import BigParameter, Parameter
 
 
-def handle_input_artifact(name, sign, slices=None, data_root="/tmp"):
-    art_path = data_root + '/inputs/artifacts/' + name
+def handle_input_artifact(name, sign, slices=None, data_root="/tmp", sub_path=None):
+    if sub_path is None:
+        art_path = '%s/inputs/artifacts/%s' % (data_root, name)
+    else:
+        art_path = '%s/inputs/artifacts/%s/%s' % (data_root, name, sub_path)
     if not os.path.exists(art_path): # for optional artifact
         return None
     remove_empty_dir_tag(art_path)
@@ -146,6 +149,7 @@ def copy_results(source, name, data_root="/tmp"):
         rel_path = source[source.find("/", len(data_root + "/inputs/artifacts/"))+1:] # retain original directory structure
         target = data_root + "/outputs/artifacts/%s/%s" % (name, rel_path)
         copy_file(source, target, shutil.copy)
+        if rel_path[:1] == "/": rel_path = rel_path[1:]
         return rel_path
     else:
         target = data_root + "/outputs/artifacts/%s/%s" % (name, source)
@@ -153,6 +157,7 @@ def copy_results(source, name, data_root="/tmp"):
             copy_file(source, target, os.link)
         except:
             copy_file(source, target, shutil.copy)
+        if source[:1] == "/": source = source[1:]
         return source
 
 def handle_empty_dir(path):

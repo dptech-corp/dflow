@@ -153,7 +153,11 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         self.dflow_vars = {}
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
-                self.inputs.artifacts[name] = InputArtifact(path="/tmp/inputs/artifacts/" + name, optional=sign.optional, type=sign.type)
+                if self.slices is not None and self.slices.sub_path and name in self.slices.input_artifact:
+                    self.inputs.parameters["dflow_%s_sub_path" % name] = InputParameter(value=".")
+                    self.inputs.artifacts[name] = InputArtifact(path="/tmp/inputs/artifacts/%s/{{inputs.parameters.dflow_%s_sub_path}}" % (name, name), optional=sign.optional, type=sign.type)
+                else:
+                    self.inputs.artifacts[name] = InputArtifact(path="/tmp/inputs/artifacts/" + name, optional=sign.optional, type=sign.type)
             elif isinstance(sign, BigParameter):
                 self.inputs.parameters[name] = InputParameter(save_as_artifact=True, path="/tmp/inputs/parameters/" + name, type=sign.type)
             elif isinstance(sign, Parameter):
@@ -233,7 +237,10 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(input_artifact_slices, name)
-                script += "input['%s'] = handle_input_artifact('%s', input_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
+                if self.slices is not None and self.slices.sub_path and name in self.slices.input_artifact:
+                    script += "input['%s'] = handle_input_artifact('%s', input_sign['%s'], %s, '/tmp', '{{inputs.parameters.dflow_%s_sub_path}}')\n" % (name, name, name, slices, name)
+                else:
+                    script += "input['%s'] = handle_input_artifact('%s', input_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
             else:
                 slices = self.get_slices(input_parameter_slices, name)
                 if isinstance(sign, BigParameter):

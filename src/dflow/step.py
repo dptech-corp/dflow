@@ -206,7 +206,9 @@ class Step:
                 for i, name in enumerate(new_template.slices.input_artifact):
                     init_template.inputs.parameters["dflow_%s_path_list" % name] = InputParameter(value=[])
                     init_template.outputs.parameters["dflow_slices_path"] = OutputParameter(value_from_path="/tmp/outputs/parameters/dflow_slices_path")
-                    init_template.script += "path_list_%s = json.loads('{{inputs.parameters.dflow_%s_path_list}}')\n" % (i, name)
+                    init_template.script += "path_list_%s = json.loads(r'{{inputs.parameters.dflow_%s_path_list}}')\n" % (i, name)
+                    init_template.script += "if len(path_list_%s) > 0 and isinstance(path_list_%s[0], str):\n" % (i, i)
+                    init_template.script += "    path_list_%s = sum([json.loads(item) for item in path_list_%s], [])\n" % (i, i)
                     init_template.script += "path_list_%s.sort(key=lambda x: x['order'])\n" % i
                 n_arts = len(new_template.slices.input_artifact)
                 if n_arts > 1:
@@ -232,6 +234,8 @@ class Step:
 
             if new_template.slices.sub_path and new_template.slices.input_artifact:
                 for name in new_template.slices.input_artifact:
+                    self.inputs.parameters["dflow_%s_sub_path" % name].value = "{{item.%s}}" % name
+                    self.inputs.artifacts[name].path = None # step cannot resolve {{inputs.parameters.dflow_%s_sub_path}}
                     v = self.inputs.artifacts[name].source
                     if isinstance(v, S3Artifact) and v.path_list is not None:
                         self.prepare_step.inputs.parameters["dflow_%s_path_list" % name] = InputParameter(value=v.path_list)
