@@ -10,12 +10,13 @@ class Resource(object):
         success_condition: expression representing success
         failure_condition: expression representing failure
     """
-    action : str = None
-    success_condition : str = None
-    failure_condition : str = None
+    action: str = None
+    success_condition: str = None
+    failure_condition: str = None
+
     def get_manifest(
             self,
-            template : OPTemplate,
+            template: OPTemplate,
     ) -> OPTemplate:
         """
         The method to get the manifest (str)

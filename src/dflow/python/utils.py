@@ -12,12 +12,13 @@ from ..utils import (assemble_path_list, convert_dflow_list, copy_file,
 from .opio import BigParameter, Parameter
 
 
-def handle_input_artifact(name, sign, slices=None, data_root="/tmp", sub_path=None):
+def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
+                          sub_path=None):
     if sub_path is None:
         art_path = '%s/inputs/artifacts/%s' % (data_root, name)
     else:
         art_path = '%s/inputs/artifacts/%s/%s' % (data_root, name, sub_path)
-    if not os.path.exists(art_path): # for optional artifact
+    if not os.path.exists(art_path):  # for optional artifact
         return None
     remove_empty_dir_tag(art_path)
     path_list = assemble_path_list(art_path)
@@ -43,6 +44,7 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp", sub_path=No
     elif sign.type == Set[Path]:
         return set(map(Path, path_list))
 
+
 def handle_input_parameter(name, value, sign, slices=None, data_root="/tmp"):
     if "dflow_list_item" in value:
         dflow_list = []
@@ -65,13 +67,16 @@ def handle_input_parameter(name, value, sign, slices=None, data_root="/tmp"):
             obj = jsonpickle.loads(value)
 
     if slices is not None:
-        assert isinstance(obj, list), "Only parameters of type list can be sliced, while %s is not list" % obj
+        assert isinstance(
+            obj, list), "Only parameters of type list can be sliced, while %s"\
+            " is not list" % obj
         if isinstance(slices, list):
             obj = [obj[i] for i in slices]
         else:
             obj = obj[slices]
 
     return obj
+
 
 def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
     path_list = []
@@ -82,7 +87,8 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
         else:
             slices = 0
         if value and os.path.exists(str(value)):
-            path_list.append({"dflow_list_item": copy_results(value, name, data_root), "order": slices})
+            path_list.append({"dflow_list_item": copy_results(
+                value, name, data_root), "order": slices})
         else:
             path_list.append({"dflow_list_item": None, "order": slices})
     elif sign.type in [List[str], List[Path], Set[str], Set[Path]]:
@@ -90,31 +96,40 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
         if slices is not None:
             if isinstance(slices, int):
                 for path in value:
-                    path_list.append(copy_results_and_return_path_item(path, name, slices, data_root))
+                    path_list.append(copy_results_and_return_path_item(
+                        path, name, slices, data_root))
             else:
                 assert len(slices) == len(value)
                 for path, s in zip(value, slices):
                     if isinstance(path, list):
                         for p in path:
-                            path_list.append(copy_results_and_return_path_item(p, name, s, data_root))
+                            path_list.append(
+                                copy_results_and_return_path_item(p, name, s,
+                                                                  data_root))
                     else:
-                        path_list.append(copy_results_and_return_path_item(path, name, s, data_root))
+                        path_list.append(copy_results_and_return_path_item(
+                            path, name, s, data_root))
         else:
             for s, path in enumerate(value):
-                path_list.append(copy_results_and_return_path_item(path, name, s, data_root))
+                path_list.append(copy_results_and_return_path_item(
+                    path, name, s, data_root))
 
-    with open(data_root + "/outputs/artifacts/%s/%s.%s" % (name, config["catalog_file_name"], uuid.uuid4()), "w") as f:
+    with open(data_root + "/outputs/artifacts/%s/%s.%s" % (name, config[
+            "catalog_file_name"], uuid.uuid4()), "w") as f:
         f.write(jsonpickle.dumps({"path_list": path_list}))
     handle_empty_dir(data_root + "/outputs/artifacts/%s" % name)
     if config["save_path_as_parameter"]:
-        with open(data_root + '/outputs/parameters/dflow_%s_path_list' % name, 'w') as f:
+        with open(data_root + '/outputs/parameters/dflow_%s_path_list'
+                  % name, 'w') as f:
             f.write(jsonpickle.dumps(path_list))
+
 
 def handle_output_parameter(name, value, sign, slices=None, data_root="/tmp"):
     if slices is not None:
         if isinstance(slices, list):
             assert isinstance(value, list) and len(slices) == len(value)
-            res = [{"dflow_list_item": v, "order": s} for v, s in zip(value, slices)]
+            res = [{"dflow_list_item": v, "order": s}
+                   for v, s in zip(value, slices)]
         else:
             res = [{"dflow_list_item": value, "order": slices}]
         with open(data_root + '/outputs/parameters/' + name, 'w') as f:
@@ -137,32 +152,42 @@ def handle_output_parameter(name, value, sign, slices=None, data_root="/tmp"):
             with open(data_root + '/outputs/parameters/' + name, 'w') as f:
                 f.write(jsonpickle.dumps(value))
 
+
 def copy_results_and_return_path_item(path, name, order, data_root="/tmp"):
     if path and os.path.exists(str(path)):
-        return {"dflow_list_item": copy_results(path, name, data_root), "order": order}
+        return {"dflow_list_item": copy_results(path, name, data_root),
+                "order": order}
     else:
         return {"dflow_list_item": None, "order": order}
 
+
 def copy_results(source, name, data_root="/tmp"):
     source = str(source)
-    if source.find(data_root + "/inputs/artifacts/") == 0: # if refer to input artifact
-        rel_path = source[source.find("/", len(data_root + "/inputs/artifacts/"))+1:] # retain original directory structure
+    # if refer to input artifact
+    if source.find(data_root + "/inputs/artifacts/") == 0:
+        # retain original directory structure
+        rel_path = source[source.find(
+            "/", len(data_root + "/inputs/artifacts/"))+1:]
         target = data_root + "/outputs/artifacts/%s/%s" % (name, rel_path)
         copy_file(source, target, shutil.copy)
-        if rel_path[:1] == "/": rel_path = rel_path[1:]
+        if rel_path[:1] == "/":
+            rel_path = rel_path[1:]
         return rel_path
     else:
         target = data_root + "/outputs/artifacts/%s/%s" % (name, source)
         try:
             copy_file(source, target, os.link)
-        except:
+        except Exception:
             copy_file(source, target, shutil.copy)
-        if source[:1] == "/": source = source[1:]
+        if source[:1] == "/":
+            source = source[1:]
         return source
 
+
 def handle_empty_dir(path):
-    # touch an empty file in each empty dir, as object storage will ignore empty dirs
+    # touch an empty file in each empty dir, as object storage will ignore
+    # empty dirs
     for dn, ds, fs in os.walk(path, followlinks=True):
         if len(ds) == 0 and len(fs) == 0:
-            with open(os.path.join(dn, ".empty_dir"), "w") as f:
+            with open(os.path.join(dn, ".empty_dir"), "w"):
                 pass

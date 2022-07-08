@@ -19,7 +19,7 @@ from .config import config
 try:
     from minio import Minio
     from minio.api import CopySource
-except:
+except Exception:
     pass
 
 s3_config = {
@@ -30,9 +30,10 @@ s3_config = {
     "bucket_name": "my-bucket"
 }
 
+
 def download_artifact(
         artifact,
-        extract : bool = True,
+        extract: bool = True,
         **kwargs,
 ) -> List[str]:
     """
@@ -49,7 +50,8 @@ def download_artifact(
         bucket_name: bucket name for Minio
     """
     if hasattr(artifact, "s3"):
-        if hasattr(artifact, "archive") and hasattr(artifact.archive, "none") and artifact.archive.none is not None:
+        if hasattr(artifact, "archive") and hasattr(artifact.archive, "none")\
+                and artifact.archive.none is not None:
             path = download_s3(key=artifact.s3.key, recursive=True, **kwargs)
         else:
             path = download_s3(key=artifact.s3.key, recursive=False, **kwargs)
@@ -62,9 +64,11 @@ def download_artifact(
                     os.remove(path)
                     path = os.path.dirname(path)
 
-                    # if the artifact contains only one directory, merge the directory with the target directory
+                    # if the artifact contains only one directory, merge the
+                    # directory with the target directory
                     ld = os.listdir(tmpdir)
-                    if len(ld) == 1 and os.path.isdir(os.path.join(tmpdir, ld[0])):
+                    if len(ld) == 1 and os.path.isdir(os.path.join(tmpdir,
+                                                                   ld[0])):
                         merge_dir(os.path.join(tmpdir, ld[0]), path)
                     else:
                         merge_dir(tmpdir, path)
@@ -74,9 +78,10 @@ def download_artifact(
     else:
         raise NotImplementedError()
 
+
 def upload_artifact(
-        path : Union[os.PathLike, List[os.PathLike], Set[os.PathLike]],
-        archive : str = "default",
+        path: Union[os.PathLike, List[os.PathLike], Set[os.PathLike]],
+        archive: str = "default",
         **kwargs,
 ) -> S3Artifact:
     """
@@ -117,12 +122,14 @@ def upload_artifact(
             os.makedirs(os.path.dirname(target), exist_ok=True)
             os.symlink(abspath, target)
             path_list.append({"dflow_list_item": relpath, "order": i})
-        with open(os.path.join(tmpdir, config["catalog_file_name"] + ".%s" % uuid.uuid4()), "w") as f:
+        with open(os.path.join(tmpdir, config["catalog_file_name"] + ".%s" %
+                               uuid.uuid4()), "w") as f:
             f.write(jsonpickle.dumps({"path_list": path_list}))
 
         if archive == "tar":
             os.chdir(os.path.dirname(tmpdir))
-            tf = tarfile.open(os.path.basename(tmpdir) + ".tgz", "w:gz", dereference=True)
+            tf = tarfile.open(os.path.basename(tmpdir) +
+                              ".tgz", "w:gz", dereference=True)
             tf.add(os.path.basename(tmpdir))
             tf.close()
             os.chdir(cwd)
@@ -133,13 +140,15 @@ def upload_artifact(
 
     return S3Artifact(key=key, path_list=path_list)
 
-def copy_artifact(src, dst) -> S3Artifact:
+
+def copy_artifact(src, dst, sort=False) -> S3Artifact:
     """
     Copy an artifact to another on server side
 
     Args:
         src: source artifact
         dst: destination artifact
+        sort: append the path list of dst after that of src
     """
     if hasattr(src, "s3"):
         src_key = src.s3.key
@@ -155,18 +164,34 @@ def copy_artifact(src, dst) -> S3Artifact:
     else:
         raise NotImplementedError()
 
-    copy_s3(src_key, dst_key)
+    if sort:
+        src_catalog = catalog_of_artifact(src)
+        dst_catalog = catalog_of_artifact(dst)
+        if src_catalog and dst_catalog:
+            offset = max(dst_catalog,
+                         key=lambda item: item["order"])["order"] + 1
+            for item in src_catalog:
+                item["order"] += offset
+            with tempfile.TemporaryDirectory() as tmpdir:
+                fname = config["catalog_file_name"] + ".%s" % uuid.uuid4()
+                fpath = os.path.join(tmpdir, fname)
+                with open(fpath, "w") as f:
+                    f.write(jsonpickle.dumps({"path_list": src_catalog}))
+                upload_s3(path=fpath, prefix=dst_key)
+
+    copy_s3(src_key, dst_key, ignore_catalog=sort)
     return S3Artifact(key=dst_key)
 
+
 def download_s3(
-        key : str,
-        path : os.PathLike = None,
-        recursive : bool = True,
-        endpoint : str = None,
-        access_key : str = None,
-        secret_key : str = None,
-        secure : bool = None,
-        bucket_name : str = None,
+        key: str,
+        path: os.PathLike = None,
+        recursive: bool = True,
+        endpoint: str = None,
+        access_key: str = None,
+        secret_key: str = None,
+        secure: bool = None,
+        bucket_name: str = None,
         **kwargs,
 ) -> str:
     if endpoint is None:
@@ -181,29 +206,37 @@ def download_s3(
         bucket_name = s3_config["bucket_name"]
     if path is None:
         path = "."
-    client = Minio(endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
+    client = Minio(endpoint=endpoint, access_key=access_key,
+                   secret_key=secret_key, secure=secure)
     if recursive:
-        for obj in client.list_objects(bucket_name=bucket_name, prefix=key, recursive=True):
+        for obj in client.list_objects(bucket_name=bucket_name, prefix=key,
+                                       recursive=True):
             rel_path = obj.object_name[len(key):]
-            if rel_path[:1] == "/": rel_path = rel_path[1:]
+            if rel_path[:1] == "/":
+                rel_path = rel_path[1:]
             if rel_path == "":
                 file_path = os.path.join(path, os.path.basename(key))
             else:
                 file_path = os.path.join(path, rel_path)
-            client.fget_object(bucket_name=bucket_name, object_name=obj.object_name, file_path=file_path)
+            client.fget_object(bucket_name=bucket_name,
+                               object_name=obj.object_name,
+                               file_path=file_path)
     else:
         path = os.path.join(path, os.path.basename(key))
-        client.fget_object(bucket_name=bucket_name, object_name=key, file_path=path)
+        client.fget_object(bucket_name=bucket_name,
+                           object_name=key, file_path=path)
     return path
 
+
 def upload_s3(
-        path : os.PathLike,
-        key : str = None,
-        endpoint : str = None,
-        access_key : str = None,
-        secret_key : str = None,
-        secure : bool = None,
-        bucket_name : str = None,
+        path: os.PathLike,
+        key: str = None,
+        prefix: str = None,
+        endpoint: str = None,
+        access_key: str = None,
+        secret_key: str = None,
+        secure: bool = None,
+        bucket_name: str = None,
         **kwargs,
 ) -> str:
     if endpoint is None:
@@ -216,11 +249,23 @@ def upload_s3(
         secure = s3_config["secure"]
     if bucket_name is None:
         bucket_name = s3_config["bucket_name"]
-    if key is None:
+    client = Minio(endpoint=endpoint, access_key=access_key,
+                   secret_key=secret_key, secure=secure)
+    if key is not None:
+        pass
+    elif prefix is not None:
+        if prefix[-1] != "/":
+            prefix += "/"
+        objs = list(client.list_objects(
+            bucket_name=bucket_name, prefix=prefix))
+        if len(objs) == 1 and objs[0].object_name[-1] == "/":
+            prefix = objs[0].object_name
+        key = "%s%s" % (prefix, os.path.basename(path))
+    else:
         key = "upload/%s/%s" % (uuid.uuid4(), os.path.basename(path))
-    client = Minio(endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
     if os.path.isfile(path):
-        client.fput_object(bucket_name=bucket_name, object_name=key, file_path=path)
+        client.fput_object(bucket_name=bucket_name,
+                           object_name=key, file_path=path)
     elif os.path.isdir(path):
         for dn, ds, fs in os.walk(path, followlinks=True):
             rel_path = dn[len(path):]
@@ -229,18 +274,23 @@ def upload_s3(
             elif rel_path[0] != "/":
                 rel_path = "/" + rel_path
             for f in fs:
-                client.fput_object(bucket_name=bucket_name, object_name="%s%s/%s" % (key, rel_path, f), file_path=os.path.join(dn, f))
+                client.fput_object(bucket_name=bucket_name,
+                                   object_name="%s%s/%s" %
+                                   (key, rel_path, f),
+                                   file_path=os.path.join(dn, f))
     return key
 
+
 def copy_s3(
-        src_key : str,
-        dst_key : str,
-        recursive : bool = True,
-        endpoint : str = None,
-        access_key : str = None,
-        secret_key : str = None,
-        secure : bool = None,
-        bucket_name : str = None,
+        src_key: str,
+        dst_key: str,
+        recursive: bool = True,
+        endpoint: str = None,
+        access_key: str = None,
+        secret_key: str = None,
+        secure: bool = None,
+        bucket_name: str = None,
+        ignore_catalog: bool = False,
         **kwargs,
 ) -> None:
     if endpoint is None:
@@ -253,20 +303,34 @@ def copy_s3(
         secure = s3_config["secure"]
     if bucket_name is None:
         bucket_name = s3_config["bucket_name"]
-    client = Minio(endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
+    client = Minio(endpoint=endpoint, access_key=access_key,
+                   secret_key=secret_key, secure=secure)
     if recursive:
-        if src_key[-1] != "/": src_key += "/"
-        src_objs = list(client.list_objects(bucket_name=bucket_name, prefix=src_key))
+        if src_key[-1] != "/":
+            src_key += "/"
+        src_objs = list(client.list_objects(
+            bucket_name=bucket_name, prefix=src_key))
         if len(src_objs) == 1 and src_objs[0].object_name[-1] == "/":
             src_key = src_objs[0].object_name
-        if dst_key[-1] != "/": dst_key += "/"
-        dst_objs = list(client.list_objects(bucket_name=bucket_name, prefix=dst_key))
+        if dst_key[-1] != "/":
+            dst_key += "/"
+        dst_objs = list(client.list_objects(
+            bucket_name=bucket_name, prefix=dst_key))
         if len(dst_objs) == 1 and dst_objs[0].object_name[-1] == "/":
             dst_key = dst_objs[0].object_name
-        for obj in client.list_objects(bucket_name=bucket_name, prefix=src_key, recursive=True):
-            client.copy_object(bucket_name, dst_key + obj.object_name[len(src_key):], CopySource(bucket_name, obj.object_name))
+        for obj in client.list_objects(bucket_name=bucket_name,
+                                       prefix=src_key, recursive=True):
+            if ignore_catalog:
+                fname = os.path.basename(obj.object_name)
+                if fname[:len(config["catalog_file_name"])] \
+                        == config["catalog_file_name"]:
+                    continue
+            client.copy_object(bucket_name, dst_key + obj.object_name[len(
+                src_key):], CopySource(bucket_name, obj.object_name))
     else:
-        client.copy_object(bucket_name, dst_key, CopySource(bucket_name, src_key))
+        client.copy_object(bucket_name, dst_key,
+                           CopySource(bucket_name, src_key))
+
 
 def catalog_of_artifact(art, **kwargs) -> List[dict]:
     if hasattr(art, "s3"):
@@ -276,13 +340,18 @@ def catalog_of_artifact(art, **kwargs) -> List[dict]:
     else:
         return []
 
-    endpoint = kwargs["endpoint"] if "endpoint" in kwargs else s3_config["endpoint"]
-    access_key = kwargs["access_key"] if "access_key" in kwargs else s3_config["access_key"]
-    secret_key = kwargs["secret_key"] if "secret_key" in kwargs else s3_config["secret_key"]
+    endpoint = kwargs["endpoint"] if "endpoint" in kwargs \
+        else s3_config["endpoint"]
+    access_key = kwargs["access_key"] if "access_key" in kwargs \
+        else s3_config["access_key"]
+    secret_key = kwargs["secret_key"] if "secret_key" in kwargs \
+        else s3_config["secret_key"]
     secure = kwargs["secure"] if "secure" in kwargs else s3_config["secure"]
-    bucket_name = kwargs["bucket_name"] if "bucket_name" in kwargs else s3_config["bucket_name"]
+    bucket_name = kwargs["bucket_name"] if "bucket_name" in kwargs \
+        else s3_config["bucket_name"]
 
-    client = Minio(endpoint=endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
+    client = Minio(endpoint=endpoint, access_key=access_key,
+                   secret_key=secret_key, secure=secure)
     catalog = []
     with tempfile.TemporaryDirectory() as tmpdir:
         objs = list(client.list_objects(bucket_name=bucket_name, prefix=key))
@@ -290,14 +359,19 @@ def catalog_of_artifact(art, **kwargs) -> List[dict]:
             key = objs[0].object_name
         for obj in client.list_objects(bucket_name=bucket_name, prefix=key):
             fname = obj.object_name[len(key):]
-            if fname[:len(config["catalog_file_name"])] == config["catalog_file_name"]:
-                client.fget_object(bucket_name=bucket_name, object_name=obj.object_name, file_path=os.path.join(tmpdir, fname))
+            if fname[:len(config["catalog_file_name"])] == \
+                    config["catalog_file_name"]:
+                client.fget_object(
+                    bucket_name=bucket_name, object_name=obj.object_name,
+                    file_path=os.path.join(tmpdir, fname))
                 with open(os.path.join(tmpdir, fname), "r") as f:
                     catalog += jsonpickle.loads(f.read())['path_list']
     return catalog
 
+
 def path_list_of_artifact(art, **kwargs) -> List[str]:
     return convert_dflow_list(catalog_of_artifact(art, **kwargs))
+
 
 def merge_dir(src, dst):
     for f in os.listdir(src):
@@ -315,6 +389,7 @@ def merge_dir(src, dst):
             os.remove(dst_file)
             shutil.move(src_file, dst_file)
 
+
 def copy_file(src, dst, func=os.link):
     os.makedirs(os.path.abspath(os.path.dirname(dst)), exist_ok=True)
     if os.path.isdir(src):
@@ -324,32 +399,42 @@ def copy_file(src, dst, func=os.link):
     else:
         raise RuntimeError("File %s not found" % src)
 
+
 def assemble_path_list(art_path, remove=False):
     path_list = []
     if os.path.isdir(art_path):
         dflow_list = []
         for f in os.listdir(art_path):
-            if f[:len(config["catalog_file_name"])] == config["catalog_file_name"]:
+            if f[:len(config["catalog_file_name"])] == \
+                    config["catalog_file_name"]:
                 with open('%s/%s' % (art_path, f), 'r') as fd:
                     for item in jsonpickle.loads(fd.read())['path_list']:
-                        if item not in dflow_list: dflow_list.append(item) # remove duplicate
+                        if item not in dflow_list:
+                            dflow_list.append(item)  # remove duplicate
                 if remove:
                     os.remove(os.path.join(art_path, f))
         if len(dflow_list) > 0:
-            path_list = list(map(lambda x: os.path.join(art_path, x) if x is not None else None, convert_dflow_list(dflow_list)))
+            path_list = list(map(lambda x: os.path.join(
+                art_path, x) if x is not None else None,
+                convert_dflow_list(dflow_list)))
     return path_list
+
 
 def convert_dflow_list(dflow_list):
     dflow_list.sort(key=lambda x: x['order'])
     return list(map(lambda x: x['dflow_list_item'], dflow_list))
+
 
 def remove_empty_dir_tag(path):
     for dn, ds, fs in os.walk(path, followlinks=True):
         if ".empty_dir" in fs:
             os.remove(os.path.join(dn, ".empty_dir"))
 
-def randstr(l : int = 5) -> str:
-    return "".join(random.sample(string.digits + string.ascii_lowercase, l))
+
+def randstr(length: int = 5) -> str:
+    return "".join(random.sample(string.digits + string.ascii_lowercase,
+                                 length))
+
 
 @contextlib.contextmanager
 def set_directory(dirname: os.PathLike, mkdir: bool = False):
@@ -362,12 +447,12 @@ def set_directory(dirname: os.PathLike, mkdir: bool = False):
         The directory path to change to
     mkdir: bool
         Whether make directory if `dirname` does not exist
-    
+
     Yields
     ------
     path: Path
         The absolute path of the changed working directory
-    
+
     Examples
     --------
     >>> with set_directory("some_path"):
@@ -381,10 +466,11 @@ def set_directory(dirname: os.PathLike, mkdir: bool = False):
     yield path
     os.chdir(pwd)
 
+
 def run_command(
-    cmd: Union[List[str], str], 
-    raise_error: bool = True, 
-    input: Optional[str] = None, 
+    cmd: Union[List[str], str],
+    raise_error: bool = True,
+    input: Optional[str] = None,
     **kwargs,
 ) -> Tuple[int, str, str]:
     """
@@ -400,12 +486,12 @@ def run_command(
         Input string for the command
     **kwargs:
         Arguments in subprocess.Popen
-    
+
     Raises:
     ------
     AssertionError:
         Raises if the error failed to execute and `raise_error` set to `True`
-    
+
     Return:
     ------
     return_code: int
@@ -413,7 +499,7 @@ def run_command(
     out: str
         stdout content of the executed command
     err: str
-        stderr content of the executed command  
+        stderr content of the executed command
     """
     if isinstance(cmd, str):
         cmd = cmd.split()
@@ -421,10 +507,10 @@ def run_command(
         cmd = [str(x) for x in cmd]
 
     sub = subprocess.Popen(
-        args=cmd, 
-        stdin=subprocess.PIPE, 
-        stdout=subprocess.PIPE, 
-        stderr=subprocess.PIPE, 
+        args=cmd,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         **kwargs
     )
     if input is not None:

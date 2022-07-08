@@ -21,10 +21,11 @@ try:
     from argo.workflows.client import V1Volume, V1VolumeMount
 
     from ..client import V1alpha1RetryStrategy
-except:
+except Exception:
     V1Volume = object
     V1VolumeMount = object
 upload_packages = []
+
 
 class Slices:
     """
@@ -37,19 +38,24 @@ class Slices:
         output_parameter: list of output parameters to be stacked
         output_artifact: list of output artifacts to be stacked
     """
+
     def __init__(
             self,
-            slices : str = None,
-            input_parameter : List[str] = None,
-            input_artifact : List[str] = None,
-            output_parameter : List[str] = None,
-            output_artifact : List[str] = None,
-            sub_path : bool = False,
+            slices: str = None,
+            input_parameter: List[str] = None,
+            input_artifact: List[str] = None,
+            output_parameter: List[str] = None,
+            output_artifact: List[str] = None,
+            sub_path: bool = False,
     ) -> None:
-        self.input_parameter = input_parameter if input_parameter is not None else []
-        self.input_artifact = input_artifact if input_artifact is not None else []
-        self.output_parameter = output_parameter if output_parameter is not None else []
-        self.output_artifact = output_artifact if output_artifact is not None else []
+        self.input_parameter = input_parameter if input_parameter is not \
+            None else []
+        self.input_artifact = input_artifact if input_artifact is not None \
+            else []
+        self.output_parameter = output_parameter if output_parameter is not \
+            None else []
+        self.output_artifact = output_artifact if output_artifact is not \
+            None else []
         self.sub_path = sub_path
         if slices is not None:
             self.slices = slices
@@ -57,6 +63,7 @@ class Slices:
             self.slices = "{{item.order}}"
         else:
             self.slices = "{{item}}"
+
 
 class PythonOPTemplate(PythonScriptOPTemplate):
     """
@@ -67,19 +74,28 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         image: image of the OP template
         command: python executable
         input_artifact_slices: a dict specifying input artifacts to use slices
-        output_artifact_save: a dict specifying storage of output artifacts overriding default storage
-        output_artifact_archive: a dict specifying compress format of output artifacts, None for no compression
-        input_parameter_slices: a dict specifying input parameters to use slices
-        output_artifact_slices: a dict specifying output artifacts to use slices
-        output_parameter_slices: a dict specifying output parameters to use slices
-        output_artifact_global_name: a dict specifying global names of output artifacts within the workflow
+        output_artifact_save: a dict specifying storage of output artifacts
+            overriding default storage
+        output_artifact_archive: a dict specifying compress format of output
+            artifacts, None for no compression
+        input_parameter_slices: a dict specifying input parameters to use
+            slices
+        output_artifact_slices: a dict specifying output artifacts to use
+            slices
+        output_parameter_slices: a dict specifying output parameters to use
+            slices
+        output_artifact_global_name: a dict specifying global names of
+            output artifacts within the workflow
         slices: use slices to generate parallel steps
         python_packages: local python packages to be uploaded to the OP
         timeout: timeout of the OP template
         retry_on_transient_error: maximum retries on TrasientError
-        output_parameter_default: a dict specifying default values for output parameters
-        output_parameter_global_name: a dict specifying global names of output parameters within the workflow
-        timeout_as_transient_error: regard timeout as transient error or fatal one
+        output_parameter_default: a dict specifying default values for output
+            parameters
+        output_parameter_global_name: a dict specifying global names of output
+            parameters within the workflow
+        timeout_as_transient_error: regard timeout as transient error or fatal
+            one
         memoize_key: memoized key of the OP template
         volumes: volumes to use in the OP template
         mounts: volumes to mount in the OP template
@@ -87,33 +103,36 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         requests: a dict of resource requests
         limits: a dict of resource limits
     """
+
     def __init__(self,
-            op_class : OP,
-            image : str = None,
-            command : Union[str, List[str]] = None,
-            output_artifact_save : Dict[str, List[Union[PVC, S3Artifact]]] = None,
-            output_artifact_archive : Dict[str, str] = None,
-            output_parameter_default : Dict[str, Any] = None,
-            input_artifact_slices : Dict[str, str] = None,
-            input_parameter_slices : Dict[str, str] = None,
-            output_artifact_slices : Dict[str, str] = None,
-            output_parameter_slices : Dict[str, str] = None,
-            output_artifact_global_name : Dict[str, str] = None,
-            output_parameter_global_name : Dict[str, str] = None,
-            slices : Slices = None,
-            python_packages : List[os.PathLike] = None,
-            timeout : int = None,
-            retry_on_transient_error : int = None,
-            timeout_as_transient_error : bool = False,
-            memoize_key : str = None,
-            volumes : List[V1Volume] = None,
-            mounts : List[V1VolumeMount] = None,
-            image_pull_policy : str = None,
-            requests : Dict[str, str] = None,
-            limits : Dict[str, str] = None,
-            upload_dflow : bool = True,
-            **kwargs,
-    ) -> None:
+                 op_class: OP,
+                 image: str = None,
+                 command: Union[str, List[str]] = None,
+                 output_artifact_save: Dict[str,
+                                            List[Union[PVC, S3Artifact]]]
+                 = None,
+                 output_artifact_archive: Dict[str, str] = None,
+                 output_parameter_default: Dict[str, Any] = None,
+                 input_artifact_slices: Dict[str, str] = None,
+                 input_parameter_slices: Dict[str, str] = None,
+                 output_artifact_slices: Dict[str, str] = None,
+                 output_parameter_slices: Dict[str, str] = None,
+                 output_artifact_global_name: Dict[str, str] = None,
+                 output_parameter_global_name: Dict[str, str] = None,
+                 slices: Slices = None,
+                 python_packages: List[os.PathLike] = None,
+                 timeout: int = None,
+                 retry_on_transient_error: int = None,
+                 timeout_as_transient_error: bool = False,
+                 memoize_key: str = None,
+                 volumes: List[V1Volume] = None,
+                 mounts: List[V1VolumeMount] = None,
+                 image_pull_policy: str = None,
+                 requests: Dict[str, str] = None,
+                 limits: Dict[str, str] = None,
+                 upload_dflow: bool = True,
+                 **kwargs,
+                 ) -> None:
         op = None
         if isinstance(op_class, OP):
             op = op_class
@@ -123,14 +142,20 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         output_sign = op_class.get_output_sign()
         if slices is not None:
             assert isinstance(slices, Slices)
-            if slices.input_artifact and not slices.sub_path: input_artifact_slices = {name: slices.slices for name in slices.input_artifact}
-            if slices.input_parameter: input_parameter_slices = {name: slices.slices for name in slices.input_parameter}
+            if slices.input_artifact and not slices.sub_path:
+                input_artifact_slices = {
+                    name: slices.slices for name in slices.input_artifact}
+            if slices.input_parameter:
+                input_parameter_slices = {
+                    name: slices.slices for name in slices.input_parameter}
             if slices.output_artifact:
                 output_artifact_slices = {}
                 for name in slices.output_artifact:
                     output_artifact_slices[name] = slices.slices
-                    output_sign[name].archive = None # not archive for default
-            if slices.output_parameter: output_parameter_slices = {name: slices.slices for name in slices.output_parameter}
+                    output_sign[name].archive = None  # not archive for default
+            if slices.output_parameter:
+                output_parameter_slices = {
+                    name: slices.slices for name in slices.output_parameter}
         if output_artifact_save is not None:
             for name, save in output_artifact_save.items():
                 output_sign[name].save = save
@@ -140,55 +165,85 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         if output_artifact_global_name is not None:
             for name, global_name in output_artifact_global_name.items():
                 output_sign[name].global_name = global_name
-        super().__init__(name="%s-%s" % (class_name, "".join(random.sample(string.digits + string.ascii_lowercase, 5))), inputs=Inputs(), outputs=Outputs(),
-                volumes=volumes, mounts=mounts, requests=requests, limits=limits)
+        super().__init__(name="%s-%s" % (class_name, "".join(random.sample(
+            string.digits + string.ascii_lowercase, 5))), inputs=Inputs(),
+            outputs=Outputs(), volumes=volumes, mounts=mounts,
+            requests=requests, limits=limits)
         self.slices = slices
-        if timeout is not None: self.timeout = "%ss" % timeout
+        if timeout is not None:
+            self.timeout = "%ss" % timeout
         if retry_on_transient_error is not None:
             if timeout_as_transient_error:
                 expr = "asInt(lastRetry.exitCode) != 2"
             else:
                 expr = "asInt(lastRetry.exitCode) == 1"
-            self.retry_strategy = V1alpha1RetryStrategy(limit=retry_on_transient_error, expression=expr)
+            self.retry_strategy = V1alpha1RetryStrategy(
+                limit=retry_on_transient_error, expression=expr)
         self.dflow_vars = {}
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
-                if self.slices is not None and self.slices.sub_path and name in self.slices.input_artifact:
-                    self.inputs.parameters["dflow_%s_sub_path" % name] = InputParameter(value=".")
-                    self.inputs.artifacts[name] = InputArtifact(path="/tmp/inputs/artifacts/%s/{{inputs.parameters.dflow_%s_sub_path}}" % (name, name), optional=sign.optional, type=sign.type)
+                if self.slices is not None and self.slices.sub_path and name \
+                        in self.slices.input_artifact:
+                    self.inputs.parameters["dflow_%s_sub_path" %
+                                           name] = InputParameter(value=".")
+                    self.inputs.artifacts[name] = InputArtifact(
+                        path="/tmp/inputs/artifacts/%s/{{inputs.parameters."
+                        "dflow_%s_sub_path}}" % (name, name),
+                        optional=sign.optional, type=sign.type)
                 else:
-                    self.inputs.artifacts[name] = InputArtifact(path="/tmp/inputs/artifacts/" + name, optional=sign.optional, type=sign.type)
+                    self.inputs.artifacts[name] = InputArtifact(
+                        path="/tmp/inputs/artifacts/" + name,
+                        optional=sign.optional, type=sign.type)
             elif isinstance(sign, BigParameter):
-                self.inputs.parameters[name] = InputParameter(save_as_artifact=True, path="/tmp/inputs/parameters/" + name, type=sign.type)
+                self.inputs.parameters[name] = InputParameter(
+                    save_as_artifact=True, path="/tmp/inputs/parameters/"
+                    + name, type=sign.type)
             elif isinstance(sign, Parameter):
                 if hasattr(sign, "default"):
-                    self.inputs.parameters[name] = InputParameter(type=sign.type, value=sign.default)
+                    self.inputs.parameters[name] = InputParameter(
+                        type=sign.type, value=sign.default)
                 else:
-                    self.inputs.parameters[name] = InputParameter(type=sign.type)
+                    self.inputs.parameters[name] = InputParameter(
+                        type=sign.type)
             else:
                 self.inputs.parameters[name] = InputParameter(type=sign)
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
-                self.outputs.artifacts[name] = OutputArtifact(path="/tmp/outputs/artifacts/" + name,
-                    archive=sign.archive, save=sign.save, global_name=sign.global_name, type=sign.type)
+                self.outputs.artifacts[name] = OutputArtifact(
+                    path="/tmp/outputs/artifacts/" + name,
+                    archive=sign.archive, save=sign.save,
+                    global_name=sign.global_name, type=sign.type)
             elif isinstance(sign, BigParameter):
-                self.outputs.parameters[name] = OutputParameter(save_as_artifact=True, value_from_path="/tmp/outputs/parameters/" + name, type=sign.type)
+                self.outputs.parameters[name] = OutputParameter(
+                    save_as_artifact=True,
+                    value_from_path="/tmp/outputs/parameters/" + name,
+                    type=sign.type)
             elif isinstance(sign, Parameter):
                 if hasattr(sign, "default"):
-                    self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name, default=sign.default, global_name=sign.global_name, type=sign.type)
+                    self.outputs.parameters[name] = OutputParameter(
+                        value_from_path="/tmp/outputs/parameters/" + name,
+                        default=sign.default, global_name=sign.global_name,
+                        type=sign.type)
                 else:
-                    self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name, global_name=sign.global_name, type=sign.type)
+                    self.outputs.parameters[name] = OutputParameter(
+                        value_from_path="/tmp/outputs/parameters/" + name,
+                        global_name=sign.global_name, type=sign.type)
             else:
                 default = None
-                if output_parameter_default is not None and name in output_parameter_default:
+                if output_parameter_default is not None and name in \
+                        output_parameter_default:
                     if sign == str:
                         default = output_parameter_default[name]
                     else:
-                        default = jsonpickle.dumps(output_parameter_default[name])
+                        default = jsonpickle.dumps(
+                            output_parameter_default[name])
                 global_name = None
-                if output_parameter_global_name is not None and name in output_parameter_global_name:
+                if output_parameter_global_name is not None and name in \
+                        output_parameter_global_name:
                     global_name = output_parameter_global_name[name]
-                self.outputs.parameters[name] = OutputParameter(value_from_path="/tmp/outputs/parameters/" + name, default=default, global_name=global_name, type=sign)
+                self.outputs.parameters[name] = OutputParameter(
+                    value_from_path="/tmp/outputs/parameters/" + name,
+                    default=default, global_name=global_name, type=sign)
 
         if python_packages is None:
             python_packages = upload_packages.copy()
@@ -204,19 +259,26 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
         script = ""
         if python_packages:
-            self.inputs.artifacts["dflow_python_packages"] = InputArtifact(path="/tmp/inputs/artifacts/dflow_python_packages",
-                    source=upload_artifact(set(python_packages)))
+            self.inputs.artifacts["dflow_python_packages"] = InputArtifact(
+                path="/tmp/inputs/artifacts/dflow_python_packages",
+                source=upload_artifact(set(python_packages)))
             script += "import os, sys, json\n"
-            script += "package_root = '/tmp/inputs/artifacts/dflow_python_packages'\n"
+            script += "package_root = '/tmp/inputs/artifacts/"\
+                "dflow_python_packages'\n"
             script += "for f in os.listdir(package_root):\n"
-            script += "    if f[:%s] == '%s':\n" % (len(config["catalog_file_name"]), config["catalog_file_name"])
-            script += "        with open(os.path.join(package_root, f), 'r') as fd:\n"
+            script += "    if f[:%s] == '%s':\n" % (
+                len(config["catalog_file_name"]), config["catalog_file_name"])
+            script += "        with open(os.path.join(package_root, f), 'r')"\
+                " as fd:\n"
             script += "            for item in json.load(fd)['path_list']:\n"
-            script += "                sys.path.insert(0, os.path.join(package_root, os.path.dirname(item['dflow_list_item'])))\n"
+            script += "                sys.path.insert(0, os.path.join("\
+                "package_root, os.path.dirname(item['dflow_list_item'])))\n"
 
         script += "from dflow import config\n"
-        script += "config['save_path_as_parameter'] = %s\n" % config["save_path_as_parameter"]
-        script += "config['catalog_file_name'] = '%s'\n" % config["catalog_file_name"]
+        script += "config['save_path_as_parameter'] = %s\n" \
+            % config["save_path_as_parameter"]
+        script += "config['catalog_file_name'] = '%s'\n" \
+            % config["catalog_file_name"]
         if op_class.__module__ == "__main__":
             source_lines, start_line = inspect.getsourcelines(op_class)
             with open(inspect.getsourcefile(op_class), "r") as fd:
@@ -225,28 +287,41 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
         script += "import os, sys, traceback, jsonpickle\n"
         script += "from dflow.python import OPIO, TransientError, FatalError\n"
-        script += "from dflow.python.utils import handle_input_artifact, handle_input_parameter\n"
-        script += "from dflow.python.utils import handle_output_artifact, handle_output_parameter\n"
+        script += "from dflow.python.utils import handle_input_artifact,"\
+            " handle_input_parameter\n"
+        script += "from dflow.python.utils import handle_output_artifact,"\
+            " handle_output_parameter\n"
         script += "from %s import %s\n\n" % (op_class.__module__, class_name)
         if op is None:
             script += "op_obj = %s()\n" % class_name
         else:
-            script += "op_obj = jsonpickle.loads(r'''%s''')\n" % jsonpickle.dumps(op)
+            script += "op_obj = jsonpickle.loads(r'''%s''')\n" % \
+                jsonpickle.dumps(op)
         script += "input = OPIO()\n"
         script += "input_sign = %s.get_input_sign()\n" % class_name
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(input_artifact_slices, name)
-                if self.slices is not None and self.slices.sub_path and name in self.slices.input_artifact:
-                    script += "input['%s'] = handle_input_artifact('%s', input_sign['%s'], %s, '/tmp', '{{inputs.parameters.dflow_%s_sub_path}}')\n" % (name, name, name, slices, name)
+                if self.slices is not None and self.slices.sub_path and \
+                        name in self.slices.input_artifact:
+                    script += "input['%s'] = handle_input_artifact('%s', "\
+                        "input_sign['%s'], %s, '/tmp', '{{inputs.parameters."\
+                        "dflow_%s_sub_path}}')\n" % (name, name, name, slices,
+                                                     name)
                 else:
-                    script += "input['%s'] = handle_input_artifact('%s', input_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
+                    script += "input['%s'] = handle_input_artifact('%s', "\
+                        "input_sign['%s'], %s, '/tmp')\n" % (name, name, name,
+                                                             slices)
             else:
                 slices = self.get_slices(input_parameter_slices, name)
                 if isinstance(sign, BigParameter):
-                    script += "input['%s'] = handle_input_parameter('%s', '', input_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
+                    script += "input['%s'] = handle_input_parameter('%s', '',"\
+                        " input_sign['%s'], %s, '/tmp')\n" % (name, name, name,
+                                                              slices)
                 else:
-                    script += "input['%s'] = handle_input_parameter('%s', r'''{{inputs.parameters.%s}}''', input_sign['%s'], %s, '/tmp')\n" % (name, name, name, name, slices)
+                    script += "input['%s'] = handle_input_parameter('%s', "\
+                        "r'''{{inputs.parameters.%s}}''', input_sign['%s'], "\
+                        "%s, '/tmp')\n" % (name, name, name, name, slices)
 
         script += "try:\n"
         script += "    output = op_obj.execute(input)\n"
@@ -263,12 +338,18 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 if config["save_path_as_parameter"]:
-                    self.outputs.parameters["dflow_%s_path_list" % name].value_from_path = "/tmp/outputs/parameters/dflow_%s_path_list" % name
+                    self.outputs.parameters["dflow_%s_path_list" %
+                                            name].value_from_path = \
+                        "/tmp/outputs/parameters/dflow_%s_path_list" % name
                 slices = self.get_slices(output_artifact_slices, name)
-                script += "handle_output_artifact('%s', output['%s'], output_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
+                script += "handle_output_artifact('%s', output['%s'], "\
+                    "output_sign['%s'], %s, '/tmp')\n" % (name, name, name,
+                                                          slices)
             else:
                 slices = self.get_slices(output_parameter_slices, name)
-                script += "handle_output_parameter('%s', output['%s'], output_sign['%s'], %s, '/tmp')\n" % (name, name, name, slices)
+                script += "handle_output_parameter('%s', output['%s'], "\
+                    "output_sign['%s'], %s, '/tmp')\n" % (name, name, name,
+                                                          slices)
 
         self.image = image
         self.image_pull_policy = image_pull_policy
@@ -279,7 +360,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         else:
             self.command = ["python"]
         self.script = script
-        self.init_progress = "%s/%s" % (op_class.progress_current, op_class.progress_total)
+        self.init_progress = "%s/%s" % (op_class.progress_current,
+                                        op_class.progress_total)
 
         self.memoize_key = memoize_key
 
@@ -307,8 +389,10 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             i = slices.find("{{item")
         return slices
 
+
 class TransientError(Exception):
     pass
+
 
 class FatalError(Exception):
     pass

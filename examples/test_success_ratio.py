@@ -1,16 +1,8 @@
-from dflow import (
-    Workflow,
-    Step,
-    argo_range
-)
-from dflow.python import (
-    PythonOPTemplate,
-    OP,
-    OPIO,
-    OPIOSign,
-    TransientError,
-)
 import random
+
+from dflow import Step, Workflow, argo_range
+from dflow.python import OP, OPIO, OPIOSign, PythonOPTemplate, TransientError
+
 
 class Hello(OP):
     @classmethod
@@ -24,17 +16,18 @@ class Hello(OP):
     @OP.exec_sign_check
     def execute(
             self,
-            op_in : OPIO,
+            op_in: OPIO,
     ) -> OPIO:
         if random.random() < 0.5:
             raise TransientError("Hello")
         return OPIO()
 
+
 if __name__ == "__main__":
     wf = Workflow(name="success-ratio")
 
     step = Step(
-        name="hello0", 
+        name="hello0",
         template=PythonOPTemplate(Hello, image="python:3.8"),
         continue_on_success_ratio=0.6,
         # continue_on_num_success=3,

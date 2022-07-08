@@ -7,7 +7,7 @@ from .task import Task
 try:
     from argo.workflows.client import (V1alpha1DAGTemplate, V1alpha1Metadata,
                                        V1alpha1Template)
-except:
+except Exception:
     pass
 
 
@@ -23,16 +23,18 @@ class DAG(OPTemplate):
         memoize_key: memoized key of the dag
         annotations: annotations for the OP template
         """
+
     def __init__(
             self,
-            name : str = None,
-            inputs : Inputs = None,
-            outputs : Outputs = None,
-            tasks : List[Task] = None,
-            memoize_key : str = None,
-            annotations : Dict[str, str] = None,
+            name: str = None,
+            inputs: Inputs = None,
+            outputs: Outputs = None,
+            tasks: List[Task] = None,
+            memoize_key: str = None,
+            annotations: Dict[str, str] = None,
     ) -> None:
-        super().__init__(name=name, inputs=inputs, outputs=outputs, memoize_key=memoize_key, annotations=annotations)
+        super().__init__(name=name, inputs=inputs, outputs=outputs,
+                         memoize_key=memoize_key, annotations=annotations)
         if tasks is not None:
             self.tasks = tasks
         else:
@@ -43,7 +45,7 @@ class DAG(OPTemplate):
 
     def add(
             self,
-            task : Union[Task, List[Task]],
+            task: Union[Task, List[Task]],
     ) -> None:
         """
         Add a task or a list of tasks to the dag
@@ -59,7 +61,8 @@ class DAG(OPTemplate):
                 assert isinstance(t, Task)
                 self.tasks.append(t)
 
-    def convert_to_argo(self, memoize_prefix=None, memoize_configmap="dflow-config", context=None):
+    def convert_to_argo(self, memoize_prefix=None,
+                        memoize_configmap="dflow-config", context=None):
         argo_tasks = []
         templates = []
         assert len(self.tasks) > 0, "Dag %s is empty" % self.name
@@ -74,12 +77,14 @@ class DAG(OPTemplate):
                 templates.append(task.check_step.template)
 
         self.handle_key(memoize_prefix, memoize_configmap)
-        argo_template = V1alpha1Template(name=self.name,
-                metadata=V1alpha1Metadata(annotations=self.annotations),
-                dag=V1alpha1DAGTemplate(
-                    tasks=argo_tasks,
-                ),
-                inputs=self.inputs.convert_to_argo(),
-                outputs=self.outputs.convert_to_argo(),
-                memoize=self.memoize)
+        argo_template = \
+            V1alpha1Template(name=self.name,
+                             metadata=V1alpha1Metadata(
+                                 annotations=self.annotations),
+                             dag=V1alpha1DAGTemplate(
+                                 tasks=argo_tasks,
+                             ),
+                             inputs=self.inputs.convert_to_argo(),
+                             outputs=self.outputs.convert_to_argo(),
+                             memoize=self.memoize)
         return argo_template, templates

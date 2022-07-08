@@ -12,6 +12,7 @@ from ..workflow import Workflow
 
 succ_code = [0, "0000"]
 
+
 class LebesgueExecutor(Executor):
     """
     Lebesgue executor
@@ -19,18 +20,23 @@ class LebesgueExecutor(Executor):
     Args:
         extra: extra arguments, will override extra defined in global context
     """
+
     def __init__(
             self,
-            extra : dict = None,
+            extra: dict = None,
     ) -> None:
         self.extra = extra
 
     def render(self, template):
-        assert "workflow.dp.tech/executor" in template.annotations, "lebesgue context not detected, lebesgue executor will not take effect"
+        assert "workflow.dp.tech/executor" in template.annotations, \
+            "lebesgue context not detected, lebesgue executor will "\
+            "not take effect"
         new_template = deepcopy(template)
         new_template.name += "-" + randstr()
-        new_template.annotations["task.dp.tech/extra"] = json.dumps(self.extra) if isinstance(self.extra, dict) else self.extra
+        new_template.annotations["task.dp.tech/extra"] = json.dumps(
+            self.extra) if isinstance(self.extra, dict) else self.extra
         return new_template
+
 
 class LebesgueContext(Context):
     """
@@ -48,18 +54,19 @@ class LebesgueContext(Context):
         extra: extra arguments
         authorization: JWT token
     """
+
     def __init__(
             self,
-            username : str = None,
-            password : str = None,
-            login_url : str = "https://workflow.dp.tech/account_gw/login",
-            app_name : str = None,
-            org_id : str = None,
-            user_id : str = None,
-            tag : str = None,
-            executor : str = None,
-            extra : dict = None,
-            authorization : str = None,
+            username: str = None,
+            password: str = None,
+            login_url: str = "https://workflow.dp.tech/account_gw/login",
+            app_name: str = None,
+            org_id: str = None,
+            user_id: str = None,
+            tag: str = None,
+            executor: str = None,
+            extra: dict = None,
+            authorization: str = None,
     ) -> None:
         self.login_url = login_url
         self.username = username
@@ -83,11 +90,13 @@ class LebesgueContext(Context):
                 "username": self.username,
                 "password": self.password,
             }
-            rsp = requests.post(self.login_url, headers={"Content-type": "application/json"}, json=data)
+            rsp = requests.post(self.login_url, headers={
+                                "Content-type": "application/json"}, json=data)
             res = json.loads(rsp.text)
             if res["code"] not in succ_code:
                 if "error" in res:
-                    raise RuntimeError("Login failed: %s" % res["error"]["msg"])
+                    raise RuntimeError("Login failed: %s" %
+                                       res["error"]["msg"])
                 elif "message" in res:
                     raise RuntimeError("Login failed: %s" % res["message"])
                 else:
@@ -101,19 +110,24 @@ class LebesgueContext(Context):
             template.annotations["workflow.dp.tech/user_id"] = self.user_id
             template.annotations["workflow.dp.tech/tag"] = self.tag
             template.annotations["workflow.dp.tech/executor"] = self.executor
-            template.annotations["task.dp.tech/extra"] = json.dumps(self.extra) if isinstance(self.extra, dict) else self.extra
-            template.annotations["workflow.dp.tech/authorization"] = self.authorization
+            template.annotations["task.dp.tech/extra"] = json.dumps(
+                self.extra) if isinstance(self.extra, dict) else self.extra
+            template.annotations["workflow.dp.tech/authorization"] = \
+                self.authorization
             return template
 
         if isinstance(template, (ShellOPTemplate, PythonScriptOPTemplate)):
             new_template = deepcopy(template)
-            new_template.annotations["workflow.dp.tech/executor"] = self.executor
+            new_template.annotations["workflow.dp.tech/executor"] = \
+                self.executor
             new_template.name += "-" + randstr()
-            new_template.script = new_template.script.replace("/tmp", "$(pwd)/tmp")
+            new_template.script = new_template.script.replace(
+                "/tmp", "$(pwd)/tmp")
             if isinstance(template, ShellOPTemplate):
                 new_template.script = "mkdir -p tmp\n" + new_template.script
             if isinstance(template, PythonScriptOPTemplate):
-                new_template.script = "import os\nos.makedirs('tmp', exist_ok=True)\n" + new_template.script
+                new_template.script = "import os\nos.makedirs('tmp', "\
+                    "exist_ok=True)\n" + new_template.script
             return new_template
 
         return template

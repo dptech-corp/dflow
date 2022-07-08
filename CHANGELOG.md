@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.1.12
+
+- fix format problems
+- add test examples
+- copy_artifact supports for sort
+
 ## 1.1.11
 
 ### Added

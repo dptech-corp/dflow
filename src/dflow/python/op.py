@@ -18,6 +18,7 @@ class OP(ABC):
     """
     progress_total = 1
     progress_current = 0
+
     def __init__(
             self,
             *args,
@@ -28,7 +29,8 @@ class OP(ABC):
     def __setattr__(self, key, value):
         super().__setattr__(key, value)
         if key in ["progress_total", "progress_current"]:
-            with open(os.environ.get("ARGO_PROGRESS_FILE", "ARGO_PROGRESS_FILE"), "w") as f:
+            with open(os.environ.get("ARGO_PROGRESS_FILE",
+                                     "ARGO_PROGRESS_FILE"), "w") as f:
                 f.write("%s/%s" % (self.progress_current, self.progress_total))
 
     @classmethod
@@ -44,7 +46,7 @@ class OP(ABC):
         """
 
     @abc.abstractmethod
-    def execute (
+    def execute(
             self,
             op_in: OPIO,
     ) -> OPIO:
@@ -63,18 +65,21 @@ class OP(ABC):
 
     @staticmethod
     def _check_signature(
-            opio : OPIO,
-            sign : OPIOSign,
+            opio: OPIO,
+            sign: OPIOSign,
     ) -> None:
-        for ii in sign.keys() :
+        for ii in sign.keys():
             if ii not in opio.keys():
-                if isinstance(sign[ii], Parameter) and hasattr(sign[ii], "default"):
+                if isinstance(sign[ii], Parameter) and hasattr(sign[ii],
+                                                               "default"):
                     opio[ii] = sign[ii].default
                 else:
-                    raise RuntimeError('key %s required in signature is not provided by the opio' % ii)
-        for ii in opio.keys() :
+                    raise RuntimeError('key %s required in signature is '
+                                       'not provided by the opio' % ii)
+        for ii in opio.keys():
             if ii not in sign.keys():
-                raise RuntimeError('key %s in OPIO is not in its signature' % ii)
+                raise RuntimeError(
+                    'key %s in OPIO is not in its signature' % ii)
             io = opio[ii]
             ss = sign[ii]
             if isinstance(ss, Artifact):

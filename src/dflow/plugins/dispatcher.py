@@ -12,8 +12,9 @@ from ..utils import randstr, upload_s3
 try:
     from argo.workflows.client import (V1HostPathVolumeSource, V1Volume,
                                        V1VolumeMount)
-except:
+except Exception:
     pass
+
 
 class DispatcherExecutor(Executor):
     """
@@ -34,21 +35,22 @@ class DispatcherExecutor(Executor):
         task_dict: task config for dispatcher
         json_file: JSON file containing machine and resources config
     """
+
     def __init__(self,
-            host : str = None,
-            queue_name : str = None,
-            port : int = 22,
-            username : str = "root",
-            private_key_file : os.PathLike = None,
-            image : str = "dptechnology/dpdispatcher",
-            command : Union[str, List[str]] = "python",
-            remote_command : Union[str, List[str]] = None,
-            map_tmp_dir : bool = True,
-            machine_dict : dict = None,
-            resources_dict : dict = None,
-            task_dict : dict = None,
-            json_file : os.PathLike = None,
-    ) -> None:
+                 host: str = None,
+                 queue_name: str = None,
+                 port: int = 22,
+                 username: str = "root",
+                 private_key_file: os.PathLike = None,
+                 image: str = "dptechnology/dpdispatcher",
+                 command: Union[str, List[str]] = "python",
+                 remote_command: Union[str, List[str]] = None,
+                 map_tmp_dir: bool = True,
+                 machine_dict: dict = None,
+                 resources_dict: dict = None,
+                 task_dict: dict = None,
+                 json_file: os.PathLike = None,
+                 ) -> None:
         self.host = host
         self.queue_name = queue_name
         self.port = port
@@ -71,9 +73,9 @@ class DispatcherExecutor(Executor):
         self.machine_dict = {
             "batch_type": "Slurm",
             "context_type": "SSHContext",
-            "local_root" : "/",
+            "local_root": "/",
             "remote_root": "/home/%s/dflow/workflows" % self.username,
-            "remote_profile":{
+            "remote_profile": {
                 "hostname": self.host,
                 "username": self.username,
                 "port": self.port,
@@ -118,8 +120,12 @@ class DispatcherExecutor(Executor):
 
         if self.remote_command is None:
             self.remote_command = template.command
-        map_cmd = "if [ \\\"$(head -n 1 script)\\\" != \\\"# modified by dflow\\\" ]; then sed -i \\\"s#/tmp#$(pwd)/tmp#g\\\" script; sed -i \\\"1i # modified by dflow\\\" script; fi && " if self.map_tmp_dir else ""
-        self.task_dict["command"] = "%s %s script" % (map_cmd, "".join(self.remote_command))
+        map_cmd = "if [ \\\"$(head -n 1 script)\\\" != \\\"# modified by "\
+            "dflow\\\" ]; then sed -i \\\"s#/tmp#$(pwd)/tmp#g\\\" script; "\
+            "sed -i \\\"1i # modified by dflow\\\" script; fi && "\
+            if self.map_tmp_dir else ""
+        self.task_dict["command"] = "%s %s script" % (
+            map_cmd, "".join(self.remote_command))
         self.task_dict["forward_files"] = ["script"]
         for art in template.inputs.artifacts.values():
             self.task_dict["forward_files"].append(art.path)
@@ -133,7 +139,8 @@ class DispatcherExecutor(Executor):
             if par.save_as_artifact:
                 self.task_dict["backward_files"].append("./" + par.path)
             elif par.value_from_path is not None:
-                self.task_dict["backward_files"].append("./" + par.value_from_path)
+                self.task_dict["backward_files"].append(
+                    "./" + par.value_from_path)
 
         new_template.script = "import os\n"
         new_template.script += "os.chdir('/')\n"
@@ -143,18 +150,28 @@ class DispatcherExecutor(Executor):
         new_template.script += "\"\"\")\n"
 
         new_template.script += "import json\n"
-        new_template.script += "from dpdispatcher import Machine, Resources, Task, Submission\n"
-        new_template.script += "machine = Machine.load_from_dict(json.loads('%s'))\n" % json.dumps(self.machine_dict)
-        new_template.script += "resources = Resources.load_from_dict(json.loads('%s'))\n" % json.dumps(self.resources_dict)
-        new_template.script += "task = Task.load_from_dict(json.loads('%s'))\n" % json.dumps(self.task_dict)
-        new_template.script += "submission = Submission(work_base='.', machine=machine, resources=resources, task_list=[task])\n"
+        new_template.script += "from dpdispatcher import Machine, Resources,"\
+            " Task, Submission\n"
+        new_template.script += "machine = Machine.load_from_dict(json.loads("\
+            "'%s'))\n" % json.dumps(self.machine_dict)
+        new_template.script += "resources = Resources.load_from_dict(json."\
+            "loads('%s'))\n" % json.dumps(self.resources_dict)
+        new_template.script += "task = Task.load_from_dict(json.loads('%s'))"\
+            "\n" % json.dumps(self.task_dict)
+        new_template.script += "submission = Submission(work_base='.', "\
+            "machine=machine, resources=resources, task_list=[task])\n"
         new_template.script += "submission.run_submission()\n"
 
         if self.private_key_file is not None:
             key = upload_s3(self.private_key_file)
             private_key_artifact = S3Artifact(key=key)
-            new_template.inputs.artifacts["dflow_private_key"] = InputArtifact(path="/root/.ssh/" + os.path.basename(self.private_key_file), source=private_key_artifact, mode=0o600)
+            new_template.inputs.artifacts["dflow_private_key"] = InputArtifact(
+                path="/root/.ssh/" + os.path.basename(self.private_key_file),
+                source=private_key_artifact, mode=0o600)
         else:
-            new_template.volumes.append(V1Volume(name="dflow-private-key", host_path=V1HostPathVolumeSource(path=config["private_key_host_path"])))
-            new_template.mounts.append(V1VolumeMount(name="dflow-private-key", mount_path="/root/.ssh"))
+            new_template.volumes.append(V1Volume(
+                name="dflow-private-key", host_path=V1HostPathVolumeSource(
+                    path=config["private_key_host_path"])))
+            new_template.mounts.append(V1VolumeMount(
+                name="dflow-private-key", mount_path="/root/.ssh"))
         return new_template
