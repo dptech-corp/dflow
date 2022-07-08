@@ -33,6 +33,10 @@ def test_run_command_input():
 
 
 def test_copy_artifact():
+    with open("foo.txt", "w"):
+        pass
+    with open("bar.txt", "w"):
+        pass
     art_1 = upload_artifact(["foo.txt"], archive=None)
     art_2 = upload_artifact(["bar.txt"], archive=None)
     copy_artifact(art_1, art_2, sort=True)
@@ -48,3 +52,6 @@ def test_copy_artifact():
     catalog.sort(key=lambda x: x["order"])
     assert catalog == [{'dflow_list_item': 'foo.txt', 'order': 0},
                        {'dflow_list_item': 'bar.txt', 'order': 1}]
+
+    os.remove("foo.txt")
+    os.remove("bar.txt")
