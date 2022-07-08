@@ -8,6 +8,7 @@ from ..io import PVC
 
 ArtifactAllowedTypes = [str, Path, Set[str], Set[Path], List[str], List[Path]]
 
+
 class Artifact:
     """
     OPIO signature of artifact
@@ -15,17 +16,19 @@ class Artifact:
     Args:
         type: str, Path, Set[str], Set[Path], List[str] or List[Path]
         archive: compress format of the artifact, None for no compression
-        save: place to store the output artifact instead of default storage, can be a list
+        save: place to store the output artifact instead of default storage,
+            can be a list
         optional: optional input artifact or not
         global_name: global name of the artifact within the workflow
     """
+
     def __init__(
             self,
-            type : Any,
-            archive : str = "default",
-            save : List[Union[PVC, S3Artifact]] = None,
-            optional : bool = False,
-            global_name : str = None,
+            type: Any,
+            archive: str = "default",
+            save: List[Union[PVC, S3Artifact]] = None,
+            optional: bool = False,
+            global_name: str = None,
     ) -> None:
         self.type = type
         if archive == "default":
@@ -37,8 +40,11 @@ class Artifact:
 
     def __setattr__(self, key, value):
         if key == "type":
-            assert (value in ArtifactAllowedTypes), "%s is not allowed artifact type, only %s are allowed." % (value, ArtifactAllowedTypes)
+            assert (value in ArtifactAllowedTypes), "%s is not allowed"\
+                " artifact type, only %s are allowed." % (
+                value, ArtifactAllowedTypes)
         super().__setattr__(key, value)
+
 
 class Parameter:
     """
@@ -49,16 +55,18 @@ class Parameter:
         global_name: global name of the parameter within the workflow
         default: default value of the parameter
     """
+
     def __init__(
             self,
-            type : Any,
-            global_name : str = None,
+            type: Any,
+            global_name: str = None,
             **kwargs,
     ) -> None:
         self.type = type
         self.global_name = global_name
         if "default" in kwargs:
             self.default = kwargs["default"]
+
 
 class BigParameter:
     """
@@ -67,16 +75,19 @@ class BigParameter:
     Args:
         type: parameter type
     """
+
     def __init__(
             self,
-            type : Any,
+            type: Any,
     ) -> None:
         self.type = type
+
 
 class OPIOSign(MutableMapping):
     """The signature of OPIO.
     A signature of OPIO includes the key and its typing
     """
+
     def __init__(
             self,
             *args,
@@ -87,7 +98,7 @@ class OPIOSign(MutableMapping):
 
     def __getitem__(
             self,
-            key : str,
+            key: str,
     ) -> Any:
         """Get the type hint of the key
         """
@@ -95,8 +106,8 @@ class OPIOSign(MutableMapping):
 
     def __setitem__(
             self,
-            key : str,
-            value : Any,
+            key: str,
+            value: Any,
     ) -> None:
         """Set the type hint of the key
         """
@@ -104,7 +115,7 @@ class OPIOSign(MutableMapping):
 
     def __delitem__(
             self,
-            key : str,
+            key: str,
     ) -> None:
         del self._data[key]
 
@@ -129,20 +140,20 @@ class OPIO(MutableMapping):
 
     def __getitem__(
             self,
-            key : str,
+            key: str,
     ) -> Any:
         return self._data[key]
 
     def __setitem__(
             self,
-            key : str,
-            value : Any,
+            key: str,
+            value: Any,
     ) -> None:
         self._data[key] = value
 
     def __delitem__(
             self,
-            key : str,
+            key: str,
     ) -> None:
         del self._data[key]
 

@@ -5,9 +5,10 @@ class Context(object):
     """
     Context
     """
+
     def render(
             self,
-            template : OPTemplate,
+            template: OPTemplate,
     ) -> OPTemplate:
         """
         render original template and return a new template

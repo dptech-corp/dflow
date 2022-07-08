@@ -4,7 +4,7 @@ from typing import Any, Union
 try:
     from argo.workflows.client import V1alpha1S3Artifact
     from argo.workflows.client.configuration import Configuration
-except:
+except Exception:
     V1alpha1S3Artifact = object
 
 
@@ -15,9 +15,10 @@ class S3Artifact(V1alpha1S3Artifact):
     Args:
         key: key of the s3 artifact
     """
+
     def __init__(
             self,
-            path_list : Union[str, list] = None,
+            path_list: Union[str, list] = None,
             *args,
             **kwargs,
     ) -> None:
@@ -31,7 +32,7 @@ class S3Artifact(V1alpha1S3Artifact):
 
     def sub_path(
             self,
-            path : str,
+            path: str,
     ) -> Any:
         artifact = deepcopy(self)
         artifact._sub_path = path

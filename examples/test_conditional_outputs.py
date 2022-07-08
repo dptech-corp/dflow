@@ -1,20 +1,14 @@
-from dflow import (
-    Workflow,
-    Step,
-    Steps,
-    if_expression,
-    Outputs,
-    OutputArtifact,
-    OutputParameter
-)
-from dflow.python import (
-    PythonOPTemplate,
-    OP,
-    OPIO,
-    OPIOSign,
-    Artifact
-)
 import random
+import time
+
+from dflow import (OutputArtifact, OutputParameter, Outputs, Step, Steps,
+                   Workflow, if_expression)
+from dflow.python import (OP, OPIO, Artifact, OPIOSign, PythonOPTemplate,
+                          upload_packages)
+
+if "__file__" in locals():
+    upload_packages.append(__file__)
+
 
 class Random(OP):
     @classmethod
@@ -34,7 +28,7 @@ class Random(OP):
     @OP.exec_sign_check
     def execute(
             self,
-            op_in : OPIO,
+            op_in: OPIO,
     ) -> OPIO:
         open("foo.txt", "w").write("head")
         open("bar.txt", "w").write("tail")
@@ -50,24 +44,36 @@ class Random(OP):
             "bar": "bar.txt"
         })
 
-if __name__ == "__main__":
-    steps = Steps("conditional-steps", outputs=Outputs(parameters={"msg": OutputParameter()},
-            artifacts={"res": OutputArtifact()}))
 
-    random = Step(
-        name="random", 
+def test_conditional_outputs():
+    steps = Steps("conditional-steps", outputs=Outputs(
+        parameters={"msg": OutputParameter()},
+        artifacts={"res": OutputArtifact()}))
+
+    random_step = Step(
+        name="random",
         template=PythonOPTemplate(Random, image="python:3.8")
     )
-    steps.add(random)
+    steps.add(random_step)
 
     steps.outputs.parameters["msg"].value_from_expression = if_expression(
-            _if=random.outputs.parameters["is_head"] == True,
-            _then=random.outputs.parameters["msg1"], _else=random.outputs.parameters["msg2"])
+        _if=random_step.outputs.parameters["is_head"],
+        _then=random_step.outputs.parameters["msg1"],
+        _else=random_step.outputs.parameters["msg2"])
 
     steps.outputs.artifacts["res"].from_expression = if_expression(
-            _if=random.outputs.parameters["is_head"] == True,
-            _then=random.outputs.artifacts["foo"], _else=random.outputs.artifacts["bar"])
+        _if=random_step.outputs.parameters["is_head"],
+        _then=random_step.outputs.artifacts["foo"],
+        _else=random_step.outputs.artifacts["bar"])
 
     wf = Workflow(name="conditional", steps=steps)
 
     wf.submit()
+    while wf.query_status() in ["Pending", "Running"]:
+        time.sleep(1)
+
+    assert(wf.query_status() == "Succeeded")
+
+
+if __name__ == "__main__":
+    test_conditional_outputs()
