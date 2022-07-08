@@ -164,6 +164,7 @@ def copy_artifact(src, dst, sort=False) -> S3Artifact:
     else:
         raise NotImplementedError()
 
+    ignore_catalog = False
     if sort:
         src_catalog = catalog_of_artifact(src)
         dst_catalog = catalog_of_artifact(dst)
@@ -178,8 +179,9 @@ def copy_artifact(src, dst, sort=False) -> S3Artifact:
                 with open(fpath, "w") as f:
                     f.write(jsonpickle.dumps({"path_list": src_catalog}))
                 upload_s3(path=fpath, prefix=dst_key)
+                ignore_catalog = True
 
-    copy_s3(src_key, dst_key, ignore_catalog=sort)
+    copy_s3(src_key, dst_key, ignore_catalog=ignore_catalog)
     return S3Artifact(key=dst_key)
 
 
