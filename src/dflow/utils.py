@@ -522,5 +522,5 @@ def run_command(
     out = out.decode(sys.stdin.encoding)
     err = err.decode(sys.stdin.encoding)
     if raise_error:
-        assert return_code == 0, f"Command {cmd} failed: \n{err}"
+        assert return_code == 0, "Command %s failed: \n%s" % (cmd, err)
     return return_code, out, err

@@ -13,7 +13,6 @@ from ..config import config
 from ..io import (PVC, InputArtifact, InputParameter, Inputs, OutputArtifact,
                   OutputParameter, Outputs)
 from ..op_template import PythonScriptOPTemplate
-from ..utils import upload_artifact
 from .op import OP
 from .opio import Artifact, BigParameter, Parameter
 
@@ -259,9 +258,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
         script = ""
         if python_packages:
+            self.python_packages = set(python_packages)
             self.inputs.artifacts["dflow_python_packages"] = InputArtifact(
-                path="/tmp/inputs/artifacts/dflow_python_packages",
-                source=upload_artifact(set(python_packages)))
+                path="/tmp/inputs/artifacts/dflow_python_packages")
             script += "import os, sys, json\n"
             script += "package_root = '/tmp/inputs/artifacts/"\
                 "dflow_python_packages'\n"
