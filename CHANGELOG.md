@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.1.13
+
+- improve uploading python packages
+- compatible for python 3.5
+
 ## 1.1.12
 
 - fix format problems

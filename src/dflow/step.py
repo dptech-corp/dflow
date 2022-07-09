@@ -12,7 +12,7 @@ from .io import (PVC, ArgoVar, InputArtifact, InputParameter, OutputArtifact,
 from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio
-from .utils import catalog_of_artifact
+from .utils import catalog_of_artifact, upload_artifact
 
 try:
     from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
@@ -23,6 +23,8 @@ try:
 except Exception:
     V1alpha1Sequence = object
 
+
+uploaded_python_packages = []
 
 def argo_range(
         *args,
@@ -182,6 +184,15 @@ class Step:
         if isinstance(util_command, str):
             util_command = [util_command]
         self.util_command = util_command
+
+        if hasattr(self.template, "python_packages"):
+            hit = list(filter(lambda x: x[0] == self.template.python_packages, uploaded_python_packages))
+            if len(hit) > 0:
+                self.inputs.artifacts["dflow_python_packages"].source = hit[0][1]
+            else:
+                artifact = upload_artifact(self.template.python_packages)
+                self.inputs.artifacts["dflow_python_packages"].source = artifact
+                uploaded_python_packages.append((self.template.python_packages, artifact))
 
         if self.key is not None:
             self.template.inputs.parameters["dflow_key"] = InputParameter(
