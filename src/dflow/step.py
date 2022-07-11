@@ -26,6 +26,7 @@ except Exception:
 
 uploaded_python_packages = []
 
+
 def argo_range(
         *args,
 ) -> ArgoVar:
@@ -95,14 +96,20 @@ def argo_len(
     """
     if isinstance(param, S3Artifact):
         try:
-            param.path_list = catalog_of_artifact(param)
+            path_list = catalog_of_artifact(param)
+            if path_list:
+                param.path_list = path_list
         except Exception:
             pass
         return ArgoVar(str(len(param.path_list)))
     if isinstance(param, InputArtifact):
+        assert config["save_path_as_parameter"] and not \
+            config["save_path_as_artifact"]
         return ArgoVar("len(sprig.fromJson(%s))" %
                        param.get_path_list_parameter())
     elif isinstance(param, OutputArtifact):
+        assert config["save_path_as_parameter"] and not \
+            config["save_path_as_artifact"]
         return ArgoVar("len(sprig.fromJson(%s))" %
                        param.get_path_list_parameter())
     else:
@@ -186,13 +193,15 @@ class Step:
         self.util_command = util_command
 
         if hasattr(self.template, "python_packages"):
-            hit = list(filter(lambda x: x[0] == self.template.python_packages, uploaded_python_packages))
+            hit = list(filter(lambda x: x[0] == self.template.python_packages,
+                              uploaded_python_packages))
             if len(hit) > 0:
-                self.inputs.artifacts["dflow_python_packages"].source = hit[0][1]
+                self.set_artifacts({"dflow_python_packages": hit[0][1]})
             else:
                 artifact = upload_artifact(self.template.python_packages)
-                self.inputs.artifacts["dflow_python_packages"].source = artifact
-                uploaded_python_packages.append((self.template.python_packages, artifact))
+                self.set_artifacts({"dflow_python_packages": artifact})
+                uploaded_python_packages.append(
+                    (self.template.python_packages, artifact))
 
         if self.key is not None:
             self.template.inputs.parameters["dflow_key"] = InputParameter(
@@ -225,40 +234,76 @@ class Step:
                     value=re.sub("{{item.*}}", "group", str(self.key)))
                 init_template.inputs.parameters["dflow_group_key"] = \
                     InputParameter()
+
+            init_template.outputs.parameters["dflow_artifact_key"] = \
+                OutputParameter(value="{{workflow.name}}/{{pod.name}}")
+            new_template.inputs.parameters["dflow_artifact_key"] = \
+                InputParameter(value="")
+            for name in new_template.slices.output_artifact:
+                init_template.outputs.artifacts[name] = OutputArtifact(
+                    path="/tmp/outputs/artifacts/%s" % name,
+                    save=S3Artifact(key="{{workflow.name}}/{{pod.name}}/%s"
+                                    % name), archive=None)
+                new_template.outputs.artifacts[name].save.append(
+                    S3Artifact(key="{{inputs.parameters."
+                               "dflow_artifact_key}}/%s" % name))
+
+            if config["save_path_as_artifact"]:
                 for name in new_template.slices.output_artifact:
-                    init_template.outputs.artifacts[name] = OutputArtifact(
-                        path="/tmp/outputs/artifacts/%s" % name,
-                        save=S3Artifact(key="{{workflow.name}}/{{inputs."
-                                        "parameters.dflow_group_key}}/%s"
-                                        % name), archive=None)
-                    new_template.outputs.artifacts[name].save.append(
-                        S3Artifact(key="{{workflow.name}}/{{inputs."
-                                   "parameters.dflow_group_key}}/%s" % name))
-            else:
-                init_template.outputs.parameters["dflow_artifact_key"] = \
-                    OutputParameter(value="{{workflow.name}}/{{pod.name}}")
-                new_template.inputs.parameters["dflow_artifact_key"] = \
-                    InputParameter(value="")
-                for name in new_template.slices.output_artifact:
-                    init_template.outputs.artifacts[name] = OutputArtifact(
-                        path="/tmp/outputs/artifacts/%s" % name,
-                        save=S3Artifact(key="{{workflow.name}}/{{pod.name}}/%s"
-                                        % name), archive=None)
-                    new_template.outputs.artifacts[name].save.append(
-                        S3Artifact(key="{{inputs.parameters."
-                                   "dflow_artifact_key}}/%s" % name))
+                    init_template.outputs.parameters[
+                        "dflow_%s_path_list" % name].value_from_path = \
+                        "/tmp/outputs/parameters/dflow_%s_path_list" % name
+                    init_template.outputs.parameters[
+                        "dflow_%s_path_list" % name].save.append(S3Artifact(
+                            key="{{workflow.name}}/{{pod.name}}/"
+                            "dflow_%s_path_list" % name))
+                    new_template.outputs.parameters[
+                        "dflow_%s_path_list" % name].save.append(S3Artifact(
+                            key="{{inputs.parameters.dflow_artifact_key}}/"
+                            "dflow_%s_path_list/{{pod.name}}" % name))
 
             if new_template.slices.sub_path and \
                     new_template.slices.input_artifact:
+                assert config["save_path_as_parameter"] or \
+                    config["save_path_as_artifact"], \
+                    "Either config[\"save_path_as_parameter\"] or "\
+                    "config[\"save_path_as_artifact\"] must be True for "\
+                    "subpath mode of slices"
                 for i, name in enumerate(new_template.slices.input_artifact):
-                    init_template.inputs.parameters[
-                        "dflow_%s_path_list" % name] = InputParameter(value=[])
+                    path = "/tmp/inputs/parameters/dflow_%s_path_list" % name
+                    if config["save_path_as_artifact"]:
+                        init_template.inputs.parameters[
+                            "dflow_%s_path_list" % name] = InputParameter(
+                                save_as_artifact=True, path=path,
+                                optional=True)
+                    else:
+                        init_template.inputs.parameters[
+                            "dflow_%s_path_list" % name] = InputParameter(
+                                value=[])
                     init_template.outputs.parameters["dflow_slices_path"] = \
                         OutputParameter(value_from_path="/tmp/outputs/"
                                         "parameters/dflow_slices_path")
-                    init_template.script += "path_list_%s = json.loads(r'{{"\
-                        "inputs.parameters.dflow_%s_path_list}}')\n" % (
-                            i, name)
+                    if config["save_path_as_artifact"]:
+                        init_template.script += "path_list_%s = []\n" % i
+                        init_template.script += \
+                            "if os.path.isfile('%s'):\n" % path
+                        init_template.script += \
+                            "    with open('%s', 'r') as f:\n" % path
+                        init_template.script += \
+                            "        path_list_%s = json.load(f)\n" % i
+                        init_template.script += \
+                            "elif os.path.isdir('%s'):\n" % path
+                        init_template.script += \
+                            "    for fn in os.listdir('%s'):\n" % path
+                        init_template.script += \
+                            "        with open(os.path.join('%s', fn), 'r')" \
+                            " as f:\n" % path
+                        init_template.script += \
+                            "            path_list_%s += json.load(f)\n" % i
+                    else:
+                        init_template.script += "path_list_%s = json.loads(" \
+                            "r'{{inputs.parameters.dflow_%s_path_list}}')\n" \
+                            % (i, name)
                     init_template.script += "if len(path_list_%s) > 0 and "\
                         "isinstance(path_list_%s[0], str):\n" % (i, i)
                     init_template.script += "    path_list_%s = sum([json."\
@@ -295,10 +340,9 @@ class Step:
                     name="%s-init-artifact" % self.name,
                     template=init_template)
 
-            if key is None:
-                self.inputs.parameters["dflow_artifact_key"] = InputParameter(
-                    value=self.prepare_step.outputs.parameters[
-                        "dflow_artifact_key"])
+            self.inputs.parameters["dflow_artifact_key"] = InputParameter(
+                value=self.prepare_step.outputs.parameters[
+                    "dflow_artifact_key"])
 
             if new_template.slices.sub_path and \
                     new_template.slices.input_artifact:
@@ -312,7 +356,8 @@ class Step:
                     if isinstance(v, S3Artifact) and v.path_list is not None:
                         self.prepare_step.inputs.parameters[
                             "dflow_%s_path_list" % name] = InputParameter(
-                            value=v.path_list)
+                            value=v.path_list, save_type=False,
+                            save_as_artifact=config["save_path_as_artifact"])
                         self.inputs.artifacts[name].source = deepcopy(
                             self.inputs.artifacts[name].source)
                         if self.inputs.artifacts[name].source.key[-1] == "/":
@@ -327,7 +372,8 @@ class Step:
                         self.prepare_step.inputs.parameters[
                             "dflow_%s_path_list" % name] = InputParameter(
                             value=v.step.outputs.parameters[
-                                "dflow_%s_path_list" % v.name])
+                                "dflow_%s_path_list" % v.name],
+                            save_as_artifact=config["save_path_as_artifact"])
                         self.inputs.artifacts[name].sub_path = \
                             "{{item.%s}}" % name
                     elif isinstance(v, InputArtifact) and v.template is not \
@@ -336,7 +382,8 @@ class Step:
                         self.prepare_step.inputs.parameters[
                             "dflow_%s_path_list" % name] = InputParameter(
                             value=v.template.inputs.parameters[
-                                "dflow_%s_path_list" % v.name])
+                                "dflow_%s_path_list" % v.name],
+                            save_as_artifact=config["save_path_as_artifact"])
                         self.inputs.artifacts[name].sub_path = \
                             "{{item.%s}}" % name
                 self.with_param = self.prepare_step.outputs.parameters[
@@ -345,6 +392,11 @@ class Step:
             for name in new_template.slices.output_artifact:
                 self.outputs.artifacts[name].redirect = \
                     self.prepare_step.outputs.artifacts[name]
+                if config["save_path_as_artifact"]:
+                    self.outputs.parameters[
+                        "dflow_%s_path_list" % name].redirect = \
+                        self.prepare_step.outputs.parameters[
+                        "dflow_%s_path_list" % name]
             self.template = new_template
 
     def __repr__(self):
@@ -386,28 +438,35 @@ class Step:
                 self.template.inputs.artifacts[k].optional = True
             else:
                 self.inputs.artifacts[k].source = v
-                if config["save_path_as_parameter"]:
+                if config["save_path_as_parameter"] or \
+                        config["save_path_as_artifact"]:
                     if isinstance(v, S3Artifact) and v.path_list is not None:
                         try:
-                            v.path_list = catalog_of_artifact(v)
+                            path_list = catalog_of_artifact(v)
+                            if path_list:
+                                v.path_list = path_list
                         except Exception:
                             pass
                         self.inputs.parameters["dflow_%s_path_list" % k] = \
-                            InputParameter(value=v.path_list)
+                            InputParameter(
+                                value=v.path_list, save_type=False,
+                            save_as_artifact=config["save_path_as_artifact"])
                     elif isinstance(v, OutputArtifact) and v.step is not None \
                             and "dflow_%s_path_list" % v.name in \
                                 v.step.outputs.parameters:
                         self.inputs.parameters["dflow_%s_path_list" % k] = \
                             InputParameter(
                             value=v.step.outputs.parameters[
-                                "dflow_%s_path_list" % v.name])
+                                "dflow_%s_path_list" % v.name],
+                            save_as_artifact=config["save_path_as_artifact"])
                     elif isinstance(v, InputArtifact) and v.template is not \
                             None and "dflow_%s_path_list" % v.name in \
                             v.template.inputs.parameters:
                         self.inputs.parameters["dflow_%s_path_list" % k] = \
                             InputParameter(
                             value=v.template.inputs.parameters[
-                                "dflow_%s_path_list" % v.name])
+                                "dflow_%s_path_list" % v.name],
+                            save_as_artifact=config["save_path_as_artifact"])
 
     def prepare_argo_arguments(self, context=None):
         self.argo_parameters = []

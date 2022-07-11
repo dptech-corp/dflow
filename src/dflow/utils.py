@@ -1,4 +1,5 @@
 import contextlib
+import logging
 import os
 import random
 import shutil
@@ -104,6 +105,7 @@ def upload_artifact(
     with tempfile.TemporaryDirectory() as tmpdir:
         path_list = []
         for i, p in enumerate(path):
+            logging.debug("upload artifact: handle path: %s" % p)
             if p is None:
                 continue
             if not os.path.exists(p):

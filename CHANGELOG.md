@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.1.14
+
+- add save_path_as_artifact to handle large path lists
+
 ## 1.1.13
 
 - improve uploading python packages
