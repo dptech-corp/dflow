@@ -193,6 +193,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     self.inputs.artifacts[name] = InputArtifact(
                         path="/tmp/inputs/artifacts/" + name,
                         optional=sign.optional, type=sign.type)
+                if config["save_path_as_artifact"]:
+                    self.inputs.parameters["dflow_%s_path_list" % name].path =\
+                        "/tmp/inputs/parameters/dflow_%s_path_list" % name
             elif isinstance(sign, BigParameter):
                 self.inputs.parameters[name] = InputParameter(
                     save_as_artifact=True, path="/tmp/inputs/parameters/"
@@ -261,6 +264,10 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             self.python_packages = set(python_packages)
             self.inputs.artifacts["dflow_python_packages"] = InputArtifact(
                 path="/tmp/inputs/artifacts/dflow_python_packages")
+            if config["save_path_as_artifact"]:
+                name = "dflow_python_packages"
+                self.inputs.parameters["dflow_%s_path_list" % name].path = \
+                    "/tmp/inputs/parameters/dflow_%s_path_list" % name
             script += "import os, sys, json\n"
             script += "package_root = '/tmp/inputs/artifacts/"\
                 "dflow_python_packages'\n"
@@ -276,6 +283,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "from dflow import config\n"
         script += "config['save_path_as_parameter'] = %s\n" \
             % config["save_path_as_parameter"]
+        script += "config['save_path_as_artifact'] = %s\n" \
+            % config["save_path_as_artifact"]
         script += "config['catalog_file_name'] = '%s'\n" \
             % config["catalog_file_name"]
         if op_class.__module__ == "__main__":
@@ -336,7 +345,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "output_sign = %s.get_output_sign()\n" % class_name
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
-                if config["save_path_as_parameter"]:
+                if config["save_path_as_parameter"] or \
+                        config["save_path_as_artifact"]:
                     self.outputs.parameters["dflow_%s_path_list" %
                                             name].value_from_path = \
                         "/tmp/outputs/parameters/dflow_%s_path_list" % name

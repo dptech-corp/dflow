@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from typing import Dict, List, Union
 
@@ -262,6 +263,7 @@ class Workflow:
             assert template == self.templates[template.name], \
                 "Duplication of template name: %s" % template.name
         else:
+            logging.debug("handle template %s" % template.name)
             self.templates[template.name] = template
             # if the template is steps or dag, handle involved templates
             if isinstance(template, (Steps, DAG)):
