@@ -8,7 +8,7 @@ from dflow import (InputArtifact, InputParameter, OutputArtifact,
 def test_steps():
     hello = ShellOPTemplate(
         name='Hello',
-        image="alpine:latest",
+        image="alpine:3.15",
         script="echo Hello > /tmp/bar.txt && echo 1 > /tmp/result.txt")
     hello.outputs.parameters = {"msg": OutputParameter(
         value_from_path="/tmp/result.txt")}
@@ -16,7 +16,7 @@ def test_steps():
 
     duplicate = ShellOPTemplate(
         name='Duplicate',
-        image="alpine:latest",
+        image="alpine:3.15",
         script="cat /tmp/foo.txt /tmp/foo.txt > /tmp/bar.txt && "
         "echo $(({{inputs.parameters.msg}}*2)) > /tmp/result.txt")
     duplicate.inputs.parameters = {"msg": InputParameter()}

@@ -7,7 +7,7 @@ from dflow import (InputParameter, Inputs, OutputParameter, ShellOPTemplate,
 def test_recurse():
     plus1 = ShellOPTemplate(
         name='plus1',
-        image="alpine:latest",
+        image="alpine:3.15",
         script="echo 'This is iter {{inputs.parameters.iter}}' && "
         "echo $(({{inputs.parameters.iter}}+1)) > /tmp/result.txt")
     plus1.inputs.parameters = {"iter": InputParameter()}
