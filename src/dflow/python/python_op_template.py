@@ -193,9 +193,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     self.inputs.artifacts[name] = InputArtifact(
                         path="/tmp/inputs/artifacts/" + name,
                         optional=sign.optional, type=sign.type)
-                if config["save_path_as_artifact"]:
-                    self.inputs.parameters["dflow_%s_path_list" % name].path =\
-                        "/tmp/inputs/parameters/dflow_%s_path_list" % name
             elif isinstance(sign, BigParameter):
                 self.inputs.parameters[name] = InputParameter(
                     save_as_artifact=True, path="/tmp/inputs/parameters/"
@@ -264,17 +261,14 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             self.python_packages = set(python_packages)
             self.inputs.artifacts["dflow_python_packages"] = InputArtifact(
                 path="/tmp/inputs/artifacts/dflow_python_packages")
-            if config["save_path_as_artifact"]:
-                name = "dflow_python_packages"
-                self.inputs.parameters["dflow_%s_path_list" % name].path = \
-                    "/tmp/inputs/parameters/dflow_%s_path_list" % name
             script += "import os, sys, json\n"
             script += "package_root = '/tmp/inputs/artifacts/"\
                 "dflow_python_packages'\n"
-            script += "for f in os.listdir(package_root):\n"
-            script += "    if f[:%s] == '%s':\n" % (
-                len(config["catalog_file_name"]), config["catalog_file_name"])
-            script += "        with open(os.path.join(package_root, f), 'r')"\
+            script += "catalog_dir = os.path.join(package_root, "\
+                "'%s')\n" % config['catalog_dir_name']
+            script += "if os.path.exists(catalog_dir):\n"
+            script += "    for f in os.listdir(catalog_dir):\n"
+            script += "        with open(os.path.join(catalog_dir, f), 'r')"\
                 " as fd:\n"
             script += "            for item in json.load(fd)['path_list']:\n"
             script += "                sys.path.insert(0, os.path.join("\
@@ -283,10 +277,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "from dflow import config\n"
         script += "config['save_path_as_parameter'] = %s\n" \
             % config["save_path_as_parameter"]
-        script += "config['save_path_as_artifact'] = %s\n" \
-            % config["save_path_as_artifact"]
-        script += "config['catalog_file_name'] = '%s'\n" \
-            % config["catalog_file_name"]
+        script += "config['catalog_dir_name'] = '%s'\n" \
+            % config["catalog_dir_name"]
         if op_class.__module__ == "__main__":
             source_lines, start_line = inspect.getsourcelines(op_class)
             with open(inspect.getsourcefile(op_class), "r") as fd:
@@ -345,8 +337,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "output_sign = %s.get_output_sign()\n" % class_name
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
-                if config["save_path_as_parameter"] or \
-                        config["save_path_as_artifact"]:
+                if config["save_path_as_parameter"]:
                     self.outputs.parameters["dflow_%s_path_list" %
                                             name].value_from_path = \
                         "/tmp/outputs/parameters/dflow_%s_path_list" % name

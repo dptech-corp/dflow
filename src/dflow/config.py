@@ -5,7 +5,6 @@ config = {
     "k8s_api_server": None,
     "private_key_host_path": "/home/docker/.ssh",
     "save_path_as_parameter": False,
-    "save_path_as_artifact": False,
-    "catalog_file_name": ".dflow",
-    "archive_mode": "tar"
+    "catalog_dir_name": ".dflow",
+    "archive_mode": "tar",
 }
