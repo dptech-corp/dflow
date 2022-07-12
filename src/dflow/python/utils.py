@@ -114,11 +114,13 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
                 path_list.append(copy_results_and_return_path_item(
                     path, name, s, data_root))
 
-    with open(data_root + "/outputs/artifacts/%s/%s.%s" % (name, config[
-            "catalog_file_name"], uuid.uuid4()), "w") as f:
+    os.makedirs(data_root + "/outputs/artifacts/%s/%s" % (name, config[
+            "catalog_dir_name"]), exist_ok=True)
+    with open(data_root + "/outputs/artifacts/%s/%s/%s" % (name, config[
+            "catalog_dir_name"], uuid.uuid4()), "w") as f:
         f.write(jsonpickle.dumps({"path_list": path_list}))
     handle_empty_dir(data_root + "/outputs/artifacts/%s" % name)
-    if config["save_path_as_parameter"] or config["save_path_as_artifact"]:
+    if config["save_path_as_parameter"]:
         with open(data_root + '/outputs/parameters/dflow_%s_path_list'
                   % name, 'w') as f:
             f.write(jsonpickle.dumps(path_list))

@@ -54,37 +54,22 @@ class InputArtifacts(AutonamedDict):
     def __setitem__(self, key, value):
         assert isinstance(value, InputArtifact)
         super().__setitem__(key, value)
-        if (config["save_path_as_parameter"] or
-                config["save_path_as_artifact"]) and self.template is not None:
+        if config["save_path_as_parameter"] and self.template is not None:
             if isinstance(value.source, S3Artifact):
-                self.template.inputs.parameters[
-                    "dflow_%s_path_list" % key] = InputParameter(
-                        value=value.source.path_list,
-                        save_as_artifact=config["save_path_as_artifact"],
-                        optional=True, save_type=False)
-            elif config["save_path_as_artifact"]:
-                self.template.inputs.parameters[
-                    "dflow_%s_path_list" % key] = InputParameter(
-                        optional=True, save_as_artifact=True)
+                self.template.inputs.parameters["dflow_%s_path_list" % key] = \
+                    InputParameter(value=value.source.path_list)
             else:
-                self.template.inputs.parameters[
-                    "dflow_%s_path_list" % key] = InputParameter(
-                        value=[])
+                self.template.inputs.parameters["dflow_%s_path_list" % key] = \
+                    InputParameter(value=[])
 
     def set_template(self, template):
         super().set_template(template)
-        if config["save_path_as_parameter"] or config["save_path_as_artifact"]:
+        if config["save_path_as_parameter"]:
             for name, art in self.items():
                 if isinstance(art.source, S3Artifact):
                     self.template.inputs.parameters["dflow_%s_path_list"
                                                     % name] = InputParameter(
-                        value=art.source.path_list,
-                        save_as_artifact=config["save_path_as_artifact"],
-                        optional=True, save_type=False)
-                elif config["save_path_as_artifact"]:
-                    self.template.inputs.parameters["dflow_%s_path_list"
-                                                    % name] = InputParameter(
-                        optional=True, save_as_artifact=True)
+                        value=art.source.path_list)
                 else:
                     self.template.inputs.parameters["dflow_%s_path_list"
                                                     % name] = InputParameter(
@@ -101,22 +86,17 @@ class OutputArtifacts(AutonamedDict):
     def __setitem__(self, key, value):
         assert isinstance(value, OutputArtifact)
         super().__setitem__(key, value)
-        if (config["save_path_as_parameter"] or
-                config["save_path_as_artifact"]) and self.template is not None:
+        if config["save_path_as_parameter"] and self.template is not None:
             self.template.outputs.parameters["dflow_%s_path_list" % key] = \
-                OutputParameter(
-                    value=[], optional=True,
-                save_as_artifact=config["save_path_as_artifact"])
+                OutputParameter(value=[])
             value.handle_path_list()
 
     def set_template(self, template):
         super().set_template(template)
-        if config["save_path_as_parameter"] or config["save_path_as_artifact"]:
+        if config["save_path_as_parameter"]:
             for name, art in self.items():
                 self.template.outputs.parameters["dflow_%s_path_list" % name]\
-                    = OutputParameter(
-                        value=[], optional=True,
-                    save_as_artifact=config["save_path_as_artifact"])
+                    = OutputParameter(value=[])
                 art.handle_path_list()
 
 
@@ -246,8 +226,6 @@ class InputParameter(ArgoVar):
             path: str = None,
             source: Union["InputArtifact",
                           "OutputArtifact", S3Artifact] = None,
-            optional: bool = None,
-            save_type: bool = True,
             **kwargs,
     ) -> None:
         self.name = name
@@ -259,8 +237,6 @@ class InputParameter(ArgoVar):
         self.save_as_artifact = save_as_artifact
         self.path = path
         self.source = source
-        self.optional = optional
-        self.save_type = save_type
 
     def __getattr__(self, key):
         if key == "expr":
@@ -323,8 +299,7 @@ class InputParameter(ArgoVar):
                                            InputArtifact, OutputArtifact)):
                     return V1alpha1Artifact(name="dflow_bigpar_" + self.name,
                                             path=self.path,
-                                            _from=str(self.value),
-                                            optional=self.optional)
+                                            _from=str(self.value))
                 else:
                     with tempfile.TemporaryDirectory() as tmpdir:
                         content = {}
@@ -336,23 +311,18 @@ class InputParameter(ArgoVar):
                             content["type"] = str(self.type)
                         path = tmpdir + "/" + self.name
                         with open(path, "w") as f:
-                            if self.save_type:
-                                f.write(jsonpickle.dumps(content))
-                            else:
-                                f.write(content["value"])
+                            f.write(jsonpickle.dumps(content))
                         key = upload_s3(path)
                         s3 = S3Artifact(key=key)
                     return V1alpha1Artifact(name="dflow_bigpar_" + self.name,
-                                            path=self.path, s3=s3,
-                                            optional=self.optional)
+                                            path=self.path, s3=s3)
             elif isinstance(self.source, (InputParameter, OutputParameter,
                                           InputArtifact, OutputArtifact)):
                 return V1alpha1Artifact(name="dflow_bigpar_" + self.name,
-                                        path=self.path, _from=str(self.source),
-                                        optional=self.optional)
+                                        path=self.path, _from=str(self.source))
             else:
                 return V1alpha1Artifact(name="dflow_bigpar_" + self.name,
-                                        path=self.path, optional=self.optional)
+                                        path=self.path)
 
         if not hasattr(self, "value"):
             return V1alpha1Parameter(name=self.name, description=description)
@@ -456,11 +426,9 @@ class InputArtifact(ArgoVar):
                                     _from=str(self.source), sub_path=sub_path,
                                     mode=self.mode)
         elif isinstance(self.source, S3Artifact):
-            sub_path = self.sub_path if self.sub_path is not None else \
-                self.source._sub_path
             return V1alpha1Artifact(name=self.name, path=self.path,
                                     optional=self.optional, s3=self.source,
-                                    sub_path=sub_path, mode=self.mode)
+                                    sub_path=self.sub_path, mode=self.mode)
         elif isinstance(self.source, str):
             return V1alpha1Artifact(name=self.name, path=self.path,
                                     optional=self.optional,
@@ -499,8 +467,6 @@ class OutputParameter(ArgoVar):
             global_name: str = None,
             value_from_expression: Union[str, IfExpression] = None,
             save_as_artifact: bool = False,
-            optional: bool = None,
-            save: List[Union[PVC, S3Artifact]] = None,
             **kwargs,
     ) -> None:
         self.value_from_path = value_from_path
@@ -516,18 +482,9 @@ class OutputParameter(ArgoVar):
             self.default = kwargs["default"]
         if "value" in kwargs:
             self.value = kwargs["value"]
-        self.optional = optional
-        if save is None:
-            save = []
-        elif not isinstance(save, list):
-            save = [save]
-        self.save = save
-        self.redirect = None
 
     def __getattr__(self, key):
         if key == "expr":
-            if self.redirect is not None:
-                return self.redirect.expr
             if self.save_as_artifact:
                 if self.name is not None:
                     if self.step is not None:
@@ -566,8 +523,6 @@ class OutputParameter(ArgoVar):
         return super().__setattr__(key, value)
 
     def __repr__(self):
-        if self.redirect is not None:
-            return str(self.redirect)
         if self.save_as_artifact:
             if self.name is not None:
                 if self.step is not None:
@@ -597,35 +552,24 @@ class OutputParameter(ArgoVar):
             description = jsonpickle.dumps({"type": str(self.type)})
 
         if self.save_as_artifact:
-            s3 = None
-            for save in self.save:
-                if isinstance(save, S3Artifact):
-                    s3 = deepcopy(save)
-                    if s3._sub_path is not None:
-                        if s3.key[-1] != "/":
-                            s3.key += "/"
-                        s3.key += s3._sub_path
-
             if self.value_from_path is not None:
                 return V1alpha1Artifact(
                     name="dflow_bigpar_" + self.name,
-                    path=self.value_from_path, global_name=self.global_name,
-                    s3=s3, archive=V1alpha1ArchiveStrategy(_none={}),
-                    optional=self.optional)
+                    path=self.value_from_path,
+                    archive=V1alpha1ArchiveStrategy(_none={}),
+                    global_name=self.global_name)
             elif self.value_from_parameter is not None:
                 return V1alpha1Artifact(
                     name="dflow_bigpar_" + self.name,
                     _from=str(self.value_from_parameter),
-                    global_name=self.global_name,
-                    s3=s3, archive=V1alpha1ArchiveStrategy(_none={}),
-                    optional=self.optional)
+                    archive=V1alpha1ArchiveStrategy(_none={}),
+                    global_name=self.global_name)
             elif self.value_from_expression is not None:
                 return V1alpha1Artifact(
                     name="dflow_bigpar_" + self.name,
                     from_expression=str(self.value_from_expression),
-                    global_name=self.global_name, s3=s3,
                     archive=V1alpha1ArchiveStrategy(_none={}),
-                    optional=self.optional)
+                    global_name=self.global_name)
             else:
                 raise RuntimeError("Not supported.")
 
@@ -682,7 +626,6 @@ class OutputArtifact(ArgoVar):
         archive: compress format of the artifact, None for no compression
         global_name: global name of the artifact within the workflow
         from_expression: the artifact is from an expression
-        optional: optional artifact or not
     """
 
     def __init__(
@@ -697,7 +640,6 @@ class OutputArtifact(ArgoVar):
             archive: str = "default",
             global_name: str = None,
             from_expression: Union[IfExpression, str] = None,
-            optional: bool = None,
             **kwargs,
     ) -> None:
         self.path = path
@@ -718,7 +660,6 @@ class OutputArtifact(ArgoVar):
         self.from_expression = from_expression
         self.redirect = None
         self._from = _from
-        self.optional = optional
 
     def sub_path(self, path):
         artifact = deepcopy(self)
@@ -745,9 +686,8 @@ class OutputArtifact(ArgoVar):
 
     def __setattr__(self, key, value):
         super().__setattr__(key, value)
-        if (config["save_path_as_parameter"] or
-                config["save_path_as_artifact"]) \
-                and key in ["_from", "from_expression"]:
+        if config["save_path_as_parameter"] and key in ["_from",
+                                                        "from_expression"]:
             self.handle_path_list()
 
     def handle_path_list(self):
@@ -805,27 +745,20 @@ class OutputArtifact(ArgoVar):
         s3 = None
         for save in self.save:
             if isinstance(save, S3Artifact):
-                s3 = deepcopy(save)
-                if s3._sub_path is not None:
-                    if s3.key[-1] != "/":
-                        s3.key += "/"
-                    s3.key += s3._sub_path
+                s3 = save
 
         if self.path is not None:
             return V1alpha1Artifact(name=self.name, path=self.path,
                                     archive=archive, s3=s3,
-                                    global_name=self.global_name,
-                                    optional=self.optional)
+                                    global_name=self.global_name)
         elif self._from is not None:
             return V1alpha1Artifact(name=self.name, _from=str(self._from),
                                     archive=archive, s3=s3,
-                                    global_name=self.global_name,
-                                    optional=self.optional)
+                                    global_name=self.global_name)
         elif self.from_expression is not None:
             return V1alpha1Artifact(
                 name=self.name, from_expression=str(self.from_expression),
-                archive=archive, s3=s3, global_name=self.global_name,
-                optional=self.optional)
+                archive=archive, s3=s3, global_name=self.global_name)
         else:
             raise RuntimeError("Output artifact %s is not specified" % self)
 

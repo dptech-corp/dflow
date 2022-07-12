@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.1.15
+
+- a catalog dir instead of catalog files for artifacts
+- a better solution for subpath slices
+
 ## 1.1.14
 
 - add save_path_as_artifact to handle large path lists

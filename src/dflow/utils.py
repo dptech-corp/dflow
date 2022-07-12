@@ -124,8 +124,10 @@ def upload_artifact(
             os.makedirs(os.path.dirname(target), exist_ok=True)
             os.symlink(abspath, target)
             path_list.append({"dflow_list_item": relpath, "order": i})
-        with open(os.path.join(tmpdir, config["catalog_file_name"] + ".%s" %
-                               uuid.uuid4()), "w") as f:
+
+        catalog_dir = os.path.join(tmpdir, config["catalog_dir_name"])
+        os.makedirs(catalog_dir, exist_ok=True)
+        with open(os.path.join(catalog_dir, str(uuid.uuid4())), "w") as f:
             f.write(jsonpickle.dumps({"path_list": path_list}))
 
         if archive == "tar":
@@ -140,6 +142,7 @@ def upload_artifact(
         else:
             key = upload_s3(path=tmpdir, **kwargs)
 
+    logging.debug("upload artifact: finished")
     return S3Artifact(key=key, path_list=path_list)
 
 
@@ -176,11 +179,12 @@ def copy_artifact(src, dst, sort=False) -> S3Artifact:
             for item in src_catalog:
                 item["order"] += offset
             with tempfile.TemporaryDirectory() as tmpdir:
-                fname = config["catalog_file_name"] + ".%s" % uuid.uuid4()
-                fpath = os.path.join(tmpdir, fname)
+                catalog_dir = os.path.join(tmpdir, config["catalog_dir_name"])
+                os.makedirs(catalog_dir, exist_ok=True)
+                fpath = os.path.join(catalog_dir, str(uuid.uuid4()))
                 with open(fpath, "w") as f:
                     f.write(jsonpickle.dumps({"path_list": src_catalog}))
-                upload_s3(path=fpath, prefix=dst_key)
+                upload_s3(path=catalog_dir, prefix=dst_key)
                 ignore_catalog = True
 
     copy_s3(src_key, dst_key, ignore_catalog=ignore_catalog)
@@ -325,9 +329,9 @@ def copy_s3(
         for obj in client.list_objects(bucket_name=bucket_name,
                                        prefix=src_key, recursive=True):
             if ignore_catalog:
-                fname = os.path.basename(obj.object_name)
-                if fname[:len(config["catalog_file_name"])] \
-                        == config["catalog_file_name"]:
+                fields = obj.object_name.split("/")
+                if len(fields) > 1 and fields[-2] == \
+                        config["catalog_dir_name"]:
                     continue
             client.copy_object(bucket_name, dst_key + obj.object_name[len(
                 src_key):], CopySource(bucket_name, obj.object_name))
@@ -343,6 +347,8 @@ def catalog_of_artifact(art, **kwargs) -> List[dict]:
         key = art.key
     else:
         return []
+    if key[-1] != "/":
+        key += "/"
 
     endpoint = kwargs["endpoint"] if "endpoint" in kwargs \
         else s3_config["endpoint"]
@@ -361,15 +367,14 @@ def catalog_of_artifact(art, **kwargs) -> List[dict]:
         objs = list(client.list_objects(bucket_name=bucket_name, prefix=key))
         if len(objs) == 1 and objs[0].object_name[-1] == "/":
             key = objs[0].object_name
-        for obj in client.list_objects(bucket_name=bucket_name, prefix=key):
-            fname = obj.object_name[len(key):]
-            if fname[:len(config["catalog_file_name"])] == \
-                    config["catalog_file_name"]:
-                client.fget_object(
-                    bucket_name=bucket_name, object_name=obj.object_name,
-                    file_path=os.path.join(tmpdir, fname))
-                with open(os.path.join(tmpdir, fname), "r") as f:
-                    catalog += jsonpickle.loads(f.read())['path_list']
+        prefix = key + config["catalog_dir_name"] + "/"
+        for obj in client.list_objects(bucket_name=bucket_name, prefix=prefix):
+            fname = obj.object_name[len(prefix):]
+            client.fget_object(
+                bucket_name=bucket_name, object_name=obj.object_name,
+                file_path=os.path.join(tmpdir, fname))
+            with open(os.path.join(tmpdir, fname), "r") as f:
+                catalog += jsonpickle.loads(f.read())['path_list']
     return catalog
 
 
@@ -408,15 +413,15 @@ def assemble_path_list(art_path, remove=False):
     path_list = []
     if os.path.isdir(art_path):
         dflow_list = []
-        for f in os.listdir(art_path):
-            if f[:len(config["catalog_file_name"])] == \
-                    config["catalog_file_name"]:
-                with open('%s/%s' % (art_path, f), 'r') as fd:
+        catalog_dir = os.path.join(art_path, config["catalog_dir_name"])
+        if os.path.exists(catalog_dir):
+            for f in os.listdir(catalog_dir):
+                with open(os.path.join(catalog_dir, f), 'r') as fd:
                     for item in jsonpickle.loads(fd.read())['path_list']:
                         if item not in dflow_list:
                             dflow_list.append(item)  # remove duplicate
                 if remove:
-                    os.remove(os.path.join(art_path, f))
+                    os.remove(os.path.join(catalog_dir, f))
         if len(dflow_list) > 0:
             path_list = list(map(lambda x: os.path.join(
                 art_path, x) if x is not None else None,

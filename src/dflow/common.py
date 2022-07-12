@@ -25,7 +25,6 @@ class S3Artifact(V1alpha1S3Artifact):
         config = Configuration()
         config.client_side_validation = False
         super().__init__(local_vars_configuration=config, *args, **kwargs)
-        self._sub_path = None
         if path_list is None:
             path_list = []
         self.path_list = path_list
@@ -35,5 +34,7 @@ class S3Artifact(V1alpha1S3Artifact):
             path: str,
     ) -> Any:
         artifact = deepcopy(self)
-        artifact._sub_path = path
+        if artifact.key[-1:] != "/":
+            artifact.key += "/"
+        artifact.key += path
         return artifact

@@ -1,11 +1,10 @@
 import time
 from typing import List
 
-from dflow import Step, Workflow, config  # , upload_artifact
+from dflow import Step, Workflow  # , upload_artifact
 from dflow.python import (OP, OPIO, Artifact, OPIOSign, PythonOPTemplate,
                           Slices, upload_packages)
 
-config["save_path_as_parameter"] = True
 if "__file__" in locals():
     upload_packages.append(__file__)
 
