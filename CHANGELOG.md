@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.1.16
+
+- support for defining OP in the interactive mode (e.g. jupyter notebook)
+
 ## 1.1.15
 
 - a catalog dir instead of catalog files for artifacts

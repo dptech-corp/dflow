@@ -280,10 +280,21 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "config['catalog_dir_name'] = '%s'\n" \
             % config["catalog_dir_name"]
         if op_class.__module__ == "__main__":
-            source_lines, start_line = inspect.getsourcelines(op_class)
-            with open(inspect.getsourcefile(op_class), "r") as fd:
-                pre_lines = fd.readlines()[:start_line-1]
-            script += "".join(pre_lines + source_lines) + "\n"
+            try:
+                source_lines, start_line = inspect.getsourcelines(op_class)
+                with open(inspect.getsourcefile(op_class), "r") as fd:
+                    pre_lines = fd.readlines()[:start_line-1]
+                script += "".join(pre_lines + source_lines) + "\n"
+            except Exception:
+                import cloudpickle
+                if hasattr(self, "python_packages"):
+                    self.python_packages.update(cloudpickle.__path__)
+                else:
+                    self.python_packages = set(cloudpickle.__path__)
+
+                script += "import cloudpickle\n"
+                script += "%s = cloudpickle.loads(%s)\n" % \
+                    (class_name, cloudpickle.dumps(op_class))
 
         script += "import os, sys, traceback, jsonpickle\n"
         script += "from dflow.python import OPIO, TransientError, FatalError\n"
