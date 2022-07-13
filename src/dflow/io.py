@@ -107,6 +107,12 @@ class ArgoVar:
     def __repr__(self):
         return self.expr
 
+    def __getitem__(self, i):
+        if isinstance(i, str):
+            return ArgoVar("jsonpath(%s, '$')['%s']" % (self.expr, i))
+        else:
+            return ArgoVar("jsonpath(%s, '$')[%s]" % (self.expr, i))
+
     def __eq__(self, other):
         if isinstance(other, ArgoVar):
             other = other.expr

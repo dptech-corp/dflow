@@ -49,7 +49,9 @@ class Check(OP):
 
     @classmethod
     def get_output_sign(cls):
-        return OPIOSign()
+        return OPIOSign({
+            'path': List[str]
+        })
 
     @OP.exec_sign_check
     def execute(
@@ -57,7 +59,9 @@ class Check(OP):
             op_in: OPIO,
     ) -> OPIO:
         print(op_in["foo"])
-        return OPIO()
+        return OPIO({
+            'path': op_in["foo"]
+        })
 
 
 def test_loop_slices():
@@ -106,6 +110,13 @@ def test_loop_slices():
 
     wf2 = Workflow("loop-slices-resubmit", steps=steps)
     wf2.submit(reuse_step=[step0])
+
+    while wf2.query_status() in ["Pending", "Running"]:
+        time.sleep(1)
+
+    assert(wf2.query_status() == "Succeeded")
+    check0 = wf2.query_step("check0")[0]
+    assert len(check0.outputs.parameters["path"].value) == 2
 
 
 if __name__ == "__main__":
