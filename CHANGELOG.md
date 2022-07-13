@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.1.17
+
+- fit wlm for new features
+- add __getitem__ to ArgoVar
+
 ## 1.1.16
 
 - support for defining OP in the interactive mode (e.g. jupyter notebook)

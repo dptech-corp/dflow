@@ -233,19 +233,30 @@ class Step:
                     value=re.sub("{{item.*}}", "group", str(self.key)))
                 init_template.inputs.parameters["dflow_group_key"] = \
                     InputParameter()
-
-            init_template.outputs.parameters["dflow_artifact_key"] = \
-                OutputParameter(value="{{workflow.name}}/{{pod.name}}")
-            new_template.inputs.parameters["dflow_artifact_key"] = \
-                InputParameter(value="")
-            for name in new_template.slices.output_artifact:
-                init_template.outputs.artifacts[name] = OutputArtifact(
-                    path="/tmp/outputs/artifacts/%s" % name,
-                    save=S3Artifact(key="{{workflow.name}}/{{pod.name}}/%s"
-                                    % name), archive=None)
-                new_template.outputs.artifacts[name].save.append(
-                    S3Artifact(key="{{inputs.parameters."
-                               "dflow_artifact_key}}/%s" % name))
+                # For the case of reusing sliced steps, ensure that the output
+                # artifacts are reused
+                for name in new_template.slices.output_artifact:
+                    init_template.outputs.artifacts[name] = OutputArtifact(
+                        path="/tmp/outputs/artifacts/%s" % name,
+                        save=S3Artifact(key="{{workflow.name}}/{{inputs."
+                                        "parameters.dflow_group_key}}/%s"
+                                        % name), archive=None)
+                    new_template.outputs.artifacts[name].save.append(
+                        S3Artifact(key="{{workflow.name}}/{{inputs."
+                                   "parameters.dflow_group_key}}/%s" % name))
+            else:
+                init_template.outputs.parameters["dflow_artifact_key"] = \
+                    OutputParameter(value="{{workflow.name}}/{{pod.name}}")
+                new_template.inputs.parameters["dflow_artifact_key"] = \
+                    InputParameter(value="")
+                for name in new_template.slices.output_artifact:
+                    init_template.outputs.artifacts[name] = OutputArtifact(
+                        path="/tmp/outputs/artifacts/%s" % name,
+                        save=S3Artifact(key="{{workflow.name}}/{{pod.name}}/%s"
+                                        % name), archive=None)
+                    new_template.outputs.artifacts[name].save.append(
+                        S3Artifact(key="{{inputs.parameters."
+                                   "dflow_artifact_key}}/%s" % name))
 
             if new_template.slices.sub_path and \
                     new_template.slices.input_artifact:
@@ -301,9 +312,10 @@ class Step:
                     name="%s-init-artifact" % self.name,
                     template=init_template)
 
-            self.inputs.parameters["dflow_artifact_key"] = InputParameter(
-                value=self.prepare_step.outputs.parameters[
-                    "dflow_artifact_key"])
+            if key is None:
+                self.inputs.parameters["dflow_artifact_key"] = InputParameter(
+                    value=self.prepare_step.outputs.parameters[
+                        "dflow_artifact_key"])
 
             if new_template.slices.sub_path and \
                     new_template.slices.input_artifact:

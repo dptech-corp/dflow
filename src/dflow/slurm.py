@@ -117,6 +117,11 @@ class SlurmJobTemplate(Executor):
             prepare_template = ShellOPTemplate(
                 name=new_template.name + "-prepare", image=self.prepare_image,
                 script=script, volumes=[volume], mounts=[mount])
+            for name in template.inputs.parameters.keys():
+                if name[:6] == "dflow_":
+                    prepare_template.inputs.parameters[name] = \
+                        InputParameter(
+                        value="{{inputs.parameters.%s}}" % name)
             prepare_template.inputs.artifacts = copy.deepcopy(
                 template.inputs.artifacts)
             prepare_template.outputs.parameters["dflow_vol_path"] = \
@@ -199,10 +204,11 @@ class SlurmJobTemplate(Executor):
                 script=script, volumes=[volume], mounts=[mount])
             collect_template.inputs.parameters["dflow_vol_path"] = \
                 InputParameter()
-            if "dflow_group_key" in template.inputs.parameters:
-                collect_template.inputs.parameters["dflow_group_key"] = \
-                    InputParameter(
-                        value="{{inputs.parameters.dflow_group_key}}")
+            for name in template.inputs.parameters.keys():
+                if name[:6] == "dflow_":
+                    collect_template.inputs.parameters[name] = \
+                        InputParameter(
+                        value="{{inputs.parameters.%s}}" % name)
             collect_template.outputs.parameters = copy.deepcopy(
                 template.outputs.parameters)
             collect_template.outputs.artifacts = copy.deepcopy(
