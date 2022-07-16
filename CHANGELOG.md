@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.1.18
+
+- query archived workflows
+
 ## 1.1.17
 
 - fit wlm for new features
