@@ -84,8 +84,11 @@ class ArgoStep(ArgoObjectDict):
                         and par.description is not None:
                     desc = jsonpickle.loads(par.description)
                     if desc["type"] != str(str):
-                        parameters[par.name].value = jsonpickle.loads(
-                            par.value)
+                        try:
+                            parameters[par.name].value = jsonpickle.loads(
+                                par.value)
+                        except Exception:
+                            pass
             io.parameters = parameters
 
         if hasattr(io, "artifacts"):

@@ -40,6 +40,7 @@ class Workflow:
         steps: steps used as the entrypoint of the workflow, if not provided,
             a empty steps will be used
         dag: dag used as the entrypoint of the workflow
+        namespace: k8s namespace
         id: workflow ID in Argo, you can provide it to track an existing
             workflow
         host: URL of the Argo server, will override global config
@@ -59,6 +60,7 @@ class Workflow:
             name: str = "workflow",
             steps: Steps = None,
             dag: DAG = None,
+            namespace: str = "argo",
             id: str = None,
             host: str = None,
             token: str = None,
@@ -91,6 +93,7 @@ class Workflow:
 
         self.api_instance = WorkflowServiceApi(api_client)
 
+        self.namespace = namespace
         if id is not None:
             self.id = id
         else:
@@ -136,7 +139,7 @@ class Workflow:
         manifest = self.convert_to_argo(reuse_step=reuse_step)
 
         response = self.api_instance.api_client.call_api(
-            '/api/v1/workflows/argo', 'POST',
+            '/api/v1/workflows/%s' % self.namespace, 'POST',
             body=V1alpha1WorkflowCreateRequest(workflow=manifest),
             response_type=object,
             _return_http_data_only=True)
@@ -221,7 +224,8 @@ class Workflow:
                 kubernetes.config.load_kube_config(
                     config_file=self.k8s_config_file)
                 v1 = kubernetes.client.CoreV1Api()
-            v1.create_namespaced_config_map(namespace="argo", body=config_map)
+            v1.create_namespaced_config_map(namespace=self.namespace,
+                                            body=config_map)
             self.handle_template(
                 self.entrypoint, memoize_prefix=self.id,
                 memoize_configmap=cm_name)
@@ -292,9 +296,14 @@ class Workflow:
         """
         if self.id is None:
             raise RuntimeError("Workflow ID is None")
-        response = self.api_instance.api_client.call_api(
-            '/api/v1/workflows/argo/%s' % self.id,
-            'GET', response_type=object, _return_http_data_only=True)
+        try:
+            response = self.api_instance.api_client.call_api(
+                '/api/v1/workflows/%s/%s' % (self.namespace, self.id),
+                'GET', response_type=object, _return_http_data_only=True)
+        except Exception:
+            response = self.api_instance.api_client.call_api(
+                '/api/v1/archived-workflows/%s' % self.id,
+                'GET', response_type=object, _return_http_data_only=True)
         workflow = ArgoWorkflow(response)
         return workflow
 
