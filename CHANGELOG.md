@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.1.19
+
+- add container mode (docker, singularity or podman) to slurm remote executor, dispatcher executor and wlm executor.
+
 ## 1.1.18
 
 - query archived workflows

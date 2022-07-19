@@ -3,7 +3,7 @@ import os
 import re
 from typing import Dict, List, Union
 
-from .executor import Executor, RemoteExecutor
+from .executor import Executor, RemoteExecutor, run_script
 from .io import (PVC, InputArtifact, InputParameter, OutputArtifact,
                  OutputParameter)
 from .op_template import ScriptOPTemplate, ShellOPTemplate
@@ -23,7 +23,8 @@ except Exception:
 class SlurmJob(Resource):
     def __init__(self, header="", node_selector=None, prepare=None,
                  results=None, map_tmp_dir=True, workdir=".",
-                 remote_command=None):
+                 remote_command=None, docker_executable=None,
+                 singularity_executable=None, podman_executable=None):
         self.header = header
         self.action = "create"
         self.success_condition = "status.status == Succeeded"
@@ -36,11 +37,23 @@ class SlurmJob(Resource):
         if isinstance(remote_command, str):
             remote_command = [remote_command]
         self.remote_command = remote_command
+        self.docker_executable = docker_executable
+        self.singularity_executable = singularity_executable
+        self.podman_executable = podman_executable
 
     def get_manifest(self, template):
         remote_command = template.command if self.remote_command is None else \
             self.remote_command
-        map_cmd = " | sed \"s#/tmp#$(pwd)/tmp#g\" " if self.map_tmp_dir else ""
+        batch = self.header + "\n"
+        batch += "mkdir -p %s\ncd %s\n" % (self.workdir, self.workdir)
+        batch += "cat <<EOF > script\n%s\nEOF\n" % template.script
+        if self.map_tmp_dir:
+            batch += "sed -i \"s#/tmp#$(pwd)/tmp#g\" script\n"
+
+        batch += run_script(template.image, remote_command,
+                            self.docker_executable,
+                            self.singularity_executable,
+                            self.podman_executable)
         manifest = {
             "apiVersion": "wlm.sylabs.io/v1alpha1",
             "kind": "SlurmJob",
@@ -48,9 +61,7 @@ class SlurmJob(Resource):
                 "name": "{{pod.name}}"
             },
             "spec": {
-                "batch": self.header + "\nmkdir -p %s\ncd %s\ncat <<EOF %s |"
-                " %s\n%s\nEOF" % (self.workdir, self.workdir, map_cmd,
-                                  " ".join(remote_command), template.script)
+                "batch": batch
             }
         }
         if self.node_selector is not None:
@@ -73,6 +84,9 @@ class SlurmJobTemplate(Executor):
         collect_image: image for collecting results
         workdir: remote working directory
         remote_command: command for running the script remotely
+        docker_executable: docker executable to run remotely
+        singularity_executable: singularity executable to run remotely
+        podman_executable: podman executable to run remotely
     """
 
     def __init__(
@@ -83,6 +97,9 @@ class SlurmJobTemplate(Executor):
             collect_image: str = "alpine:latest",
             workdir: str = "dflow/workflows/{{workflow.name}}/{{pod.name}}",
             remote_command: Union[str, List[str]] = None,
+            docker_executable: str = None,
+            singularity_executable: str = None,
+            podman_executable: str = None,
     ) -> None:
         self.header = header
         self.node_selector = node_selector
@@ -92,6 +109,9 @@ class SlurmJobTemplate(Executor):
         if isinstance(remote_command, str):
             remote_command = [remote_command]
         self.remote_command = remote_command
+        self.docker_executable = docker_executable
+        self.singularity_executable = singularity_executable
+        self.podman_executable = podman_executable
 
     def render(self, template):
         new_template = Steps(template.name + "-slurm")
@@ -161,7 +181,10 @@ class SlurmJobTemplate(Executor):
             header=self.header, node_selector=self.node_selector,
             prepare=prepare, results=results,
             workdir="%s/workdir" % self.workdir,
-            remote_command=self.remote_command)
+            remote_command=self.remote_command,
+            docker_executable=self.docker_executable,
+            singularity_executable=self.singularity_executable,
+            podman_executable=self.podman_executable)
         run_template = ScriptOPTemplate(
             name=new_template.name + "-run",
             resource=V1alpha1ResourceTemplate(
@@ -250,6 +273,8 @@ class SlurmRemoteExecutor(RemoteExecutor):
         image: image for the executor
         map_tmp_dir: map /tmp to ./tmp
         docker_executable: docker executable to run remotely
+        singularity_executable: singularity executable to run remotely
+        podman_executable: podman executable to run remotely
         action_retries: retries for actions (upload, execute commands,
             download), -1 for infinity
         header: header for Slurm job
@@ -269,6 +294,8 @@ class SlurmRemoteExecutor(RemoteExecutor):
             image: str = "dptechnology/dflow-extender",
             map_tmp_dir: bool = True,
             docker_executable: str = None,
+            singularity_executable: str = None,
+            podman_executable: str = None,
             action_retries: int = -1,
             header: str = "",
             interval: int = 3,
@@ -279,23 +306,20 @@ class SlurmRemoteExecutor(RemoteExecutor):
             private_key_file=private_key_file, workdir=workdir,
             command=command, remote_command=remote_command, image=image,
             map_tmp_dir=map_tmp_dir, docker_executable=docker_executable,
-            action_retries=action_retries)
+            singularity_executable=singularity_executable,
+            podman_executable=podman_executable, action_retries=action_retries)
         self.header = re.sub(" *#", "#", header)
         self.interval = interval
         self.pvc = pvc
 
     def run(self, image, remote_command):
-        script = ""
-        if self.docker_executable is None:
-            map_cmd = "sed -i \"s#/tmp#$(pwd)/tmp#g\" script" if \
-                self.map_tmp_dir else ""
-            script += "echo '%s\n%s\n%s script' > slurm.sh\n" % (
-                self.header, map_cmd, " ".join(remote_command))
-        else:
-            script += "echo '%s\n%s run -v$(pwd)/tmp:/tmp "\
-                "-v$(pwd)/script:/script -ti %s %s /script' > slurm.sh\n" % (
-                    self.header, self.docker_executable, image,
-                    " ".join(remote_command))
+        map_cmd = "sed -i \"s#/tmp#$(pwd)/tmp#g\" script" if \
+            self.map_tmp_dir else ""
+        script = "echo '%s\n%s\n%s' > slurm.sh\n" % (
+            self.header, map_cmd, run_script(
+                image, remote_command, self.docker_executable,
+                self.singularity_executable, self.podman_executable))
+
         script += self.upload("slurm.sh", "%s/slurm.sh" %
                               self.workdir) + " || exit 1\n"
         if self.pvc:

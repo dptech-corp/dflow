@@ -5,7 +5,7 @@ from typing import List, Union
 
 from ..common import S3Artifact
 from ..config import config
-from ..executor import Executor
+from ..executor import Executor, run_script
 from ..io import InputArtifact
 from ..utils import randstr, upload_s3
 
@@ -34,6 +34,9 @@ class DispatcherExecutor(Executor):
         resources_dict: resources config for dispatcher
         task_dict: task config for dispatcher
         json_file: JSON file containing machine and resources config
+        docker_executable: docker executable to run remotely
+        singularity_executable: singularity executable to run remotely
+        podman_executable: podman executable to run remotely
     """
 
     def __init__(self,
@@ -50,6 +53,9 @@ class DispatcherExecutor(Executor):
                  resources_dict: dict = None,
                  task_dict: dict = None,
                  json_file: os.PathLike = None,
+                 docker_executable: str = None,
+                 singularity_executable: str = None,
+                 podman_executable: str = None,
                  ) -> None:
         self.host = host
         self.queue_name = queue_name
@@ -64,6 +70,13 @@ class DispatcherExecutor(Executor):
             remote_command = [remote_command]
         self.remote_command = remote_command
         self.map_tmp_dir = map_tmp_dir
+        self.docker_executable = docker_executable
+        self.singularity_executable = singularity_executable
+        self.podman_executable = podman_executable
+        if self.docker_executable is not None or \
+                self.singularity_executable is not None or \
+                self.podman_executable is not None:
+            self.map_tmp_dir = False
 
         config = {}
         if json_file is not None:
@@ -118,14 +131,18 @@ class DispatcherExecutor(Executor):
         new_template.image = self.image
         new_template.command = self.command
 
-        if self.remote_command is None:
-            self.remote_command = template.command
-        map_cmd = "if [ \\\"$(head -n 1 script)\\\" != \\\"# modified by "\
-            "dflow\\\" ]; then sed -i \\\"s#/tmp#$(pwd)/tmp#g\\\" script; "\
-            "sed -i \\\"1i # modified by dflow\\\" script; fi && "\
-            if self.map_tmp_dir else ""
-        self.task_dict["command"] = "%s %s script" % (
-            map_cmd, "".join(self.remote_command))
+        remote_command = template.command if self.remote_command is None \
+            else self.remote_command
+        cmd = ""
+        if self.map_tmp_dir:
+            cmd += "if [ \\\"$(head -n 1 script)\\\" != \\\"# modified by "\
+                "dflow\\\" ]; then sed -i \\\"s#/tmp#$(pwd)/tmp#g\\\" script"\
+                "; sed -i \\\"1i # modified by dflow\\\" script; fi && "
+
+        cmd += run_script(template.image, remote_command,
+                          self.docker_executable, self.singularity_executable,
+                          self.podman_executable)
+        self.task_dict["command"] = cmd
         self.task_dict["forward_files"] = ["script"]
         for art in template.inputs.artifacts.values():
             self.task_dict["forward_files"].append(art.path)
