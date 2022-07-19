@@ -31,6 +31,23 @@ class Executor(object):
         raise NotImplementedError()
 
 
+def run_script(image, cmd, docker=None, singularity=None, podman=None):
+    if docker is not None:
+        return "%s pull %s && %s run -v$(pwd)/tmp:/tmp "\
+            "-v$(pwd)/script:/script %s %s /script" % (
+                docker, image, docker, image, " ".join(cmd))
+    elif singularity is not None:
+        return "%s pull image.sif %s && %s run -B$(pwd)/tmp:/tmp "\
+            "-B$(pwd)/script:/script image.sif %s /script && rm image.sif" % (
+                singularity, image, singularity, " ".join(cmd))
+    elif podman is not None:
+        return "%s pull %s && %s run -v$(pwd)/tmp:/tmp "\
+            "-v$(pwd)/script:/script %s %s /script" % (
+                podman, image, podman, image, " ".join(cmd))
+    else:
+        return "%s script" % " ".join(cmd)
+
+
 class RemoteExecutor(Executor):
     def __init__(
             self,
@@ -45,6 +62,8 @@ class RemoteExecutor(Executor):
             image: str = "dptechnology/dflow-extender",
             map_tmp_dir: bool = True,
             docker_executable: str = None,
+            singularity_executable: str = None,
+            podman_executable: str = None,
             action_retries: int = -1,
     ) -> None:
         self.host = host
@@ -64,7 +83,11 @@ class RemoteExecutor(Executor):
         self.image = image
         self.map_tmp_dir = map_tmp_dir
         self.docker_executable = docker_executable
-        if self.docker_executable is not None:
+        self.singularity_executable = singularity_executable
+        self.podman_executable = podman_executable
+        if self.docker_executable is not None or \
+                self.singularity_executable is not None or \
+                self.podman_executable is not None:
             self.map_tmp_dir = False
         self.action_retries = action_retries
 
@@ -81,29 +104,25 @@ class RemoteExecutor(Executor):
         return "download %s '%s' '%s'" % (self.action_retries, src, dst)
 
     def run(self, image, remote_command):
-        if self.docker_executable is None:
-            map_cmd = " && sed -i \"s#/tmp#$(pwd)/tmp#g\" script" if \
-                self.map_tmp_dir else ""
-            return self.execute(
-                "cd %s %s && %s script" % (self.workdir, map_cmd,
-                                           " ".join(self.remote_command))) \
-                + " || exit 1\n"
-        else:
-            return self.execute(
-                "cd %s && %s run -v$(pwd)/tmp:/tmp -v$(pwd)/script:/script"
-                " -ti %s %s /script" % (self.workdir, self.docker_executable,
-                                        image, " ".join(remote_command))) \
-                + " || exit 1\n"
+        script = "cd %s && " % self.workdir
+        if self.map_tmp_dir:
+            script += "sed -i \"s#/tmp#$(pwd)/tmp#g\" script && "
+        return self.execute(script + run_script(
+            image, remote_command, self.docker_executable,
+            self.singularity_executable, self.podman_executable)) + \
+            " || exit 1\n"
 
     def mkdir_and_upload(self, path):
         return self.execute("mkdir -p %s/%s" % (self.workdir,
                                                 os.path.dirname(path))) \
             + "\n" + ("if [ -e %s ]; then " % path) \
-            + self.upload(path, "%s/%s" % (self.workdir, path)) + "; fi\n"
+            + self.upload(path, "%s/%s" % (
+                self.workdir, os.path.dirname(path))) + "; fi\n"
 
     def mkdir_and_download(self, path):
         return "mkdir -p %s" % os.path.dirname(path) + "\n" + \
-            self.download("%s/%s" % (self.workdir, path), path) + "\n"
+            self.download("%s/%s" % (self.workdir, path),
+                          os.path.dirname(path)) + "\n"
 
     def get_script(self, template):
         remote_script = template.script

@@ -402,7 +402,10 @@ def merge_dir(src, dst):
 def copy_file(src, dst, func=os.link):
     os.makedirs(os.path.abspath(os.path.dirname(dst)), exist_ok=True)
     if os.path.isdir(src):
-        shutil.copytree(src, dst, copy_function=func)
+        try:
+            shutil.copytree(src, dst, copy_function=func)
+        except FileExistsError:
+            pass
     elif os.path.isfile(src):
         func(src, dst)
     else:
