@@ -157,7 +157,7 @@ class Step:
             key: str = None,
             executor: Executor = None,
             use_resource: Resource = None,
-            util_image: str = "python:3.8",
+            util_image: str = None,
             util_command: Union[str, List[str]] = None,
             **kwargs,
     ) -> None:
@@ -186,6 +186,8 @@ class Step:
         self.key = key
         self.executor = executor
         self.use_resource = use_resource
+        if util_image is None:
+            util_image = config["util_image"]
         self.util_image = util_image
         if isinstance(util_command, str):
             util_command = [util_command]

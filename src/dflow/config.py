@@ -7,4 +7,7 @@ config = {
     "save_path_as_parameter": False,
     "catalog_dir_name": ".dflow",
     "archive_mode": "tar",
+    "util_image": "python:3.8",
+    "extender_image": "dptechnology/dflow-extender",
+    "dispatcher_image": "dptechnology/dpdispatcher",
 }

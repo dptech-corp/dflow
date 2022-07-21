@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.1.20
+
+- add cloudpickle to dependencies
+- add server-side installation script for Mac
+- Lebesgue supports for mixed executor
+
 ## 1.1.19
 
 - add container mode (docker, singularity or podman) to slurm remote executor, dispatcher executor and wlm executor.

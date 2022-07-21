@@ -18,13 +18,16 @@ class LebesgueExecutor(Executor):
     Lebesgue executor
 
     Args:
+        executor: executor
         extra: extra arguments, will override extra defined in global context
     """
 
     def __init__(
             self,
+            executor: str = None,
             extra: dict = None,
     ) -> None:
+        self.executor = executor
         self.extra = extra
 
     def render(self, template):
@@ -33,8 +36,12 @@ class LebesgueExecutor(Executor):
             "not take effect"
         new_template = deepcopy(template)
         new_template.name += "-" + randstr()
-        new_template.annotations["task.dp.tech/extra"] = json.dumps(
-            self.extra) if isinstance(self.extra, dict) else self.extra
+        if self.executor is not None:
+            new_template.annotations["workflow.dp.tech/executor"] = \
+                self.executor
+        if self.extra is not None:
+            new_template.annotations["task.dp.tech/extra"] = json.dumps(
+                self.extra) if isinstance(self.extra, dict) else self.extra
         return new_template
 
 

@@ -45,7 +45,7 @@ class DispatcherExecutor(Executor):
                  port: int = 22,
                  username: str = "root",
                  private_key_file: os.PathLike = None,
-                 image: str = "dptechnology/dpdispatcher",
+                 image: str = None,
                  command: Union[str, List[str]] = "python",
                  remote_command: Union[str, List[str]] = None,
                  map_tmp_dir: bool = True,
@@ -62,6 +62,8 @@ class DispatcherExecutor(Executor):
         self.port = port
         self.username = username
         self.private_key_file = private_key_file
+        if image is None:
+            image = config["dispatcher_image"]
         self.image = image
         if isinstance(command, str):
             command = [command]
@@ -78,10 +80,10 @@ class DispatcherExecutor(Executor):
                 self.podman_executable is not None:
             self.map_tmp_dir = False
 
-        config = {}
+        conf = {}
         if json_file is not None:
             with open(json_file, "r") as f:
-                config = json.load(f)
+                conf = json.load(f)
 
         self.machine_dict = {
             "batch_type": "Slurm",
@@ -95,8 +97,8 @@ class DispatcherExecutor(Executor):
                 "timeout": 10
             }
         }
-        if "machine" in config:
-            self.machine_dict.update(config["machine"])
+        if "machine" in conf:
+            self.machine_dict.update(conf["machine"])
         if machine_dict is not None:
             self.machine_dict.update(machine_dict)
 
@@ -112,8 +114,8 @@ class DispatcherExecutor(Executor):
                 "DFLOW_POD": "{{pod.name}}"
             }
         }
-        if "resources" in config:
-            self.resources_dict.update(config["resources"])
+        if "resources" in conf:
+            self.resources_dict.update(conf["resources"])
         if resources_dict is not None:
             self.resources_dict.update(resources_dict)
 

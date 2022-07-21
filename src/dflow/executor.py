@@ -59,7 +59,7 @@ class RemoteExecutor(Executor):
             workdir: str = "~/dflow/workflows/{{workflow.name}}/{{pod.name}}",
             command: Union[str, List[str]] = None,
             remote_command: Union[str, List[str]] = None,
-            image: str = "dptechnology/dflow-extender",
+            image: str = None,
             map_tmp_dir: bool = True,
             docker_executable: str = None,
             singularity_executable: str = None,
@@ -80,6 +80,8 @@ class RemoteExecutor(Executor):
         if isinstance(remote_command, str):
             remote_command = [remote_command]
         self.remote_command = remote_command
+        if image is None:
+            image = config["extender_image"]
         self.image = image
         self.map_tmp_dir = map_tmp_dir
         self.docker_executable = docker_executable
