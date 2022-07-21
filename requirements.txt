@@ -8,3 +8,4 @@ jsonpickle
 minio
 kubernetes
 pyyaml
+cloudpickle

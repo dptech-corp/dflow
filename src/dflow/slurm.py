@@ -3,6 +3,7 @@ import os
 import re
 from typing import Dict, List, Union
 
+from .config import config
 from .executor import Executor, RemoteExecutor, run_script
 from .io import (PVC, InputArtifact, InputParameter, OutputArtifact,
                  OutputParameter)
@@ -93,8 +94,8 @@ class SlurmJobTemplate(Executor):
             self,
             header: str = "",
             node_selector: Dict[str, str] = None,
-            prepare_image: str = "alpine:latest",
-            collect_image: str = "alpine:latest",
+            prepare_image: str = None,
+            collect_image: str = None,
             workdir: str = "dflow/workflows/{{workflow.name}}/{{pod.name}}",
             remote_command: Union[str, List[str]] = None,
             docker_executable: str = None,
@@ -103,7 +104,11 @@ class SlurmJobTemplate(Executor):
     ) -> None:
         self.header = header
         self.node_selector = node_selector
+        if prepare_image is None:
+            prepare_image = config["util_image"]
         self.prepare_image = prepare_image
+        if collect_image is None:
+            collect_image = config["util_image"]
         self.collect_image = collect_image
         self.workdir = workdir
         if isinstance(remote_command, str):
@@ -291,7 +296,7 @@ class SlurmRemoteExecutor(RemoteExecutor):
             workdir: str = "~/dflow/workflows/{{workflow.name}}/{{pod.name}}",
             command: Union[str, List[str]] = None,
             remote_command: Union[str, List[str]] = None,
-            image: str = "dptechnology/dflow-extender",
+            image: str = None,
             map_tmp_dir: bool = True,
             docker_executable: str = None,
             singularity_executable: str = None,
