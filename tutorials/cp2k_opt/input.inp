@@ -1,0 +1,114 @@
+&GLOBAL
+  PROJECT input
+  PRINT_LEVEL LOW
+  RUN_TYPE CELL_OPT
+&END GLOBAL
+
+&FORCE_EVAL
+  METHOD Quickstep
+  &SUBSYS
+    &CELL
+      A     5.43069750     0.00000000     0.00000000
+      B     0.00000000     5.43069750     0.00000000
+      C     0.00000000     0.00000000     5.43069750
+      PERIODIC XYZ #Direction of applied PBC (geometry aspect)
+    &END CELL
+    &COORD
+      Si       0.00000000    0.00000000    0.00000000
+      Si       0.00000000    2.71534870    2.71534870
+      Si       2.71534870    2.71534870    0.00000000
+      Si       2.71534870    0.00000000    2.71534870
+      Si       4.07302310    1.35767440    4.07302310
+      Si       1.35767440    1.35767440    1.35767440
+      Si       1.35767440    4.07302310    4.07302310
+      Si       4.07302310    4.07302310    1.35767440
+    &END COORD
+    &KIND Si   
+      ELEMENT Si
+      BASIS_SET DZVP-MOLOPT-SR-GTH-q4
+      POTENTIAL GTH-PBE
+    &END KIND
+  &END SUBSYS
+
+  &DFT
+    BASIS_SET_FILE_NAME  BASIS_MOLOPT
+    POTENTIAL_FILE_NAME  POTENTIAL
+#   WFN_RESTART_FILE_NAME input-RESTART.wfn
+    CHARGE    0 #Net charge
+    MULTIPLICITY    1 #Spin multiplicity
+    &KPOINTS
+      SCHEME MONKHORST-PACK  2  2  2
+    &END KPOINTS
+    &QS
+      EPS_DEFAULT 1E-8 #This is default. Set all EPS_xxx to values such that the energy will be correct up to this value
+    &END QS
+    &POISSON
+      PERIODIC XYZ #Direction(s) of PBC for calculating electrostatics
+      PSOLVER PERIODIC #The way to solve Poisson equation
+    &END POISSON
+    &XC
+      &XC_FUNCTIONAL PBE
+      &END XC_FUNCTIONAL
+    &END XC
+    &MGRID
+      CUTOFF 300
+      REL_CUTOFF 40
+    &END MGRID
+    &SCF
+      MAX_SCF 128
+      EPS_SCF 2.0E-06 #Convergence threshold of density matrix during SCF
+#     SCF_GUESS RESTART #Use wavefunction from WFN_RESTART_FILE_NAME file as initial guess
+      &DIAGONALIZATION
+        ALGORITHM STANDARD #Algorithm for diagonalization. DAVIDSON is faster for large systems
+      &END DIAGONALIZATION
+      &MIXING #How to mix old and new density matrices
+        METHOD BROYDEN_MIXING #PULAY_MIXING is also a good alternative
+        ALPHA 0.4 #Default. Mixing 40% of new density matrix with the old one
+        NBROYDEN 8 #Default is 4. Number of previous steps stored for the actual mixing scheme
+      &END MIXING
+      &PRINT
+        &RESTART #Note: Use "&RESTART OFF" can prevent generating wfn file
+          BACKUP_COPIES 0 #Maximum number of backup copies of wfn file. 0 means never
+        &END RESTART
+      &END PRINT
+    &END SCF
+  &END DFT
+  STRESS_TENSOR ANALYTICAL #Compute full stress tensor analytically
+&END FORCE_EVAL
+
+&MOTION
+  &CELL_OPT
+    MAX_ITER 250 #Maximum number of geometry optimization
+    EXTERNAL_PRESSURE  1.01325E+00 #External pressure for cell optimization (bar)
+    CONSTRAINT NONE #Constraint of cell length, can be: NONE, X, Y, Z, XY, XZ, YZ
+    KEEP_ANGLES F #If T, then cell angles will be kepted
+    KEEP_SYMMETRY F #If T, then cell symmetry specified by &CELL / SYMMETRY will be kepted
+    KEEP_SPACE_GROUP F #If T, then space group will be detected and preserved
+    TYPE DIRECT_CELL_OPT #Geometry and cell are optimized at the same time. Can also be GEO_OPT, MD
+    #The following thresholds of optimization convergence are the default ones
+    MAX_DR 3E-3 #Maximum geometry change
+    RMS_DR 1.5E-3 #RMS geometry change
+    MAX_FORCE 4.5E-4 #Maximum force
+    RMS_FORCE 3E-4 #RMS force
+    PRESSURE_TOLERANCE 100 #Pressure tolerance (w.r.t EXTERNAL_PRESSURE)
+    OPTIMIZER BFGS #Can also be CG (more robust for difficult cases) or LBFGS
+    &BFGS
+      TRUST_RADIUS 0.2 #Trust radius (maximum stepsize) in Angstrom
+#     RESTART_HESSIAN T #If read initial Hessian, uncomment this line and specify the file in the next line
+#     RESTART_FILE_NAME to_be_specified
+    &END BFGS
+  &END CELL_OPT
+  &PRINT
+    &TRAJECTORY
+      FORMAT pdb
+    &END TRAJECTORY
+    &RESTART
+      BACKUP_COPIES 0 #Maximum number of backing up restart file, 0 means never
+    &END RESTART
+    &RESTART_HISTORY
+      &EACH
+        CELL_OPT 0 #How often a history .restart file is generated, 0 means never
+      &END EACH
+    &END RESTART_HISTORY
+  &END PRINT
+&END MOTION
