@@ -23,10 +23,69 @@ We need to install three dependencies to use dflow:
 ### Easy Install
 You can use the installation script to install all dependencies in one step:
 - MacOS: https://github.com/deepmodeling/dflow/blob/master/scripts/install-mac.sh
-- WindowsOS: Coming Soon. Submit your installation script here.
-- On Linux: Coming Soon. Submit your installation script here.
+- WindowsOS: Coming Soon. [Submit your installation script here.](https://github.com/deepmodeling/dflow/issues/36)
+- On Linux: Coming Soon. [Submit your installation script here.](https://github.com/deepmodeling/dflow/issues/37)
 
 ### Install Manually
+#### Container engine
+- Docker installation is very easy. Check out its official installation guide: [Get Docker](https://docs.docker.com/get-docker/)
+
+#### Kubernetes
+- If you are setting up Kubernetes on your own laptop, you can install minikube. Checkout its official installation guide: [minikube start](https://minikube.sigs.k8s.io/docs/start/)
+
+#### Pydflow 
+After you have installed the first two dependencies, you can instally dflow using pip. 
+```bash
+pip install pydflow
+```
 
 ## Setup 
-installation and setup please checkout this page: [how to setup dflow on PC](https://zhuanlan.zhihu.com/p/528817338)
+### Minikube
+Dflow runs on kubernetes (k8s), so we need to start minikube
+```bash
+minikube start
+```
+If you have trouble starting minikube, checkout FAQ section.
+
+### Argo
+Dflow is built on [argo-workflow](https://github.com/argoproj/argo-workflows), so we need to setup argo engine in kubernetes or minikube:
+
+1. To get started quickly, we can use the quick start manifest which will install Argo Workflows as well as some commonly used components:
+```bash
+kubectl create ns argo
+kubectl apply -n argo -f https://raw.githubusercontent.com/deepmodeling/dflow/master/manifests/quick-start-postgres.yaml
+```
+
+2. To monitor the setup progress, we can checkout the pod status
+```bash
+kubectl get pod -n argo
+```
+
+**NOTE!!!!**: This process might take a while, depending on the internet speed. Wait and keep refreshing the above cell. Once the `STATUS` of all pods is `RUNNING`, you can proceed with the next step.
+
+### Port-forward Argo UI and Minio API
+1. Open a port-forward to access the Argo UI: 
+
+**!!!!IMPORTANT!!!!** Since we need to keep this UI running, we have to keep this command running. 
+    
+```bash
+kubectl -n argo port-forward deployment/argo-server 2746:2746 --address 0.0.0.0
+```
+
+2. Open a port-forward to access the minio API: 
+
+**!!!!IMPORTANT!!!!** Open another terminal and run this, because you want to keep artifact respository running. Note that you don't need to ingress the artifact repository if you are not downloading or uploading artifact.
+
+```bash
+kubectl -n argo port-forward deployment/minio 9000:9000 --address 0.0.0.0
+```
+
+**BONUS** 3. Open a port-forward to access minio UI
+```bash
+kubectl -n argo port-forward deployment/minio 9001:9001 --address 0.0.0.0
+```
+
+<p align="center"> <strong> That's it! You've finished the installation and setup. </strong></p> 
+
+# FAQ
+
