@@ -88,4 +88,30 @@ kubectl -n argo port-forward deployment/minio 9001:9001 --address 0.0.0.0
 <p align="center"> <strong> That's it! You've finished the installation and setup. </strong></p> 
 
 # FAQ
+**1. minikube start failure**
+- Problem Description: After `minikube start`, you probably saw this message:
+<p align="center">
+<img src="./imgs/minikube_start_fail_bug.png" alt="minikube bug"/>
+</p>
 
+- Bug source: 
+
+    - One common reason is that minikube starts with incorrect images. We can see the details of the log using the following command
+    ```bash
+    minikube ssh #enter minikube node 
+    sudo journalctl -xeu kubelet
+    ```
+<p align="center">
+<img src="./imgs/minikube_image_bug.png" alt="minikube bug"/>
+</p>
+NOTE: minikube needs `k8s.gcr.io/pause:3.6`, but it pulled `k8s.gcr.io/pause:3.7'. So it will not start.
+
+- Solutions: 
+    - (Recommended) Enter minikube environment and pull the image manually.
+    ```bash 
+    minikube ssh
+    docker pull registry.aliyuncs.com/google_containers/pause:3.6
+    docker tag registry.aliyuncs.com/google_containers/pause:3.6 k8s.gcr.io/pause:3.6
+    exit
+    ```
+    - Downgrade minikube version: you can download older version in this page: [Releases · kubernetes/minikube](https://github.com/kubernetes/minikube/releases)
