@@ -5,6 +5,7 @@ on:
 name: release-please
 jobs:
   release-please:
+    if: github.repository_owner == 'deepmodeling'
     runs-on: ubuntu-latest
     steps:
       - uses: google-github-actions/release-please-action@v3
