@@ -32,17 +32,24 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
             return art_path
     elif sign.type == Path:
         if len(path_list) == 1:
-            return Path(path_list[0])
+            return path_or_none(path_list[0])
         else:
-            return Path(art_path)
+            return path_or_none(art_path)
     elif sign.type == List[str]:
         return path_list
     elif sign.type == Set[str]:
         return set(path_list)
     elif sign.type == List[Path]:
-        return list(map(Path, path_list))
+        return list(map(path_or_none, path_list))
     elif sign.type == Set[Path]:
-        return set(map(Path, path_list))
+        return set(map(path_or_none, path_list))
+
+
+def path_or_none(p):
+    if p is None:
+        return None
+    else:
+        return Path(p)
 
 
 def handle_input_parameter(name, value, sign, slices=None, data_root="/tmp"):
