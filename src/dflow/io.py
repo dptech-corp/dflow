@@ -113,6 +113,9 @@ class ArgoVar:
         else:
             return ArgoVar("jsonpath(%s, '$')[%s]" % (self.expr, i))
 
+    def __iter__(self):
+        raise TypeError("'ArgoVar' object is not iterable")
+
     def __eq__(self, other):
         if isinstance(other, ArgoVar):
             other = other.expr
