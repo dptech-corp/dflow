@@ -147,7 +147,7 @@ function forward() {
         kill -9 $pid
     fi
     INFO "Forwarding $1:$2 to localhost:$2"
-    nohup kubectl -n argo port-forward deployment/$1 $2:$2 &
+    nohup kubectl -n argo port-forward deployment/$1 $2:$2 --address 0.0.0.0 &
 }
 forward argo-server 2746
 forward minio 9000

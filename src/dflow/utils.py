@@ -123,7 +123,8 @@ def upload_artifact(
             target = os.path.join(tmpdir, relpath)
             os.makedirs(os.path.dirname(target), exist_ok=True)
             os.symlink(abspath, target)
-            path_list.append({"dflow_list_item": relpath, "order": i})
+            path_list.append({"dflow_list_item": relpath.replace("\\", "/"),
+                              "order": i})
 
         catalog_dir = os.path.join(tmpdir, config["catalog_dir_name"])
         os.makedirs(catalog_dir, exist_ok=True)
