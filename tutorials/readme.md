@@ -21,10 +21,14 @@ We need to install three dependencies to use dflow:
 - dflow: [pydflow](https://pypi.org/project/pydflow/)
 
 ### Easy Install
+#### IP-address outside China
 You can use the installation script to install all dependencies in one step:
 - MacOS: https://github.com/deepmodeling/dflow/blob/master/scripts/install-mac.sh
 - WindowsOS: Coming Soon. [Submit your installation script here.](https://github.com/deepmodeling/dflow/issues/36)
-- On Linux: Coming Soon. [Submit your installation script here.](https://github.com/deepmodeling/dflow/issues/37)
+- On Linux: https://github.com/deepmodeling/dflow/blob/master/scripts/install-linux.sh
+
+#### IP-address inside China
+We don't recommend using the above easy install script. Installation should follow the [Install Manually](#install-manually) guide.
 
 ### Install Manually
 #### Container engine
@@ -72,6 +76,11 @@ kubectl get pod -n argo
 kubectl -n argo port-forward deployment/argo-server 2746:2746 --address 0.0.0.0
 ```
 
+You can log in the Argo UI via this address: https://127.0.0.1:2746. Please ignore the security warning. 
+<p align="center">
+<img src="./imgs/connection_warning.png" alt="connection_warning"/>
+</p>
+
 2. Open a port-forward to access the minio API: 
 
 **!!!!IMPORTANT!!!!** Open another terminal and run this, because you want to keep artifact respository running. Note that you don't need to ingress the artifact repository if you are not downloading or uploading artifact.
@@ -84,6 +93,10 @@ kubectl -n argo port-forward deployment/minio 9000:9000 --address 0.0.0.0
 ```bash
 kubectl -n argo port-forward deployment/minio 9001:9001 --address 0.0.0.0
 ```
+You can log in the Argo UI via this address: http://127.0.0.1:9001. 
+The default login credentials is:
+- admin: admin
+- password: password
 
 <p align="center"> <strong> That's it! You've finished the installation and setup. </strong></p> 
 
