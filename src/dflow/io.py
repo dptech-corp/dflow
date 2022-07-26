@@ -168,7 +168,7 @@ class IfExpression:
 
     def __repr__(self) -> str:
         if isinstance(self._if, (InputParameter, OutputParameter)):
-            _if = "%s == true" % self._if.expr
+            _if = "%s == 'true'" % self._if.expr
         elif isinstance(self._if, ArgoVar):
             _if = self._if.expr
         else:
