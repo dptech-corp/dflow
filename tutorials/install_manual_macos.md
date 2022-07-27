@@ -24,6 +24,11 @@ Go to minikube official website to download: [Minikube](https://minikube.sigs.k8
 - Install older version from the official github repository: [Releases · kubernetes/minikube](https://github.com/kubernetes/minikube/releases)
 - Install older version using [mirror in China](https://npmmirror.com/): [minikube](https://registry.npmmirror.com/binary.html?path=minikube/) (The latest version that works is 1.25.2)
 
+Command to install minikube older version (1.25.2)
+```bash
+curl -o minikube -L https://registry.npmmirror.com/-/binary/minikube/v1.25.2/minikube-linux-amd64
+```
+
 #### Install 
 Install you downloaded minikube to `/usr/local/bin`:
 ```bash
