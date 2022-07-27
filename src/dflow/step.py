@@ -13,7 +13,7 @@ from .io import (PVC, ArgoVar, InputArtifact, InputParameter, OutputArtifact,
 from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio
-from .utils import catalog_of_artifact, upload_artifact
+from .utils import catalog_of_artifact, randstr, upload_artifact
 
 try:
     from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
@@ -215,7 +215,7 @@ class Step:
                     self.template.slices.sub_path and
                     self.template.slices.input_artifact)):
             new_template = deepcopy(self.template)
-            new_template.name = self.template.name + "-" + self.name
+            new_template.name = self.template.name + "-" + randstr()
             script = "import os, json\n"
             for name in new_template.slices.output_artifact:
                 script += "os.makedirs('/tmp/outputs/artifacts/%s/%s', "\
@@ -432,7 +432,7 @@ class Step:
         if len(pvc_arts) > 0:
             if new_template is None:
                 new_template = deepcopy(self.template)
-                new_template.name = self.template.name + "-" + self.name
+                new_template.name = self.template.name + "-" + randstr()
             if (isinstance(new_template, ShellOPTemplate)):
                 for pvc, art in pvc_arts:
                     del new_template.inputs.artifacts[art.name]
@@ -464,7 +464,7 @@ class Step:
         if len(pvc_arts) > 0:
             if new_template is None:
                 new_template = deepcopy(self.template)
-                new_template.name = self.template.name + "-" + self.name
+                new_template.name = self.template.name + "-" + randstr()
             if (isinstance(new_template, ShellOPTemplate)):
                 new_template.script += "\n"
                 for pvc, art in pvc_arts:
@@ -491,7 +491,7 @@ class Step:
             self.continue_on_failed = True
             if new_template is None:
                 new_template = deepcopy(self.template)
-                new_template.name = self.template.name + "-" + self.name
+                new_template.name = self.template.name + "-" + randstr()
             if (isinstance(new_template, ShellOPTemplate)):
                 new_template.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",

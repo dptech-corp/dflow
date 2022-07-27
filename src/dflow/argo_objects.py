@@ -1,5 +1,4 @@
 import os
-import re
 import tempfile
 from collections import UserDict, UserList
 from typing import Any, List, Union
@@ -76,7 +75,8 @@ class ArgoStep(ArgoObjectDict):
             self.handle_io(self.outputs)
 
     def handle_io(self, io):
-        if hasattr(io, "parameters"):
+        if hasattr(io, "parameters") and \
+                isinstance(io.parameters, ArgoObjectList):
             parameters = {}
             for par in io.parameters:
                 parameters[par.name] = par
@@ -91,7 +91,8 @@ class ArgoStep(ArgoObjectDict):
                             pass
             io.parameters = parameters
 
-        if hasattr(io, "artifacts"):
+        if hasattr(io, "artifacts") and \
+                isinstance(io.artifacts, ArgoObjectList):
             io.artifacts = {art.name: art for art in io.artifacts}
 
         self.handle_big_parameters(io)
@@ -102,6 +103,8 @@ class ArgoStep(ArgoObjectDict):
                 if name[:13] == "dflow_bigpar_":
                     if not hasattr(io, "parameters"):
                         io.parameters = {}
+                    if name[13:] in io.parameters:
+                        continue
                     with tempfile.TemporaryDirectory() as tmpdir:
                         download_artifact(art, path=tmpdir)
                         fs = os.listdir(tmpdir)
@@ -226,25 +229,39 @@ class ArgoStep(ArgoObjectDict):
 class ArgoWorkflow(ArgoObjectDict):
     def get_step(
             self,
-            name: str = None,
-            key: str = None,
-            phase: str = None,
-            id: str = None,
+            name: Union[str, List[str]] = None,
+            key: Union[str, List[str]] = None,
+            phase: Union[str, List[str]] = None,
+            id: Union[str, List[str]] = None,
     ) -> List[ArgoStep]:
+        if name is not None and not isinstance(name, list):
+            name = [name]
+        if key is not None and not isinstance(key, list):
+            key = [key]
+        if phase is not None and not isinstance(phase, list):
+            phase = [phase]
+        if id is not None and not isinstance(id, list):
+            id = [id]
         step_list = []
         if hasattr(self.status, "nodes"):
             for step in self.status.nodes.values():
                 step = ArgoStep(step)
-                if name is not None and re.match(name, step["displayName"])\
-                        is None:
+                if name is not None and not match(step.displayName, name):
                     continue
-                if key is not None and step.key != str(key):
+                if key is not None and step.key not in key:
                     continue
                 if phase is not None and not (hasattr(step, "phase") and
-                                              step.phase == phase):
+                                              step.phase in phase):
                     continue
-                if id is not None and step.id != id:
+                if id is not None and step.id not in id:
                     continue
                 step_list.append(step)
         step_list.sort(key=lambda x: x["startedAt"])
         return step_list
+
+
+def match(n, names):
+    for name in names:
+        if n == name or n.find(name + "(") == 0:
+            return True
+    return False

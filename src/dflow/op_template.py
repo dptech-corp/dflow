@@ -63,8 +63,7 @@ class OPTemplate:
             assert isinstance(value, Outputs)
             value.set_template(self)
 
-    def handle_key(self, memoize_prefix=None,
-                   memoize_configmap="dflow-config"):
+    def handle_key(self, memoize_prefix=None, memoize_configmap="dflow"):
         if "dflow_key" in self.inputs.parameters:
             if memoize_prefix is not None:
                 self.memoize_key = "%s-{{inputs.parameters.dflow_key}}" \
@@ -83,7 +82,7 @@ class OPTemplate:
                 key=self.memoize_key,
                 local_vars_configuration=config, cache=V1alpha1Cache(
                     config_map=V1ConfigMapKeySelector(
-                        name=memoize_configmap,
+                        name="%s-%s" % (memoize_configmap, self.memoize_key),
                         local_vars_configuration=config)))
 
 
