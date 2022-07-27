@@ -30,7 +30,9 @@ You can use the installation script to install all server and setup in one step.
 - On Linux: https://github.com/deepmodeling/dflow/blob/master/scripts/install-linux.sh
 
 #### IP-address inside China
-We don't recommend using the above easy install script. Installation should follow the [Install Manually](#install-manually) guide.
+- MacOS: https://github.com/deepmodeling/dflow/blob/master/scripts/install-mac-cn.sh
+- WindowsOS: Coming Soon. [Submit your installation script here.](https://github.com/deepmodeling/dflow/issues/36)
+- On Linux: https://github.com/deepmodeling/dflow/blob/master/scripts/install-linux-cn.sh
 
 ### Install Manually
 
