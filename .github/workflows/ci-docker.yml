@@ -37,8 +37,8 @@ jobs:
 
     - name: Build and push
       run: |
-        docker buildx build --platform linux/arm64,linux/amd64 -t dptechnology/dflow:v${{ steps.read.outputs.content }} --push .
-        docker buildx build --platform linux/arm64,linux/amd64 -t dptechnology/dflow:latest --push .
+        docker buildx build . --push --platform linux/arm64,linux/amd64 -t dptechnology/dflow:v${{ steps.read.outputs.content }}
+        docker buildx build . --push --platform linux/arm64,linux/amd64 -t dptechnology/dflow:latest
 
     - name: send email
       uses: dawidd6/action-send-mail@v3
