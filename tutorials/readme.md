@@ -43,7 +43,7 @@ We don't recommend using the above easy install script. Installation should foll
 
 ##### Step-by-step installation guide 
 - [Install on MacOS](./install_manual_macos.md)
-- Install on WindowsOS
+- [Install on WindowsOS](./install_manual_windowsos.md)
 - [Install on LinuxOS](./install_manual_linuxos.md)
 
 #### Pydflow 
