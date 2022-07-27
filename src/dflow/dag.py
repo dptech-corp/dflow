@@ -62,7 +62,7 @@ class DAG(OPTemplate):
                 self.tasks.append(t)
 
     def convert_to_argo(self, memoize_prefix=None,
-                        memoize_configmap="dflow-config", context=None):
+                        memoize_configmap="dflow", context=None):
         argo_tasks = []
         templates = []
         assert len(self.tasks) > 0, "Dag %s is empty" % self.name

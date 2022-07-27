@@ -155,7 +155,7 @@ class ScriptOPTemplate(OPTemplate):
         self.limits = limits
 
     def convert_to_argo(self, memoize_prefix=None,
-                        memoize_configmap="dflow-config"):
+                        memoize_configmap="dflow"):
         self.handle_key(memoize_prefix, memoize_configmap)
         self.annotations["workflows.argoproj.io/progress"] = self.init_progress
         if self.resource is not None:
