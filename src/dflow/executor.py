@@ -187,10 +187,10 @@ download() {
 
     def render(self, template):
         new_template = deepcopy(template)
+        new_template.name += "-" + randstr()
         new_template.image = self.image
         new_template.command = self.command
         new_template.script = self.get_script(template)
-        new_template.name += "-" + randstr()
         if self.password is not None:
             pass
         elif self.private_key_file is not None:

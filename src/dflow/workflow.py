@@ -205,30 +205,29 @@ class Workflow:
                     "creationTimestamp": step.finishedAt,
                     "lastHitTimestamp": step.finishedAt
                 })
-            cm_name = "dflow-" + randstr()
-            config_map = kubernetes.client.V1ConfigMap(
-                data=data, metadata=kubernetes.client.V1ObjectMeta(
-                    name=cm_name))
-            if self.k8s_api_server is not None:
-                k8s_configuration = kubernetes.client.Configuration(
-                    host=self.k8s_api_server)
-                k8s_configuration.verify_ssl = False
-                if self.token is None:
-                    k8s_client = kubernetes.client.ApiClient(k8s_configuration)
+                config_map = kubernetes.client.V1ConfigMap(
+                    data=data, metadata=kubernetes.client.V1ObjectMeta(
+                        name="dflow-%s-%s" % (self.id, step.key)))
+                if self.k8s_api_server is not None:
+                    k8s_configuration = kubernetes.client.Configuration(
+                        host=self.k8s_api_server)
+                    k8s_configuration.verify_ssl = False
+                    if self.token is None:
+                        k8s_client = kubernetes.client.ApiClient(
+                            k8s_configuration)
+                    else:
+                        k8s_client = kubernetes.client.ApiClient(
+                            k8s_configuration, header_name='Authorization',
+                            header_value='Bearer %s' % self.token)
+                    v1 = kubernetes.client.CoreV1Api(k8s_client)
                 else:
-                    k8s_client = kubernetes.client.ApiClient(
-                        k8s_configuration, header_name='Authorization',
-                        header_value='Bearer %s' % self.token)
-                v1 = kubernetes.client.CoreV1Api(k8s_client)
-            else:
-                kubernetes.config.load_kube_config(
-                    config_file=self.k8s_config_file)
-                v1 = kubernetes.client.CoreV1Api()
-            v1.create_namespaced_config_map(namespace=self.namespace,
-                                            body=config_map)
+                    kubernetes.config.load_kube_config(
+                        config_file=self.k8s_config_file)
+                    v1 = kubernetes.client.CoreV1Api()
+                v1.create_namespaced_config_map(namespace=self.namespace,
+                                                body=config_map)
             self.handle_template(
-                self.entrypoint, memoize_prefix=self.id,
-                memoize_configmap=cm_name)
+                self.entrypoint, memoize_prefix=self.id)
         else:
             self.handle_template(self.entrypoint)
 

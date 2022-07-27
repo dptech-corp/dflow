@@ -262,7 +262,7 @@ def test_makevasp():
         time.sleep(4)
 
     assert(wf.query_status() == "Succeeded")
-    step = wf.query_step(name="vasp")[0]
+    step = wf.query_step(name="vasp-run")[0]
     assert(step.phase == "Succeeded")
     download_artifact(step.outputs.artifacts["outcar"])
     download_artifact(step.outputs.artifacts["log"])
