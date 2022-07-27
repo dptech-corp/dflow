@@ -56,21 +56,21 @@ if [[ $? != 0 ]]; then
 fi
 
 
-if [[ $EUID > 0 ]]; then
-    minikube start --image-mirror-country=cn $@
-else 
-    INFO "minikube can not start with root user"
-    INFO "Creating new user"
-    adduser developer
-    usermode -aG sudo developer
-    INFO "Login to the newly created user"
-    su - developer
-    INFO "Add user to the Docker Group"
-    sudo groupadd docker
-    sudo usermod -aG docker $USER
-    exit
-    su - developer
-fi 
+# if [[ $EUID > 0 ]]; then
+#     minikube start --image-mirror-country=cn $@
+# else 
+#     INFO "minikube can not start with root user"
+#     INFO "Creating new user"
+#     adduser developer
+#     usermod -aG sudo developer
+#     INFO "Login to the newly created user"
+#     su - developer
+#     INFO "Add user to the Docker Group"
+#     sudo groupadd docker
+#     sudo usermod -aG docker $USER
+#     exit
+#     su - developer
+# fi 
 
 
 
