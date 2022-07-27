@@ -56,7 +56,7 @@ class Steps(OPTemplate):
         self.steps.append(step)
 
     def convert_to_argo(self, memoize_prefix=None,
-                        memoize_configmap="dflow-config", context=None):
+                        memoize_configmap="dflow", context=None):
         argo_steps = []
         templates = []
         assert len(self.steps) > 0, "Steps %s is empty" % self.name

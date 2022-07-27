@@ -157,9 +157,9 @@ class Workflow:
         status = None
         if reuse_step is not None:
             self.id = self.name + "-" + randstr()
-            data = {}
             copied_keys = []
             for step in reuse_step:
+                data = {}
                 if step.key is None:
                     continue
                 outputs = {}
@@ -227,7 +227,8 @@ class Workflow:
                 v1.create_namespaced_config_map(namespace=self.namespace,
                                                 body=config_map)
             self.handle_template(
-                self.entrypoint, memoize_prefix=self.id)
+                self.entrypoint, memoize_prefix=self.id,
+                memoize_configmap="dflow")
         else:
             self.handle_template(self.entrypoint)
 
@@ -261,7 +262,7 @@ class Workflow:
             status=status)
 
     def handle_template(self, template, memoize_prefix=None,
-                        memoize_configmap="dflow-config"):
+                        memoize_configmap="dflow"):
         if template.name in self.templates:
             assert template == self.templates[template.name], \
                 "Duplication of template name: %s" % template.name
