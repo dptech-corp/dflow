@@ -56,7 +56,7 @@ if [[ $? != 0 ]]; then
 fi
 
 usrname="$EUID"
-if [[ $? != 0]]; then
+if [[ $? > 0]]; then
     minikube start --image-mirror-country=cn$@
 else 
     INFO "minikube can not start with root user"
@@ -70,6 +70,7 @@ else
     sudo usermod -aG docker $USER
     exit
     su - developer
+fi 
 
 
 
