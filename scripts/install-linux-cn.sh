@@ -55,9 +55,9 @@ if [[ $? != 0 ]]; then
     fi
 fi
 
-usrname=$(whoami)
-if [[ $? != "root"]]; then
-    minikube start $@
+usrname="$EUID"
+if [[ $? != 0]]; then
+    minikube start --image-mirror-country=cn$@
 else 
     INFO "minikube can not start with root user"
     INFO "Creating new user"

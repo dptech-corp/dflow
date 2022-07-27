@@ -13,6 +13,9 @@ docker run hello-world
 This command downloads a test image and runs it in a container. When the
 container runs, it prints a message and exits.
 
+### Start Docker 
+Click Docker Desktop app to start.
+
 ## Kubernetes
 To use kubernetes on the laptop, we can install minikube, a local kubernetes.
 ### Download 
