@@ -23,8 +23,8 @@ We need to install three dependencies to use dflow:
 - dflow: [pydflow](https://pypi.org/project/pydflow/)
 
 ### Easy Install
+You can use the installation script to install all server and setup in one step. If you choose to use this method, you can skip all the installation and setup process. 
 #### IP-address outside China
-You can use the installation script to install all dependencies in one step:
 - MacOS: https://github.com/deepmodeling/dflow/blob/master/scripts/install-mac.sh
 - WindowsOS: Coming Soon. [Submit your installation script here.](https://github.com/deepmodeling/dflow/issues/36)
 - On Linux: https://github.com/deepmodeling/dflow/blob/master/scripts/install-linux.sh
@@ -34,7 +34,7 @@ We don't recommend using the above easy install script. Installation should foll
 
 ### Install Manually
 
-#### Dependencies 
+#### Server 
 ##### Container engine
 - Docker installation is very easy. Check out its official installation guide: [Get Docker](https://docs.docker.com/get-docker/)
 
