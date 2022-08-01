@@ -14,6 +14,8 @@ There are several topics we intend to cover in this series:
     - complex condition: [dflow-conditional.ipynb](https://github.com/deepmodeling/dflow/blob/master/tutorials/dflow-conditional.ipynb)
 
 # Installation and setup
+**!!!Install and setup the dflow environment on your PC!!!**
+**!!!DO NOT install on the login node of the HPC cluster!!!**
 ## Installation
 We need to install three dependencies to use dflow:
 - Container engine: [Docker](https://www.docker.com/)([知乎介绍](https://zhuanlan.zhihu.com/p/23599229))
@@ -21,59 +23,84 @@ We need to install three dependencies to use dflow:
 - dflow: [pydflow](https://pypi.org/project/pydflow/)
 
 ### Easy Install
+You can use the installation script to install all server and setup in one step. If you choose to use this method, you can skip all the installation and setup process. 
 #### IP-address outside China
-You can use the installation script to install all dependencies in one step:
 - MacOS: https://github.com/deepmodeling/dflow/blob/master/scripts/install-mac.sh
 - WindowsOS: Coming Soon. [Submit your installation script here.](https://github.com/deepmodeling/dflow/issues/36)
 - On Linux: https://github.com/deepmodeling/dflow/blob/master/scripts/install-linux.sh
 
 #### IP-address inside China
-We don't recommend using the above easy install script. Installation should follow the [Install Manually](#install-manually) guide.
+- MacOS: https://github.com/deepmodeling/dflow/blob/master/scripts/install-mac-cn.sh
+- WindowsOS: Coming Soon. [Submit your installation script here.](https://github.com/deepmodeling/dflow/issues/36)
+- On Linux: https://github.com/deepmodeling/dflow/blob/master/scripts/install-linux-cn.sh
 
 ### Install Manually
-#### Container engine
+
+#### Server 
+##### Container engine
 - Docker installation is very easy. Check out its official installation guide: [Get Docker](https://docs.docker.com/get-docker/)
 
-#### Kubernetes
+##### Kubernetes
 - If you are setting up Kubernetes on your own laptop, you can install minikube. Checkout its official installation guide: [minikube start](https://minikube.sigs.k8s.io/docs/start/)
 
+##### Step-by-step installation guide 
+- [Install on MacOS](./install_manual_macos.md)
+- [Install on WindowsOS](./install_manual_windowsos.md)
+- [Install on LinuxOS](./install_manual_linuxos.md)
+
 #### Pydflow 
-After you have installed the first two dependencies, you can instally dflow using pip. 
+After you have installed the first two dependencies, you can install dflow using pip. 
 ```bash
 pip install pydflow
 ```
 
 ## Setup 
 ### Minikube
-Dflow runs on kubernetes (k8s), so we need to start minikube
+dflow runs on Kubernetes (k8s), so we need to start minikube
 ```bash
 minikube start
 ```
-If you have trouble starting minikube, checkout FAQ section.
+### Start minikube in China
+To speed up the startup, we can use the image repository setup on aliyun. To start minikube,
+```bash
+minikube start --image-mirror-country=cn
+```
 
 ### Argo
-Dflow is built on [argo-workflow](https://github.com/argoproj/argo-workflows), so we need to setup argo engine in kubernetes or minikube:
+dflow is built on [argo-workflow](https://github.com/argoproj/argo-workflows), so we need to setup argo engine in Kubernetes or minikube.
 
-1. To get started quickly, we can use the quick start manifest which will install Argo Workflows as well as some commonly used components:
+#### Install Argo with IP address outside China 
+To get started quickly, we can use the quick start manifest which will install Argo Workflows as well as some commonly used components:
 ```bash
 kubectl create ns argo
 kubectl apply -n argo -f https://raw.githubusercontent.com/deepmodeling/dflow/master/manifests/quick-start-postgres.yaml
 ```
+#### Install Argo with IP address inside China
+Although you can still use the above method to install Argo, it might lead to a very long wait. To speed up the installation process, you can use another YAML file.
+```bash
+# download the YAML file to local
+wget https://raw.githubusercontent.com/deepmodeling/dflow/master/manifests/quick-start-postgres-stable-cn.yaml 
+kubectl apply -n argo -f quick-start-postgres-stable-cn.yaml
+# linux user might need to use `minikube kubectl --`
+```
 
-2. To monitor the setup progress, we can checkout the pod status
+#### Monitor the install and setup progress
+To monitor the setup progress, we can checkout the pod status.
 ```bash
 kubectl get pod -n argo
+# linux user might need to use `minikube kubectl --`
 ```
 
 **NOTE!!!!**: This process might take a while, depending on the internet speed. Wait and keep refreshing the above cell. Once the `STATUS` of all pods is `RUNNING`, you can proceed with the next step.
 
 ### Port-forward Argo UI and Minio API
-1. Open a port-forward to access the Argo UI: 
+#### Access the Argo UI: 
 
 **!!!!IMPORTANT!!!!** Since we need to keep this UI running, we have to keep this command running. 
     
 ```bash
 kubectl -n argo port-forward deployment/argo-server 2746:2746 --address 0.0.0.0
+# linux user might need to use `minikube kubectl --`
 ```
 
 You can log in the Argo UI via this address: https://127.0.0.1:2746. Please ignore the security warning. 
@@ -81,17 +108,19 @@ You can log in the Argo UI via this address: https://127.0.0.1:2746. Please igno
 <img src="./imgs/connection_warning.png" alt="connection_warning"/>
 </p>
 
-2. Open a port-forward to access the minio API: 
+#### Access the minio API: 
 
 **!!!!IMPORTANT!!!!** Open another terminal and run this, because you want to keep artifact respository running. Note that you don't need to ingress the artifact repository if you are not downloading or uploading artifact.
 
 ```bash
 kubectl -n argo port-forward deployment/minio 9000:9000 --address 0.0.0.0
+# linux user might need to use `minikube kubectl --`
 ```
 
-**BONUS** 3. Open a port-forward to access minio UI
+#### **[BONUS]** Access minio UI
 ```bash
 kubectl -n argo port-forward deployment/minio 9001:9001 --address 0.0.0.0
+# linux user might need to use `minikube kubectl --`
 ```
 You can log in the Argo UI via this address: http://127.0.0.1:9001. 
 The default login credentials is:
