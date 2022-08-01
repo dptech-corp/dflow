@@ -47,7 +47,7 @@ class SlurmJob(Resource):
             self.remote_command
         batch = self.header + "\n"
         batch += "mkdir -p %s\ncd %s\n" % (self.workdir, self.workdir)
-        batch += "cat <<EOF > script\n%s\nEOF\n" % template.script
+        batch += "cat <<'EOF' > script\n%s\nEOF\n" % template.script
         if self.map_tmp_dir:
             batch += "sed -i \"s#/tmp#$(pwd)/tmp#g\" script\n"
 

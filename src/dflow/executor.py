@@ -168,7 +168,7 @@ download() {
     fi
 }
 """ % (ssh_pass, self.port, self.username, self.host)
-        script += "cat <<EOF> script\n" + remote_script + "\nEOF\n"
+        script += "cat <<'EOF'> script\n" + remote_script + "\nEOF\n"
         for art in template.inputs.artifacts.values():
             script += self.mkdir_and_upload(art.path)
         for par in template.inputs.parameters.values():

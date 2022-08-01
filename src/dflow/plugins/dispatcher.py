@@ -16,6 +16,14 @@ except Exception:
     pass
 
 
+def update_dict(d1: dict, d2: dict) -> None:
+    for k, v in d2.items():
+        if isinstance(v, dict) and k in d1 and isinstance(d1[k], dict):
+            update_dict(d1[k], v)
+        else:
+            d1[k] = v
+
+
 class DispatcherExecutor(Executor):
     """
     Dispatcher executor
@@ -98,9 +106,9 @@ class DispatcherExecutor(Executor):
             }
         }
         if "machine" in conf:
-            self.machine_dict.update(conf["machine"])
+            update_dict(self.machine_dict, conf["machine"])
         if machine_dict is not None:
-            self.machine_dict.update(machine_dict)
+            update_dict(self.machine_dict, machine_dict)
 
         # set env to prevent dispatcher from considering different tasks as one
         self.resources_dict = {
@@ -115,9 +123,9 @@ class DispatcherExecutor(Executor):
             }
         }
         if "resources" in conf:
-            self.resources_dict.update(conf["resources"])
+            update_dict(self.resources_dict, conf["resources"])
         if resources_dict is not None:
-            self.resources_dict.update(resources_dict)
+            update_dict(self.resources_dict, resources_dict)
 
         self.task_dict = {
             "task_work_path": "./",
@@ -125,7 +133,7 @@ class DispatcherExecutor(Executor):
             "errlog": "err"
         }
         if task_dict is not None:
-            self.task_dict.update(task_dict)
+            update_dict(self.task_dict, task_dict)
 
     def render(self, template):
         new_template = deepcopy(template)

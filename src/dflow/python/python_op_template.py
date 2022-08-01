@@ -282,7 +282,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         if op_class.__module__ == "__main__":
             try:
                 source_lines, start_line = inspect.getsourcelines(op_class)
-                with open(inspect.getsourcefile(op_class), "r") as fd:
+                with open(inspect.getsourcefile(op_class), "r",
+                          encoding="utf-8") as fd:
                     pre_lines = fd.readlines()[:start_line-1]
                 script += "".join(pre_lines + source_lines) + "\n"
             except Exception:
