@@ -324,10 +324,11 @@ class Workflow:
 
     def query_step(
             self,
-            name: str = None,
-            key: str = None,
-            phase: str = None,
-            id: str = None,
+            name: Union[str, List[str]] = None,
+            key: Union[str, List[str]] = None,
+            phase: Union[str, List[str]] = None,
+            id: Union[str, List[str]] = None,
+            type: Union[str, List[str]] = None,
     ) -> List[ArgoStep]:
         """
         Query the existing steps of the workflow from Argo
@@ -337,10 +338,12 @@ class Workflow:
             key: filter by key of step
             phase: filter by phase of step
             id: filter by id of step
+            type: filter by type of step
         Returns:
             a list of steps
         """
-        return self.query().get_step(name=name, key=key, phase=phase, id=id)
+        return self.query().get_step(name=name, key=key, phase=phase, id=id,
+                                     type=type)
 
     def query_keys_of_steps(
             self,

@@ -18,7 +18,7 @@ cookiecutter https://github.com/deepmodeling/dflow-op-cutter.git
 	* 1.2. [ Common layer](#Commonlayer)
 		* 1.2.1. [ Parameters and artifacts](#Parametersandartifacts)
 		* 1.2.2. [ OP template](#OPtemplate)
-		* 1.2.3. [Step](#Step)
+		* 1.2.3. [ Step](#Step)
 		* 1.2.4. [ Workflow](#Workflow)
 	* 1.3. [ Interface layer](#Interfacelayer)
 		* 1.3.1. [ Python OP](#PythonOP)
@@ -48,6 +48,7 @@ cookiecutter https://github.com/deepmodeling/dflow-op-cutter.git
 		* 3.1.17. [ Submit HPC job via dispatcher plugin](#SubmitHPCjobviadispatcherplugin)
 		* 3.1.18. [ Submit Slurm job via virtual node](#SubmitSlurmjobviavirtualnode)
 		* 3.1.19. [ Use resources in Kubernetes](#UseresourcesinKubernetes)
+		* 3.1.20. [ Important note: variable names](#Importantnote:variablenames)
 	* 3.2. [ Interface layer](#Interfacelayer-1)
 		* 3.2.1. [ Slices](#Slices)
 		* 3.2.2. [ Retry and error handling](#Retryanderrorhandling)
@@ -124,7 +125,7 @@ In the above example, there are three things to clarify.
 
 On the same level, one can also define a `PythonScriptOPTemplate` to achieve the same operation. 
 
-####  1.2.3. <a name='Step'></a>Step
+####  1.2.3. <a name='Step'></a> Step
 `Step` is the central block for building a workflow. A `step` is created by instantiating an OP template. When a `step` is initialized, values of all input parameters and sources of all input artifacts declared in the OP template must be specified.
 <!-- `Steps` is a sequential array of concurrent `Step`'s. A simple example goes like `[[s00, s01],  [s10, s11, s12]]`, where inner array represent concurrent tasks while outer array is sequential. (this part can be put in the User Guide-->
 ```python
@@ -466,6 +467,18 @@ class Resource(object):
 ```
 
 - [Wlm example](examples/test_wlm.py)
+
+####  3.1.20. <a name='Importantnote:variablenames'></a> Important note: variable names
+
+Dflow has following restrictions on variable names.
+
+| Variable name | Static/Dynamic | Restrictions | Example |
+| :------------ | -------------- | ------------ | ------- |
+| Workflow/OP template name | Static | Lowercase RFC 1123 subdomain (must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character | my-name |
+| Step/Task name | Static | Must consist of alpha-numeric characters or '-', and must start with an alpha-numeric character | My-name1-2, 123-NAME |
+| Parameter/Artifact name | Static | Must consist of alpha-numeric characters, '_' or '-' | my_param_1, MY-PARAM-1 |
+| Key name | Dynamic | Lowercase RFC 1123 subdomain (must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character | my-name |
+
 
 ###  3.2. <a name='Interfacelayer-1'></a> Interface layer
 

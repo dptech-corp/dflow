@@ -233,6 +233,7 @@ class ArgoWorkflow(ArgoObjectDict):
             key: Union[str, List[str]] = None,
             phase: Union[str, List[str]] = None,
             id: Union[str, List[str]] = None,
+            type: Union[str, List[str]] = None,
     ) -> List[ArgoStep]:
         if name is not None and not isinstance(name, list):
             name = [name]
@@ -242,9 +243,13 @@ class ArgoWorkflow(ArgoObjectDict):
             phase = [phase]
         if id is not None and not isinstance(id, list):
             id = [id]
+        if type is not None and not isinstance(type, list):
+            type = [type]
         step_list = []
         if hasattr(self.status, "nodes"):
             for step in self.status.nodes.values():
+                if step["startedAt"] is None:
+                    continue
                 step = ArgoStep(step)
                 if name is not None and not match(step.displayName, name):
                     continue
@@ -252,6 +257,9 @@ class ArgoWorkflow(ArgoObjectDict):
                     continue
                 if phase is not None and not (hasattr(step, "phase") and
                                               step.phase in phase):
+                    continue
+                if type is not None and not (hasattr(step, "type") and
+                                             step.type in type):
                     continue
                 if id is not None and step.id not in id:
                     continue
