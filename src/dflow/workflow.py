@@ -355,3 +355,72 @@ class Workflow:
             a list of keys
         """
         return [step.key for step in self.query_step() if step.key is not None]
+
+    def terminate(self) -> None:
+        """
+        Terminate the workflow
+        """
+        if self.id is None:
+            raise RuntimeError("Workflow ID is None")
+        self.api_instance.api_client.call_api(
+            '/api/v1/workflows/%s/%s/terminate' % (self.namespace, self.id),
+            'PUT')
+
+    def delete(self) -> None:
+        """
+        Delete the workflow
+        """
+        if self.id is None:
+            raise RuntimeError("Workflow ID is None")
+        self.api_instance.api_client.call_api(
+            '/api/v1/workflows/%s/%s' % (self.namespace, self.id), 'DELETE')
+
+    def resubmit(self) -> None:
+        """
+        Resubmit the workflow
+        """
+        if self.id is None:
+            raise RuntimeError("Workflow ID is None")
+        self.api_instance.api_client.call_api(
+            '/api/v1/workflows/%s/%s/resubmit' % (self.namespace, self.id),
+            'PUT')
+
+    def resume(self) -> None:
+        """
+        Resume the workflow
+        """
+        if self.id is None:
+            raise RuntimeError("Workflow ID is None")
+        self.api_instance.api_client.call_api(
+            '/api/v1/workflows/%s/%s/resume' % (self.namespace, self.id),
+            'PUT')
+
+    def retry(self) -> None:
+        """
+        Retry the workflow
+        """
+        if self.id is None:
+            raise RuntimeError("Workflow ID is None")
+        self.api_instance.api_client.call_api(
+            '/api/v1/workflows/%s/%s/retry' % (self.namespace, self.id),
+            'PUT')
+
+    def stop(self) -> None:
+        """
+        Stop the workflow
+        """
+        if self.id is None:
+            raise RuntimeError("Workflow ID is None")
+        self.api_instance.api_client.call_api(
+            '/api/v1/workflows/%s/%s/stop' % (self.namespace, self.id),
+            'PUT')
+
+    def suspend(self) -> None:
+        """
+        Suspend the workflow
+        """
+        if self.id is None:
+            raise RuntimeError("Workflow ID is None")
+        self.api_instance.api_client.call_api(
+            '/api/v1/workflows/%s/%s/suspend' % (self.namespace, self.id),
+            'PUT')

@@ -101,6 +101,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         image_pull_policy: Always, IfNotPresent, Never
         requests: a dict of resource requests
         limits: a dict of resource limits
+        envs: environment variables
     """
 
     def __init__(self,
@@ -130,6 +131,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  requests: Dict[str, str] = None,
                  limits: Dict[str, str] = None,
                  upload_dflow: bool = True,
+                 envs: Dict[str, str] = None,
                  **kwargs,
                  ) -> None:
         op = None
@@ -167,7 +169,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         super().__init__(name="%s-%s" % (class_name, "".join(random.sample(
             string.digits + string.ascii_lowercase, 5))), inputs=Inputs(),
             outputs=Outputs(), volumes=volumes, mounts=mounts,
-            requests=requests, limits=limits)
+            requests=requests, limits=limits, envs=envs)
         self.slices = slices
         if timeout is not None:
             self.timeout = "%ss" % timeout

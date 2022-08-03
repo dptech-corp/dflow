@@ -9,7 +9,7 @@ try:
                                        V1alpha1ResourceTemplate,
                                        V1alpha1ScriptTemplate,
                                        V1alpha1Template,
-                                       V1ConfigMapKeySelector,
+                                       V1ConfigMapKeySelector, V1EnvVar,
                                        V1ResourceRequirements, V1Volume,
                                        V1VolumeMount)
     from argo.workflows.client.configuration import Configuration
@@ -108,6 +108,7 @@ class ScriptOPTemplate(OPTemplate):
         annotations: annotations for the OP template
         requests: a dict of resource requests
         limits: a dict of resource limits
+        envs: environment variables
     """
 
     def __init__(
@@ -130,6 +131,7 @@ class ScriptOPTemplate(OPTemplate):
             image_pull_policy: str = None,
             requests: Dict[str, str] = None,
             limits: Dict[str, str] = None,
+            envs: Dict[str, str] = None,
             **kwargs,
     ) -> None:
         super().__init__(name=name, inputs=inputs, outputs=outputs,
@@ -153,6 +155,7 @@ class ScriptOPTemplate(OPTemplate):
         self.image_pull_policy = image_pull_policy
         self.requests = requests
         self.limits = limits
+        self.envs = envs
 
     def convert_to_argo(self, memoize_prefix=None,
                         memoize_configmap="dflow"):
@@ -170,6 +173,10 @@ class ScriptOPTemplate(OPTemplate):
                                     volumes=self.volumes,
                                     resource=self.resource)
         else:
+            if self.envs is not None:
+                env = [V1EnvVar(name=k, value=v) for k, v in self.envs.items()]
+            else:
+                env = None
             return \
                 V1alpha1Template(name=self.name,
                                  metadata=V1alpha1Metadata(
@@ -187,7 +194,8 @@ class ScriptOPTemplate(OPTemplate):
                                      volume_mounts=self.mounts,
                                      resources=V1ResourceRequirements(
                                          limits=self.limits,
-                                         requests=self.requests)))
+                                         requests=self.requests),
+                                     env=env))
 
 
 class ShellOPTemplate(ScriptOPTemplate):
@@ -212,6 +220,7 @@ class ShellOPTemplate(ScriptOPTemplate):
         annotations: annotations for the OP template
         requests: a dict of resource requests
         limits: a dict of resource limits
+        envs: environment variables
     """
 
     def __init__(
@@ -233,6 +242,7 @@ class ShellOPTemplate(ScriptOPTemplate):
         image_pull_policy: str = None,
         requests: Dict[str, str] = None,
         limits: Dict[str, str] = None,
+        envs: Dict[str, str] = None,
         **kwargs,
     ) -> None:
         if command is None:
@@ -243,7 +253,7 @@ class ShellOPTemplate(ScriptOPTemplate):
             init_progress=init_progress, timeout=timeout,
             retry_strategy=retry_strategy, memoize_key=memoize_key, pvcs=pvcs,
             image_pull_policy=image_pull_policy, annotations=annotations,
-            requests=requests, limits=limits)
+            requests=requests, limits=limits, envs=envs)
 
 
 class PythonScriptOPTemplate(ScriptOPTemplate):
@@ -268,6 +278,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         annotations: annotations for the OP template
         requests: a dict of resource requests
         limits: a dict of resource limits
+        envs: environment variables
     """
 
     def __init__(
@@ -289,6 +300,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         image_pull_policy: str = None,
         requests: Dict[str, str] = None,
         limits: Dict[str, str] = None,
+        envs: Dict[str, str] = None,
         **kwargs,
     ) -> None:
         if command is None:
@@ -299,4 +311,4 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
             init_progress=init_progress, timeout=timeout,
             retry_strategy=retry_strategy, memoize_key=memoize_key, pvcs=pvcs,
             image_pull_policy=image_pull_policy, annotations=annotations,
-            requests=requests, limits=limits)
+            requests=requests, limits=limits, envs=envs)
