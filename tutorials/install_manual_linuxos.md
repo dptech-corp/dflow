@@ -15,9 +15,9 @@ This guide is copied from: https://docs.docker.com/engine/install/ubuntu/#instal
     repository over HTTPS:
 
     ```console
-    $ sudo apt-get update
+    sudo apt-get update
 
-    $ sudo apt-get install \
+    sudo apt-get install \
         ca-certificates \
         curl \
         gnupg \
@@ -27,16 +27,16 @@ This guide is copied from: https://docs.docker.com/engine/install/ubuntu/#instal
 2.  Add Docker's official GPG key:
 
     ```console
-    $ sudo mkdir -p /etc/apt/keyrings
-    $ curl -fsSL {{ download-url-base }}/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    sudo mkdir -p /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
     ```
 
 3.  Use the following command to set up the repository:
 
     ```console
-    $ echo \
-      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] {{ download-url-base }} \
-      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+      (lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
     ```
 
 #### Install Docker Engine
@@ -45,8 +45,8 @@ This guide is copied from: https://docs.docker.com/engine/install/ubuntu/#instal
    Engine, containerd, and Docker Compose, or go to the next step to install a specific version:
 
     ```console
-    $ sudo apt-get update
-    $ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+    sudo apt-get update
+    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
     ```
 
     > Receiving a GPG error when running `apt-get update`?
@@ -61,7 +61,7 @@ This guide is copied from: https://docs.docker.com/engine/install/ubuntu/#instal
     a. List the versions available in your repo:
 
     ```console
-    $ apt-cache madison docker-ce
+    apt-cache madison docker-ce
 
     docker-ce | 5:20.10.16~3-0~ubuntu-jammy | https://download.docker.com/linux/ubuntu jammy/stable amd64 Packages
     docker-ce | 5:20.10.15~3-0~ubuntu-jammy | https://download.docker.com/linux/ubuntu jammy/stable amd64 Packages
@@ -73,7 +73,7 @@ This guide is copied from: https://docs.docker.com/engine/install/ubuntu/#instal
        for example, `5:20.10.16~3-0~ubuntu-jammy`.
 
     ```console
-    $ sudo apt-get install docker-ce=<VERSION_STRING> docker-ce-cli=<VERSION_STRING> containerd.io docker-compose-plugin
+    sudo apt-get install docker-ce=<VERSION_STRING> docker-ce-cli=<VERSION_STRING> containerd.io docker-compose-plugin
     ```
 
 ### Verify the installation 
