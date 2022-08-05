@@ -1692,6 +1692,9 @@ spec:
               - mkdir
               - -p
               - /data/my-bucket
+        volumeMounts:
+        - mountPath: /data
+          name: minio-data
         livenessProbe:
           httpGet:
             path: /minio/health/live
@@ -1710,6 +1713,11 @@ spec:
             port: 9000
           initialDelaySeconds: 5
           periodSeconds: 10
+      volumes:
+      - hostPath:
+          path: /data/minio
+          type: DirectoryOrCreate
+        name: minio-data
 ---
 apiVersion: apps/v1
 kind: Deployment

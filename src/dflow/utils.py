@@ -35,6 +35,8 @@ s3_config = {
 def download_artifact(
         artifact,
         extract: bool = True,
+        sub_path: str = None,
+        slice: int = None,
         **kwargs,
 ) -> List[str]:
     """
@@ -51,33 +53,44 @@ def download_artifact(
         bucket_name: bucket name for Minio
     """
     if hasattr(artifact, "s3"):
-        if hasattr(artifact, "archive") and hasattr(artifact.archive, "none")\
-                and artifact.archive.none is not None:
-            path = download_s3(key=artifact.s3.key, recursive=True, **kwargs)
-        else:
-            path = download_s3(key=artifact.s3.key, recursive=False, **kwargs)
-            if path[-4:] == ".tgz" and extract:
-                tf = tarfile.open(path, "r:gz")
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    tf.extractall(tmpdir)
-                    tf.close()
-
-                    os.remove(path)
-                    path = os.path.dirname(path)
-
-                    # if the artifact contains only one directory, merge the
-                    # directory with the target directory
-                    ld = os.listdir(tmpdir)
-                    if len(ld) == 1 and os.path.isdir(os.path.join(tmpdir,
-                                                                   ld[0])):
-                        merge_dir(os.path.join(tmpdir, ld[0]), path)
-                    else:
-                        merge_dir(tmpdir, path)
-
-        remove_empty_dir_tag(path)
-        return assemble_path_list(path, remove=True)
+        key = artifact.s3.key
+    elif hasattr(artifact, "key"):
+        key = artifact.key
     else:
         raise NotImplementedError()
+
+    if slice is not None:
+        sub_path = path_list_of_artifact(artifact)[slice]
+
+    if sub_path is not None:
+        key = key + "/" + sub_path
+        if "path" in kwargs:
+            kwargs["path"] = os.path.join(kwargs["path"],
+                                          os.path.dirname(sub_path))
+        else:
+            kwargs["path"] = os.path.join(".", os.path.dirname(sub_path))
+
+    path = download_s3(key=key, recursive=True, **kwargs)
+    if key[-4:] == ".tgz" and extract:
+        path = os.path.join(path, os.path.basename(key))
+        tf = tarfile.open(path, "r:gz")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tf.extractall(tmpdir)
+            tf.close()
+
+            os.remove(path)
+            path = os.path.dirname(path)
+
+            # if the artifact contains only one directory, merge the
+            # directory with the target directory
+            ld = os.listdir(tmpdir)
+            if len(ld) == 1 and os.path.isdir(os.path.join(tmpdir, ld[0])):
+                merge_dir(os.path.join(tmpdir, ld[0]), path)
+            else:
+                merge_dir(tmpdir, path)
+
+    remove_empty_dir_tag(path)
+    return assemble_path_list(path, remove=True)
 
 
 def upload_artifact(
