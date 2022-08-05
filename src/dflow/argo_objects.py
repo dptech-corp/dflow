@@ -106,22 +106,26 @@ class ArgoStep(ArgoObjectDict):
                     if name[13:] in io.parameters:
                         continue
                     with tempfile.TemporaryDirectory() as tmpdir:
-                        download_artifact(art, path=tmpdir)
-                        fs = os.listdir(tmpdir)
-                        assert len(fs) == 1
-                        with open(os.path.join(tmpdir, fs[0]), "r") as f:
-                            content = jsonpickle.loads(f.read())
-                            param = {"name": name[13:],
-                                     "save_as_artifact": True}
-                            if "type" in content:
-                                param["type"] = content["type"]
-                            if "type" in content and content["type"] != \
-                                    str(str):
-                                param["value"] = jsonpickle.loads(
-                                    content["value"])
-                            else:
-                                param["value"] = content["value"]
-                            io.parameters[name[13:]] = ArgoObjectDict(param)
+                        try:
+                            download_artifact(art, path=tmpdir)
+                            fs = os.listdir(tmpdir)
+                            assert len(fs) == 1
+                            with open(os.path.join(tmpdir, fs[0]), "r") as f:
+                                content = jsonpickle.loads(f.read())
+                                param = {"name": name[13:],
+                                         "save_as_artifact": True}
+                                if "type" in content:
+                                    param["type"] = content["type"]
+                                if "type" in content and content["type"] != \
+                                        str(str):
+                                    param["value"] = jsonpickle.loads(
+                                        content["value"])
+                                else:
+                                    param["value"] = content["value"]
+                                io.parameters[name[13:]
+                                              ] = ArgoObjectDict(param)
+                        except Exception:
+                            pass
 
     def modify_output_parameter(
             self,
