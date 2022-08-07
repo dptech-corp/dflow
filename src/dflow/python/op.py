@@ -73,6 +73,8 @@ class OP(ABC):
                 if isinstance(sign[ii], Parameter) and hasattr(sign[ii],
                                                                "default"):
                     opio[ii] = sign[ii].default
+                elif isinstance(sign[ii], Artifact) and sign[ii].optional:
+                    opio[ii] = None
                 else:
                     raise RuntimeError('key %s required in signature is '
                                        'not provided by the opio' % ii)
