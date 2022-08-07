@@ -3,8 +3,10 @@ from .op_template import ShellOPTemplate
 
 
 class CheckNumSuccess(ShellOPTemplate):
-    def __init__(self, name="check-num-success", image=None):
-        super().__init__(name=name, image=image)
+    def __init__(self, name="check-num-success", image=None,
+                 image_pull_policy=None):
+        super().__init__(name=name, image=image,
+                         image_pull_policy=image_pull_policy)
         self.command = ["sh"]
         self.script = "succ=`echo {{inputs.parameters.success}} | grep -o 1 "\
             "| wc -l`\n"
@@ -15,8 +17,10 @@ class CheckNumSuccess(ShellOPTemplate):
 
 
 class CheckSuccessRatio(ShellOPTemplate):
-    def __init__(self, name="check-success-ratio", image=None):
-        super().__init__(name=name, image=image)
+    def __init__(self, name="check-success-ratio", image=None,
+                 image_pull_policy=None):
+        super().__init__(name=name, image=image,
+                         image_pull_policy=image_pull_policy)
         self.command = ["sh"]
         self.script = "succ=`echo {{inputs.parameters.success}} | grep -o 1 |"\
             " wc -l`\n"

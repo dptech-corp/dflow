@@ -60,6 +60,7 @@ class RemoteExecutor(Executor):
             command: Union[str, List[str]] = None,
             remote_command: Union[str, List[str]] = None,
             image: str = None,
+            image_pull_policy: str = None,
             map_tmp_dir: bool = True,
             docker_executable: str = None,
             singularity_executable: str = None,
@@ -83,6 +84,9 @@ class RemoteExecutor(Executor):
         if image is None:
             image = config["extender_image"]
         self.image = image
+        if image_pull_policy is None:
+            image_pull_policy = config["extender_image_pull_policy"]
+        self.image_pull_policy = image_pull_policy
         self.map_tmp_dir = map_tmp_dir
         self.docker_executable = docker_executable
         self.singularity_executable = singularity_executable
@@ -189,6 +193,7 @@ download() {
         new_template = deepcopy(template)
         new_template.name += "-" + randstr()
         new_template.image = self.image
+        new_template.image_pull_policy = self.image_pull_policy
         new_template.command = self.command
         new_template.script = self.get_script(template)
         if self.password is not None:

@@ -35,6 +35,7 @@ class DispatcherExecutor(Executor):
         username: username
         private_key_file: private key file for SSH
         image: image for dispatcher
+        image: image pull policy for dispatcher
         command: command for dispatcher
         remote_command: command for running the script remotely
         map_tmp_dir: map /tmp to ./tmp
@@ -54,6 +55,7 @@ class DispatcherExecutor(Executor):
                  username: str = "root",
                  private_key_file: os.PathLike = None,
                  image: str = None,
+                 image_pull_policy: str = None,
                  command: Union[str, List[str]] = "python",
                  remote_command: Union[str, List[str]] = None,
                  map_tmp_dir: bool = True,
@@ -73,6 +75,9 @@ class DispatcherExecutor(Executor):
         if image is None:
             image = config["dispatcher_image"]
         self.image = image
+        if image_pull_policy is None:
+            image_pull_policy = config["dispatcher_image_pull_policy"]
+        self.image_pull_policy = image_pull_policy
         if isinstance(command, str):
             command = [command]
         self.command = command
@@ -139,6 +144,7 @@ class DispatcherExecutor(Executor):
         new_template = deepcopy(template)
         new_template.name += "-" + randstr()
         new_template.image = self.image
+        new_template.image_pull_policy = self.image_pull_policy
         new_template.command = self.command
 
         remote_command = template.command if self.remote_command is None \
