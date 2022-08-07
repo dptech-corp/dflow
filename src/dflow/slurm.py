@@ -82,7 +82,9 @@ class SlurmJobTemplate(Executor):
         header: header for Slurm job
         node_selector: node selector
         prepare_image: image for preparing data
+        prepare_image_pull_policy: image pull policy for preparing data
         collect_image: image for collecting results
+        collect_image_pull_policy: image pull policy for collecting results
         workdir: remote working directory
         remote_command: command for running the script remotely
         docker_executable: docker executable to run remotely
@@ -95,7 +97,9 @@ class SlurmJobTemplate(Executor):
             header: str = "",
             node_selector: Dict[str, str] = None,
             prepare_image: str = None,
+            prepare_image_pull_policy: str = None,
             collect_image: str = None,
+            collect_image_pull_policy: str = None,
             workdir: str = "dflow/workflows/{{workflow.name}}/{{pod.name}}",
             remote_command: Union[str, List[str]] = None,
             docker_executable: str = None,
@@ -107,8 +111,14 @@ class SlurmJobTemplate(Executor):
         if prepare_image is None:
             prepare_image = config["util_image"]
         self.prepare_image = prepare_image
+        if prepare_image_pull_policy is None:
+            prepare_image_pull_policy = config["util_image_pull_policy"]
+        self.prepare_image_pull_policy = prepare_image_pull_policy
         if collect_image is None:
             collect_image = config["util_image"]
+        if collect_image_pull_policy is None:
+            collect_image_pull_policy = config["util_image_pull_policy"]
+        self.collect_image_pull_policy = collect_image_pull_policy
         self.collect_image = collect_image
         self.workdir = workdir
         if isinstance(remote_command, str):
@@ -141,6 +151,7 @@ class SlurmJobTemplate(Executor):
                 script += "cp -r %s /workdir/%s\n" % (art.path, art.path)
             prepare_template = ShellOPTemplate(
                 name=new_template.name + "-prepare", image=self.prepare_image,
+                image_pull_policy=self.prepare_image_pull_policy,
                 script=script, volumes=[volume], mounts=[mount])
             for name in template.inputs.parameters.keys():
                 if name[:6] == "dflow_":
@@ -229,6 +240,7 @@ class SlurmJobTemplate(Executor):
                                    par.value_from_path)
             collect_template = ShellOPTemplate(
                 name=new_template.name + "-collect", image=self.collect_image,
+                image_pull_policy=self.collect_image_pull_policy,
                 script=script, volumes=[volume], mounts=[mount])
             collect_template.inputs.parameters["dflow_vol_path"] = \
                 InputParameter()
@@ -276,6 +288,7 @@ class SlurmRemoteExecutor(RemoteExecutor):
         command: command for the executor
         remote_command: command for running the script remotely
         image: image for the executor
+        image_pull_policy: image pull policy for the executor
         map_tmp_dir: map /tmp to ./tmp
         docker_executable: docker executable to run remotely
         singularity_executable: singularity executable to run remotely
@@ -297,6 +310,7 @@ class SlurmRemoteExecutor(RemoteExecutor):
             command: Union[str, List[str]] = None,
             remote_command: Union[str, List[str]] = None,
             image: str = None,
+            image_pull_policy: str = None,
             map_tmp_dir: bool = True,
             docker_executable: str = None,
             singularity_executable: str = None,
@@ -312,7 +326,8 @@ class SlurmRemoteExecutor(RemoteExecutor):
             command=command, remote_command=remote_command, image=image,
             map_tmp_dir=map_tmp_dir, docker_executable=docker_executable,
             singularity_executable=singularity_executable,
-            podman_executable=podman_executable, action_retries=action_retries)
+            podman_executable=podman_executable, action_retries=action_retries,
+            image_pull_policy=image_pull_policy)
         self.header = re.sub(" *#", "#", header)
         self.interval = interval
         self.pvc = pvc

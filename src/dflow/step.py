@@ -137,6 +137,7 @@ class Step:
         executor: define the executor to execute the script
         use_resource: use k8s resource
         util_image: image for utility step
+        util_image_pull_policy: image pull policy for utility step
         util_command: command for utility step
     """
 
@@ -158,6 +159,7 @@ class Step:
             executor: Executor = None,
             use_resource: Resource = None,
             util_image: str = None,
+            util_image_pull_policy: str = None,
             util_command: Union[str, List[str]] = None,
             **kwargs,
     ) -> None:
@@ -189,6 +191,9 @@ class Step:
         if util_image is None:
             util_image = config["util_image"]
         self.util_image = util_image
+        if util_image_pull_policy is None:
+            util_image_pull_policy = config["util_image_pull_policy"]
+        self.util_image_pull_policy = util_image_pull_policy
         if isinstance(util_command, str):
             util_command = [util_command]
         self.util_command = util_command
@@ -226,7 +231,7 @@ class Step:
             init_template = PythonScriptOPTemplate(
                 name="%s-init-artifact" % new_template.name,
                 image=self.util_image, command=self.util_command,
-                image_pull_policy=new_template.image_pull_policy,
+                image_pull_policy=self.util_image_pull_policy,
                 script=script)
             if self.key is not None:
                 new_template.inputs.parameters["dflow_group_key"] = \
@@ -518,7 +523,9 @@ class Step:
         if self.continue_on_num_success is not None:
             self.check_step = self.__class__(
                 name="%s-check-num-success" % self.name,
-                template=CheckNumSuccess(image=self.util_image),
+                template=CheckNumSuccess(
+                    image=self.util_image,
+                    image_pull_policy=self.util_image_pull_policy),
                 parameters={
                     "success": self.outputs.parameters["dflow_success_tag"],
                     "threshold": self.continue_on_num_success
@@ -527,7 +534,9 @@ class Step:
         elif self.continue_on_success_ratio is not None:
             self.check_step = self.__class__(
                 name="%s-check-success-ratio" % self.name,
-                template=CheckSuccessRatio(image=self.util_image),
+                template=CheckSuccessRatio(
+                    image=self.util_image,
+                    image_pull_policy=self.util_image_pull_policy),
                 parameters={
                     "success": self.outputs.parameters["dflow_success_tag"],
                     "threshold": self.continue_on_success_ratio

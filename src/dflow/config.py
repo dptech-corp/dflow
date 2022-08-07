@@ -8,6 +8,9 @@ config = {
     "catalog_dir_name": ".dflow",
     "archive_mode": "tar",
     "util_image": "python:3.8",
+    "util_image_pull_policy": None,
     "extender_image": "dptechnology/dflow-extender",
+    "extender_image_pull_policy": None,
     "dispatcher_image": "dptechnology/dpdispatcher",
+    "dispatcher_image_pull_policy": None,
 }

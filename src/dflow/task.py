@@ -33,6 +33,7 @@ class Task(Step):
         executor: define the executor to execute the script
         use_resource: use k8s resource
         util_image: image for utility step
+        util_image_pull_policy: image pull policy for utility step
         util_command: command for utility step
         dependencies: extra dependencies of the task
     """
