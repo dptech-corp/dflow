@@ -340,8 +340,7 @@ class SlurmRemoteExecutor(RemoteExecutor):
                 image, remote_command, self.docker_executable,
                 self.singularity_executable, self.podman_executable))
 
-        script += self.upload("slurm.sh", "%s/slurm.sh" %
-                              self.workdir) + " || exit 1\n"
+        script += self.upload("slurm.sh", self.workdir) + " || exit 1\n"
         if self.pvc:
             script += "echo 'jobIdFile: /mnt/job_id.txt' >> param.yaml\n"
         else:

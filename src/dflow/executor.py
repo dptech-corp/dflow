@@ -118,10 +118,8 @@ class RemoteExecutor(Executor):
             self.singularity_executable, self.podman_executable)) + \
             " || exit 1\n"
 
-    def mkdir_and_upload(self, path):
-        return self.execute("mkdir -p %s/%s" % (self.workdir,
-                                                os.path.dirname(path))) \
-            + "\n" + ("if [ -e %s ]; then " % path) \
+    def upload_if_exists(self, path):
+        return "if [ -e %s ]; then " % path \
             + self.upload(path, "%s/%s" % (
                 self.workdir, os.path.dirname(path))) + "; fi\n"
 
@@ -151,6 +149,7 @@ execute() {
         script += """
 upload() {
     if [ $1 != 0 ]; then
+        %sssh -C -o StrictHostKeyChecking=no -p %s %s@%s -- mkdir -p $3 && \
         %sscp -C -o StrictHostKeyChecking=no -P %s -r $2 %s@%s:$3
         if [ $? != 0 ]; then
             echo retry: $1
@@ -159,7 +158,8 @@ upload() {
         fi
     fi
 }
-""" % (ssh_pass, self.port, self.username, self.host)
+""" % (ssh_pass, self.port, self.username, self.host,
+            ssh_pass, self.port, self.username, self.host)
         script += """
 download() {
     if [ $1 != 0 ]; then
@@ -174,11 +174,11 @@ download() {
 """ % (ssh_pass, self.port, self.username, self.host)
         script += "cat <<'EOF'> script\n" + remote_script + "\nEOF\n"
         for art in template.inputs.artifacts.values():
-            script += self.mkdir_and_upload(art.path)
+            script += self.upload_if_exists(art.path)
         for par in template.inputs.parameters.values():
             if par.save_as_artifact:
-                script += self.mkdir_and_upload(par.path)
-        script += self.mkdir_and_upload("script")
+                script += self.upload_if_exists(par.path)
+        script += self.upload_if_exists("script")
         script += self.run(template.image, remote_command)
         for art in template.outputs.artifacts.values():
             script += self.mkdir_and_download(art.path)
