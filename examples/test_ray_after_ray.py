@@ -4,7 +4,8 @@ from pathlib import Path
 
 from dflow import Step, Workflow
 from dflow.plugins.ray import RayClusterExecutor
-from dflow.python import OP, OPIO, OPIOSign, PythonOPTemplate, upload_packages, Artifact
+from dflow.python import (OP, OPIO, OPIOSign, PythonOPTemplate,
+                          upload_packages, Artifact)
 
 if '__file__' in locals():
     upload_packages.append(__file__)
@@ -25,13 +26,14 @@ def add_one(inputs):
     node_from = inputs["node_name"]
     time.sleep(1)
     return {
-        'result': f"From {node_from} with value {str(input_value)} to {platform.node()}",
+        'result': f"From {node_from} "
+                  f"with value {str(input_value)} to {platform.node()}",
         'node_name': platform.node()}
 
 
 @ray.remote
 def count_work_time(one_result):
-    if len(one_result)>0:
+    if len(one_result) > 0:
         result_list = one_result.split()
         from_node = result_list[1]
         to_node = result_list[-1]
@@ -44,7 +46,6 @@ def count_work_time(one_result):
         return {
             "on_node": platform.node()
         }
-
 
 
 class Sleeps(OP):
@@ -116,7 +117,8 @@ class CountTheQuotes(OP):
     ) -> OPIO:
         results = op_in["results"].read_text().split("\n")
         # Ray need list generators to get ObjectRef and dispatch tasks.
-        remote_fun_call = [count_work_time.remote(result_one) for result_one in results]
+        remote_fun_call = [count_work_time.remote(result_one)
+                           for result_one in results]
         op_out = OPIO({
             'count': ray.get(remote_fun_call)
         })
@@ -133,9 +135,9 @@ def run_ray():
 
     # 2. choose an image
     # RayClusterExecutor will exam your image, if it has no ray package with
-    # default python (make sure you are not working on some virtual environmental
-    # by pip or conda), init container will try to install ray with
-    # `pip install ray`.
+    # default python (make sure you are not working on some virtual
+    # environmental by pip or conda), init container will try to install
+    # ray with `pip install ray`.
 
     # 3. set up mirror if install is needed (optional)
     # For users with special package installation settings,
@@ -165,6 +167,7 @@ def run_ray():
     )
     wf.add(step2)
     wf.submit()
+
 
 if __name__ == '__main__':
     run_ray()

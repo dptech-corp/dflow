@@ -6,10 +6,8 @@ from dflow.op_template import ScriptOPTemplate
 from dflow.utils import randstr
 
 try:
-    import yaml
-    from argo.workflows.client import (V1alpha1ResourceTemplate,
-                                       V1HostPathVolumeSource, V1Volume,
-                                       V1VolumeMount, V1alpha1UserContainer,
+    from argo.workflows.client import (V1Volume, V1VolumeMount,
+                                       V1alpha1UserContainer,
                                        V1EmptyDirVolumeSource)
 except ImportError:
     pass
@@ -32,7 +30,8 @@ def _ray_init_container(main_image: str,
 
     Returns:
     """
-    RAY_INSTALL_STATEMENT = f'pip install ray --target={ray_remote_path_prefix}'
+    RAY_INSTALL_STATEMENT = 'pip install ray ' \
+                            f'--target={ray_remote_path_prefix}'
     if install_mirror:
         RAY_INSTALL_STATEMENT += f' -i {install_mirror}'
     return V1alpha1UserContainer(
@@ -83,25 +82,37 @@ class RayClusterExecutor(Executor):
                                     self.ray_remote_path)]
         else:
             assert isinstance(new_template.init_containers,
-                              list), f'Type of current init_containers is not list, ' \
-                                     f'but {type(new_template.init_containers)}, ' \
-                                     f'check your other init_container settings.'
+                              list), f'Type of current init_containers is ' \
+                                     f'not list, but ' \
+                                     f'{type(new_template.init_containers)}, '\
+                                     f'check your other ' \
+                                     f'init_container settings.'
             new_template.init_containers.append(
                 _ray_init_container(template.image, self.ray_install_mirror,
                                     self.ray_remote_path))
-        new_template.script = 'import sys,os                                    \n' \
-                              f"sys.path.append('{self.ray_remote_path}')       \n" \
-                              "if os.environ.get('RAY_ADDRESS') is None:        \n" \
-                              f"    os.environ['RAY_ADDRESS']='{self.ray_host}' \n" \
-                              'else:                                            \n' \
+        new_template.script = 'import sys,os                                ' \
+                              '\n' \
+                              f"sys.path.append('{self.ray_remote_path}')   " \
+                              f"\n" \
+                              "if os.environ.get('RAY_ADDRESS') is None:    " \
+                              "\n" \
+                              f"    os.environ['RAY_ADDRESS']=" \
+                              f"'{self.ray_host}' " \
+                              f"\n" \
+                              'else:                                        ' \
+                              '\n' \
                               "    print(f\"Not use input ray_host address," \
-                              " use {os.environ['RAY_ADDRESS']} instead.\")     \n" \
+                              " use {os.environ['RAY_ADDRESS']} instead.\") " \
+                              "\n" \
                               + template.script
         # To locate the initialization of package path in `python_op_template`.
         insert_index = new_template.script.find('from dflow import config')
         new_script = list(new_template.script)
-        ray_dependencies_import = f"import {','.join(item.__name__ for item in self.ray_dependencies)}\n" if len(
-            self.ray_dependencies) > 0 else '\n'
+        _dependencies_str = ','.join(item.__name__
+                                     for item in self.ray_dependencies)
+        ray_dependencies_import = \
+            f"import {_dependencies_str}\n" if len(
+                self.ray_dependencies) > 0 else '\n'
         new_script.insert(
             insert_index,
             'import ray\n' +

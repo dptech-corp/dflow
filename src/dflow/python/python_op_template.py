@@ -17,7 +17,8 @@ from .op import OP
 from .opio import Artifact, BigParameter, Parameter
 
 try:
-    from argo.workflows.client import V1Volume, V1VolumeMount, V1alpha1UserContainer
+    from argo.workflows.client import (V1Volume, V1VolumeMount,
+                                       V1alpha1UserContainer)
 
     from ..client import V1alpha1RetryStrategy
 except Exception:
@@ -172,8 +173,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         super().__init__(name="%s-%s" % (class_name, "".join(random.sample(
             string.digits + string.ascii_lowercase, 5))), inputs=Inputs(),
             outputs=Outputs(), volumes=volumes, mounts=mounts,
-            requests=requests, limits=limits, envs=envs,init_containers=init_containers
-                         )
+            requests=requests, limits=limits, envs=envs,
+            init_containers=init_containers)
         self.slices = slices
         if timeout is not None:
             self.timeout = "%ss" % timeout

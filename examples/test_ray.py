@@ -4,7 +4,8 @@ from pathlib import Path
 
 from dflow import Step, Workflow, download_artifact
 from dflow.plugins.ray import RayClusterExecutor
-from dflow.python import OP, OPIO, OPIOSign, PythonOPTemplate, upload_packages, Artifact
+from dflow.python import (OP, OPIO, OPIOSign, PythonOPTemplate,
+                          upload_packages, Artifact)
 
 if '__file__' in locals():
     upload_packages.append(__file__)
@@ -25,7 +26,8 @@ def add_one(inputs):
     node_from = inputs["node_name"]
     time.sleep(1)
     return {
-        'result': f"From {node_from} with value {str(input_value)} to {platform.node()}",
+        'result': f"From {node_from} "
+                  f"with value {str(input_value)} to {platform.node()}",
         'node_name': platform.node()}
 
 
@@ -82,9 +84,9 @@ def run_ray():
 
     # 2. choose an image
     # RayClusterExecutor will exam your image, if it has no ray package with
-    # default python (make sure you are not working on some virtual environmental
-    # by pip or conda), init container will try to install ray with
-    # `pip install ray`.
+    # default python (make sure you are not working on some virtual
+    # environmental by pip or conda), init container will try to install
+    # ray with `pip install ray`.
 
     # 3. set up mirror if install is needed (optional)
     # For users with special package installation settings,
