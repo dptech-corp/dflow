@@ -11,7 +11,7 @@ try:
                                        V1alpha1Template,
                                        V1ConfigMapKeySelector, V1EnvVar,
                                        V1ResourceRequirements, V1Volume,
-                                       V1VolumeMount)
+                                       V1VolumeMount, V1alpha1UserContainer)
     from argo.workflows.client.configuration import Configuration
 
     from .client.v1alpha1_retry_strategy import V1alpha1RetryStrategy
@@ -20,6 +20,7 @@ except Exception:
     V1alpha1RetryStrategy = object
     V1Volume = object
     V1VolumeMount = object
+    V1alpha1UserContainer = object
 
 
 class OPTemplate:
@@ -132,6 +133,7 @@ class ScriptOPTemplate(OPTemplate):
             requests: Dict[str, str] = None,
             limits: Dict[str, str] = None,
             envs: Dict[str, str] = None,
+            init_containers: List[V1alpha1UserContainer] = None,
             **kwargs,
     ) -> None:
         super().__init__(name=name, inputs=inputs, outputs=outputs,
@@ -156,6 +158,7 @@ class ScriptOPTemplate(OPTemplate):
         self.requests = requests
         self.limits = limits
         self.envs = envs
+        self.init_containers = init_containers
 
     def convert_to_argo(self, memoize_prefix=None,
                         memoize_configmap="dflow"):
@@ -171,7 +174,9 @@ class ScriptOPTemplate(OPTemplate):
                                     retry_strategy=self.retry_strategy,
                                     memoize=self.memoize,
                                     volumes=self.volumes,
-                                    resource=self.resource)
+                                    resource=self.resource,
+                                    init_containers=self.init_containers,
+                                    )
         else:
             if self.envs is not None:
                 env = [V1EnvVar(name=k, value=v) for k, v in self.envs.items()]
@@ -195,7 +200,9 @@ class ScriptOPTemplate(OPTemplate):
                                      resources=V1ResourceRequirements(
                                          limits=self.limits,
                                          requests=self.requests),
-                                     env=env))
+                                     env=env),
+                                 init_containers=self.init_containers,
+                                 )
 
 
 class ShellOPTemplate(ScriptOPTemplate):
@@ -221,6 +228,7 @@ class ShellOPTemplate(ScriptOPTemplate):
         requests: a dict of resource requests
         limits: a dict of resource limits
         envs: environment variables
+        init_containers: init containers before the template runs
     """
 
     def __init__(
@@ -243,6 +251,7 @@ class ShellOPTemplate(ScriptOPTemplate):
         requests: Dict[str, str] = None,
         limits: Dict[str, str] = None,
         envs: Dict[str, str] = None,
+        init_containers: List[V1alpha1UserContainer] = None,
         **kwargs,
     ) -> None:
         if command is None:
@@ -253,7 +262,9 @@ class ShellOPTemplate(ScriptOPTemplate):
             init_progress=init_progress, timeout=timeout,
             retry_strategy=retry_strategy, memoize_key=memoize_key, pvcs=pvcs,
             image_pull_policy=image_pull_policy, annotations=annotations,
-            requests=requests, limits=limits, envs=envs)
+            requests=requests, limits=limits, envs=envs,
+            init_containers=init_containers,
+        )
 
 
 class PythonScriptOPTemplate(ScriptOPTemplate):
@@ -279,6 +290,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         requests: a dict of resource requests
         limits: a dict of resource limits
         envs: environment variables
+        init_containers: init containers before the template runs
     """
 
     def __init__(
@@ -301,6 +313,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         requests: Dict[str, str] = None,
         limits: Dict[str, str] = None,
         envs: Dict[str, str] = None,
+        init_containers: List[V1alpha1UserContainer] = None,
         **kwargs,
     ) -> None:
         if command is None:
@@ -311,4 +324,6 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
             init_progress=init_progress, timeout=timeout,
             retry_strategy=retry_strategy, memoize_key=memoize_key, pvcs=pvcs,
             image_pull_policy=image_pull_policy, annotations=annotations,
-            requests=requests, limits=limits, envs=envs)
+            requests=requests, limits=limits, envs=envs,
+            init_containers=init_containers,
+        )

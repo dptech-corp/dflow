@@ -17,12 +17,13 @@ from .op import OP
 from .opio import Artifact, BigParameter, Parameter
 
 try:
-    from argo.workflows.client import V1Volume, V1VolumeMount
+    from argo.workflows.client import V1Volume, V1VolumeMount, V1alpha1UserContainer
 
     from ..client import V1alpha1RetryStrategy
 except Exception:
     V1Volume = object
     V1VolumeMount = object
+    V1alpha1UserContainer = object
 upload_packages = []
 
 
@@ -102,6 +103,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         requests: a dict of resource requests
         limits: a dict of resource limits
         envs: environment variables
+        init_containers: init containers before the template runs
     """
 
     def __init__(self,
@@ -132,6 +134,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  limits: Dict[str, str] = None,
                  upload_dflow: bool = True,
                  envs: Dict[str, str] = None,
+                 init_containers: List[V1alpha1UserContainer] = None,
                  **kwargs,
                  ) -> None:
         op = None
@@ -169,7 +172,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         super().__init__(name="%s-%s" % (class_name, "".join(random.sample(
             string.digits + string.ascii_lowercase, 5))), inputs=Inputs(),
             outputs=Outputs(), volumes=volumes, mounts=mounts,
-            requests=requests, limits=limits, envs=envs)
+            requests=requests, limits=limits, envs=envs,init_containers=init_containers
+                         )
         self.slices = slices
         if timeout is not None:
             self.timeout = "%ss" % timeout
