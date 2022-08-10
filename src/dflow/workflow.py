@@ -19,7 +19,7 @@ try:
     import kubernetes
     import urllib3
     urllib3.disable_warnings()
-    from argo.workflows.client import (ApiClient, Configuration,
+    from argo.workflows.client import (ApiClient, Configuration, V1alpha1PodGC,
                                        V1alpha1Workflow,
                                        V1alpha1WorkflowCreateRequest,
                                        V1alpha1WorkflowSpec, V1ObjectMeta,
@@ -53,6 +53,14 @@ class Workflow:
         context: context for the workflow
         annotations: annotations for the workflow
         parallelism: maximum number of running pods for the workflow
+        pod_gc_stategy: pod GC provides the ability to delete pods
+            automatically without deleting the workflow, pod GC strategy
+            must be one of the following:
+            * OnPodCompletion - delete pods immediately when pod is completed
+                (including errors/failures)
+            * OnPodSuccess - delete pods immediately when pod is successful
+            * OnWorkflowCompletion - delete pods when workflow is completed
+            * OnWorkflowSuccess - delete pods when workflow is successful
     """
 
     def __init__(
@@ -68,7 +76,8 @@ class Workflow:
             k8s_api_server: str = None,
             context: Context = None,
             annotations: Dict[str, str] = None,
-            parallelism: int = None
+            parallelism: int = None,
+            pod_gc_strategy: str = None,
     ) -> None:
         self.host = host if host is not None else config["host"]
         self.token = token if token is not None else config["token"]
@@ -81,6 +90,7 @@ class Workflow:
             annotations = {}
         self.annotations = annotations
         self.parallelism = parallelism
+        self.pod_gc_strategy = pod_gc_strategy
 
         configuration = Configuration(host=self.host)
         configuration.verify_ssl = False
@@ -258,7 +268,9 @@ class Workflow:
                 entrypoint=self.entrypoint.name,
                 templates=list(self.argo_templates.values()),
                 parallelism=self.parallelism,
-                volume_claim_templates=argo_pvcs),
+                volume_claim_templates=argo_pvcs,
+                pod_gc=V1alpha1PodGC(strategy=self.pod_gc_strategy),
+            ),
             status=status)
 
     def handle_template(self, template, memoize_prefix=None,
