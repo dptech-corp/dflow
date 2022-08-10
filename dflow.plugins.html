@@ -149,6 +149,22 @@ self in this method to make the executor reusable</p>
 </dd></dl>
 
 </section>
+<section id="module-dflow.plugins.ray">
+<span id="dflow-plugins-ray-module"></span><h2>dflow.plugins.ray module<a class="headerlink" href="#module-dflow.plugins.ray" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.plugins.ray.RayClusterExecutor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.ray.</span></span><span class="sig-name descname"><span class="pre">RayClusterExecutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ray_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ray_remote_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/tmp/ray'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workdir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'~/dflow/workflows/{{workflow.name}}/{{pod.name}}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ray_install_mirror</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ray_dependencies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.ray.RayClusterExecutor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.ray.RayClusterExecutor.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="dflow.html#dflow.op_template.ScriptOPTemplate" title="dflow.op_template.ScriptOPTemplate"><span class="pre">ScriptOPTemplate</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.ray.RayClusterExecutor.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template, do not modify
+self in this method to make the executor reusable</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-dflow.plugins">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dflow.plugins" title="Permalink to this heading">¶</a></h2>
 </section>
@@ -168,6 +184,7 @@ self in this method to make the executor reusable</p>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-dflow.plugins.dispatcher">dflow.plugins.dispatcher module</a></li>
 <li><a class="reference internal" href="#module-dflow.plugins.lebesgue">dflow.plugins.lebesgue module</a></li>
+<li><a class="reference internal" href="#module-dflow.plugins.ray">dflow.plugins.ray module</a></li>
 <li><a class="reference internal" href="#module-dflow.plugins">Module contents</a></li>
 </ul>
 </li>

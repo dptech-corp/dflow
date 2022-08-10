@@ -20,6 +20,14 @@ dflow.plugins.lebesgue module
    :undoc-members:
    :show-inheritance:
 
+dflow.plugins.ray module
+------------------------
+
+.. automodule:: dflow.plugins.ray
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
