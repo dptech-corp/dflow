@@ -263,9 +263,45 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             python_packages += jsonpickle.__path__
             python_packages += typeguard.__path__
 
-        script = ""
+        self.python_packages = None
         if python_packages:
             self.python_packages = set(python_packages)
+
+        self.image = image
+        self.image_pull_policy = image_pull_policy
+        if isinstance(command, str):
+            self.command = [command]
+        elif command is not None:
+            self.command = command
+        else:
+            self.command = ["python"]
+        self.init_progress = "%s/%s" % (op_class.progress_current,
+                                        op_class.progress_total)
+        self.memoize_key = memoize_key
+
+        self.op_class = op_class
+        self.input_sign = input_sign
+        self.output_sign = output_sign
+        self.op = op
+        self.input_artifact_slices = input_artifact_slices
+        self.input_parameter_slices = input_parameter_slices
+        self.output_artifact_slices = output_artifact_slices
+        self.output_parameter_slices = output_parameter_slices
+        self.render_script()
+
+    def render_script(self):
+        op_class = self.op_class
+        class_name = op_class.__name__
+        op = self.op
+        input_sign = self.input_sign
+        output_sign = self.output_sign
+        input_artifact_slices = self.input_artifact_slices
+        input_parameter_slices = self.input_parameter_slices
+        output_artifact_slices = self.output_artifact_slices
+        output_parameter_slices = self.output_parameter_slices
+
+        script = ""
+        if self.python_packages:
             self.inputs.artifacts["dflow_python_packages"] = InputArtifact(
                 path="/tmp/inputs/artifacts/dflow_python_packages")
             script += "import os, sys, json\n"
@@ -295,7 +331,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 script += "".join(pre_lines + source_lines) + "\n"
             except Exception:
                 import cloudpickle
-                if hasattr(self, "python_packages"):
+                if self.python_packages:
                     self.python_packages.update(cloudpickle.__path__)
                 else:
                     self.python_packages = set(cloudpickle.__path__)
@@ -370,19 +406,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     "output_sign['%s'], %s, '/tmp')\n" % (name, name, name,
                                                           slices)
 
-        self.image = image
-        self.image_pull_policy = image_pull_policy
-        if isinstance(command, str):
-            self.command = [command]
-        elif command is not None:
-            self.command = command
-        else:
-            self.command = ["python"]
         self.script = script
-        self.init_progress = "%s/%s" % (op_class.progress_current,
-                                        op_class.progress_total)
-
-        self.memoize_key = memoize_key
 
     def get_slices(self, slices_dict, name):
         slices = None
