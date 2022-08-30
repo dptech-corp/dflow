@@ -35,7 +35,7 @@ class DispatcherExecutor(Executor):
         username: username
         private_key_file: private key file for SSH
         image: image for dispatcher
-        image: image pull policy for dispatcher
+        imagePullPolicy: image pull policy for dispatcher
         command: command for dispatcher
         remote_command: command for running the script remotely
         map_tmp_dir: map /tmp to ./tmp
@@ -191,6 +191,8 @@ class DispatcherExecutor(Executor):
             "loads('%s'))\n" % json.dumps(self.resources_dict)
         new_template.script += "task = Task.load_from_dict(json.loads('%s'))"\
             "\n" % json.dumps(self.task_dict)
+        new_template.script += "task.forward_files = list(filter("\
+            "os.path.exists, task.forward_files))\n"
         new_template.script += "submission = Submission(work_base='.', "\
             "machine=machine, resources=resources, task_list=[task])\n"
         new_template.script += "submission.run_submission()\n"
