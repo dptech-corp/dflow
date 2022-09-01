@@ -481,7 +481,6 @@ class OutputParameter(ArgoVar):
             **kwargs,
     ) -> None:
         self.value_from_path = value_from_path
-        self.value_from_parameter = value_from_parameter
         self.name = name
         self.step = step
         self.template = template
@@ -493,6 +492,7 @@ class OutputParameter(ArgoVar):
             self.default = kwargs["default"]
         if "value" in kwargs:
             self.value = kwargs["value"]
+        self.value_from_parameter = value_from_parameter
 
     def __getattr__(self, key):
         if key == "expr":
@@ -601,7 +601,9 @@ class OutputParameter(ArgoVar):
             return V1alpha1Parameter(
                 name=self.name,
                 value_from=V1alpha1ValueFrom(
-                    parameter=str(self.value_from_parameter),
+                    # to avoid double rendering
+                    parameter=str(self.value_from_parameter).replace(
+                        "{{", "").replace("}}", ""),
                     default=default),
                 global_name=self.global_name,
                 description=description)
