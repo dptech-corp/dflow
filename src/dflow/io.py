@@ -109,9 +109,11 @@ class ArgoVar:
 
     def __getitem__(self, i):
         if isinstance(i, str):
-            return ArgoVar("jsonpath(%s, '$')['%s']" % (self.expr, i))
+            item = "jsonpath(%s, '$')['%s']" % (self.expr, i)
         else:
-            return ArgoVar("jsonpath(%s, '$')[%s]" % (self.expr, i))
+            item = "jsonpath(%s, '$')[%s]" % (self.expr, i)
+        return ArgoVar("string(%s) == %s ? %s : toJson(%s)" % (
+            item, item, item, item))
 
     def __iter__(self):
         raise TypeError("'ArgoVar' object is not iterable")
