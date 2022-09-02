@@ -1,6 +1,7 @@
 from typing import Dict, List, Union
 
-from .io import PVC, InputParameter, Inputs, Outputs
+from .config import config as global_config
+from .io import PVC, InputParameter, Inputs, OutputParameter, Outputs
 from .utils import randstr
 
 try:
@@ -69,6 +70,19 @@ class OPTemplate:
             if memoize_prefix is not None:
                 self.memoize_key = "%s-{{inputs.parameters.dflow_key}}" \
                     % memoize_prefix
+
+            if global_config["save_keys_in_global_outputs"]:
+                if hasattr(self, "image"):
+                    self.outputs.parameters["dflow_global"] = OutputParameter(
+                        value="{}",
+                        global_name="{{inputs.parameters.dflow_key}}",
+                    )
+                else:
+                    self.outputs.parameters["dflow_global"] = OutputParameter(
+                        value_from_parameter="non-exists",
+                        default="{}",
+                        global_name="{{inputs.parameters.dflow_key}}",
+                    )
 
         if self.memoize_key is not None:
             # Is it a bug of Argo?
