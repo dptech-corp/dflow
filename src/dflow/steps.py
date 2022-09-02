@@ -21,6 +21,7 @@ class Steps(OPTemplate):
         steps: a sequential list of steps
         memoize_key: memoized key of the steps
         annotations: annotations for the OP template
+        parallelism: maximum number of running pods for the OP template
         """
 
     def __init__(
@@ -31,9 +32,11 @@ class Steps(OPTemplate):
             steps: List[Union[Step, List[Step]]] = None,
             memoize_key: str = None,
             annotations: Dict[str, str] = None,
+            parallelism: int = None,
     ) -> None:
         super().__init__(name=name, inputs=inputs, outputs=outputs,
                          memoize_key=memoize_key, annotations=annotations)
+        self.parallelism = parallelism
         if steps is not None:
             self.steps = steps
         else:
@@ -95,5 +98,6 @@ class Steps(OPTemplate):
                              steps=argo_steps,
                              inputs=self.inputs.convert_to_argo(),
                              outputs=self.outputs.convert_to_argo(),
-                             memoize=self.memoize)
+                             memoize=self.memoize,
+                             parallelism=self.parallelism)
         return argo_template, templates

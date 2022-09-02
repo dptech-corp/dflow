@@ -22,6 +22,7 @@ class DAG(OPTemplate):
         tasks: a list of tasks
         memoize_key: memoized key of the dag
         annotations: annotations for the OP template
+        parallelism: maximum number of running pods for the OP template
         """
 
     def __init__(
@@ -32,9 +33,11 @@ class DAG(OPTemplate):
             tasks: List[Task] = None,
             memoize_key: str = None,
             annotations: Dict[str, str] = None,
+            parallelism: int = None,
     ) -> None:
         super().__init__(name=name, inputs=inputs, outputs=outputs,
                          memoize_key=memoize_key, annotations=annotations)
+        self.parallelism = parallelism
         if tasks is not None:
             self.tasks = tasks
         else:
@@ -86,5 +89,6 @@ class DAG(OPTemplate):
                              ),
                              inputs=self.inputs.convert_to_argo(),
                              outputs=self.outputs.convert_to_argo(),
-                             memoize=self.memoize)
+                             memoize=self.memoize,
+                             parallelism=self.parallelism)
         return argo_template, templates
