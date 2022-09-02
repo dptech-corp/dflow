@@ -270,7 +270,7 @@ Then you can check the submitted workflow through argo's UI.
 After submitting a workflow by `wf.submit()`, or getting a history workflow by `wf = Workflow(id="xxx")`, one can track its real-time status with APIs
 
 - `wf.id`: workflow ID in argo
-- `wf.query_status()`: query workflow status, return `"Pending"`, `"Running"`, `"Suceeded"`, etc.
+- `wf.query_status()`: query workflow status, return `"Pending"`, `"Running"`, `"Succeeded"`, etc.
 - `wf.query_step(name=None)`: query step by name (support for regex), return a list of argo step objects
     - `step.phase`: phase of a step, `"Pending"`, `"Running"`, `Succeeded`, etc.
     - `step.outputs.parameters`: a dictionary of output parameters
