@@ -366,7 +366,22 @@ class Workflow:
         Returns:
             a list of keys
         """
-        return [step.key for step in self.query_step() if step.key is not None]
+        try:
+            try:
+                response = self.api_instance.api_client.call_api(
+                    '/api/v1/workflows/%s/%s' % (self.namespace, self.id),
+                    'GET', response_type=object, _return_http_data_only=True,
+                    query_params=[('fields', 'status.outputs')])
+            except Exception:
+                response = self.api_instance.api_client.call_api(
+                    '/api/v1/archived-workflows/%s' % self.id,
+                    'GET', response_type=object, _return_http_data_only=True,
+                    query_params=[('fields', 'status.outputs')])
+            return [par["name"] for par in
+                    response["status"]["outputs"]["parameters"]]
+        except Exception:
+            return [step.key for step in self.query_step()
+                    if step.key is not None]
 
     def terminate(self) -> None:
         """
