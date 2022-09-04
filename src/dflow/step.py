@@ -375,7 +375,7 @@ class Step:
                     InputParameter, OutputParameter, InputArtifact,
                     OutputArtifact)):
                 self.inputs.parameters[k].source = v
-                return
+                continue
 
             if v is None:
                 self.inputs.parameters[k].value = "null"
