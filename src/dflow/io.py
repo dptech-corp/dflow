@@ -531,6 +531,26 @@ class OutputParameter(ArgoVar):
                 self.type = value.type
             if value.type is None and self.type is not None:
                 value.type = self.type
+        if key == "value_from_expression" and isinstance(value, IfExpression) \
+                and isinstance(value._then, (InputParameter, OutputParameter)):
+            if self.save_as_artifact:
+                value._then.save_as_artifact = True
+            if value._then.save_as_artifact:
+                self.save_as_artifact = True
+            if self.type is None and value._then.type is not None:
+                self.type = value._then.type
+            if value._then.type is None and self.type is not None:
+                value._then.type = self.type
+        if key == "value_from_expression" and isinstance(value, IfExpression) \
+                and isinstance(value._else, (InputParameter, OutputParameter)):
+            if self.save_as_artifact:
+                value._else.save_as_artifact = True
+            if value._else.save_as_artifact:
+                self.save_as_artifact = True
+            if self.type is None and value._else.type is not None:
+                self.type = value._else.type
+            if value._else.type is None and self.type is not None:
+                value._else.type = self.type
         return super().__setattr__(key, value)
 
     def __repr__(self):
