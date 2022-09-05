@@ -392,11 +392,12 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "output_sign = %s.get_output_sign()\n" % class_name
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
-                if config["save_path_as_parameter"]:
-                    self.outputs.parameters["dflow_%s_path_list" %
-                                            name].value_from_path = \
-                        "/tmp/outputs/parameters/dflow_%s_path_list" % name
                 slices = self.get_slices(output_artifact_slices, name)
+                if config["save_path_as_parameter"] or slices is not None:
+                    self.outputs.parameters["dflow_%s_path_list" %
+                                            name] = OutputParameter(
+                        value_from_path="/tmp/outputs/parameters/"
+                        "dflow_%s_path_list" % name)
                 script += "handle_output_artifact('%s', output['%s'], "\
                     "output_sign['%s'], %s, '/tmp')\n" % (name, name, name,
                                                           slices)

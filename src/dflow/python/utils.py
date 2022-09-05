@@ -127,7 +127,7 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
             "catalog_dir_name"], uuid.uuid4()), "w") as f:
         f.write(jsonpickle.dumps({"path_list": path_list}))
     handle_empty_dir(data_root + "/outputs/artifacts/%s" % name)
-    if config["save_path_as_parameter"]:
+    if config["save_path_as_parameter"] or slices is not None:
         with open(data_root + '/outputs/parameters/dflow_%s_path_list'
                   % name, 'w') as f:
             f.write(jsonpickle.dumps(path_list))
