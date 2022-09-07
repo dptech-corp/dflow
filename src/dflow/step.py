@@ -7,6 +7,7 @@ import jsonpickle
 
 from .common import S3Artifact
 from .config import config
+from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
 from .io import (PVC, ArgoVar, InputArtifact, InputParameter, OutputArtifact,
                  OutputParameter)
@@ -349,6 +350,14 @@ class Step:
                 self.outputs.artifacts[name].redirect = \
                     self.prepare_step.outputs.artifacts[name]
             self.template = new_template
+
+        if GLOBAL_CONTEXT.in_context:
+            if not self.name.endswith('init-artifact'):
+                GLOBAL_CONTEXT.current_workflow.add(self)
+            else:
+                if self.name.endswith('init-artifact-init-artifact'):
+                    raise ValueError(
+                        "Please don't name step as '***init-artifact'")
 
     def __repr__(self):
         return self.id
