@@ -145,22 +145,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         class_name = op_class.__name__
         input_sign = op_class.get_input_sign()
         output_sign = op_class.get_output_sign()
-        if slices is not None:
-            assert isinstance(slices, Slices)
-            if slices.input_artifact and not slices.sub_path:
-                input_artifact_slices = {
-                    name: slices.slices for name in slices.input_artifact}
-            if slices.input_parameter:
-                input_parameter_slices = {
-                    name: slices.slices for name in slices.input_parameter}
-            if slices.output_artifact:
-                output_artifact_slices = {}
-                for name in slices.output_artifact:
-                    output_artifact_slices[name] = slices.slices
-                    output_sign[name].archive = None  # not archive for default
-            if slices.output_parameter:
-                output_parameter_slices = {
-                    name: slices.slices for name in slices.output_parameter}
         if output_artifact_save is not None:
             for name, save in output_artifact_save.items():
                 output_sign[name].save = save
@@ -175,7 +159,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             outputs=Outputs(), volumes=volumes, mounts=mounts,
             requests=requests, limits=limits, envs=envs,
             init_containers=init_containers)
-        self.slices = slices
         if timeout is not None:
             self.timeout = "%ss" % timeout
         if retry_on_transient_error is not None:
@@ -188,18 +171,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         self.dflow_vars = {}
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
-                if self.slices is not None and self.slices.sub_path and name \
-                        in self.slices.input_artifact:
-                    self.inputs.parameters["dflow_%s_sub_path" %
-                                           name] = InputParameter(value=".")
-                    self.inputs.artifacts[name] = InputArtifact(
-                        path="/tmp/inputs/artifacts/%s/{{inputs.parameters."
-                        "dflow_%s_sub_path}}" % (name, name),
-                        optional=sign.optional, type=sign.type)
-                else:
-                    self.inputs.artifacts[name] = InputArtifact(
-                        path="/tmp/inputs/artifacts/" + name,
-                        optional=sign.optional, type=sign.type)
+                self.inputs.artifacts[name] = InputArtifact(
+                    path="/tmp/inputs/artifacts/" + name,
+                    optional=sign.optional, type=sign.type)
             elif isinstance(sign, BigParameter):
                 self.inputs.parameters[name] = InputParameter(
                     save_as_artifact=True, path="/tmp/inputs/parameters/"
@@ -287,7 +261,41 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         self.input_parameter_slices = input_parameter_slices
         self.output_artifact_slices = output_artifact_slices
         self.output_parameter_slices = output_parameter_slices
-        self.render_script()
+        self.slices = slices
+
+    def __setattr__(self, key, value):
+        super().__setattr__(key, value)
+        if key == "slices":
+            self.init_slices(value)
+            self.render_script()
+
+    def init_slices(self, slices):
+        if slices is not None:
+            assert isinstance(slices, Slices)
+            if slices.input_artifact and not slices.sub_path:
+                self.input_artifact_slices = {
+                    name: slices.slices for name in slices.input_artifact}
+            if slices.input_parameter:
+                self.input_parameter_slices = {
+                    name: slices.slices for name in slices.input_parameter}
+            if slices.output_artifact:
+                self.output_artifact_slices = {}
+                for name in slices.output_artifact:
+                    self.output_artifact_slices[name] = slices.slices
+                    self.outputs.artifacts[name].archive = None  # no archive
+            if slices.output_parameter:
+                self.output_parameter_slices = {
+                    name: slices.slices for name in slices.output_parameter}
+
+            if slices.sub_path:
+                for name in slices.input_artifact:
+                    self.inputs.parameters["dflow_%s_sub_path" %
+                                           name] = InputParameter(value=".")
+                    sign = self.input_sign[name]
+                    self.inputs.artifacts[name] = InputArtifact(
+                        path="/tmp/inputs/artifacts/%s/{{inputs.parameters."
+                        "dflow_%s_sub_path}}" % (name, name),
+                        optional=sign.optional, type=sign.type)
 
     def render_script(self):
         op_class = self.op_class
