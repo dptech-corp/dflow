@@ -24,25 +24,31 @@ class Artifact:
 
     def __init__(
             self,
-            type: Any,
+            type_artifact: Any,
             archive: str = "default",
             save: List[Union[PVC, S3Artifact]] = None,
             optional: bool = False,
             global_name: str = None,
     ) -> None:
-        self.type = type
+        self.type = type_artifact
         if archive == "default":
             archive = config["archive_mode"]
         self.archive = archive
         self.save = save
         self.optional = optional
         self.global_name = global_name
+        if type(type_artifact) == type:
+            self.type_string = type_artifact.__name__
+        else:
+            self.type_string = str(type_artifact)
 
     def __setattr__(self, key, value):
         if key == "type":
-            assert (value in ArtifactAllowedTypes), "%s is not allowed"\
-                " artifact type, only %s are allowed." % (
-                value, ArtifactAllowedTypes)
+            assert (value in ArtifactAllowedTypes), "%s is not allowed" \
+                                                    "artifact type, only %s " \
+                                                    "are allowed." % (
+                                                        value,
+                                                        ArtifactAllowedTypes)
         super().__setattr__(key, value)
 
 
