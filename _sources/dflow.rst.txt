@@ -46,6 +46,14 @@ dflow.context module
    :undoc-members:
    :show-inheritance:
 
+dflow.context\_syntax module
+----------------------------
+
+.. automodule:: dflow.context_syntax
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dflow.dag module
 ----------------
 

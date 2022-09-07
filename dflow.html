@@ -232,6 +232,39 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 </dd></dl>
 
 </section>
+<section id="module-dflow.context_syntax">
+<span id="dflow-context-syntax-module"></span><h2>dflow.context_syntax module<a class="headerlink" href="#module-dflow.context_syntax" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.context_syntax.Range_Context">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.context_syntax.</span></span><span class="sig-name descname"><span class="pre">Range_Context</span></span><a class="headerlink" href="#dflow.context_syntax.Range_Context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Local context for range.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.context_syntax.Range_Context.get_current_range_param_name">
+<span class="sig-name descname"><span class="pre">get_current_range_param_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.context_syntax.Range_Context.get_current_range_param_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="dflow.context_syntax.Range_Context.in_context">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">in_context</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#dflow.context_syntax.Range_Context.in_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>whether it is in context environment or not.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.context_syntax.Range_Context.to_in_context">
+<span class="sig-name descname"><span class="pre">to_in_context</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.context_syntax.Range_Context.to_in_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Switch to be in context environment.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.context_syntax.Range_Context.to_out_context">
+<span class="sig-name descname"><span class="pre">to_out_context</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.context_syntax.Range_Context.to_out_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Switch to be not in context environment.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-dflow.dag">
 <span id="dflow-dag-module"></span><h2>dflow.dag module<a class="headerlink" href="#module-dflow.dag" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
@@ -2386,6 +2419,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#module-dflow.common">dflow.common module</a></li>
 <li><a class="reference internal" href="#module-dflow.config">dflow.config module</a></li>
 <li><a class="reference internal" href="#module-dflow.context">dflow.context module</a></li>
+<li><a class="reference internal" href="#module-dflow.context_syntax">dflow.context_syntax module</a></li>
 <li><a class="reference internal" href="#module-dflow.dag">dflow.dag module</a></li>
 <li><a class="reference internal" href="#module-dflow.executor">dflow.executor module</a></li>
 <li><a class="reference internal" href="#module-dflow.io">dflow.io module</a></li>
