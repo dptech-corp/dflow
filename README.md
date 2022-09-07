@@ -215,6 +215,26 @@ class SimpleExample(OP):
 ```
 The above example defines an OP `SimpleExample`. The operation is to copy `foo.txt` to `bar.txt` and write the properties of the parameters with name msg to `msg.txt`. 
 
+One may also define OP using decorator `@OP.function` and Python Annotation as:
+
+```python
+from dflow.python import OP, Artifact
+from pathlib import Path
+import shutil
+
+@OP.function
+def SimpleExample(
+		msg: str,
+		inp_art: Artifact(Path),
+)->{"msg": str, "out_art": Artifact(Path),}:
+    shutil.copy(inp_art, "bar.txt")
+    out_msg = msg
+    return {"msg": out_msg, "out_art": Path("bar.txt"),}
+```
+
+We recommend `python>=3.9` to use this syntax sugar.
+See more about Python Annotation at [Python official howtos](https://docs.python.org/3/howto/annotations.html).
+
 To use the above class as a PythonOPTemplate, we need to pass the above class to `PythonOPTemplate` and specify the container image. Note that `pydflow` must be installed in this image
 ```python
 from dflow.python import PythonOPTemplate
