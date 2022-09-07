@@ -9,6 +9,7 @@ from .argo_objects import ArgoStep, ArgoWorkflow
 from .common import S3Artifact
 from .config import config
 from .context import Context
+from .context_syntax import GLOBAL_CONTEXT
 from .dag import DAG
 from .step import Step
 from .steps import Steps
@@ -120,6 +121,14 @@ class Workflow:
             self.argo_templates = {}
             self.pvcs = {}
             self.id = None
+
+    def __enter__(self) -> 'Workflow':
+        GLOBAL_CONTEXT.in_context = True
+        GLOBAL_CONTEXT.current_workflow = self
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        GLOBAL_CONTEXT.in_context = False
 
     def add(
             self,
