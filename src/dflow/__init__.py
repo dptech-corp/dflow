@@ -18,7 +18,7 @@ from .workflow import Workflow, config
 
 __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "IfExpression", "InputArtifact", "InputParameter", "Inputs",
-           "OutputArtifact", "OutputParameter", "Outputs", "S3Artifact",
+           "OutputArtifact", "OutputParameter", "Outputs",
            "if_expression", "OPTemplate", "PythonScriptOPTemplate",
            "ShellOPTemplate", "Resource", "SlurmJob", "SlurmJobTemplate",
            "SlurmRemoteExecutor", "Step", "argo_len", "argo_range",
