@@ -154,6 +154,15 @@ class Workflow:
             reuse_step: a list of steps to be reused in the workflow
         """
         assert self.id is None, "Do not submit a workflow repeatedly"
+        if config["mode"] == "debug":
+            while True:
+                self.id = self.name + "-" + randstr()
+                if not os.path.exists(self.id):
+                    os.makedirs(self.id)
+                    break
+            os.chdir(self.id)
+            print("Workflow is running locally (ID: %s)" % self.id)
+            return self.entrypoint.run(self.id)
 
         manifest = self.convert_to_argo(reuse_step=reuse_step)
 

@@ -92,3 +92,36 @@ class DAG(OPTemplate):
                              memoize=self.memoize,
                              parallelism=self.parallelism)
         return argo_template, templates
+
+    def resolve(self):
+        from threading import Thread
+        for task in self.unfinished:
+            can_run = True
+            for dep in task.dependencies:
+                if dep in self.unfinished:
+                    can_run = False
+                    break
+            if can_run:
+                task.phase = "Pending"
+                proc = Thread(target=task.run, args=(self,))
+                proc.start()
+                self.procs.append((proc, task))
+
+    def run(self, workflow_id=None):
+        self.workflow_id = workflow_id
+        import time
+        self.unfinished = [task for task in self]
+        self.procs = []
+        self.resolve()
+        while len(self.procs) > 0:
+            time.sleep(1)
+            for proc, task in self.procs.copy():
+                if not proc.is_alive():
+                    if task.phase not in ["Succeeded", "Skipped"]:
+                        task.phase = "Failed"
+                        if not task.continue_on_failed:
+                            exit(1)
+                    self.procs.remove((proc, task))
+                    self.unfinished.remove(task)
+                    self.resolve()
+        assert len(self.unfinished) == 0, "cyclic graph"

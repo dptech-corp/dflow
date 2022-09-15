@@ -164,22 +164,21 @@ class IfExpression:
             _then: Union[str, ArgoVar],
             _else: Union[str, ArgoVar],
     ) -> None:
-        self._if = _if
+        if isinstance(_if, (InputParameter, OutputParameter)):
+            self._if = "%s == 'true'" % _if.expr
+        elif isinstance(_if, ArgoVar):
+            self._if = _if.expr
+        else:
+            self._if = _if
         self._then = _then
         self._else = _else
 
     def __repr__(self) -> str:
-        if isinstance(self._if, (InputParameter, OutputParameter)):
-            _if = "%s == 'true'" % self._if.expr
-        elif isinstance(self._if, ArgoVar):
-            _if = self._if.expr
-        else:
-            _if = self._if
         _then = self._then.expr if isinstance(
             self._then, ArgoVar) else self._then
         _else = self._else.expr if isinstance(
             self._else, ArgoVar) else self._else
-        return "%s ? %s : %s" % (_if, _then, _else)
+        return "%s ? %s : %s" % (self._if, _then, _else)
 
 
 def if_expression(
@@ -246,6 +245,8 @@ class InputParameter(ArgoVar):
         if "value" in kwargs:
             self.value = kwargs["value"]
         self.save_as_artifact = save_as_artifact
+        if config["mode"] == "debug":
+            self.save_as_artifact = False
         self.path = path
         self.source = source
 
@@ -488,6 +489,8 @@ class OutputParameter(ArgoVar):
         self.global_name = global_name
         self.value_from_expression = value_from_expression
         self.save_as_artifact = save_as_artifact
+        if config["mode"] == "debug":
+            self.save_as_artifact = False
         if "default" in kwargs:
             self.default = kwargs["default"]
         if "value" in kwargs:

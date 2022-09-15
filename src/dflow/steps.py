@@ -56,7 +56,20 @@ class Steps(OPTemplate):
             step: a step or a list of parallel steps to be added to the
                 entrypoint of the workflow
         """
+        assert isinstance(step, (Step, list))
+        if isinstance(step, Step):
+            if step.prepare_step is not None:
+                self.steps.append(step.prepare_step)
+        elif isinstance(step, list):
+            self.steps.append([ps.prepare_step for ps in step
+                               if ps.prepare_step is not None])
         self.steps.append(step)
+        if isinstance(step, Step):
+            if step.check_step is not None:
+                self.steps.append(step.check_step)
+        elif isinstance(step, list):
+            self.steps.append([ps.check_step for ps in step
+                               if ps.check_step is not None])
 
     def convert_to_argo(self, memoize_prefix=None,
                         memoize_configmap="dflow", context=None):
@@ -68,27 +81,12 @@ class Steps(OPTemplate):
             # create a sigleton
             if not isinstance(step, list):
                 step = [step]
-            argo_prepare_steps = []
             argo_parallel_steps = []
-            argo_check_steps = []
             for ps in step:
-                assert isinstance(ps, Step)
-                if ps.prepare_step is not None:
-                    argo_prepare_steps.append(
-                        ps.prepare_step.convert_to_argo(context))
-                    templates.append(ps.prepare_step.template)
                 argo_parallel_steps.append(ps.convert_to_argo(context))
                 # template may change after conversion
                 templates.append(ps.template)
-                if ps.check_step is not None:
-                    argo_check_steps.append(
-                        ps.check_step.convert_to_argo(context))
-                    templates.append(ps.check_step.template)
-            if argo_prepare_steps:
-                argo_steps.append(argo_prepare_steps)
             argo_steps.append(argo_parallel_steps)
-            if argo_check_steps:
-                argo_steps.append(argo_check_steps)
 
         self.handle_key(memoize_prefix, memoize_configmap)
         argo_template = \
@@ -101,3 +99,23 @@ class Steps(OPTemplate):
                              memoize=self.memoize,
                              parallelism=self.parallelism)
         return argo_template, templates
+
+    def run(self, workflow_id=None):
+        self.workflow_id = workflow_id
+        for step in self:
+            if isinstance(step, list):
+                procs = []
+                for ps in step:
+                    ps.phase = "Pending"
+                    from threading import Thread
+                    proc = Thread(target=ps.run, args=(self,))
+                    proc.start()
+                    procs.append((proc, ps))
+                for proc, ps in procs:
+                    proc.join()
+                    if ps.phase not in ["Succeeded", "Skipped"]:
+                        ps.phase = "Failed"
+                        if not ps.continue_on_failed:
+                            exit(1)
+            else:
+                step.run(self)

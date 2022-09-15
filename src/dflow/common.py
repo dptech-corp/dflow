@@ -38,3 +38,8 @@ class S3Artifact(V1alpha1S3Artifact):
             artifact.key += "/"
         artifact.key += path
         return artifact
+
+
+class LocalArtifact:
+    def __init__(self, local_path):
+        self.local_path = local_path

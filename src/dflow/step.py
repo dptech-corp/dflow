@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Union
 
 import jsonpickle
 
-from .common import S3Artifact
+from .common import LocalArtifact, S3Artifact
 from .config import config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
@@ -38,6 +38,11 @@ def argo_range(
         Python
     Each argument can be Argo parameter
     """
+    if config["mode"] == "debug":
+        for i in range(len(args)):
+            if isinstance(args[i], (InputParameter, OutputParameter)):
+                args[i] = args[i].value
+        return list(range(*args))
     start = 0
     step = 1
     if len(args) == 1:
@@ -96,6 +101,8 @@ def argo_len(
     Args:
         param: the Argo parameter which is a list
     """
+    if config["mode"] == "debug":
+        return len(param.value)
     if isinstance(param, S3Artifact):
         try:
             path_list = catalog_of_artifact(param)
@@ -199,7 +206,8 @@ class Step:
             util_command = [util_command]
         self.util_command = util_command
 
-        if hasattr(self.template, "python_packages"):
+        if hasattr(self.template, "python_packages") and \
+                self.template.python_packages:
             hit = list(filter(lambda x: x[0] == self.template.python_packages,
                               uploaded_python_packages))
             if len(hit) > 0:
@@ -216,12 +224,15 @@ class Step:
             self.inputs.parameters["dflow_key"] = InputParameter(
                 value=str(self.key))
 
+        new_template = None
+
         if hasattr(self.template, "slices") and self.template.slices is not \
                 None and (self.template.slices.output_artifact or (
                     self.template.slices.sub_path and
                     self.template.slices.input_artifact)):
-            new_template = deepcopy(self.template)
-            new_template.name = self.template.name + "-" + randstr()
+            if new_template is None:
+                new_template = deepcopy(self.template)
+                new_template.name = self.template.name + "-" + randstr()
             script = "import os, json\n"
             for name in new_template.slices.output_artifact:
                 script += "os.makedirs('/tmp/outputs/artifacts/%s/%s', "\
@@ -274,7 +285,8 @@ class Step:
                         optional=True, sub_path=config["catalog_dir_name"])
                     init_template.outputs.parameters["dflow_slices_path"] = \
                         OutputParameter(value_from_path="/tmp/outputs/"
-                                        "parameters/dflow_slices_path")
+                                        "parameters/dflow_slices_path",
+                                        type=str(dict))
                     init_template.script += "path_list_%s = []\n" % i
                     init_template.script += \
                         "path = '/tmp/inputs/artifacts/%s'\n" % name
@@ -339,7 +351,8 @@ class Step:
                             v.sub_path(config["catalog_dir_name"])
                         self.inputs.artifacts[name].source = \
                             v.sub_path("{{item.%s}}" % name)
-                    elif isinstance(v, (InputArtifact, OutputArtifact)):
+                    elif isinstance(v, (InputArtifact, OutputArtifact,
+                                        LocalArtifact)):
                         self.prepare_step.inputs.artifacts[name].source = v
                         self.inputs.artifacts[name].sub_path = \
                             "{{item.%s}}" % name
@@ -349,99 +362,11 @@ class Step:
             for name in new_template.slices.output_artifact:
                 self.outputs.artifacts[name].redirect = \
                     self.prepare_step.outputs.artifacts[name]
-            self.template = new_template
-
-        if GLOBAL_CONTEXT.in_context:
-            if not self.name.endswith('init-artifact'):
-                GLOBAL_CONTEXT.current_workflow.add(self)
-            else:
-                if self.name.endswith('init-artifact-init-artifact'):
-                    raise ValueError(
-                        "Please don't name step as '***init-artifact'")
-
-    def __repr__(self):
-        return self.id
-
-    def set_parameters(self, parameters):
-        for k, v in parameters.items():
-            # if a parameter is saved as artifact, the parameters it pass
-            # value to or its value comes from must be saved as artifact
-            # as well
-            if isinstance(v, (InputParameter, OutputParameter)):
-                if self.inputs.parameters[k].type is None and v.type is not \
-                        None:
-                    self.inputs.parameters[k].type = v.type
-                if v.type is None and self.inputs.parameters[k].type is not \
-                        None:
-                    v.type = self.inputs.parameters[k].type
-
-                if self.inputs.parameters[k].save_as_artifact:
-                    v.save_as_artifact = True
-                if v.save_as_artifact:
-                    self.inputs.parameters[k].save_as_artifact = True
-
-            if self.inputs.parameters[k].save_as_artifact and isinstance(v, (
-                    InputParameter, OutputParameter, InputArtifact,
-                    OutputArtifact)):
-                self.inputs.parameters[k].source = v
-                continue
-
-            if v is None:
-                self.inputs.parameters[k].value = "null"
-            else:
-                self.inputs.parameters[k].value = v
-
-    def set_artifacts(self, artifacts):
-        for k, v in artifacts.items():
-            if v is None:
-                del self.inputs.artifacts[k]
-                self.template.inputs.artifacts[k].optional = True
-            else:
-                self.inputs.artifacts[k].source = v
-                if config["save_path_as_parameter"]:
-                    if isinstance(v, S3Artifact) and v.path_list is not None:
-                        try:
-                            path_list = catalog_of_artifact(v)
-                            if path_list:
-                                v.path_list = path_list
-                        except Exception:
-                            pass
-                        self.inputs.parameters["dflow_%s_path_list" % k] = \
-                            InputParameter(value=v.path_list)
-                    elif isinstance(v, OutputArtifact) and v.step is not None \
-                            and "dflow_%s_path_list" % v.name in \
-                                v.step.outputs.parameters:
-                        self.inputs.parameters["dflow_%s_path_list" % k] = \
-                            InputParameter(
-                            value=v.step.outputs.parameters[
-                                "dflow_%s_path_list" % v.name])
-                    elif isinstance(v, InputArtifact) and v.template is not \
-                            None and "dflow_%s_path_list" % v.name in \
-                            v.template.inputs.parameters:
-                        self.inputs.parameters["dflow_%s_path_list" % k] = \
-                            InputParameter(
-                            value=v.template.inputs.parameters[
-                                "dflow_%s_path_list" % v.name])
-
-    def prepare_argo_arguments(self, context=None):
-        self.argo_parameters = []
-        self.argo_artifacts = []
-        for par in self.inputs.parameters.values():
-            if par.save_as_artifact:
-                self.argo_artifacts.append(par.convert_to_argo())
-            else:
-                self.argo_parameters.append(par.convert_to_argo())
-
-        new_template = None
 
         pvc_arts = []
         for art in self.inputs.artifacts.values():
             if isinstance(art.source, PVC):
                 pvc_arts.append((art.source, art))
-            elif art.source is None and art.optional:
-                pass
-            else:
-                self.argo_artifacts.append(art.convert_to_argo())
 
         if len(pvc_arts) > 0:
             if new_template is None:
@@ -552,6 +477,95 @@ class Step:
                 }
             )
 
+        if GLOBAL_CONTEXT.in_context:
+            if not self.name.endswith('init-artifact'):
+                GLOBAL_CONTEXT.current_workflow.add(self)
+            else:
+                if self.name.endswith('init-artifact-init-artifact'):
+                    raise ValueError(
+                        "Please don't name step as '***init-artifact'")
+
+    def __repr__(self):
+        return self.id
+
+    def set_parameters(self, parameters):
+        for k, v in parameters.items():
+            # if a parameter is saved as artifact, the parameters it pass
+            # value to or its value comes from must be saved as artifact
+            # as well
+            if isinstance(v, (InputParameter, OutputParameter)):
+                if self.inputs.parameters[k].type is None and v.type is not \
+                        None:
+                    self.inputs.parameters[k].type = v.type
+                if v.type is None and self.inputs.parameters[k].type is not \
+                        None:
+                    v.type = self.inputs.parameters[k].type
+
+                if self.inputs.parameters[k].save_as_artifact:
+                    v.save_as_artifact = True
+                if v.save_as_artifact:
+                    self.inputs.parameters[k].save_as_artifact = True
+
+            if self.inputs.parameters[k].save_as_artifact and isinstance(v, (
+                    InputParameter, OutputParameter, InputArtifact,
+                    OutputArtifact)):
+                self.inputs.parameters[k].source = v
+                continue
+
+            if v is None:
+                self.inputs.parameters[k].value = "null"
+            else:
+                self.inputs.parameters[k].value = v
+
+    def set_artifacts(self, artifacts):
+        for k, v in artifacts.items():
+            if v is None:
+                del self.inputs.artifacts[k]
+                self.template.inputs.artifacts[k].optional = True
+            else:
+                self.inputs.artifacts[k].source = v
+                if config["save_path_as_parameter"]:
+                    if isinstance(v, S3Artifact) and v.path_list is not None:
+                        try:
+                            path_list = catalog_of_artifact(v)
+                            if path_list:
+                                v.path_list = path_list
+                        except Exception:
+                            pass
+                        self.inputs.parameters["dflow_%s_path_list" % k] = \
+                            InputParameter(value=v.path_list)
+                    elif isinstance(v, OutputArtifact) and v.step is not None \
+                            and "dflow_%s_path_list" % v.name in \
+                                v.step.outputs.parameters:
+                        self.inputs.parameters["dflow_%s_path_list" % k] = \
+                            InputParameter(
+                            value=v.step.outputs.parameters[
+                                "dflow_%s_path_list" % v.name])
+                    elif isinstance(v, InputArtifact) and v.template is not \
+                            None and "dflow_%s_path_list" % v.name in \
+                            v.template.inputs.parameters:
+                        self.inputs.parameters["dflow_%s_path_list" % k] = \
+                            InputParameter(
+                            value=v.template.inputs.parameters[
+                                "dflow_%s_path_list" % v.name])
+
+    def prepare_argo_arguments(self, context=None):
+        self.argo_parameters = []
+        self.argo_artifacts = []
+        for par in self.inputs.parameters.values():
+            if par.save_as_artifact:
+                self.argo_artifacts.append(par.convert_to_argo())
+            else:
+                self.argo_parameters.append(par.convert_to_argo())
+
+        for art in self.inputs.artifacts.values():
+            if isinstance(art.source, PVC):
+                pass
+            elif art.source is None and art.optional:
+                pass
+            else:
+                self.argo_artifacts.append(art.convert_to_argo())
+
         if isinstance(self.with_param, ArgoVar):
             self.with_param = "{{=%s}}" % self.with_param.expr
         elif self.with_param is not None and not isinstance(self.with_param,
@@ -585,3 +599,403 @@ class Step:
             with_sequence=self.with_sequence,
             continue_on=V1alpha1ContinueOn(failed=self.continue_on_failed)
         )
+
+    def run(self, context):
+        self.phase = "Running"
+        if self.executor is not None:
+            assert isinstance(self.executor, Executor)
+            self.template = self.executor.render(self.template)
+
+        import os
+        from copy import copy
+        from .dag import DAG
+        from .steps import Steps
+
+        if self.when is not None:
+            expr = render_expr(self.when, context)
+            if not eval_bool_expr(expr):
+                self.phase = "Skipped"
+                return
+
+        if isinstance(self.template, (Steps, DAG)):
+            # shallow copy to avoid changing each step
+            steps = copy(self.template)
+            steps.inputs = deepcopy(self.template.inputs)
+
+            # override default inputs with arguments
+            for name, par in self.inputs.parameters.items():
+                if isinstance(par.value, (InputParameter, OutputParameter)):
+                    steps.inputs.parameters[name].value = par.value.value
+                else:
+                    steps.inputs.parameters[name].value = par.value
+
+            for name, art in self.inputs.artifacts.items():
+                steps.inputs.artifacts[name].local_path = art.source.local_path
+
+            steps.run()
+
+            def get_par_from_steps(steps, par):
+                if isinstance(par, OutputParameter):
+                    for step in steps:
+                        if step.name == par.step.name:
+                            return step.outputs.parameters[par.name]
+
+            for name, par in self.outputs.parameters.items():
+                if par.value_from_parameter is not None:
+                    par.value = get_par_from_steps(
+                        steps, par.value_from_parameter).value
+                elif par.value_from_expression is not None:
+                    _if = par.value_from_expression._if
+                    _if = render_expr(_if, steps)
+                    if eval_bool_expr(_if):
+                        _then = par.value_from_expression._then
+                        par.value = get_par_from_steps(steps, _then).value
+                    else:
+                        _else = par.value_from_expression._else
+                        par.value = get_par_from_steps(steps, _else).value
+
+            def get_art_from_steps(steps, art):
+                if isinstance(art, OutputArtifact):
+                    for step in steps:
+                        if step.name == art.step.name:
+                            return step.outputs.artifacts[art.name]
+
+            for name, art in self.outputs.artifacts.items():
+                if art._from is not None:
+                    art.local_path = get_art_from_steps(
+                        steps, art._from).local_path
+                elif art.from_expression is not None:
+                    _if = art.from_expression._if
+                    _if = render_expr(_if, steps)
+                    if eval_bool_expr(_if):
+                        _then = art.from_expression._then
+                        art.local_path = get_art_from_steps(
+                            steps, _then).local_path
+                        print(art.local_path)
+                    else:
+                        _else = art.from_expression._else
+                        art.local_path = get_art_from_steps(
+                            steps, _else).local_path
+
+            self.phase = "Succeeded"
+            return
+
+        parameters = deepcopy(self.inputs.parameters)
+        for name, par in parameters.items():
+            value = par.value
+            if isinstance(value, (InputParameter, OutputParameter)):
+                if value.step is None:
+                    par.value = context.inputs.parameters[value.name].value
+                else:
+                    par.value = value.value
+
+        if self.with_param is not None or self.with_sequence is not None:
+            if isinstance(self.with_param, (InputParameter, OutputParameter)):
+                item_list = self.with_param.value
+            elif isinstance(self.with_param, list):
+                item_list = self.with_param
+            elif self.with_sequence is not None:
+                start = 0
+                if self.with_sequence.start is not None:
+                    start = self.with_sequence.start
+                    if isinstance(start, (InputParameter, OutputParameter)):
+                        start = start.value
+                if self.with_sequence.count is not None:
+                    count = self.with_sequence.count
+                    if isinstance(count, (InputParameter, OutputParameter)):
+                        count = count.value
+                    sequence = list(range(start, start + count))
+                if self.with_sequence.end is not None:
+                    end = self.with_sequence.end
+                    if isinstance(end, (InputParameter, OutputParameter)):
+                        end = end.value
+                    sequence = list(range(start, end + 1))
+                if self.with_sequence.format is not None:
+                    item_list = [self.with_sequence.format % i
+                                 for i in sequence]
+                else:
+                    item_list = sequence
+            else:
+                raise RuntimeError("Not supported")
+
+            procs = []
+            self.parallel_steps = []
+            assert isinstance(item_list, list)
+            for item in item_list:
+                ps = deepcopy(self)
+                ps.phase = "Pending"
+                self.parallel_steps.append(ps)
+                from threading import Thread
+                proc = Thread(target=ps.exec, args=(context, parameters, item))
+                proc.start()
+                procs.append(proc)
+            for proc in procs:
+                proc.join()
+            for ps in self.parallel_steps:
+                if ps.phase != "Succeeded":
+                    ps.phase = "Failed"
+                    if not ps.continue_on_failed:
+                        exit(1)
+
+            for name, par in self.outputs.parameters.items():
+                par.value = []
+                for ps in self.parallel_steps:
+                    value = ps.outputs.parameters[name].value
+                    if isinstance(value, str):
+                        par.value.append(value)
+                    else:
+                        par.value.append(jsonpickle.loads(value))
+            for name, art in self.outputs.artifacts.items():
+                for save in self.template.outputs.artifacts[name].save:
+                    if isinstance(save, S3Artifact):
+                        key = render_script(save.key, parameters,
+                                            context.workflow_id)
+                        art.local_path = os.path.abspath(os.path.join("..",
+                                                                      key))
+        else:
+            self.exec(context, parameters)
+
+        self.phase = "Succeeded"
+
+    def exec(self, context, parameters, item=None):
+        """
+        directory structure:
+        step-xxxxx
+        |- inputs
+           |- parameters
+           |- artifacts
+        |- outputs
+           |- parameters
+           |- artifacts
+        |- script
+        |- workdir
+        """
+        self.phase = "Running"
+        import os
+        import shutil
+        cwd = os.getcwd()
+        while True:
+            step_id = self.name + "-" + randstr()
+            stepdir = os.path.abspath(step_id)
+            if not os.path.exists(stepdir):
+                os.makedirs(stepdir)
+                break
+        workdir = os.path.join(stepdir, "workdir")
+        os.makedirs(workdir, exist_ok=True)
+        os.chdir(workdir)
+
+        # render parameters
+        os.makedirs(os.path.join(stepdir, "inputs/parameters"), exist_ok=True)
+        for name, par in parameters.items():
+            par_path = os.path.join(stepdir, "inputs/parameters/%s" % name)
+            if item is not None and isinstance(par.value, str):
+                par.value = render_item(par.value, item)
+            with open(par_path, "w") as f:
+                f.write(par.value if isinstance(par.value, str)
+                        else jsonpickle.dumps(par.value))
+
+        # render artifacts
+        os.makedirs(os.path.join(stepdir, "inputs/artifacts"), exist_ok=True)
+        for name, art in self.inputs.artifacts.items():
+            art_path = os.path.join(stepdir, "inputs/artifacts/%s" % name)
+            if isinstance(art.source, (InputArtifact, OutputArtifact,
+                                       LocalArtifact)):
+                if isinstance(art.source, InputArtifact) and \
+                        art.source.step is None:
+                    art.source = context.inputs.artifacts[art.source.name]
+                if art.sub_path is not None:
+                    sub_path = art.sub_path
+                    if item is not None:
+                        sub_path = render_item(sub_path, item)
+                    os.symlink(os.path.join(art.source.local_path, sub_path),
+                               art_path)
+                else:
+                    os.symlink(art.source.local_path, art_path)
+            elif isinstance(art.source, str):
+                with open(art_path, "w") as f:
+                    f.write(art.source)
+            else:
+                raise RuntimeError("Not supported: ", art.source)
+
+            path = self.template.inputs.artifacts[name].path
+            if hasattr(self.template, "tmp_root"):
+                path = "%s/%s" % (workdir, path)
+            path = render_script(path, parameters,
+                                 context.workflow_id, step_id)
+            os.makedirs(os.path.dirname(
+                os.path.abspath(path)), exist_ok=True)
+            backup(path)
+            os.symlink(art_path, path)
+
+        # clean output path
+        for art in self.outputs.artifacts.values():
+            path = art.path
+            if hasattr(self.template, "tmp_root"):
+                path = "%s/%s" % (workdir, path)
+            backup(path)
+
+        # render variables in the script
+        script = self.template.script
+        if hasattr(self.template, "tmp_root"):
+            # do not modify self.template
+            template = deepcopy(self.template)
+            template.tmp_root = "%s/%s" % (workdir, template.tmp_root)
+            template.render_script()
+            script = template.script
+        script = render_script(script, parameters,
+                               context.workflow_id, step_id)
+        script_path = os.path.join(stepdir, "script")
+        with open(script_path, "w") as f:
+            f.write(script)
+        ret_code = os.system(" ".join(self.template.command) + " " +
+                             script_path)
+        if ret_code != 0:
+            exit(ret_code)
+
+        # save parameters
+        os.makedirs(os.path.join(stepdir, "outputs/parameters"), exist_ok=True)
+        for name, par in self.outputs.parameters.items():
+            par_path = os.path.join(stepdir,
+                                    "outputs/parameters/%s" % name)
+            path = par.value_from_path
+            if hasattr(self.template, "tmp_root"):
+                path = "%s/%s" % (workdir, path)
+            if path is not None:
+                with open(path, "r") as f:
+                    if par.type is None or par.type == str:
+                        par.value = f.read()
+                    else:
+                        par.value = jsonpickle.loads(f.read())
+                os.symlink(path, par_path)
+            elif hasattr(par, "value"):
+                if isinstance(par.value, str):
+                    par.value = render_script(
+                        par.value, parameters, context.workflow_id,
+                        step_id)
+                    value = par.value
+                else:
+                    value = jsonpickle.dumps(par.value)
+                with open(par_path, "w") as f:
+                    f.write(value)
+
+        # save artifacts
+        os.makedirs(os.path.join(stepdir, "outputs/artifacts"), exist_ok=True)
+        for name, art in self.outputs.artifacts.items():
+            art_path = os.path.join(stepdir, "outputs/artifacts/%s" % name)
+            path = art.path
+            if hasattr(self.template, "tmp_root"):
+                path = "%s/%s" % (workdir, path)
+            os.symlink(path, art_path)
+            for save in self.template.outputs.artifacts[name].save:
+                if isinstance(save, S3Artifact):
+                    key = render_script(save.key, parameters,
+                                        context.workflow_id, step_id)
+                    save_path = os.path.join(cwd, "..", key)
+                    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+                    def link(src, dst):
+                        try:
+                            os.link(src, dst)
+                        except Exception:
+                            pass
+                    shutil.copytree(art_path, save_path, copy_function=link,
+                                    dirs_exist_ok=True)
+            art.local_path = art_path
+        os.chdir(cwd)
+        self.phase = "Succeeded"
+
+
+def render_item(expr, item):
+    i = expr.find("{{item")
+    while i >= 0:
+        j = expr.find("}}", i+2)
+        var = expr[i+2:j]
+        fields = var.split(".")
+        value = item
+        for key in fields[1:]:
+            value = value[key]
+        value = value if isinstance(value, str) else jsonpickle.dumps(value)
+        expr = expr[:i] + value.strip() + expr[j+2:]
+        i = expr.find("{{item")
+    return expr
+
+
+def render_expr(expr, context):
+    # render variables
+    i = expr.find("{{")
+    while i >= 0:
+        j = expr.find("}}", i+2)
+        var = expr[i+2:j]
+        fields = var.split(".")
+        if fields[:2] == ["inputs", "parameters"]:
+            name = fields[2]
+            value = context.inputs.parameters[name].value
+        elif fields[0] == "steps" and fields[2:4] == ["outputs", "parameters"]:
+            step_name = fields[1]
+            name = fields[4]
+            value = None
+            for step in context.steps:
+                if step.name == step_name:
+                    value = step.outputs.parameters[name].value
+                    break
+            if value is None:
+                raise RuntimeError("Parse failed: ", var)
+        else:
+            raise RuntimeError("Not supported: ", var)
+
+        value = value if isinstance(value, str) else jsonpickle.dumps(value)
+        expr = expr[:i] + value.strip() + expr[j+2:]
+        i = expr.find("{{")
+    return expr
+
+
+def eval_bool_expr(expr):
+    # For the original evaluator in argo, please refer to
+    # https://github.com/antonmedv/expr
+    import os
+    expr = expr.replace("<=", "-le")
+    expr = expr.replace(">=", "-ge")
+    expr = expr.replace("<", "-lt")
+    expr = expr.replace(">", "-gt")
+    result = os.popen(
+        "sh -c 'if [[ %s ]]; then echo 1; else echo 0; fi'"
+        % expr).read().strip()
+    if result == "1":
+        return True
+    elif result == "0":
+        return False
+    else:
+        raise RuntimeError("Evaluate expression failed: ", expr)
+
+
+def render_script(script, parameters, workflow_id=None, step_id=None):
+    if workflow_id is not None:
+        script = script.replace("{{workflow.name}}", workflow_id)
+    if step_id is not None:
+        script = script.replace("{{pod.name}}", step_id)
+    i = script.find("{{")
+    while i >= 0:
+        j = script.find("}}", i+2)
+        var = script[i+2:j]
+        fields = var.split(".")
+        if fields[0] == "inputs" and fields[1] == "parameters":
+            par = fields[2]
+            value = parameters[par].value
+            script = script[:i] + (value if isinstance(value, str)
+                                   else jsonpickle.dumps(value)) + script[j+2:]
+        else:
+            raise RuntimeError("Not supported: ", var)
+        i = script.find("{{")
+    return script
+
+
+def backup(path):
+    import os
+    import shutil
+    cnt = 0
+    bk = path
+    while os.path.exists(bk) or os.path.islink(bk):
+        cnt += 1
+        bk = path + ".bk%s" % cnt
+    if bk != path:
+        shutil.move(path, bk)
