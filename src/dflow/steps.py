@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Dict, List, Union
 
 from .io import Inputs, Outputs
@@ -101,21 +102,34 @@ class Steps(OPTemplate):
         return argo_template, templates
 
     def run(self, workflow_id=None):
+        import time
+
         self.workflow_id = workflow_id
         for step in self:
             if isinstance(step, list):
+                from multiprocessing import Process, Queue
+                queue = Queue()
                 procs = []
-                for ps in step:
+                for i, ps in enumerate(step):
                     ps.phase = "Pending"
-                    from threading import Thread
-                    proc = Thread(target=ps.run, args=(self,))
+                    proc = Process(target=ps.run, args=(self, i, queue,))
                     proc.start()
-                    procs.append((proc, ps))
-                for proc, ps in procs:
-                    proc.join()
-                    if ps.phase not in ["Succeeded", "Skipped"]:
-                        ps.phase = "Failed"
-                        if not ps.continue_on_failed:
-                            exit(1)
+                    procs.append(proc)
+
+                watch_list = procs.copy()
+                while len(watch_list) > 0:
+                    time.sleep(1)
+                    for proc in watch_list.copy():
+                        if not proc.is_alive():
+                            if proc.exitcode == 0:
+                                j, ps = queue.get()
+                                step[j].outputs = deepcopy(ps.outputs)
+                            else:
+                                i = procs.index(proc)
+                                step[i].phase = "Failed"
+                                if not step[i].continue_on_failed:
+                                    raise RuntimeError("Step %s failed" %
+                                                       step[i])
+                            watch_list.remove(proc)
             else:
                 step.run(self)

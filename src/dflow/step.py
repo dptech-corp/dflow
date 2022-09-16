@@ -606,13 +606,14 @@ class Step:
             continue_on=V1alpha1ContinueOn(failed=self.continue_on_failed)
         )
 
-    def run(self, context):
+    def run(self, context, order=None, queue=None):
         self.phase = "Running"
         if self.executor is not None:
             assert isinstance(self.executor, Executor)
             self.template = self.executor.render(self.template)
 
         import os
+        import time
         from copy import copy
         from .dag import DAG
         from .steps import Steps
@@ -712,22 +713,34 @@ class Step:
             procs = []
             self.parallel_steps = []
             assert isinstance(item_list, list)
-            for item in item_list:
+            from multiprocessing import Process, Queue
+            q = Queue()
+            for i, item in enumerate(item_list):
                 ps = deepcopy(self)
                 pp = deepcopy(parameters)
                 ps.phase = "Pending"
                 self.parallel_steps.append(ps)
-                from threading import Thread
-                proc = Thread(target=ps.exec, args=(context, pp, item))
+                proc = Process(target=ps.exec, args=(context, pp, item, i, q))
                 proc.start()
                 procs.append(proc)
-            for proc in procs:
-                proc.join()
-            for ps in self.parallel_steps:
-                if ps.phase != "Succeeded":
-                    ps.phase = "Failed"
-                    if not ps.continue_on_failed:
-                        exit(1)
+
+            watch_list = procs.copy()
+            while len(watch_list) > 0:
+                time.sleep(1)
+                for proc in watch_list.copy():
+                    if not proc.is_alive():
+                        if proc.exitcode == 0:
+                            j, ps = q.get()
+                            self.parallel_steps[j].outputs = \
+                                deepcopy(ps.outputs)
+                        else:
+                            i = procs.index(proc)
+                            self.parallel_steps[i].phase = "Failed"
+                            if not self.continue_on_failed:
+                                self.phase = "Failed"
+                                raise RuntimeError("Step %s failed" %
+                                                   self.parallel_steps[i])
+                        watch_list.remove(proc)
 
             for name, par in self.outputs.parameters.items():
                 par.value = []
@@ -744,12 +757,19 @@ class Step:
                                             context.workflow_id)
                         art.local_path = os.path.abspath(os.path.join("..",
                                                                       key))
+            self.phase = "Succeeded"
         else:
-            self.exec(context, parameters)
+            try:
+                self.exec(context, parameters)
+            except Exception:
+                self.phase = "Failed"
+                if not self.continue_on_failed:
+                    raise RuntimeError("Step %s failed" % self)
 
-        self.phase = "Succeeded"
+        if queue is not None:
+            queue.put((order, self))
 
-    def exec(self, context, parameters, item=None):
+    def exec(self, context, parameters, item=None, order=None, queue=None):
         """
         directory structure:
         step-xxxxx
@@ -861,10 +881,10 @@ class Step:
         script_path = os.path.join(stepdir, "script")
         with open(script_path, "w") as f:
             f.write(script)
-        ret_code = os.system("pwd && " + " ".join(self.template.command) + " " +
+        ret_code = os.system(" ".join(self.template.command) + " " +
                              script_path)
         if ret_code != 0:
-            exit(ret_code)
+            raise RuntimeError("Run script failed")
 
         # save parameters
         os.makedirs(os.path.join(stepdir, "outputs/parameters"), exist_ok=True)
@@ -919,6 +939,8 @@ class Step:
 
         os.chdir(cwd)
         self.phase = "Succeeded"
+        if queue is not None:
+            queue.put((order, self))
 
 
 def render_item(expr, item):
@@ -966,7 +988,11 @@ def get_var(expr, context):
         step_name = fields[1]
         name = fields[4]
         for step in context:
-            if step.name == step_name:
+            if isinstance(step, list):
+                for ps in step:
+                    if ps.name == step_name:
+                        return ps.outputs.parameters[name]
+            elif step.name == step_name:
                 return step.outputs.parameters[name]
         raise RuntimeError("Parse failed: ", expr)
     elif fields[0] in ["steps", "tasks"] and \
@@ -974,7 +1000,11 @@ def get_var(expr, context):
         step_name = fields[1]
         name = fields[4]
         for step in context:
-            if step.name == step_name:
+            if isinstance(step, list):
+                for ps in step:
+                    if ps.name == step_name:
+                        return ps.outputs.artifacts[name]
+            elif step.name == step_name:
                 return step.outputs.artifacts[name]
         raise RuntimeError("Parse failed: ", expr)
     elif fields[0] == "item":

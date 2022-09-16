@@ -94,7 +94,7 @@ class DAG(OPTemplate):
         return argo_template, templates
 
     def resolve(self):
-        from threading import Thread
+        from multiprocessing import Process
         for task in self.unfinished:
             can_run = True
             for dep in task.dependencies:
@@ -103,13 +103,17 @@ class DAG(OPTemplate):
                     break
             if can_run:
                 task.phase = "Pending"
-                proc = Thread(target=task.run, args=(self,))
+                i = self.tasks.index(task)
+                proc = Process(target=task.run, args=(self, i, self.queue))
                 proc.start()
                 self.procs.append((proc, task))
 
     def run(self, workflow_id=None):
         self.workflow_id = workflow_id
         import time
+        from copy import deepcopy
+        from multiprocessing import Queue
+        self.queue = Queue()
         self.unfinished = [task for task in self]
         self.procs = []
         self.resolve()
@@ -117,10 +121,13 @@ class DAG(OPTemplate):
             time.sleep(1)
             for proc, task in self.procs.copy():
                 if not proc.is_alive():
-                    if task.phase not in ["Succeeded", "Skipped"]:
+                    if proc.exitcode == 0:
+                        j, t = self.queue.get()
+                        self.tasks[j].outputs = deepcopy(t.outputs)
+                    else:
                         task.phase = "Failed"
                         if not task.continue_on_failed:
-                            exit(1)
+                            raise RuntimeError("Task %s failed" % task)
                     self.procs.remove((proc, task))
                     self.unfinished.remove(task)
                     self.resolve()
