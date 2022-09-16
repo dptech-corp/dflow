@@ -435,10 +435,16 @@ class Step:
                 new_template.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",
                                     default="0")
+                self.outputs.parameters["dflow_success_tag"] = \
+                    OutputParameter(value_from_path="/tmp/success_tag",
+                                    default="0")
                 new_template.script += "\n"
                 new_template.script += "echo 1 > /tmp/success_tag\n"
             elif (isinstance(new_template, PythonScriptOPTemplate)):
                 new_template.outputs.parameters["dflow_success_tag"] = \
+                    OutputParameter(value_from_path="/tmp/success_tag",
+                                    default="0")
+                self.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",
                                     default="0")
                 new_template.script += "\n"
@@ -448,11 +454,6 @@ class Step:
                 raise RuntimeError(
                     "Unsupported type of OPTemplate for "
                     "continue_on_num_success or continue_on_success_ratio")
-
-        if new_template is not None:
-            self.template = new_template
-            self.outputs = deepcopy(self.template.outputs)
-            self.outputs.set_step(self)
 
         if self.continue_on_num_success is not None:
             self.check_step = self.__class__(
@@ -476,6 +477,9 @@ class Step:
                     "threshold": self.continue_on_success_ratio
                 }
             )
+
+        if new_template is not None:
+            self.template = new_template
 
         if GLOBAL_CONTEXT.in_context:
             if not self.name.endswith('init-artifact'):
