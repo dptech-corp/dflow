@@ -105,22 +105,19 @@ class Workflow:
         self.api_instance = WorkflowServiceApi(api_client)
 
         self.namespace = namespace
-        if id is not None:
-            self.id = id
+        self.id = id
+        self.name = name
+        if steps is not None:
+            assert isinstance(steps, Steps)
+            self.entrypoint = steps
+        elif dag is not None:
+            assert isinstance(dag, DAG)
+            self.entrypoint = dag
         else:
-            self.name = name
-            if steps is not None:
-                assert isinstance(steps, Steps)
-                self.entrypoint = steps
-            elif dag is not None:
-                assert isinstance(dag, DAG)
-                self.entrypoint = dag
-            else:
-                self.entrypoint = Steps(self.name + "-steps")
-            self.templates = {}
-            self.argo_templates = {}
-            self.pvcs = {}
-            self.id = None
+            self.entrypoint = Steps(self.name + "-steps")
+        self.templates = {}
+        self.argo_templates = {}
+        self.pvcs = {}
 
     def __enter__(self) -> 'Workflow':
         GLOBAL_CONTEXT.in_context = True
@@ -153,17 +150,20 @@ class Workflow:
         Args:
             reuse_step: a list of steps to be reused in the workflow
         """
-        assert self.id is None, "Do not submit a workflow repeatedly"
         if config["mode"] == "debug":
-            while True:
-                self.id = self.name + "-" + randstr()
-                if not os.path.exists(self.id):
-                    os.makedirs(self.id)
-                    break
+            if self.id is None:
+                while True:
+                    self.id = self.name + "-" + randstr()
+                    if not os.path.exists(self.id):
+                        os.makedirs(self.id)
+                        break
             os.chdir(self.id)
             print("Workflow is running locally (ID: %s)" % self.id)
-            return self.entrypoint.run(self.id)
+            self.entrypoint.run(self.id)
+            os.chdir("..")
+            return ArgoWorkflow({"id": self.id})
 
+        assert self.id is None, "Do not submit a workflow repeatedly"
         manifest = self.convert_to_argo(reuse_step=reuse_step)
 
         response = self.api_instance.api_client.call_api(

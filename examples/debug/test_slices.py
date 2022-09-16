@@ -58,6 +58,7 @@ class Check(OP):
             op_in: OPIO,
     ) -> OPIO:
         print(op_in["foo"])
+        assert len(op_in["foo"]) == 2
         return OPIO()
 
 
@@ -82,4 +83,3 @@ def test_slices():
 
 if __name__ == "__main__":
     test_slices()
-

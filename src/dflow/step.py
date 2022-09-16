@@ -39,6 +39,8 @@ def argo_range(
     Each argument can be Argo parameter
     """
     if config["mode"] == "debug":
+        args = tuple(i.value if isinstance(i, (InputParameter, OutputParameter
+                                               )) else i for i in args)
         for i in range(len(args)):
             if isinstance(args[i], (InputParameter, OutputParameter)):
                 args[i] = args[i].value
@@ -621,77 +623,62 @@ class Step:
                 self.phase = "Skipped"
                 return
 
+        # source input parameters
+        parameters = deepcopy(self.inputs.parameters)
+        for name, par in parameters.items():
+            value = par.value
+            if isinstance(value, (InputParameter, OutputParameter)):
+                par.value = get_var(value, context).value
+            elif isinstance(value, str):
+                par.value = render_expr(par.value, context)
+
+        # source input artifacts
+        for name, art in self.inputs.artifacts.items():
+            if isinstance(art.source, (InputArtifact, OutputArtifact)):
+                art.source = get_var(art.source, context)
+
         if isinstance(self.template, (Steps, DAG)):
             # shallow copy to avoid changing each step
             steps = copy(self.template)
             steps.inputs = deepcopy(self.template.inputs)
 
             # override default inputs with arguments
-            for name, par in self.inputs.parameters.items():
-                if isinstance(par.value, (InputParameter, OutputParameter)):
-                    steps.inputs.parameters[name].value = par.value.value
-                else:
-                    steps.inputs.parameters[name].value = par.value
+            for name, par in parameters.items():
+                steps.inputs.parameters[name].value = par.value
 
             for name, art in self.inputs.artifacts.items():
                 steps.inputs.artifacts[name].local_path = art.source.local_path
 
             steps.run()
 
-            def get_par_from_steps(steps, par):
-                if isinstance(par, OutputParameter):
-                    for step in steps:
-                        if step.name == par.step.name:
-                            return step.outputs.parameters[par.name]
-
             for name, par in self.outputs.parameters.items():
                 if par.value_from_parameter is not None:
-                    par.value = get_par_from_steps(
-                        steps, par.value_from_parameter).value
+                    par.value = get_var(par.value_from_parameter, steps).value
                 elif par.value_from_expression is not None:
                     _if = par.value_from_expression._if
                     _if = render_expr(_if, steps)
                     if eval_bool_expr(_if):
                         _then = par.value_from_expression._then
-                        par.value = get_par_from_steps(steps, _then).value
+                        par.value = get_var(_then, steps).value
                     else:
                         _else = par.value_from_expression._else
-                        par.value = get_par_from_steps(steps, _else).value
-
-            def get_art_from_steps(steps, art):
-                if isinstance(art, OutputArtifact):
-                    for step in steps:
-                        if step.name == art.step.name:
-                            return step.outputs.artifacts[art.name]
+                        par.value = get_var(_else, steps).value
 
             for name, art in self.outputs.artifacts.items():
                 if art._from is not None:
-                    art.local_path = get_art_from_steps(
-                        steps, art._from).local_path
+                    art.local_path = get_var(art._from, steps).local_path
                 elif art.from_expression is not None:
                     _if = art.from_expression._if
                     _if = render_expr(_if, steps)
                     if eval_bool_expr(_if):
                         _then = art.from_expression._then
-                        art.local_path = get_art_from_steps(
-                            steps, _then).local_path
-                        print(art.local_path)
+                        art.local_path = get_var(_then, steps).local_path
                     else:
                         _else = art.from_expression._else
-                        art.local_path = get_art_from_steps(
-                            steps, _else).local_path
+                        art.local_path = get_var(_else, steps).local_path
 
             self.phase = "Succeeded"
             return
-
-        parameters = deepcopy(self.inputs.parameters)
-        for name, par in parameters.items():
-            value = par.value
-            if isinstance(value, (InputParameter, OutputParameter)):
-                if value.step is None:
-                    par.value = context.inputs.parameters[value.name].value
-                else:
-                    par.value = value.value
 
         if self.with_param is not None or self.with_sequence is not None:
             if isinstance(self.with_param, (InputParameter, OutputParameter)):
@@ -727,10 +714,11 @@ class Step:
             assert isinstance(item_list, list)
             for item in item_list:
                 ps = deepcopy(self)
+                pp = deepcopy(parameters)
                 ps.phase = "Pending"
                 self.parallel_steps.append(ps)
                 from threading import Thread
-                proc = Thread(target=ps.exec, args=(context, parameters, item))
+                proc = Thread(target=ps.exec, args=(context, pp, item))
                 proc.start()
                 procs.append(proc)
             for proc in procs:
@@ -778,12 +766,37 @@ class Step:
         import os
         import shutil
         cwd = os.getcwd()
-        while True:
-            step_id = self.name + "-" + randstr()
+        if "dflow_key" in parameters:
+            step_id = parameters["dflow_key"].value
             stepdir = os.path.abspath(step_id)
-            if not os.path.exists(stepdir):
-                os.makedirs(stepdir)
-                break
+            if os.path.exists(stepdir):
+                # load parameters
+                for name, par in self.outputs.parameters.items():
+                    par_path = os.path.join(stepdir,
+                                            "outputs/parameters/%s" % name)
+                    with open(par_path, "r") as f:
+                        if par.type is None or par.type == str:
+                            par.value = f.read()
+                        else:
+                            par.value = jsonpickle.loads(f.read())
+
+                # load artifacts
+                for name, art in self.outputs.artifacts.items():
+                    art_path = os.path.join(stepdir,
+                                            "outputs/artifacts/%s" % name)
+                    art.local_path = art_path
+
+                os.chdir(cwd)
+                self.phase = "Succeeded"
+                return
+        else:
+            while True:
+                step_id = self.name + "-" + randstr()
+                stepdir = os.path.abspath(step_id)
+                if not os.path.exists(stepdir):
+                    os.makedirs(stepdir)
+                    break
+
         workdir = os.path.join(stepdir, "workdir")
         os.makedirs(workdir, exist_ok=True)
         os.chdir(workdir)
@@ -804,9 +817,6 @@ class Step:
             art_path = os.path.join(stepdir, "inputs/artifacts/%s" % name)
             if isinstance(art.source, (InputArtifact, OutputArtifact,
                                        LocalArtifact)):
-                if isinstance(art.source, InputArtifact) and \
-                        art.source.step is None:
-                    art.source = context.inputs.artifacts[art.source.name]
                 if art.sub_path is not None:
                     sub_path = art.sub_path
                     if item is not None:
@@ -851,7 +861,7 @@ class Step:
         script_path = os.path.join(stepdir, "script")
         with open(script_path, "w") as f:
             f.write(script)
-        ret_code = os.system(" ".join(self.template.command) + " " +
+        ret_code = os.system("pwd && " + " ".join(self.template.command) + " " +
                              script_path)
         if ret_code != 0:
             exit(ret_code)
@@ -890,6 +900,7 @@ class Step:
             if hasattr(self.template, "tmp_root"):
                 path = "%s/%s" % (workdir, path)
             os.symlink(path, art_path)
+            art.local_path = art_path
             for save in self.template.outputs.artifacts[name].save:
                 if isinstance(save, S3Artifact):
                     key = render_script(save.key, parameters,
@@ -904,7 +915,8 @@ class Step:
                             pass
                     shutil.copytree(art_path, save_path, copy_function=link,
                                     dirs_exist_ok=True)
-            art.local_path = art_path
+                    art.local_path = save_path
+
         os.chdir(cwd)
         self.phase = "Succeeded"
 
@@ -920,7 +932,7 @@ def render_item(expr, item):
             value = value[key]
         value = value if isinstance(value, str) else jsonpickle.dumps(value)
         expr = expr[:i] + value.strip() + expr[j+2:]
-        i = expr.find("{{item")
+        i = expr.find("{{item", i+1)
     return expr
 
 
@@ -929,28 +941,46 @@ def render_expr(expr, context):
     i = expr.find("{{")
     while i >= 0:
         j = expr.find("}}", i+2)
-        var = expr[i+2:j]
-        fields = var.split(".")
-        if fields[:2] == ["inputs", "parameters"]:
-            name = fields[2]
-            value = context.inputs.parameters[name].value
-        elif fields[0] == "steps" and fields[2:4] == ["outputs", "parameters"]:
-            step_name = fields[1]
-            name = fields[4]
-            value = None
-            for step in context.steps:
-                if step.name == step_name:
-                    value = step.outputs.parameters[name].value
-                    break
-            if value is None:
-                raise RuntimeError("Parse failed: ", var)
-        else:
-            raise RuntimeError("Not supported: ", var)
-
-        value = value if isinstance(value, str) else jsonpickle.dumps(value)
-        expr = expr[:i] + value.strip() + expr[j+2:]
-        i = expr.find("{{")
+        var = get_var(expr[i:j+2], context)
+        if var:
+            value = var.value
+            value = value if isinstance(value, str) else \
+                jsonpickle.dumps(value)
+            expr = expr[:i] + value.strip() + expr[j+2:]
+        i = expr.find("{{", i+1)
     return expr
+
+
+def get_var(expr, context):
+    expr = str(expr)
+    assert expr[:2] == "{{" and expr[-2:] == "}}", "Parse failed: %s" % expr
+    fields = expr[2:-2].split(".")
+    if fields[:2] == ["inputs", "parameters"]:
+        name = fields[2]
+        return context.inputs.parameters[name]
+    elif fields[:2] == ["inputs", "artifacts"]:
+        name = fields[2]
+        return context.inputs.artifacts[name]
+    elif fields[0] in ["steps", "tasks"] and \
+            fields[2:4] == ["outputs", "parameters"]:
+        step_name = fields[1]
+        name = fields[4]
+        for step in context:
+            if step.name == step_name:
+                return step.outputs.parameters[name]
+        raise RuntimeError("Parse failed: ", expr)
+    elif fields[0] in ["steps", "tasks"] and \
+            fields[2:4] == ["outputs", "artifacts"]:
+        step_name = fields[1]
+        name = fields[4]
+        for step in context:
+            if step.name == step_name:
+                return step.outputs.artifacts[name]
+        raise RuntimeError("Parse failed: ", expr)
+    elif fields[0] == "item":
+        return None  # ignore
+    else:
+        raise RuntimeError("Not supported: ", expr)
 
 
 def eval_bool_expr(expr):
@@ -989,7 +1019,7 @@ def render_script(script, parameters, workflow_id=None, step_id=None):
                                    else jsonpickle.dumps(value)) + script[j+2:]
         else:
             raise RuntimeError("Not supported: ", var)
-        i = script.find("{{")
+        i = script.find("{{", i+1)
     return script
 
 
