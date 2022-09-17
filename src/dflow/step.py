@@ -606,14 +606,13 @@ class Step:
             continue_on=V1alpha1ContinueOn(failed=self.continue_on_failed)
         )
 
-    def run(self, context, order=None, queue=None):
+    def run(self, context):
         self.phase = "Running"
         if self.executor is not None:
             assert isinstance(self.executor, Executor)
             self.template = self.executor.render(self.template)
 
         import os
-        import time
         from copy import copy
         from .dag import DAG
         from .steps import Steps
@@ -714,33 +713,27 @@ class Step:
             self.parallel_steps = []
             assert isinstance(item_list, list)
             from multiprocessing import Process, Queue
-            q = Queue()
+            queue = Queue()
             for i, item in enumerate(item_list):
                 ps = deepcopy(self)
-                pp = deepcopy(parameters)
                 ps.phase = "Pending"
                 self.parallel_steps.append(ps)
-                proc = Process(target=ps.exec, args=(context, pp, item, i, q))
+                proc = Process(target=ps.exec_with_queue,
+                               args=(context, parameters, i, queue, item))
                 proc.start()
                 procs.append(proc)
 
-            watch_list = procs.copy()
-            while len(watch_list) > 0:
-                time.sleep(1)
-                for proc in watch_list.copy():
-                    if not proc.is_alive():
-                        if proc.exitcode == 0:
-                            j, ps = q.get()
-                            self.parallel_steps[j].outputs = \
-                                deepcopy(ps.outputs)
-                        else:
-                            i = procs.index(proc)
-                            self.parallel_steps[i].phase = "Failed"
-                            if not self.continue_on_failed:
-                                self.phase = "Failed"
-                                raise RuntimeError("Step %s failed" %
-                                                   self.parallel_steps[i])
-                        watch_list.remove(proc)
+            for i in range(len(item_list)):
+                # TODO: if the process is killed, this will be blocked forever
+                j, ps = queue.get()
+                if ps is None:
+                    self.parallel_steps[j].phase = "Failed"
+                    if not self.continue_on_failed:
+                        self.phase = "Failed"
+                        raise RuntimeError("Step %s failed" %
+                                           self.parallel_steps[j])
+                else:
+                    self.parallel_steps[j].outputs = deepcopy(ps.outputs)
 
             for name, par in self.outputs.parameters.items():
                 par.value = []
@@ -766,10 +759,16 @@ class Step:
                 if not self.continue_on_failed:
                     raise RuntimeError("Step %s failed" % self)
 
-        if queue is not None:
+    def run_with_queue(self, context, order, queue):
+        try:
+            self.run(context)
             queue.put((order, self))
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            queue.put((order, None))
 
-    def exec(self, context, parameters, item=None, order=None, queue=None):
+    def exec(self, context, parameters, item=None):
         """
         directory structure:
         step-xxxxx
@@ -939,8 +938,15 @@ class Step:
 
         os.chdir(cwd)
         self.phase = "Succeeded"
-        if queue is not None:
+
+    def exec_with_queue(self, context, parameters, order, queue, item=None):
+        try:
+            self.exec(context, parameters, item)
             queue.put((order, self))
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            queue.put((order, None))
 
 
 def render_item(expr, item):

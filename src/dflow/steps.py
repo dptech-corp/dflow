@@ -102,8 +102,6 @@ class Steps(OPTemplate):
         return argo_template, templates
 
     def run(self, workflow_id=None):
-        import time
-
         self.workflow_id = workflow_id
         for step in self:
             if isinstance(step, list):
@@ -112,24 +110,20 @@ class Steps(OPTemplate):
                 procs = []
                 for i, ps in enumerate(step):
                     ps.phase = "Pending"
-                    proc = Process(target=ps.run, args=(self, i, queue,))
+                    proc = Process(target=ps.run_with_queue,
+                                   args=(self, i, queue,))
                     proc.start()
                     procs.append(proc)
 
-                watch_list = procs.copy()
-                while len(watch_list) > 0:
-                    time.sleep(1)
-                    for proc in watch_list.copy():
-                        if not proc.is_alive():
-                            if proc.exitcode == 0:
-                                j, ps = queue.get()
-                                step[j].outputs = deepcopy(ps.outputs)
-                            else:
-                                i = procs.index(proc)
-                                step[i].phase = "Failed"
-                                if not step[i].continue_on_failed:
-                                    raise RuntimeError("Step %s failed" %
-                                                       step[i])
-                            watch_list.remove(proc)
+                for i in range(len(step)):
+                    # TODO: if the process is killed, this will be blocked
+                    # forever
+                    j, ps = queue.get()
+                    if ps is None:
+                        step[j].phase = "Failed"
+                        if not step[j].continue_on_failed:
+                            raise RuntimeError("Step %s failed" % step[j])
+                    else:
+                        step[j].outputs = deepcopy(ps.outputs)
             else:
                 step.run(self)
