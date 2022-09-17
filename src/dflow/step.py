@@ -13,7 +13,7 @@ from .io import (PVC, ArgoVar, InputArtifact, InputParameter, OutputArtifact,
                  OutputParameter)
 from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .resource import Resource
-from .util_ops import CheckNumSuccess, CheckSuccessRatio
+from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
 from .utils import catalog_of_artifact, randstr, upload_artifact
 
 try:
@@ -235,92 +235,30 @@ class Step:
             if new_template is None:
                 new_template = deepcopy(self.template)
                 new_template.name = self.template.name + "-" + randstr()
-            script = "import os, json\n"
-            for name in new_template.slices.output_artifact:
-                script += "os.makedirs('/tmp/outputs/artifacts/%s/%s', "\
-                    "exist_ok=True)\n" % (name, config["catalog_dir_name"])
-                script += "with open('/tmp/outputs/artifacts/%s/%s/init',"\
-                    " 'w') as f:\n" % (name, config["catalog_dir_name"])
-                script += "    json.dump({'path_list': []}, f)\n"
-            init_template = PythonScriptOPTemplate(
-                name="%s-init-artifact" % new_template.name,
-                image=self.util_image, command=self.util_command,
-                image_pull_policy=self.util_image_pull_policy,
-                script=script)
+            init_template = InitArtifactForSlices(
+                new_template.name, self.util_image, self.util_command,
+                self.util_image_pull_policy, self.key,
+                self.template.slices.output_artifact,
+                self.template.slices.sub_path,
+                self.template.slices.input_artifact)
             if self.key is not None:
                 new_template.inputs.parameters["dflow_group_key"] = \
                     InputParameter(value="")
                 self.inputs.parameters["dflow_group_key"] = InputParameter(
                     value=re.sub("{{item.*}}", "group", str(self.key)))
-                init_template.inputs.parameters["dflow_group_key"] = \
-                    InputParameter()
                 # For the case of reusing sliced steps, ensure that the output
                 # artifacts are reused
                 for name in new_template.slices.output_artifact:
-                    init_template.outputs.artifacts[name] = OutputArtifact(
-                        path="/tmp/outputs/artifacts/%s" % name,
-                        save=S3Artifact(key="{{workflow.name}}/{{inputs."
-                                        "parameters.dflow_group_key}}/%s"
-                                        % name), archive=None)
                     new_template.outputs.artifacts[name].save.append(
                         S3Artifact(key="{{workflow.name}}/{{inputs."
                                    "parameters.dflow_group_key}}/%s" % name))
             else:
-                init_template.outputs.parameters["dflow_artifact_key"] = \
-                    OutputParameter(value="{{workflow.name}}/{{pod.name}}")
                 new_template.inputs.parameters["dflow_artifact_key"] = \
                     InputParameter(value="")
                 for name in new_template.slices.output_artifact:
-                    init_template.outputs.artifacts[name] = OutputArtifact(
-                        path="/tmp/outputs/artifacts/%s" % name,
-                        save=S3Artifact(key="{{workflow.name}}/{{pod.name}}/%s"
-                                        % name), archive=None)
                     new_template.outputs.artifacts[name].save.append(
                         S3Artifact(key="{{inputs.parameters."
                                    "dflow_artifact_key}}/%s" % name))
-
-            if new_template.slices.sub_path and \
-                    new_template.slices.input_artifact:
-                for i, name in enumerate(new_template.slices.input_artifact):
-                    init_template.inputs.artifacts[name] = InputArtifact(
-                        path="/tmp/inputs/artifacts/%s" % name,
-                        optional=True, sub_path=config["catalog_dir_name"])
-                    init_template.outputs.parameters["dflow_slices_path"] = \
-                        OutputParameter(value_from_path="/tmp/outputs/"
-                                        "parameters/dflow_slices_path",
-                                        type=str(dict))
-                    init_template.script += "path_list_%s = []\n" % i
-                    init_template.script += \
-                        "path = '/tmp/inputs/artifacts/%s'\n" % name
-                    init_template.script += \
-                        "if os.path.exists(path):\n"
-                    init_template.script += \
-                        "    for f in os.listdir(path):\n"
-                    init_template.script += \
-                        "        with open(os.path.join(path, f), 'r') as fd:"\
-                        "\n"
-                    init_template.script += \
-                        "            path_list_%s += json.load(fd)['path_list"\
-                        "']\n" % i
-                    init_template.script += "path_list_%s.sort(key=lambda x: "\
-                        "x['order'])\n" % i
-                n_arts = len(new_template.slices.input_artifact)
-                if n_arts > 1:
-                    init_template.script += "assert " + \
-                        " == ".join(["len(path_list_%s)" %
-                                    i for i in range(n_arts)]) + "\n"
-                init_template.script += "slices_path = []\n"
-                init_template.script += "for i in range(len(path_list_0)):\n"
-                init_template.script += "    item = {'order': i}\n"
-                for i, name in enumerate(new_template.slices.input_artifact):
-                    init_template.script += "    item['%s'] = path_list_%s[i]"\
-                        "['dflow_list_item']\n" % (name, i)
-                init_template.script += "    slices_path.append(item)\n"
-                init_template.script += "os.makedirs('/tmp/outputs/"\
-                    "parameters', exist_ok=True)\n"
-                init_template.script += "with open('/tmp/outputs/parameters/"\
-                    "dflow_slices_path', 'w') as f:\n"
-                init_template.script += "    json.dump(slices_path, f)\n"
 
             if self.key is not None:
                 self.prepare_step = self.__class__(
@@ -333,8 +271,6 @@ class Step:
                 self.prepare_step = self.__class__(
                     name="%s-init-artifact" % self.name,
                     template=init_template)
-
-            if key is None:
                 self.inputs.parameters["dflow_artifact_key"] = InputParameter(
                     value=self.prepare_step.outputs.parameters[
                         "dflow_artifact_key"])
@@ -900,9 +836,9 @@ class Step:
             par_path = os.path.join(stepdir,
                                     "outputs/parameters/%s" % name)
             path = par.value_from_path
-            if hasattr(self.template, "tmp_root"):
-                path = "%s/%s" % (workdir, path)
             if path is not None:
+                if hasattr(self.template, "tmp_root"):
+                    path = "%s/%s" % (workdir, path)
                 with open(path, "r") as f:
                     if par.type is None or par.type == str:
                         par.value = f.read()
@@ -1009,7 +945,7 @@ def get_var(expr, context):
                         return ps.outputs.parameters[name]
             elif step.name == step_name:
                 return step.outputs.parameters[name]
-        raise RuntimeError("Parse failed: ", expr)
+        raise RuntimeError("Parse failed: %s" % expr)
     elif fields[0] in ["steps", "tasks"] and \
             fields[2:4] == ["outputs", "artifacts"]:
         step_name = fields[1]
@@ -1021,11 +957,11 @@ def get_var(expr, context):
                         return ps.outputs.artifacts[name]
             elif step.name == step_name:
                 return step.outputs.artifacts[name]
-        raise RuntimeError("Parse failed: ", expr)
+        raise RuntimeError("Parse failed: %s" % expr)
     elif fields[0] == "item":
         return None  # ignore
     else:
-        raise RuntimeError("Not supported: ", expr)
+        raise RuntimeError("Not supported: %s" % expr)
 
 
 def eval_bool_expr(expr):
@@ -1044,7 +980,7 @@ def eval_bool_expr(expr):
     elif result == "0":
         return False
     else:
-        raise RuntimeError("Evaluate expression failed: ", expr)
+        raise RuntimeError("Evaluate expression failed: %s" % expr)
 
 
 def render_script(script, parameters, workflow_id=None, step_id=None):
@@ -1063,7 +999,7 @@ def render_script(script, parameters, workflow_id=None, step_id=None):
             script = script[:i] + (value if isinstance(value, str)
                                    else jsonpickle.dumps(value)) + script[j+2:]
         else:
-            raise RuntimeError("Not supported: ", var)
+            raise RuntimeError("Not supported: %s" % var)
         i = script.find("{{", i+1)
     return script
 
