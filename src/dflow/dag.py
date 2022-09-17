@@ -57,12 +57,15 @@ class DAG(OPTemplate):
             task: a task or a list of tasks to be added to the dag
         """
         if not isinstance(task, list):
-            assert isinstance(task, Task)
-            self.tasks.append(task)
-        else:
-            for t in task:
-                assert isinstance(t, Task)
-                self.tasks.append(t)
+            task = [task]
+
+        for t in task:
+            assert isinstance(t, Task)
+            if t.prepare_step is not None:
+                self.tasks.append(t.prepare_step)
+            self.tasks.append(t)
+            if t.check_step is not None:
+                self.tasks.append(t.check_step)
 
     def convert_to_argo(self, memoize_prefix=None,
                         memoize_configmap="dflow", context=None):
@@ -70,14 +73,8 @@ class DAG(OPTemplate):
         templates = []
         assert len(self.tasks) > 0, "Dag %s is empty" % self.name
         for task in self.tasks:
-            if task.prepare_step is not None:
-                argo_tasks.append(task.prepare_step.convert_to_argo(context))
-                templates.append(task.prepare_step.template)
             argo_tasks.append(task.convert_to_argo(context))
             templates.append(task.template)
-            if task.check_step is not None:
-                argo_tasks.append(task.check_step.convert_to_argo(context))
-                templates.append(task.check_step.template)
 
         self.handle_key(memoize_prefix, memoize_configmap)
         argo_template = \
@@ -92,3 +89,45 @@ class DAG(OPTemplate):
                              memoize=self.memoize,
                              parallelism=self.parallelism)
         return argo_template, templates
+
+    def resolve(self):
+        from multiprocessing import Process
+        for task in self.waiting:
+            ready = True
+            for dep in task.dependencies:
+                if dep not in self.finished:
+                    ready = False
+                    break
+            if ready:
+                task.phase = "Pending"
+                i = self.tasks.index(task)
+                proc = Process(target=task.run_with_queue,
+                               args=(self, i, self.queue))
+                proc.start()
+                self.waiting.remove(task)
+                self.running.append(task)
+
+    def run(self, workflow_id=None):
+        self.workflow_id = workflow_id
+        from copy import deepcopy
+        from multiprocessing import Queue
+        self.queue = Queue()
+        self.waiting = [task for task in self]
+        self.running = []
+        self.finished = []
+        self.resolve()
+
+        while len(self.running) > 0:
+            # TODO: if the process is killed, this will be blocked forever
+            j, t = self.queue.get()
+            if t is None:
+                self.tasks[j].phase = "Failed"
+                if not self.tasks[j].continue_on_failed:
+                    raise RuntimeError("Task %s failed" % self.tasks[j])
+            else:
+                self.tasks[j].outputs = deepcopy(t.outputs)
+            self.running.remove(self.tasks[j])
+            self.finished.append(self.tasks[j])
+            self.resolve()
+
+        assert len(self.finished) == len(self.tasks), "cyclic graph"

@@ -136,6 +136,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  upload_dflow: bool = True,
                  envs: Dict[str, str] = None,
                  init_containers: List[V1alpha1UserContainer] = None,
+                 tmp_root: str = "/tmp",
                  **kwargs,
                  ) -> None:
         self.op_class = op_class
@@ -170,15 +171,16 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             self.retry_strategy = V1alpha1RetryStrategy(
                 limit=retry_on_transient_error, expression=expr)
         self.dflow_vars = {}
+        self.tmp_root = tmp_root
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 self.inputs.artifacts[name] = InputArtifact(
-                    path="/tmp/inputs/artifacts/" + name,
+                    path="%s/inputs/artifacts/" % self.tmp_root + name,
                     optional=sign.optional, type=sign.type)
-            elif isinstance(sign, BigParameter):
+            elif isinstance(sign, BigParameter) and config["mode"] != "debug":
                 self.inputs.parameters[name] = InputParameter(
-                    save_as_artifact=True, path="/tmp/inputs/parameters/"
-                    + name, type=sign.type)
+                    save_as_artifact=True, path="%s/inputs/parameters/"
+                    % self.tmp_root + name, type=sign.type)
             elif isinstance(sign, Parameter):
                 if hasattr(sign, "default"):
                     self.inputs.parameters[name] = InputParameter(
@@ -191,24 +193,30 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 self.outputs.artifacts[name] = OutputArtifact(
-                    path="/tmp/outputs/artifacts/" + name,
+                    path="%s/outputs/artifacts/" % self.tmp_root + name,
                     archive=sign.archive, save=sign.save,
                     global_name=sign.global_name, type=sign.type)
-            elif isinstance(sign, BigParameter):
+                if config["save_path_as_parameter"]:
+                    self.outputs.parameters["dflow_%s_path_list" %
+                                            name] = OutputParameter(
+                        value_from_path="%s/outputs/parameters/"
+                        "dflow_%s_path_list" % (self.tmp_root, name))
+            elif isinstance(sign, BigParameter) and config["mode"] != "debug":
                 self.outputs.parameters[name] = OutputParameter(
                     save_as_artifact=True,
-                    value_from_path="/tmp/outputs/parameters/" + name,
-                    type=sign.type)
+                    value_from_path="%s/outputs/parameters/" % self.tmp_root
+                    + name, type=sign.type)
             elif isinstance(sign, Parameter):
                 if hasattr(sign, "default"):
                     self.outputs.parameters[name] = OutputParameter(
-                        value_from_path="/tmp/outputs/parameters/" + name,
-                        default=sign.default, global_name=sign.global_name,
-                        type=sign.type)
+                        value_from_path="%s/outputs/parameters/"
+                        % self.tmp_root + name, default=sign.default,
+                        global_name=sign.global_name, type=sign.type)
                 else:
                     self.outputs.parameters[name] = OutputParameter(
-                        value_from_path="/tmp/outputs/parameters/" + name,
-                        global_name=sign.global_name, type=sign.type)
+                        value_from_path="%s/outputs/parameters/"
+                        % self.tmp_root + name, global_name=sign.global_name,
+                        type=sign.type)
             else:
                 default = None
                 if output_parameter_default is not None and name in \
@@ -223,8 +231,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                         output_parameter_global_name:
                     global_name = output_parameter_global_name[name]
                 self.outputs.parameters[name] = OutputParameter(
-                    value_from_path="/tmp/outputs/parameters/" + name,
-                    default=default, global_name=global_name, type=sign)
+                    value_from_path="%s/outputs/parameters/" % self.tmp_root
+                    + name, default=default, global_name=global_name,
+                    type=sign)
 
         if python_packages is None:
             python_packages = upload_packages.copy()
@@ -241,6 +250,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         self.python_packages = None
         if python_packages:
             self.python_packages = set(python_packages)
+            self.inputs.artifacts["dflow_python_packages"] = InputArtifact(
+                path="%s/inputs/artifacts/dflow_python_packages"
+                % self.tmp_root)
 
         self.image = image
         self.image_pull_policy = image_pull_policy
@@ -258,10 +270,14 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         self.input_sign = input_sign
         self.output_sign = output_sign
         self.op = op
-        self.input_artifact_slices = input_artifact_slices
-        self.input_parameter_slices = input_parameter_slices
-        self.output_artifact_slices = output_artifact_slices
-        self.output_parameter_slices = output_parameter_slices
+        self.input_artifact_slices = {} if input_artifact_slices is None \
+            else input_artifact_slices
+        self.input_parameter_slices = {} if input_parameter_slices is None \
+            else input_parameter_slices
+        self.output_artifact_slices = {} if output_artifact_slices is None \
+            else output_artifact_slices
+        self.output_parameter_slices = {} if output_parameter_slices is None \
+            else output_parameter_slices
         self.slices = slices
 
     def __setattr__(self, key, value):
@@ -294,9 +310,15 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                                            name] = InputParameter(value=".")
                     sign = self.input_sign[name]
                     self.inputs.artifacts[name] = InputArtifact(
-                        path="/tmp/inputs/artifacts/%s/{{inputs.parameters."
-                        "dflow_%s_sub_path}}" % (name, name),
+                        path="%s/inputs/artifacts/%s/{{inputs.parameters."
+                        "dflow_%s_sub_path}}" % (self.tmp_root, name, name),
                         optional=sign.optional, type=sign.type)
+
+            for name in self.output_artifact_slices.keys():
+                self.outputs.parameters["dflow_%s_path_list" %
+                                        name] = OutputParameter(
+                    value_from_path="%s/outputs/parameters/"
+                    "dflow_%s_path_list" % (self.tmp_root, name))
 
     def render_script(self):
         op_class = self.op_class
@@ -311,11 +333,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
         script = ""
         if self.python_packages:
-            self.inputs.artifacts["dflow_python_packages"] = InputArtifact(
-                path="/tmp/inputs/artifacts/dflow_python_packages")
             script += "import os, sys, json\n"
-            script += "package_root = '/tmp/inputs/artifacts/"\
-                "dflow_python_packages'\n"
+            script += "package_root = '%s/inputs/artifacts/"\
+                "dflow_python_packages'\n" % self.tmp_root
             script += "catalog_dir = os.path.join(package_root, "\
                 "'%s')\n" % config['catalog_dir_name']
             script += "if os.path.exists(catalog_dir):\n"
@@ -331,7 +351,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             % config["save_path_as_parameter"]
         script += "config['catalog_dir_name'] = '%s'\n" \
             % config["catalog_dir_name"]
-        if op_class.__module__ == "__main__":
+        if op_class.__module__ in ["__main__", "__mp_main__"]:
             try:
                 source_lines, start_line = inspect.getsourcelines(op_class)
                 with open(inspect.getsourcefile(op_class), "r",
@@ -372,23 +392,25 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 if self.slices is not None and self.slices.sub_path and \
                         name in self.slices.input_artifact:
                     script += "input['%s'] = handle_input_artifact('%s', "\
-                        "input_sign['%s'], %s, '/tmp', '{{inputs.parameters."\
+                        "input_sign['%s'], %s, '%s', '{{inputs.parameters."\
                         "dflow_%s_sub_path}}')\n" % (name, name, name, slices,
-                                                     name)
+                                                     self.tmp_root, name)
                 else:
                     script += "input['%s'] = handle_input_artifact('%s', "\
-                        "input_sign['%s'], %s, '/tmp')\n" % (name, name, name,
-                                                             slices)
+                        "input_sign['%s'], %s, '%s')\n" \
+                        % (name, name, name, slices, self.tmp_root)
             else:
                 slices = self.get_slices(input_parameter_slices, name)
-                if isinstance(sign, BigParameter):
+                if isinstance(sign, BigParameter) and \
+                        config["mode"] != "debug":
                     script += "input['%s'] = handle_input_parameter('%s', '',"\
-                        " input_sign['%s'], %s, '/tmp')\n" % (name, name, name,
-                                                              slices)
+                        " input_sign['%s'], %s, '%s')\n" \
+                        % (name, name, name, slices, self.tmp_root)
                 else:
                     script += "input['%s'] = handle_input_parameter('%s', "\
                         "r'''{{inputs.parameters.%s}}''', input_sign['%s'], "\
-                        "%s, '/tmp')\n" % (name, name, name, name, slices)
+                        "%s, '%s')\n" % (name, name, name, name, slices,
+                                         self.tmp_root)
 
         script += "try:\n"
         script += "    output = op_obj.execute(input)\n"
@@ -399,25 +421,22 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "    traceback.print_exc()\n"
         script += "    sys.exit(2)\n"
 
-        script += "os.makedirs('/tmp/outputs/parameters', exist_ok=True)\n"
-        script += "os.makedirs('/tmp/outputs/artifacts', exist_ok=True)\n"
+        script += "os.makedirs('%s/outputs/parameters', exist_ok=True)\n" \
+            % self.tmp_root
+        script += "os.makedirs('%s/outputs/artifacts', exist_ok=True)\n" \
+            % self.tmp_root
         script += "output_sign = %s.get_output_sign()\n" % class_name
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(output_artifact_slices, name)
-                if config["save_path_as_parameter"] or slices is not None:
-                    self.outputs.parameters["dflow_%s_path_list" %
-                                            name] = OutputParameter(
-                        value_from_path="/tmp/outputs/parameters/"
-                        "dflow_%s_path_list" % name)
                 script += "handle_output_artifact('%s', output['%s'], "\
-                    "output_sign['%s'], %s, '/tmp')\n" % (name, name, name,
-                                                          slices)
+                    "output_sign['%s'], %s, '%s')\n" % (name, name, name,
+                                                        slices, self.tmp_root)
             else:
                 slices = self.get_slices(output_parameter_slices, name)
                 script += "handle_output_parameter('%s', output['%s'], "\
-                    "output_sign['%s'], %s, '/tmp')\n" % (name, name, name,
-                                                          slices)
+                    "output_sign['%s'], %s, '%s')\n" % (name, name, name,
+                                                        slices, self.tmp_root)
 
         self.script = script
 

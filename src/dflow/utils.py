@@ -14,7 +14,7 @@ from typing import List, Optional, Set, Tuple, Union
 
 import jsonpickle
 
-from .common import S3Artifact
+from .common import LocalArtifact, S3Artifact
 from .config import config
 
 try:
@@ -52,6 +52,9 @@ def download_artifact(
         secure: secure or not for Minio
         bucket_name: bucket name for Minio
     """
+    if config["mode"] == "debug":
+        return assemble_path_list(artifact.local_path)
+
     if hasattr(artifact, "s3"):
         key = artifact.s3.key
     elif hasattr(artifact, "key"):
@@ -143,6 +146,11 @@ def upload_artifact(
         os.makedirs(catalog_dir, exist_ok=True)
         with open(os.path.join(catalog_dir, str(uuid.uuid4())), "w") as f:
             f.write(jsonpickle.dumps({"path_list": path_list}))
+
+        if config["mode"] == "debug":
+            os.makedirs("upload", exist_ok=True)
+            resdir = shutil.move(tmpdir, "upload")
+            return LocalArtifact(local_path=os.path.abspath(resdir))
 
         if archive == "tar":
             os.chdir(os.path.dirname(tmpdir))

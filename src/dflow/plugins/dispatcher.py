@@ -66,6 +66,7 @@ class DispatcherExecutor(Executor):
                  docker_executable: str = None,
                  singularity_executable: str = None,
                  podman_executable: str = None,
+                 work_root: str = "/",
                  ) -> None:
         self.host = host
         self.queue_name = queue_name
@@ -92,6 +93,7 @@ class DispatcherExecutor(Executor):
                 self.singularity_executable is not None or \
                 self.podman_executable is not None:
             self.map_tmp_dir = False
+        self.work_root = work_root
 
         conf = {}
         if json_file is not None:
@@ -101,7 +103,7 @@ class DispatcherExecutor(Executor):
         self.machine_dict = {
             "batch_type": "Slurm",
             "context_type": "SSHContext",
-            "local_root": "/",
+            "local_root": self.work_root,
             "remote_root": "/home/%s/dflow/workflows" % self.username,
             "remote_profile": {
                 "hostname": self.host,
@@ -161,10 +163,10 @@ class DispatcherExecutor(Executor):
         self.task_dict["command"] = cmd
         self.task_dict["forward_files"] = ["script"]
         for art in template.inputs.artifacts.values():
-            self.task_dict["forward_files"].append(art.path)
+            self.task_dict["forward_files"].append("./" + art.path)
         for par in template.inputs.parameters.values():
             if par.save_as_artifact:
-                self.task_dict["forward_files"].append(par.path)
+                self.task_dict["forward_files"].append("./" + par.path)
         self.task_dict["backward_files"] = []
         for art in template.outputs.artifacts.values():
             self.task_dict["backward_files"].append("./" + art.path)
@@ -176,12 +178,13 @@ class DispatcherExecutor(Executor):
                     "./" + par.value_from_path)
 
         new_template.script = "import os\n"
-        new_template.script += "os.chdir('/')\n"
+        new_template.script += "os.chdir('%s')\n" % self.work_root
         new_template.script += "with open('script', 'w') as f:\n"
         new_template.script += "    f.write(r\"\"\"\n"
         new_template.script += template.script
         new_template.script += "\"\"\")\n"
 
+        self.machine_dict["local_root"] = self.work_root
         new_template.script += "import json\n"
         new_template.script += "from dpdispatcher import Machine, Resources,"\
             " Task, Submission\n"
