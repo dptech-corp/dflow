@@ -782,6 +782,13 @@ class Step:
         |- workdir
         """
         self.phase = "Running"
+
+        # render item
+        if item is not None:
+            for name, par in parameters.items():
+                if isinstance(par.value, str):
+                    par.value = render_item(par.value, item)
+
         import os
         import shutil
         cwd = os.getcwd()
@@ -824,8 +831,6 @@ class Step:
         os.makedirs(os.path.join(stepdir, "inputs/parameters"), exist_ok=True)
         for name, par in parameters.items():
             par_path = os.path.join(stepdir, "inputs/parameters/%s" % name)
-            if item is not None and isinstance(par.value, str):
-                par.value = render_item(par.value, item)
             with open(par_path, "w") as f:
                 f.write(par.value if isinstance(par.value, str)
                         else jsonpickle.dumps(par.value))
@@ -874,16 +879,20 @@ class Step:
             template = deepcopy(self.template)
             template.tmp_root = "%s/%s" % (workdir, template.tmp_root)
             template.render_script()
+            if self.executor is not None:
+                if hasattr(self.executor, "work_root"):
+                    self.executor.work_root = "."
+                template = self.executor.render(template)
             script = template.script
         script = render_script(script, parameters,
                                context.workflow_id, step_id)
         script_path = os.path.join(stepdir, "script")
         with open(script_path, "w") as f:
             f.write(script)
-        ret_code = os.system(" ".join(self.template.command) + " " +
-                             script_path)
+        cmd = " ".join(self.template.command) + " " + script_path
+        ret_code = os.system(cmd)
         if ret_code != 0:
-            raise RuntimeError("Run script failed")
+            raise RuntimeError("Run [%s] failed" % cmd)
 
         # save parameters
         os.makedirs(os.path.join(stepdir, "outputs/parameters"), exist_ok=True)
