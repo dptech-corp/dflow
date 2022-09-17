@@ -42,6 +42,15 @@ class LebesgueExecutor(Executor):
         if self.extra is not None:
             new_template.annotations["task.dp.tech/extra"] = json.dumps(
                 self.extra) if isinstance(self.extra, dict) else self.extra
+        if self.executor == "lebesgue_v2" and template.annotations[
+                "workflow.dp.tech/executor"] != "lebesgue_v2":
+            new_template.script = new_template.script.replace(
+                "/tmp", "$(pwd)/tmp")
+            if isinstance(template, ShellOPTemplate):
+                new_template.script = "mkdir -p tmp\n" + new_template.script
+            if isinstance(template, PythonScriptOPTemplate):
+                new_template.script = "import os\nos.makedirs('tmp', "\
+                    "exist_ok=True)\n" + new_template.script
         return new_template
 
 
@@ -125,16 +134,17 @@ class LebesgueContext(Context):
 
         if isinstance(template, (ShellOPTemplate, PythonScriptOPTemplate)):
             new_template = deepcopy(template)
+            new_template.name += "-" + randstr()
             new_template.annotations["workflow.dp.tech/executor"] = \
                 self.executor
-            new_template.name += "-" + randstr()
-            new_template.script = new_template.script.replace(
-                "/tmp", "$(pwd)/tmp")
-            if isinstance(template, ShellOPTemplate):
-                new_template.script = "mkdir -p tmp\n" + new_template.script
-            if isinstance(template, PythonScriptOPTemplate):
-                new_template.script = "import os\nos.makedirs('tmp', "\
-                    "exist_ok=True)\n" + new_template.script
+            if self.executor == "lebesgue_v2":
+                new_template.script = new_template.script.replace(
+                    "/tmp", "$(pwd)/tmp")
+                if isinstance(template, ShellOPTemplate):
+                    new_template.script = "mkdir -p tmp\n" + new_template.script
+                if isinstance(template, PythonScriptOPTemplate):
+                    new_template.script = "import os\nos.makedirs('tmp', "\
+                        "exist_ok=True)\n" + new_template.script
             return new_template
 
         return template
