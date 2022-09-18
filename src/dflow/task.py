@@ -45,8 +45,6 @@ class Task(Step):
             dependencies: List["Task"] = None,
             **kwargs,
     ) -> None:
-        # work around circular import problem
-        self.is_task = True
         if dependencies is None:
             dependencies = []
         self.dependencies = dependencies

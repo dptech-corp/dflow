@@ -149,6 +149,7 @@ class Step:
         util_image: image for utility step
         util_image_pull_policy: image pull policy for utility step
         util_command: command for utility step
+        parallelism: parallelism for sliced step
     """
 
     def __init__(
@@ -171,6 +172,7 @@ class Step:
             util_image: str = None,
             util_image_pull_policy: str = None,
             util_command: Union[str, List[str]] = None,
+            parallelism: int = None,
             **kwargs,
     ) -> None:
         self.name = name
@@ -207,6 +209,7 @@ class Step:
         if isinstance(util_command, str):
             util_command = [util_command]
         self.util_command = util_command
+        self.parallelism = parallelism
 
         if hasattr(self.template, "python_packages") and \
                 self.template.python_packages:
@@ -418,6 +421,122 @@ class Step:
 
         if new_template is not None:
             self.template = new_template
+
+        if self.parallelism is not None:
+            assert hasattr(self.template, "slices") and self.template.slices \
+                is not None, "Only sliced step can be assigned with "\
+                "parallelism"
+            from .dag import DAG
+            from .steps import Steps
+            from .task import Task
+            if isinstance(self, Task):
+                steps = DAG(name="%s-par-steps" % self.template.name,
+                            parallelism=self.parallelism)
+            else:
+                steps = Steps(name="%s-par-steps" % self.template.name,
+                              parallelism=self.parallelism)
+            steps.inputs = deepcopy(self.template.inputs)
+            for par in steps.inputs.parameters.values():
+                par.path = None
+            for art in steps.inputs.artifacts.values():
+                art.path = None
+            steps.outputs = deepcopy(self.template.outputs)
+            for par in steps.outputs.parameters.values():
+                par.value_from_path = None
+            for art in steps.outputs.artifacts.values():
+                art.path = None
+
+            step = deepcopy(self)
+            step.when = None
+            for name in list(self.inputs.parameters.keys()):
+                if name[:6] == "dflow_" and name[-9:] == "_sub_path" or \
+                        name[:10] == "dflow_var_":
+                    del steps.inputs.parameters[name]
+                    del self.inputs.parameters[name]
+                else:
+                    step.set_parameters({name: steps.inputs.parameters[name]})
+            for name, art in list(self.inputs.artifacts.items()):
+                art.sub_path = None
+                if isinstance(art.source, S3Artifact):
+                    del steps.inputs.artifacts[name]
+                    del self.inputs.artifacts[name]
+                else:
+                    step.set_artifacts({name: steps.inputs.artifacts[name]})
+            for name in list(step.prepare_step.inputs.parameters.keys()):
+                step.prepare_step.set_parameters({
+                    name: steps.inputs.parameters[name]})
+            for name, art in list(self.prepare_step.inputs.artifacts.items()):
+                if not isinstance(art.source, S3Artifact):
+                    step.prepare_step.set_artifacts({
+                        name: steps.inputs.artifacts[name]})
+            steps.add(step)
+            for name, par in list(self.outputs.parameters.items()):
+                if not par.save_as_artifact:
+                    steps.outputs.parameters[name].value_from_parameter = \
+                        step.outputs.parameters[name]
+                else:
+                    del steps.outputs.parameters[name]
+                    del self.outputs.parameters[name]
+            for name in list(self.outputs.artifacts.keys()):
+                if name in self.template.slices.output_artifact:
+                    steps.outputs.artifacts[name]._from = \
+                        step.outputs.artifacts[name]
+                else:
+                    del steps.outputs.artifacts[name]
+                    del self.outputs.artifacts[name]
+
+            for name in self.outputs.artifacts.keys():
+                self.outputs.artifacts[name].redirect = None
+            self.template = steps
+            self.continue_on_num_success = None
+            self.continue_on_success_ratio = None
+            self.key = None
+            self.executor = None
+            self.use_resource = None
+            self.prepare_step = None
+            self.check_step = None
+
+            if "dflow_key" in steps.inputs.parameters:
+                fields = re.split("{{item[^}]*}}",
+                                  self.inputs.parameters["dflow_key"].value)
+                exprs = re.findall("{{item[^}]*}}",
+                                   self.inputs.parameters["dflow_key"].value)
+                for i in range(len(fields)):
+                    steps.inputs.parameters["dflow_key_%s" % i] = \
+                        InputParameter()
+                del steps.inputs.parameters["dflow_key"]
+                key = str(steps.inputs.parameters["dflow_key_0"])
+                for i, expr in enumerate(exprs):
+                    key += expr
+                    key += str(steps.inputs.parameters["dflow_key_%s" % (i+1)])
+                step.set_parameters({"dflow_key": key})
+                for i, field in enumerate(fields):
+                    self.inputs.parameters["dflow_key_%s" % i] = \
+                        InputParameter(value=field)
+                del self.inputs.parameters["dflow_key"]
+            if self.with_param is not None:
+                steps.inputs.parameters["dflow_with_param"] = InputParameter()
+                step.with_param = steps.inputs.parameters["dflow_with_param"]
+                self.inputs.parameters["dflow_with_param"] = InputParameter(
+                    value=self.with_param)
+                self.with_param = None
+            if self.with_sequence is not None:
+                if self.with_sequence.start is not None:
+                    steps.inputs.parameters["dflow_sequence_start"] = \
+                        InputParameter()
+                    step.with_sequence.start = "{{=%s}}" % \
+                        steps.inputs.parameters["dflow_sequence_start"].expr
+                if self.with_sequence.end is not None:
+                    steps.inputs.parameters["dflow_sequence_end"] = \
+                        InputParameter()
+                    step.with_sequence.end = "{{=%s}}" % \
+                        steps.inputs.parameters["dflow_sequence_end"].expr
+                if self.with_sequence.count is not None:
+                    steps.inputs.parameters["dflow_sequence_count"] = \
+                        InputParameter()
+                    step.with_sequence.count = "{{=%s}}" % \
+                        steps.inputs.parameters["dflow_sequence_count"].expr
+                self.with_sequence = None
 
         if GLOBAL_CONTEXT.in_context:
             if not self.name.endswith('init-artifact'):

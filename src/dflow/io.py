@@ -251,11 +251,12 @@ class InputParameter(ArgoVar):
         self.source = source
 
     def __getattr__(self, key):
+        from .task import Task
         if key == "expr":
             if self.save_as_artifact:
                 if self.name is not None:
                     if self.step is not None:
-                        if hasattr(self.step, "is_task"):
+                        if isinstance(self.step, Task):
                             return "tasks['%s'].inputs.artifacts"\
                                 "['dflow_bigpar_%s']" % (
                                     self.step.id, self.name)
@@ -267,7 +268,7 @@ class InputParameter(ArgoVar):
                 return ""
             if self.name is not None:
                 if self.step is not None:
-                    if hasattr(self.step, "is_task"):
+                    if isinstance(self.step, Task):
                         return "tasks['%s'].inputs.parameters['%s']" % \
                             (self.step.id, self.name)
                     else:
@@ -278,10 +279,11 @@ class InputParameter(ArgoVar):
         return super().__getattr__(key)
 
     def __repr__(self):
+        from .task import Task
         if self.save_as_artifact:
             if self.name is not None:
                 if self.step is not None:
-                    if hasattr(self.step, "is_task"):
+                    if isinstance(self.step, Task):
                         return "{{tasks.%s.inputs.artifacts.dflow_bigpar_%s}}"\
                             % (self.step.id, self.name)
                     else:
@@ -291,7 +293,7 @@ class InputParameter(ArgoVar):
             return ""
         if self.name is not None:
             if self.step is not None:
-                if hasattr(self.step, "is_task"):
+                if isinstance(self.step, Task):
                     return "{{tasks.%s.inputs.parameters.%s}}" % (self.step.id,
                                                                   self.name)
                 else:
@@ -389,10 +391,11 @@ class InputArtifact(ArgoVar):
         self.sub_path = sub_path
 
     def __getattr__(self, key):
+        from .task import Task
         if key == "expr":
             if self.name is not None:
                 if self.step is not None:
-                    if hasattr(self.step, "is_task"):
+                    if isinstance(self.step, Task):
                         return "tasks['%s'].inputs.artifacts['%s']" % \
                             (self.step.id, self.name)
                     else:
@@ -403,9 +406,10 @@ class InputArtifact(ArgoVar):
         return super().__getattr__(key)
 
     def __repr__(self):
+        from .task import Task
         if self.name is not None:
             if self.step is not None:
-                if hasattr(self.step, "is_task"):
+                if isinstance(self.step, Task):
                     return "{{tasks.%s.inputs.artifacts.%s}}" % (self.step.id,
                                                                  self.name)
                 else:
@@ -498,11 +502,12 @@ class OutputParameter(ArgoVar):
         self.value_from_parameter = value_from_parameter
 
     def __getattr__(self, key):
+        from .task import Task
         if key == "expr":
             if self.save_as_artifact:
                 if self.name is not None:
                     if self.step is not None:
-                        if hasattr(self.step, "is_task"):
+                        if isinstance(self.step, Task):
                             return "tasks['%s'].outputs.artifacts"\
                                 "['dflow_bigpar_%s']" % (
                                     self.step.id, self.name)
@@ -513,7 +518,7 @@ class OutputParameter(ArgoVar):
                     return "outputs.artifacts['dflow_bigpar_%s']" % self.name
             if self.name is not None:
                 if self.step is not None:
-                    if hasattr(self.step, "is_task"):
+                    if isinstance(self.step, Task):
                         return "tasks['%s'].outputs.parameters['%s']" % \
                             (self.step.id, self.name)
                     else:
@@ -557,10 +562,11 @@ class OutputParameter(ArgoVar):
         return super().__setattr__(key, value)
 
     def __repr__(self):
+        from .task import Task
         if self.save_as_artifact:
             if self.name is not None:
                 if self.step is not None:
-                    if hasattr(self.step, "is_task"):
+                    if isinstance(self.step, Task):
                         return \
                             "{{tasks.%s.outputs.artifacts.dflow_bigpar_%s}}" \
                             % (self.step.id, self.name)
@@ -571,7 +577,7 @@ class OutputParameter(ArgoVar):
                 return "{{outputs.artifacts.dflow_bigpar_%s}}" % self.name
         if self.name is not None:
             if self.step is not None:
-                if hasattr(self.step, "is_task"):
+                if isinstance(self.step, Task):
                     return "{{tasks.%s.outputs.parameters.%s}}" % (
                         self.step.id, self.name)
                 else:
@@ -703,6 +709,7 @@ class OutputArtifact(ArgoVar):
         return artifact
 
     def __getattr__(self, key):
+        from .task import Task
         if key == "expr":
             if self.redirect is not None:
                 return self.redirect.expr
@@ -710,7 +717,7 @@ class OutputArtifact(ArgoVar):
                 return "workflow.outputs.artifacts['%s']" % (self.global_name)
             elif self.name is not None:
                 if self.step is not None:
-                    if hasattr(self.step, "is_task"):
+                    if isinstance(self.step, Task):
                         return "tasks['%s'].outputs.artifacts['%s']" % (
                             self.step.id, self.name)
                     else:
@@ -750,13 +757,14 @@ class OutputArtifact(ArgoVar):
         return self.step.outputs.parameters["dflow_%s_path_list" % self.name]
 
     def __repr__(self):
+        from .task import Task
         if self.redirect is not None:
             return str(self.redirect)
         if self.global_name is not None:
             return "{{workflow.outputs.artifacts.%s}}" % (self.global_name)
         elif self.name is not None:
             if self.step is not None:
-                if hasattr(self.step, "is_task"):
+                if isinstance(self.step, Task):
                     return "{{tasks.%s.outputs.artifacts.%s}}" % (self.step.id,
                                                                   self.name)
                 else:
