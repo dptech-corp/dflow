@@ -200,7 +200,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     self.outputs.parameters["dflow_%s_path_list" %
                                             name] = OutputParameter(
                         value_from_path="%s/outputs/parameters/"
-                        "dflow_%s_path_list" % (self.tmp_root, name))
+                        "dflow_%s_path_list" % (self.tmp_root, name),
+                        default=[])
             elif isinstance(sign, BigParameter) and config["mode"] != "debug":
                 self.outputs.parameters[name] = OutputParameter(
                     save_as_artifact=True,
@@ -318,7 +319,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 self.outputs.parameters["dflow_%s_path_list" %
                                         name] = OutputParameter(
                     value_from_path="%s/outputs/parameters/"
-                    "dflow_%s_path_list" % (self.tmp_root, name))
+                    "dflow_%s_path_list" % (self.tmp_root, name),
+                    default=[])
 
     def render_script(self):
         op_class = self.op_class
