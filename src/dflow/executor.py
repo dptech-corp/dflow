@@ -134,10 +134,12 @@ class RemoteExecutor(Executor):
             else self.remote_command
         ssh_pass = "sshpass -p %s " % self.password if self.password is not \
             None else ""
+        identity = "-i /root/.ssh/%s " % os.path.basename(
+            self.private_key_file) if self.private_key_file is not None else ""
         script = """
 execute() {
     if [ $1 != 0 ]; then
-        %sssh -C -o StrictHostKeyChecking=no -p %s %s@%s -- $2
+        %sssh %s-C -o StrictHostKeyChecking=no -p %s %s@%s -- $2
         if [ $? != 0 ]; then
             echo retry: $1
             sleep 1
@@ -145,12 +147,12 @@ execute() {
         fi
     fi
 }
-""" % (ssh_pass, self.port, self.username, self.host)
+""" % (ssh_pass, identity, self.port, self.username, self.host)
         script += """
 upload() {
     if [ $1 != 0 ]; then
-        %sssh -C -o StrictHostKeyChecking=no -p %s %s@%s -- mkdir -p $3 && \
-        %sscp -C -o StrictHostKeyChecking=no -P %s -r $2 %s@%s:$3
+        %sssh %s-C -o StrictHostKeyChecking=no -p %s %s@%s -- mkdir -p $3 && \
+        %sscp %s-C -o StrictHostKeyChecking=no -P %s -r $2 %s@%s:$3
         if [ $? != 0 ]; then
             echo retry: $1
             sleep 1
@@ -158,12 +160,12 @@ upload() {
         fi
     fi
 }
-""" % (ssh_pass, self.port, self.username, self.host,
-            ssh_pass, self.port, self.username, self.host)
+""" % (ssh_pass, identity, self.port, self.username, self.host,
+            ssh_pass, identity, self.port, self.username, self.host)
         script += """
 download() {
     if [ $1 != 0 ]; then
-        %sscp -C -o StrictHostKeyChecking=no -P %s -r %s@%s:$2 $3
+        %sscp %s-C -o StrictHostKeyChecking=no -P %s -r %s@%s:$2 $3
         if [ $? != 0 ]; then
             echo retry: $1
             sleep 1
@@ -171,7 +173,7 @@ download() {
         fi
     fi
 }
-""" % (ssh_pass, self.port, self.username, self.host)
+""" % (ssh_pass, identity, self.port, self.username, self.host)
         script += "cat <<'EOF'> script\n" + remote_script + "\nEOF\n"
         for art in template.inputs.artifacts.values():
             script += self.upload_if_exists(art.path)

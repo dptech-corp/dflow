@@ -112,6 +112,9 @@ class DispatcherExecutor(Executor):
                 "timeout": 10
             }
         }
+        if self.private_key_file is not None:
+            self.machine_dict["remote_profile"]["key_filename"] = \
+                "/root/.ssh/" + os.path.basename(self.private_key_file)
         if "machine" in conf:
             update_dict(self.machine_dict, conf["machine"])
         if machine_dict is not None:
