@@ -423,9 +423,8 @@ class Step:
             self.template = new_template
 
         if self.parallelism is not None:
-            assert hasattr(self.template, "slices") and self.template.slices \
-                is not None, "Only sliced step can be assigned with "\
-                "parallelism"
+            assert self.with_param is not None or self.with_sequence is not \
+                None, "Only parallel step can be assigned with parallelism"
             from .dag import DAG
             from .steps import Steps
             from .task import Task
@@ -477,8 +476,8 @@ class Step:
                 else:
                     del steps.outputs.parameters[name]
                     del self.outputs.parameters[name]
-            for name in list(self.outputs.artifacts.keys()):
-                if name in self.template.slices.output_artifact:
+            for name, art in list(self.outputs.artifacts.items()):
+                if art.redirect is not None:
                     steps.outputs.artifacts[name]._from = \
                         step.outputs.artifacts[name]
                 else:
