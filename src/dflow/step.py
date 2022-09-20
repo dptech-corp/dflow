@@ -461,13 +461,15 @@ class Step:
                     del self.inputs.artifacts[name]
                 else:
                     step.set_artifacts({name: steps.inputs.artifacts[name]})
-            for name in list(step.prepare_step.inputs.parameters.keys()):
-                step.prepare_step.set_parameters({
-                    name: steps.inputs.parameters[name]})
-            for name, art in list(self.prepare_step.inputs.artifacts.items()):
-                if not isinstance(art.source, S3Artifact):
-                    step.prepare_step.set_artifacts({
-                        name: steps.inputs.artifacts[name]})
+            if self.prepare_step is not None:
+                for name in list(self.prepare_step.inputs.parameters.keys()):
+                    step.prepare_step.set_parameters({
+                        name: steps.inputs.parameters[name]})
+                for name, art in list(
+                        self.prepare_step.inputs.artifacts.items()):
+                    if not isinstance(art.source, S3Artifact):
+                        step.prepare_step.set_artifacts({
+                            name: steps.inputs.artifacts[name]})
             steps.add(step)
             for name, par in list(self.outputs.parameters.items()):
                 if not par.save_as_artifact:

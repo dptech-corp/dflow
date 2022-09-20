@@ -38,10 +38,10 @@ class DAG(OPTemplate):
         super().__init__(name=name, inputs=inputs, outputs=outputs,
                          memoize_key=memoize_key, annotations=annotations)
         self.parallelism = parallelism
+        self.tasks = []
         if tasks is not None:
-            self.tasks = tasks
-        else:
-            self.tasks = []
+            for task in tasks:
+                self.add(task)
 
     def __iter__(self):
         return iter(self.tasks)

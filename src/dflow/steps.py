@@ -38,10 +38,10 @@ class Steps(OPTemplate):
         super().__init__(name=name, inputs=inputs, outputs=outputs,
                          memoize_key=memoize_key, annotations=annotations)
         self.parallelism = parallelism
+        self.steps = []
         if steps is not None:
-            self.steps = steps
-        else:
-            self.steps = []
+            for step in steps:
+                self.add(step)
 
     def __iter__(self):
         return iter(self.steps)
