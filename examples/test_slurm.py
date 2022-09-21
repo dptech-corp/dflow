@@ -59,14 +59,27 @@ class Check(OP):
 
 
 if __name__ == "__main__":
+    # run ../scripts/start-slurm.sh first to start up a slurm cluster
+    import socket
+
+    def get_my_ip_address():
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+
     slurm_remote_executor = SlurmRemoteExecutor(
-        host="my-host",
-        username="my-user",
-        header="#!/bin/bash\n#SBATCH -N 1\n#SBATCH -n 1\n#SBATCH -p V100\n")
+        host=get_my_ip_address(),
+        port=31129,
+        username="root",
+        password="password",
+        header="#!/bin/bash\n#SBATCH -N 1\n#SBATCH -n 1\n",
+        workdir="/data/dflow/workflows/{{workflow.name}}/{{pod.name}}",
+    )
 
     wf = Workflow("slurm-slices")
     hello = Step("hello",
-                 PythonOPTemplate(Hello, image="python:3.8",
+                 PythonOPTemplate(Hello,
+                                  command=["python3"],
                                   slices=Slices("{{item}}",
                                                 input_parameter=["filename"],
                                                 output_artifact=["foo"]
