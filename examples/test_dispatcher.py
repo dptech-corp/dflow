@@ -68,11 +68,26 @@ if __name__ == "__main__":
     artifact1 = upload_artifact("tidir")
     print(artifact0)
     print(artifact1)
+
+    # run ../scripts/start-slurm.sh first to start up a slurm cluster
+    import socket
+
+    def get_my_ip_address():
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+
     dispatcher_executor = DispatcherExecutor(
-        host="my-host", username="my-user", queue_name="V100")
+        host=get_my_ip_address(),
+        username="root",
+        port=31129,
+        queue_name="normal",
+        remote_root="/data",
+        password="password",
+    )
     step = Step(
         name="step",
-        template=PythonOPTemplate(Duplicate, image="python:3.8"),
+        template=PythonOPTemplate(Duplicate, command=["python3"]),
         parameters={"msg": "Hello", "num": 3},
         artifacts={"foo": artifact0, "idir": artifact1},
         executor=dispatcher_executor
