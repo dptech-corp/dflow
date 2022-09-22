@@ -25,6 +25,7 @@ except Exception:
 
 s3_config = {
     "endpoint": "127.0.0.1:9000",
+    "console": "http://127.0.0.1:9001",
     "access_key": "admin",
     "secret_key": "password",
     "secure": False,

@@ -1,6 +1,8 @@
 import abc
+import base64
 import functools
 import inspect
+import json
 import os
 import pathlib
 import warnings
@@ -9,6 +11,7 @@ from abc import ABC
 from typeguard import check_type
 
 from .opio import OPIO, Artifact, OPIOSign, Parameter
+from ..utils import s3_config
 
 
 class OP(ABC):
@@ -48,6 +51,40 @@ class OP(ABC):
     def get_output_sign(cls) -> OPIOSign:
         """Get the signature of the outputs
         """
+
+    def _get_s3_link(self, key):
+        if key[-4:] != ".tgz":
+            key += "/"
+        encoded_key = base64.b64encode(key.encode()).decode()
+        return "%s/buckets/%s/browse/%s" % (
+            s3_config["console"], s3_config["bucket_name"], encoded_key)
+
+    def get_input_artifact_storage_key(self, name: str) -> str:
+        templ = json.loads(os.environ.get("ARGO_TEMPLATE"))
+        art = next(filter(lambda x: x["name"] == name,
+                          templ["inputs"]["artifacts"]))
+        return art["s3"]["key"]
+
+    def get_input_artifact_link(self, name: str) -> str:
+        key = self.get_input_artifact_storage_key(name)
+        return self._get_s3_link(key)
+
+    def get_output_artifact_storage_key(self, name: str) -> str:
+        templ = json.loads(os.environ.get("ARGO_TEMPLATE"))
+        art = next(filter(lambda x: x["name"] == name,
+                          templ["outputs"]["artifacts"]))
+        if "s3" in art:
+            return art["s3"]["key"]
+        else:
+            if "archive" in art and "none" in art["archive"]:
+                return "%s/%s" % (templ["archiveLocation"]["s3"]["key"], name)
+            else:
+                return "%s/%s.tgz" % (templ["archiveLocation"]["s3"]["key"],
+                                      name)
+
+    def get_output_artifact_link(self, name: str) -> str:
+        key = self.get_output_artifact_storage_key(name)
+        return self._get_s3_link(key)
 
     @abc.abstractmethod
     def execute(
@@ -194,7 +231,7 @@ class OP(ABC):
             """        return OPIOSign(             \n""" + \
             """                {})                  \n""".format(
                 input_sign
-            ) + \
+        ) + \
             """                                     \n""" + \
             """    @classmethod                     \n""" + \
             """    def get_output_sign(cls):        \n""" + \
