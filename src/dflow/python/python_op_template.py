@@ -1,4 +1,5 @@
 import inspect
+import json
 import os
 import random
 import string
@@ -15,6 +16,7 @@ from ..io import (PVC, InputArtifact, InputParameter, Inputs, OutputArtifact,
 from ..op_template import PythonScriptOPTemplate
 from .op import OP
 from .opio import Artifact, BigParameter, Parameter
+from ..utils import s3_config
 
 try:
     from argo.workflows.client import (V1Volume, V1VolumeMount,
@@ -348,11 +350,11 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "                sys.path.insert(0, os.path.join("\
                 "package_root, os.path.dirname(item['dflow_list_item'])))\n"
 
-        script += "from dflow import config\n"
-        script += "config['save_path_as_parameter'] = %s\n" \
-            % config["save_path_as_parameter"]
-        script += "config['catalog_dir_name'] = '%s'\n" \
-            % config["catalog_dir_name"]
+        script += "import json\n"
+        script += "from dflow import config, s3_config\n"
+        script += "config.update(json.loads('%s'))\n" % json.dumps(config)
+        script += "s3_config.update(json.loads('%s'))\n" % \
+            json.dumps(s3_config)
         if op_class.__module__ in ["__main__", "__mp_main__"]:
             try:
                 source_lines, start_line = inspect.getsourcelines(op_class)

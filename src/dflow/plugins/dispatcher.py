@@ -33,6 +33,7 @@ class DispatcherExecutor(Executor):
         queue_name: queue name
         port: SSH port
         username: username
+        password: password
         private_key_file: private key file for SSH
         image: image for dispatcher
         imagePullPolicy: image pull policy for dispatcher
@@ -46,6 +47,7 @@ class DispatcherExecutor(Executor):
         docker_executable: docker executable to run remotely
         singularity_executable: singularity executable to run remotely
         podman_executable: podman executable to run remotely
+        remote_root: remote root path for working
     """
 
     def __init__(self,
@@ -53,6 +55,7 @@ class DispatcherExecutor(Executor):
                  queue_name: str = None,
                  port: int = 22,
                  username: str = "root",
+                 password: str = None,
                  private_key_file: os.PathLike = None,
                  image: str = None,
                  image_pull_policy: str = None,
@@ -67,11 +70,13 @@ class DispatcherExecutor(Executor):
                  singularity_executable: str = None,
                  podman_executable: str = None,
                  work_root: str = "/",
+                 remote_root: str = None,
                  ) -> None:
         self.host = host
         self.queue_name = queue_name
         self.port = port
         self.username = username
+        self.password = password
         self.private_key_file = private_key_file
         if image is None:
             image = config["dispatcher_image"]
@@ -94,6 +99,7 @@ class DispatcherExecutor(Executor):
                 self.podman_executable is not None:
             self.map_tmp_dir = False
         self.work_root = work_root
+        self.remote_root = remote_root
 
         conf = {}
         if json_file is not None:
@@ -104,7 +110,6 @@ class DispatcherExecutor(Executor):
             "batch_type": "Slurm",
             "context_type": "SSHContext",
             "local_root": self.work_root,
-            "remote_root": "/home/%s/dflow/workflows" % self.username,
             "remote_profile": {
                 "hostname": self.host,
                 "username": self.username,
@@ -112,6 +117,13 @@ class DispatcherExecutor(Executor):
                 "timeout": 10
             }
         }
+        if self.password is not None:
+            self.machine_dict["remote_profile"]["password"] = self.password
+        if self.remote_root is not None:
+            self.machine_dict["remote_root"] = self.remote_root
+        else:
+            self.machine_dict["remote_root"] = "/home/%s/dflow/workflows" % \
+                self.username
         if self.private_key_file is not None:
             self.machine_dict["remote_profile"]["key_filename"] = \
                 "/root/.ssh/" + os.path.basename(self.private_key_file)
@@ -124,7 +136,6 @@ class DispatcherExecutor(Executor):
         self.resources_dict = {
             "number_node": 1,
             "cpu_per_node": 1,
-            "gpu_per_node": 1,
             "queue_name": self.queue_name,
             "group_size": 5,
             "envs": {
