@@ -5,6 +5,7 @@ from copy import deepcopy
 from typing import Any, Dict, List, Union
 
 import jsonpickle
+from dflow.client.v1alpha1_sequence import V1alpha1Sequence
 
 from .common import S3Artifact
 from .config import config
@@ -526,6 +527,9 @@ class OutputParameter(ArgoVar):
                             (self.step.id, self.name)
                 return "outputs.parameters['%s']" % self.name
             return ""
+        if key == "value":
+            res = FutureLen(self)
+            return res
         return super().__getattr__(key)
 
     def __setattr__(self, key, value):
@@ -935,3 +939,34 @@ class Outputs:
         for art in self.artifacts.values():
             artifacts.append(art.convert_to_argo())
         return V1alpha1Outputs(parameters=parameters, artifacts=artifacts)
+
+
+class FutureLen:
+    '''
+    to solve problem that Delayed acquisition length about the output parameters
+    used in debug module
+    '''
+
+    def __init__(self, par):
+        self.par = par
+        self.method = []
+
+    def get(self):
+        v = self.par.value
+        # preventing recursive calls
+        if isinstance(v, FutureLen):
+            raise (
+                "no parameters named values, use get_len after the output from pre_train has return"
+            )
+        for i in self.method:
+            if i == "argo_len":
+                self.par = len(v)
+            if "argo_sequence" in i:
+                start = i.find("{{") + 2
+                end = i.find("}}", start)
+                format = i[start:end]
+                self.par = V1alpha1Sequence(count=self.par, format=format)
+        return self.par
+
+    def set_method(self, method):
+        self.method.append(method)

@@ -1,4 +1,5 @@
 import logging
+from multiprocessing.sharedctypes import Value
 import re
 from copy import deepcopy
 from typing import Any, Dict, List, Union
@@ -9,7 +10,7 @@ from .common import LocalArtifact, S3Artifact
 from .config import config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
-from .io import (PVC, ArgoVar, InputArtifact, InputParameter, OutputArtifact,
+from .io import (PVC, ArgoVar, FutureLen, InputArtifact, InputParameter, OutputArtifact,
                  OutputParameter)
 from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .resource import Resource
@@ -85,6 +86,13 @@ def argo_sequence(
             with count, can be an Argo parameter
         format: a printf format string to format the value in the sequence
     """
+    if isinstance(count,FutureLen):
+        method = argo_sequence.__name__
+        if format != None:
+            #the writing style may not be compliant
+            method = method + ".{{%s}}" % format
+            count.set_method(method=method)
+            return count
     if isinstance(count, ArgoVar):
         count = "{{=%s}}" % count.expr
     if isinstance(start, ArgoVar):
@@ -104,7 +112,11 @@ def argo_len(
         param: the Argo parameter which is a list
     """
     if config["mode"] == "debug":
-        return len(param.value)
+        par = param.value
+        if isinstance(par,FutureLen):
+            par.set_method(argo_len.__name__)
+            return par
+        return len(par)
     if isinstance(param, S3Artifact):
         try:
             path_list = catalog_of_artifact(param)
@@ -521,7 +533,8 @@ class Step:
                 self.inputs.parameters["dflow_with_param"] = InputParameter(
                     value=self.with_param)
                 self.with_param = None
-            if self.with_sequence is not None:
+            if self.with_sequence is not None and \
+            not isinstance(self.with_sequence,FutureLen):
                 if self.with_sequence.start is not None:
                     steps.inputs.parameters["dflow_sequence_start"] = \
                         InputParameter()
@@ -705,7 +718,7 @@ class Step:
             for name, art in self.inputs.artifacts.items():
                 steps.inputs.artifacts[name].local_path = art.source.local_path
 
-            steps.run()
+            steps.run(context.workflow_id)
 
             for name, par in self.outputs.parameters.items():
                 if par.value_from_parameter is not None:
@@ -742,6 +755,8 @@ class Step:
             elif isinstance(self.with_param, list):
                 item_list = self.with_param
             elif self.with_sequence is not None:
+                if isinstance(self.with_sequence,FutureLen):
+                    self.with_sequence = self.with_sequence.get()
                 start = 0
                 if self.with_sequence.start is not None:
                     start = self.with_sequence.start
@@ -933,7 +948,7 @@ class Step:
         if hasattr(self.template, "tmp_root"):
             # do not modify self.template
             template = deepcopy(self.template)
-            template.tmp_root = "%s/%s" % (workdir, template.tmp_root)
+            template.tmp_root = "%s%s" % (workdir, template.tmp_root)
             template.render_script()
             if self.executor is not None:
                 if hasattr(self.executor, "work_root"):
