@@ -136,6 +136,7 @@ _version.py
 
 # vscode
 .vscode/
+.idea/
 
 # Mac OS
 .DS_store

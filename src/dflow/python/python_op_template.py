@@ -352,8 +352,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
         script += "import json\n"
         script += "from dflow import config, s3_config\n"
-        if config["mode"] == "debug":
-            script += "config['mode'] = 'debug'\n"
         script += "config.update(json.loads('%s'))\n" % json.dumps(config)
         script += "s3_config.update(json.loads('%s'))\n" % \
             json.dumps(s3_config)
