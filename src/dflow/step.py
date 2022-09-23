@@ -29,6 +29,36 @@ except Exception:
 uploaded_python_packages = []
 
 
+class FutureLen:
+    '''
+    To solve the problem of delayed acquisition for length of output
+    parameters in the debug mode
+    '''
+
+    def __init__(self, par):
+        self.par = par
+
+    def get(self):
+        return len(self.par.value)
+
+
+class FutureRange:
+    def __init__(self, *args):
+        self.args = args
+
+    def get(self):
+        args = []
+        for i in self.args:
+            if isinstance(i, FutureLen):
+                args.append(i.get())
+            elif isinstance(i, (InputParameter, OutputParameter)):
+                args.append(i.value)
+            else:
+                args.append(i)
+        args = tuple(args)
+        return list(range(*args))
+
+
 def argo_range(
         *args,
 ) -> ArgoVar:
@@ -39,12 +69,7 @@ def argo_range(
     Each argument can be Argo parameter
     """
     if config["mode"] == "debug":
-        args = tuple(i.value if isinstance(i, (InputParameter, OutputParameter
-                                               )) else i for i in args)
-        for i in range(len(args)):
-            if isinstance(args[i], (InputParameter, OutputParameter)):
-                args[i] = args[i].value
-        return list(range(*args))
+        return FutureRange(*args)
     start = 0
     step = 1
     if len(args) == 1:
@@ -85,12 +110,13 @@ def argo_sequence(
             with count, can be an Argo parameter
         format: a printf format string to format the value in the sequence
     """
-    if isinstance(count, ArgoVar):
-        count = "{{=%s}}" % count.expr
-    if isinstance(start, ArgoVar):
-        start = "{{=%s}}" % start.expr
-    if isinstance(end, ArgoVar):
-        end = "{{=%s}}" % end.expr
+    if config["mode"] != "debug":
+        if isinstance(count, ArgoVar):
+            count = "{{=%s}}" % count.expr
+        if isinstance(start, ArgoVar):
+            start = "{{=%s}}" % start.expr
+        if isinstance(end, ArgoVar):
+            end = "{{=%s}}" % end.expr
     return V1alpha1Sequence(count=count, start=start, end=end, format=format)
 
 
@@ -104,7 +130,7 @@ def argo_len(
         param: the Argo parameter which is a list
     """
     if config["mode"] == "debug":
-        return len(param.value)
+        return FutureLen(param)
     if isinstance(param, S3Artifact):
         try:
             path_list = catalog_of_artifact(param)
@@ -670,6 +696,7 @@ class Step:
 
         import os
         from copy import copy
+
         from .dag import DAG
         from .steps import Steps
 
@@ -705,7 +732,7 @@ class Step:
             for name, art in self.inputs.artifacts.items():
                 steps.inputs.artifacts[name].local_path = art.source.local_path
 
-            steps.run()
+            steps.run(context.workflow_id)
 
             for name, par in self.outputs.parameters.items():
                 if par.value_from_parameter is not None:
@@ -737,7 +764,10 @@ class Step:
             return
 
         if self.with_param is not None or self.with_sequence is not None:
-            if isinstance(self.with_param, (InputParameter, OutputParameter)):
+            if isinstance(self.with_param, FutureRange):
+                item_list = self.with_param.get()
+            elif isinstance(self.with_param, (InputParameter,
+                                              OutputParameter)):
                 item_list = self.with_param.value
             elif isinstance(self.with_param, list):
                 item_list = self.with_param
@@ -745,15 +775,21 @@ class Step:
                 start = 0
                 if self.with_sequence.start is not None:
                     start = self.with_sequence.start
+                    if isinstance(start, FutureLen):
+                        start = start.get()
                     if isinstance(start, (InputParameter, OutputParameter)):
                         start = start.value
                 if self.with_sequence.count is not None:
                     count = self.with_sequence.count
+                    if isinstance(count, FutureLen):
+                        count = count.get()
                     if isinstance(count, (InputParameter, OutputParameter)):
                         count = count.value
                     sequence = list(range(start, start + count))
                 if self.with_sequence.end is not None:
                     end = self.with_sequence.end
+                    if isinstance(end, FutureLen):
+                        end = end.get()
                     if isinstance(end, (InputParameter, OutputParameter)):
                         end = end.value
                     sequence = list(range(start, end + 1))
@@ -933,7 +969,7 @@ class Step:
         if hasattr(self.template, "tmp_root"):
             # do not modify self.template
             template = deepcopy(self.template)
-            template.tmp_root = "%s/%s" % (workdir, template.tmp_root)
+            template.tmp_root = "%s%s" % (workdir, template.tmp_root)
             template.render_script()
             if self.executor is not None:
                 if hasattr(self.executor, "work_root"):
