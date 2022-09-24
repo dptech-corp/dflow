@@ -23,7 +23,8 @@ try:
     from argo.workflows.client import (ApiClient, Configuration, V1alpha1PodGC,
                                        V1alpha1Workflow,
                                        V1alpha1WorkflowCreateRequest,
-                                       V1alpha1WorkflowSpec, V1ObjectMeta,
+                                       V1alpha1WorkflowSpec,
+                                       V1LocalObjectReference, V1ObjectMeta,
                                        V1PersistentVolumeClaim,
                                        V1PersistentVolumeClaimSpec,
                                        V1ResourceRequirements,
@@ -57,6 +58,7 @@ class Workflow:
         pod_gc_stategy: pod GC provides the ability to delete pods
             automatically without deleting the workflow, pod GC strategy
             must be one of the following:
+
             * OnPodCompletion - delete pods immediately when pod is completed
                 (including errors/failures)
             * OnPodSuccess - delete pods immediately when pod is successful
@@ -79,6 +81,7 @@ class Workflow:
             annotations: Dict[str, str] = None,
             parallelism: int = None,
             pod_gc_strategy: str = None,
+            image_pull_secrets: Union[str, List[str]] = None,
     ) -> None:
         self.host = host if host is not None else config["host"]
         self.token = token if token is not None else config["token"]
@@ -92,6 +95,9 @@ class Workflow:
         self.annotations = annotations
         self.parallelism = parallelism
         self.pod_gc_strategy = pod_gc_strategy
+        if isinstance(image_pull_secrets, str):
+            image_pull_secrets = [image_pull_secrets]
+        self.image_pull_secrets = image_pull_secrets
 
         configuration = Configuration(host=self.host)
         configuration.verify_ssl = False
@@ -288,6 +294,8 @@ class Workflow:
                 parallelism=self.parallelism,
                 volume_claim_templates=argo_pvcs,
                 pod_gc=V1alpha1PodGC(strategy=self.pod_gc_strategy),
+                image_pull_secrets=None if self.image_pull_secrets is None else
+                [V1LocalObjectReference(s) for s in self.image_pull_secrets]
             ),
             status=status)
 
