@@ -16,6 +16,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -58,19 +59,121 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="dflow.plugins.html">dflow.plugins package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#module-dflow.plugins.dispatcher">dflow.plugins.dispatcher module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#module-dflow.plugins.lebesgue">dflow.plugins.lebesgue module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#module-dflow.plugins.ray">dflow.plugins.ray module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#module-dflow.plugins.dispatcher">dflow.plugins.dispatcher module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dflow.plugins.html#dflow.plugins.dispatcher.DispatcherExecutor"><code class="docutils literal notranslate"><span class="pre">DispatcherExecutor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dflow.plugins.html#dflow.plugins.dispatcher.DispatcherExecutor.render"><code class="docutils literal notranslate"><span class="pre">DispatcherExecutor.render()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.plugins.html#dflow.plugins.dispatcher.update_dict"><code class="docutils literal notranslate"><span class="pre">update_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#module-dflow.plugins.lebesgue">dflow.plugins.lebesgue module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dflow.plugins.html#dflow.plugins.lebesgue.LebesgueContext"><code class="docutils literal notranslate"><span class="pre">LebesgueContext</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dflow.plugins.html#dflow.plugins.lebesgue.LebesgueContext.login"><code class="docutils literal notranslate"><span class="pre">LebesgueContext.login()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.plugins.html#dflow.plugins.lebesgue.LebesgueContext.render"><code class="docutils literal notranslate"><span class="pre">LebesgueContext.render()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.plugins.html#dflow.plugins.lebesgue.LebesgueExecutor"><code class="docutils literal notranslate"><span class="pre">LebesgueExecutor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dflow.plugins.html#dflow.plugins.lebesgue.LebesgueExecutor.render"><code class="docutils literal notranslate"><span class="pre">LebesgueExecutor.render()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#module-dflow.plugins.ray">dflow.plugins.ray module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dflow.plugins.html#dflow.plugins.ray.RayClusterExecutor"><code class="docutils literal notranslate"><span class="pre">RayClusterExecutor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dflow.plugins.html#dflow.plugins.ray.RayClusterExecutor.render"><code class="docutils literal notranslate"><span class="pre">RayClusterExecutor.render()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="dflow.plugins.html#module-dflow.plugins">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="dflow.python.html">dflow.python package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="dflow.python.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python.op">dflow.python.op module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python.opio">dflow.python.opio module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python.python_op_template">dflow.python.python_op_template module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python.utils">dflow.python.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python.op">dflow.python.op module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP"><code class="docutils literal notranslate"><span class="pre">OP</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.exec_sign_check"><code class="docutils literal notranslate"><span class="pre">OP.exec_sign_check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.execute"><code class="docutils literal notranslate"><span class="pre">OP.execute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.function"><code class="docutils literal notranslate"><span class="pre">OP.function()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.get_input_artifact_link"><code class="docutils literal notranslate"><span class="pre">OP.get_input_artifact_link()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.get_input_artifact_storage_key"><code class="docutils literal notranslate"><span class="pre">OP.get_input_artifact_storage_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.get_input_sign"><code class="docutils literal notranslate"><span class="pre">OP.get_input_sign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.get_output_artifact_link"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_link()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.get_output_artifact_storage_key"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_storage_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.get_output_sign"><code class="docutils literal notranslate"><span class="pre">OP.get_output_sign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.progress_current"><code class="docutils literal notranslate"><span class="pre">OP.progress_current</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.progress_total"><code class="docutils literal notranslate"><span class="pre">OP.progress_total</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.subclass"><code class="docutils literal notranslate"><span class="pre">OP.subclass</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python.opio">dflow.python.opio module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.opio.Artifact"><code class="docutils literal notranslate"><span class="pre">Artifact</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.opio.BigParameter"><code class="docutils literal notranslate"><span class="pre">BigParameter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.opio.OPIO"><code class="docutils literal notranslate"><span class="pre">OPIO</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.opio.OPIOSign"><code class="docutils literal notranslate"><span class="pre">OPIOSign</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.opio.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python.python_op_template">dflow.python.python_op_template module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.FatalError"><code class="docutils literal notranslate"><span class="pre">FatalError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate.get_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.get_slices()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate.init_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.init_slices()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate.render_script"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_script()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate.render_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_slices()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.Slices"><code class="docutils literal notranslate"><span class="pre">Slices</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.TransientError"><code class="docutils literal notranslate"><span class="pre">TransientError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python.utils">dflow.python.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.utils.copy_results"><code class="docutils literal notranslate"><span class="pre">copy_results()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.utils.copy_results_and_return_path_item"><code class="docutils literal notranslate"><span class="pre">copy_results_and_return_path_item()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.utils.handle_empty_dir"><code class="docutils literal notranslate"><span class="pre">handle_empty_dir()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.utils.handle_input_artifact"><code class="docutils literal notranslate"><span class="pre">handle_input_artifact()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.utils.handle_input_parameter"><code class="docutils literal notranslate"><span class="pre">handle_input_parameter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.utils.handle_output_artifact"><code class="docutils literal notranslate"><span class="pre">handle_output_artifact()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.utils.handle_output_parameter"><code class="docutils literal notranslate"><span class="pre">handle_output_parameter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.utils.path_or_none"><code class="docutils literal notranslate"><span class="pre">path_or_none()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.Artifact"><code class="docutils literal notranslate"><span class="pre">Artifact</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.BigParameter"><code class="docutils literal notranslate"><span class="pre">BigParameter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.FatalError"><code class="docutils literal notranslate"><span class="pre">FatalError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.OP"><code class="docutils literal notranslate"><span class="pre">OP</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.exec_sign_check"><code class="docutils literal notranslate"><span class="pre">OP.exec_sign_check()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.execute"><code class="docutils literal notranslate"><span class="pre">OP.execute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.function"><code class="docutils literal notranslate"><span class="pre">OP.function()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.get_input_artifact_link"><code class="docutils literal notranslate"><span class="pre">OP.get_input_artifact_link()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.get_input_artifact_storage_key"><code class="docutils literal notranslate"><span class="pre">OP.get_input_artifact_storage_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.get_input_sign"><code class="docutils literal notranslate"><span class="pre">OP.get_input_sign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.get_output_artifact_link"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_link()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.get_output_artifact_storage_key"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_storage_key()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.get_output_sign"><code class="docutils literal notranslate"><span class="pre">OP.get_output_sign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.progress_current"><code class="docutils literal notranslate"><span class="pre">OP.progress_current</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.progress_total"><code class="docutils literal notranslate"><span class="pre">OP.progress_total</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.subclass"><code class="docutils literal notranslate"><span class="pre">OP.subclass</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.OPIO"><code class="docutils literal notranslate"><span class="pre">OPIO</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.OPIOSign"><code class="docutils literal notranslate"><span class="pre">OPIOSign</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.PythonOPTemplate"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.PythonOPTemplate.get_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.get_slices()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.PythonOPTemplate.init_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.init_slices()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.PythonOPTemplate.render_script"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_script()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.PythonOPTemplate.render_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_slices()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.Slices"><code class="docutils literal notranslate"><span class="pre">Slices</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.TransientError"><code class="docutils literal notranslate"><span class="pre">TransientError</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1429,7 +1532,7 @@ must be one of the following:</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>step</strong> – a step or a list of parallel steps to be added to the</p></li>
-<li><p><strong>workflow</strong> (<em>entrypoint of the</em>) – </p></li>
+<li><p><strong>workflow</strong> (<em>entrypoint</em><em> of </em><em>the</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -2326,7 +2429,7 @@ must be one of the following:</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>step</strong> – a step or a list of parallel steps to be added to the</p></li>
-<li><p><strong>workflow</strong> (<em>entrypoint of the</em>) – </p></li>
+<li><p><strong>workflow</strong> (<em>entrypoint</em><em> of </em><em>the</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -2605,24 +2708,433 @@ parameters</p></li>
 <li><a class="reference internal" href="#">dflow package</a><ul>
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-dflow.argo_objects">dflow.argo_objects module</a></li>
-<li><a class="reference internal" href="#module-dflow.common">dflow.common module</a></li>
+<li><a class="reference internal" href="#module-dflow.argo_objects">dflow.argo_objects module</a><ul>
+<li><a class="reference internal" href="#dflow.argo_objects.ArgoObjectDict"><code class="docutils literal notranslate"><span class="pre">ArgoObjectDict</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.argo_objects.ArgoObjectDict.recover"><code class="docutils literal notranslate"><span class="pre">ArgoObjectDict.recover()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.argo_objects.ArgoObjectList"><code class="docutils literal notranslate"><span class="pre">ArgoObjectList</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.argo_objects.ArgoObjectList.recover"><code class="docutils literal notranslate"><span class="pre">ArgoObjectList.recover()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.argo_objects.ArgoStep"><code class="docutils literal notranslate"><span class="pre">ArgoStep</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.argo_objects.ArgoStep.download_sliced_output_artifact"><code class="docutils literal notranslate"><span class="pre">ArgoStep.download_sliced_output_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.argo_objects.ArgoStep.handle_big_parameters"><code class="docutils literal notranslate"><span class="pre">ArgoStep.handle_big_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.argo_objects.ArgoStep.handle_io"><code class="docutils literal notranslate"><span class="pre">ArgoStep.handle_io()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.argo_objects.ArgoStep.modify_output_artifact"><code class="docutils literal notranslate"><span class="pre">ArgoStep.modify_output_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.argo_objects.ArgoStep.modify_output_parameter"><code class="docutils literal notranslate"><span class="pre">ArgoStep.modify_output_parameter()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.argo_objects.ArgoStep.upload_and_modify_sliced_output_artifact"><code class="docutils literal notranslate"><span class="pre">ArgoStep.upload_and_modify_sliced_output_artifact()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.argo_objects.ArgoWorkflow"><code class="docutils literal notranslate"><span class="pre">ArgoWorkflow</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.argo_objects.ArgoWorkflow.get_step"><code class="docutils literal notranslate"><span class="pre">ArgoWorkflow.get_step()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.argo_objects.match"><code class="docutils literal notranslate"><span class="pre">match()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.common">dflow.common module</a><ul>
+<li><a class="reference internal" href="#dflow.common.LocalArtifact"><code class="docutils literal notranslate"><span class="pre">LocalArtifact</span></code></a></li>
+<li><a class="reference internal" href="#dflow.common.S3Artifact"><code class="docutils literal notranslate"><span class="pre">S3Artifact</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.common.S3Artifact.sub_path"><code class="docutils literal notranslate"><span class="pre">S3Artifact.sub_path()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-dflow.config">dflow.config module</a></li>
-<li><a class="reference internal" href="#module-dflow.context">dflow.context module</a></li>
-<li><a class="reference internal" href="#module-dflow.context_syntax">dflow.context_syntax module</a></li>
-<li><a class="reference internal" href="#module-dflow.dag">dflow.dag module</a></li>
-<li><a class="reference internal" href="#module-dflow.executor">dflow.executor module</a></li>
-<li><a class="reference internal" href="#module-dflow.io">dflow.io module</a></li>
-<li><a class="reference internal" href="#module-dflow.op_template">dflow.op_template module</a></li>
-<li><a class="reference internal" href="#module-dflow.resource">dflow.resource module</a></li>
-<li><a class="reference internal" href="#module-dflow.slurm">dflow.slurm module</a></li>
-<li><a class="reference internal" href="#module-dflow.step">dflow.step module</a></li>
-<li><a class="reference internal" href="#module-dflow.steps">dflow.steps module</a></li>
-<li><a class="reference internal" href="#module-dflow.task">dflow.task module</a></li>
-<li><a class="reference internal" href="#module-dflow.util_ops">dflow.util_ops module</a></li>
-<li><a class="reference internal" href="#module-dflow.utils">dflow.utils module</a></li>
-<li><a class="reference internal" href="#module-dflow.workflow">dflow.workflow module</a></li>
-<li><a class="reference internal" href="#module-dflow">Module contents</a></li>
+<li><a class="reference internal" href="#module-dflow.context">dflow.context module</a><ul>
+<li><a class="reference internal" href="#dflow.context.Context"><code class="docutils literal notranslate"><span class="pre">Context</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.context.Context.render"><code class="docutils literal notranslate"><span class="pre">Context.render()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.context_syntax">dflow.context_syntax module</a><ul>
+<li><a class="reference internal" href="#dflow.context_syntax.Range_Context"><code class="docutils literal notranslate"><span class="pre">Range_Context</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.context_syntax.Range_Context.get_current_range_param_name"><code class="docutils literal notranslate"><span class="pre">Range_Context.get_current_range_param_name()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.context_syntax.Range_Context.in_context"><code class="docutils literal notranslate"><span class="pre">Range_Context.in_context</span></code></a></li>
+<li><a class="reference internal" href="#dflow.context_syntax.Range_Context.to_in_context"><code class="docutils literal notranslate"><span class="pre">Range_Context.to_in_context()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.context_syntax.Range_Context.to_out_context"><code class="docutils literal notranslate"><span class="pre">Range_Context.to_out_context()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.dag">dflow.dag module</a><ul>
+<li><a class="reference internal" href="#dflow.dag.DAG"><code class="docutils literal notranslate"><span class="pre">DAG</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.dag.DAG.add"><code class="docutils literal notranslate"><span class="pre">DAG.add()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.dag.DAG.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">DAG.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.dag.DAG.resolve"><code class="docutils literal notranslate"><span class="pre">DAG.resolve()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.dag.DAG.run"><code class="docutils literal notranslate"><span class="pre">DAG.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.executor">dflow.executor module</a><ul>
+<li><a class="reference internal" href="#dflow.executor.Executor"><code class="docutils literal notranslate"><span class="pre">Executor</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.executor.Executor.render"><code class="docutils literal notranslate"><span class="pre">Executor.render()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.executor.RemoteExecutor"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.executor.RemoteExecutor.download"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.download()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.executor.RemoteExecutor.execute"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.execute()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.executor.RemoteExecutor.get_script"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.get_script()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.executor.RemoteExecutor.mkdir_and_download"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.mkdir_and_download()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.executor.RemoteExecutor.render"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.render()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.executor.RemoteExecutor.run"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.run()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.executor.RemoteExecutor.upload"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.upload()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.executor.RemoteExecutor.upload_if_exists"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.upload_if_exists()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.executor.run_script"><code class="docutils literal notranslate"><span class="pre">run_script()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.io">dflow.io module</a><ul>
+<li><a class="reference internal" href="#dflow.io.ArgoVar"><code class="docutils literal notranslate"><span class="pre">ArgoVar</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.AutonamedDict"><code class="docutils literal notranslate"><span class="pre">AutonamedDict</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.io.AutonamedDict.set_step"><code class="docutils literal notranslate"><span class="pre">AutonamedDict.set_step()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.AutonamedDict.set_template"><code class="docutils literal notranslate"><span class="pre">AutonamedDict.set_template()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.io.IfExpression"><code class="docutils literal notranslate"><span class="pre">IfExpression</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.InputArtifact"><code class="docutils literal notranslate"><span class="pre">InputArtifact</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.io.InputArtifact.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">InputArtifact.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.InputArtifact.get_path_list_parameter"><code class="docutils literal notranslate"><span class="pre">InputArtifact.get_path_list_parameter()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.InputArtifact.sub_path"><code class="docutils literal notranslate"><span class="pre">InputArtifact.sub_path()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.io.InputArtifacts"><code class="docutils literal notranslate"><span class="pre">InputArtifacts</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.io.InputArtifacts.set_template"><code class="docutils literal notranslate"><span class="pre">InputArtifacts.set_template()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.io.InputParameter"><code class="docutils literal notranslate"><span class="pre">InputParameter</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.io.InputParameter.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">InputParameter.convert_to_argo()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.io.InputParameters"><code class="docutils literal notranslate"><span class="pre">InputParameters</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.Inputs"><code class="docutils literal notranslate"><span class="pre">Inputs</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.io.Inputs.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Inputs.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.Inputs.set_step"><code class="docutils literal notranslate"><span class="pre">Inputs.set_step()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.Inputs.set_template"><code class="docutils literal notranslate"><span class="pre">Inputs.set_template()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.io.OutputArtifact"><code class="docutils literal notranslate"><span class="pre">OutputArtifact</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.io.OutputArtifact.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">OutputArtifact.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.OutputArtifact.get_path_list_parameter"><code class="docutils literal notranslate"><span class="pre">OutputArtifact.get_path_list_parameter()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.OutputArtifact.handle_path_list"><code class="docutils literal notranslate"><span class="pre">OutputArtifact.handle_path_list()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.OutputArtifact.pvc"><code class="docutils literal notranslate"><span class="pre">OutputArtifact.pvc()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.OutputArtifact.sub_path"><code class="docutils literal notranslate"><span class="pre">OutputArtifact.sub_path()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.io.OutputArtifacts"><code class="docutils literal notranslate"><span class="pre">OutputArtifacts</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.io.OutputArtifacts.set_template"><code class="docutils literal notranslate"><span class="pre">OutputArtifacts.set_template()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.io.OutputParameter"><code class="docutils literal notranslate"><span class="pre">OutputParameter</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.io.OutputParameter.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">OutputParameter.convert_to_argo()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.io.OutputParameters"><code class="docutils literal notranslate"><span class="pre">OutputParameters</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.Outputs"><code class="docutils literal notranslate"><span class="pre">Outputs</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.io.Outputs.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Outputs.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.Outputs.set_step"><code class="docutils literal notranslate"><span class="pre">Outputs.set_step()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.Outputs.set_template"><code class="docutils literal notranslate"><span class="pre">Outputs.set_template()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.io.PVC"><code class="docutils literal notranslate"><span class="pre">PVC</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.if_expression"><code class="docutils literal notranslate"><span class="pre">if_expression()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.op_template">dflow.op_template module</a><ul>
+<li><a class="reference internal" href="#dflow.op_template.OPTemplate"><code class="docutils literal notranslate"><span class="pre">OPTemplate</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.op_template.OPTemplate.handle_key"><code class="docutils literal notranslate"><span class="pre">OPTemplate.handle_key()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.op_template.PythonScriptOPTemplate"><code class="docutils literal notranslate"><span class="pre">PythonScriptOPTemplate</span></code></a></li>
+<li><a class="reference internal" href="#dflow.op_template.ScriptOPTemplate"><code class="docutils literal notranslate"><span class="pre">ScriptOPTemplate</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.op_template.ScriptOPTemplate.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">ScriptOPTemplate.convert_to_argo()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.op_template.ShellOPTemplate"><code class="docutils literal notranslate"><span class="pre">ShellOPTemplate</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.resource">dflow.resource module</a><ul>
+<li><a class="reference internal" href="#dflow.resource.Resource"><code class="docutils literal notranslate"><span class="pre">Resource</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.resource.Resource.action"><code class="docutils literal notranslate"><span class="pre">Resource.action</span></code></a></li>
+<li><a class="reference internal" href="#dflow.resource.Resource.failure_condition"><code class="docutils literal notranslate"><span class="pre">Resource.failure_condition</span></code></a></li>
+<li><a class="reference internal" href="#dflow.resource.Resource.get_manifest"><code class="docutils literal notranslate"><span class="pre">Resource.get_manifest()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.resource.Resource.success_condition"><code class="docutils literal notranslate"><span class="pre">Resource.success_condition</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.slurm">dflow.slurm module</a><ul>
+<li><a class="reference internal" href="#dflow.slurm.SlurmJob"><code class="docutils literal notranslate"><span class="pre">SlurmJob</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.slurm.SlurmJob.get_manifest"><code class="docutils literal notranslate"><span class="pre">SlurmJob.get_manifest()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.slurm.SlurmJobTemplate"><code class="docutils literal notranslate"><span class="pre">SlurmJobTemplate</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.slurm.SlurmJobTemplate.render"><code class="docutils literal notranslate"><span class="pre">SlurmJobTemplate.render()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.slurm.SlurmRemoteExecutor"><code class="docutils literal notranslate"><span class="pre">SlurmRemoteExecutor</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.slurm.SlurmRemoteExecutor.render"><code class="docutils literal notranslate"><span class="pre">SlurmRemoteExecutor.render()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.slurm.SlurmRemoteExecutor.run"><code class="docutils literal notranslate"><span class="pre">SlurmRemoteExecutor.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.step">dflow.step module</a><ul>
+<li><a class="reference internal" href="#dflow.step.FutureLen"><code class="docutils literal notranslate"><span class="pre">FutureLen</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.step.FutureLen.get"><code class="docutils literal notranslate"><span class="pre">FutureLen.get()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.step.FutureRange"><code class="docutils literal notranslate"><span class="pre">FutureRange</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.step.FutureRange.get"><code class="docutils literal notranslate"><span class="pre">FutureRange.get()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.step.Step"><code class="docutils literal notranslate"><span class="pre">Step</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.step.Step.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Step.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.exec"><code class="docutils literal notranslate"><span class="pre">Step.exec()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.exec_with_queue"><code class="docutils literal notranslate"><span class="pre">Step.exec_with_queue()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.prepare_argo_arguments"><code class="docutils literal notranslate"><span class="pre">Step.prepare_argo_arguments()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.run"><code class="docutils literal notranslate"><span class="pre">Step.run()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.run_with_queue"><code class="docutils literal notranslate"><span class="pre">Step.run_with_queue()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.set_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.set_artifacts()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.set_parameters"><code class="docutils literal notranslate"><span class="pre">Step.set_parameters()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.step.argo_len"><code class="docutils literal notranslate"><span class="pre">argo_len()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.argo_range"><code class="docutils literal notranslate"><span class="pre">argo_range()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.argo_sequence"><code class="docutils literal notranslate"><span class="pre">argo_sequence()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.backup"><code class="docutils literal notranslate"><span class="pre">backup()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.eval_bool_expr"><code class="docutils literal notranslate"><span class="pre">eval_bool_expr()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.get_var"><code class="docutils literal notranslate"><span class="pre">get_var()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.render_expr"><code class="docutils literal notranslate"><span class="pre">render_expr()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.render_item"><code class="docutils literal notranslate"><span class="pre">render_item()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.render_script"><code class="docutils literal notranslate"><span class="pre">render_script()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.steps">dflow.steps module</a><ul>
+<li><a class="reference internal" href="#dflow.steps.Steps"><code class="docutils literal notranslate"><span class="pre">Steps</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.steps.Steps.add"><code class="docutils literal notranslate"><span class="pre">Steps.add()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.steps.Steps.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Steps.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.steps.Steps.run"><code class="docutils literal notranslate"><span class="pre">Steps.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.task">dflow.task module</a><ul>
+<li><a class="reference internal" href="#dflow.task.Task"><code class="docutils literal notranslate"><span class="pre">Task</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.task.Task.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Task.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.task.Task.set_artifacts"><code class="docutils literal notranslate"><span class="pre">Task.set_artifacts()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.task.Task.set_parameters"><code class="docutils literal notranslate"><span class="pre">Task.set_parameters()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.util_ops">dflow.util_ops module</a><ul>
+<li><a class="reference internal" href="#dflow.util_ops.CheckNumSuccess"><code class="docutils literal notranslate"><span class="pre">CheckNumSuccess</span></code></a></li>
+<li><a class="reference internal" href="#dflow.util_ops.CheckSuccessRatio"><code class="docutils literal notranslate"><span class="pre">CheckSuccessRatio</span></code></a></li>
+<li><a class="reference internal" href="#dflow.util_ops.InitArtifactForSlices"><code class="docutils literal notranslate"><span class="pre">InitArtifactForSlices</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.util_ops.InitArtifactForSlices.render_script"><code class="docutils literal notranslate"><span class="pre">InitArtifactForSlices.render_script()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.utils">dflow.utils module</a><ul>
+<li><a class="reference internal" href="#dflow.utils.assemble_path_list"><code class="docutils literal notranslate"><span class="pre">assemble_path_list()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.catalog_of_artifact"><code class="docutils literal notranslate"><span class="pre">catalog_of_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.convert_dflow_list"><code class="docutils literal notranslate"><span class="pre">convert_dflow_list()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.copy_artifact"><code class="docutils literal notranslate"><span class="pre">copy_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.copy_file"><code class="docutils literal notranslate"><span class="pre">copy_file()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.copy_s3"><code class="docutils literal notranslate"><span class="pre">copy_s3()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.download_artifact"><code class="docutils literal notranslate"><span class="pre">download_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.download_s3"><code class="docutils literal notranslate"><span class="pre">download_s3()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.get_md5"><code class="docutils literal notranslate"><span class="pre">get_md5()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.merge_dir"><code class="docutils literal notranslate"><span class="pre">merge_dir()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.path_list_of_artifact"><code class="docutils literal notranslate"><span class="pre">path_list_of_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.randstr"><code class="docutils literal notranslate"><span class="pre">randstr()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.remove_empty_dir_tag"><code class="docutils literal notranslate"><span class="pre">remove_empty_dir_tag()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.run_command"><code class="docutils literal notranslate"><span class="pre">run_command()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.set_directory"><code class="docutils literal notranslate"><span class="pre">set_directory()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.upload_artifact"><code class="docutils literal notranslate"><span class="pre">upload_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.upload_s3"><code class="docutils literal notranslate"><span class="pre">upload_s3()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.workflow">dflow.workflow module</a><ul>
+<li><a class="reference internal" href="#dflow.workflow.Workflow"><code class="docutils literal notranslate"><span class="pre">Workflow</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.add"><code class="docutils literal notranslate"><span class="pre">Workflow.add()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Workflow.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.delete"><code class="docutils literal notranslate"><span class="pre">Workflow.delete()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.handle_template"><code class="docutils literal notranslate"><span class="pre">Workflow.handle_template()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.query"><code class="docutils literal notranslate"><span class="pre">Workflow.query()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.query_keys_of_steps"><code class="docutils literal notranslate"><span class="pre">Workflow.query_keys_of_steps()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.query_status"><code class="docutils literal notranslate"><span class="pre">Workflow.query_status()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.query_step"><code class="docutils literal notranslate"><span class="pre">Workflow.query_step()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.resubmit"><code class="docutils literal notranslate"><span class="pre">Workflow.resubmit()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.resume"><code class="docutils literal notranslate"><span class="pre">Workflow.resume()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.retry"><code class="docutils literal notranslate"><span class="pre">Workflow.retry()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.stop"><code class="docutils literal notranslate"><span class="pre">Workflow.stop()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.submit"><code class="docutils literal notranslate"><span class="pre">Workflow.submit()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.suspend"><code class="docutils literal notranslate"><span class="pre">Workflow.suspend()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.terminate"><code class="docutils literal notranslate"><span class="pre">Workflow.terminate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow">Module contents</a><ul>
+<li><a class="reference internal" href="#dflow.AutonamedDict"><code class="docutils literal notranslate"><span class="pre">AutonamedDict</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.AutonamedDict.set_step"><code class="docutils literal notranslate"><span class="pre">AutonamedDict.set_step()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.AutonamedDict.set_template"><code class="docutils literal notranslate"><span class="pre">AutonamedDict.set_template()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.Context"><code class="docutils literal notranslate"><span class="pre">Context</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.Context.render"><code class="docutils literal notranslate"><span class="pre">Context.render()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.DAG"><code class="docutils literal notranslate"><span class="pre">DAG</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.DAG.add"><code class="docutils literal notranslate"><span class="pre">DAG.add()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.DAG.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">DAG.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.DAG.resolve"><code class="docutils literal notranslate"><span class="pre">DAG.resolve()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.DAG.run"><code class="docutils literal notranslate"><span class="pre">DAG.run()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.Executor"><code class="docutils literal notranslate"><span class="pre">Executor</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.Executor.render"><code class="docutils literal notranslate"><span class="pre">Executor.render()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.IfExpression"><code class="docutils literal notranslate"><span class="pre">IfExpression</span></code></a></li>
+<li><a class="reference internal" href="#dflow.InputArtifact"><code class="docutils literal notranslate"><span class="pre">InputArtifact</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.InputArtifact.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">InputArtifact.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.InputArtifact.get_path_list_parameter"><code class="docutils literal notranslate"><span class="pre">InputArtifact.get_path_list_parameter()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.InputArtifact.sub_path"><code class="docutils literal notranslate"><span class="pre">InputArtifact.sub_path()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.InputParameter"><code class="docutils literal notranslate"><span class="pre">InputParameter</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.InputParameter.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">InputParameter.convert_to_argo()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.Inputs"><code class="docutils literal notranslate"><span class="pre">Inputs</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.Inputs.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Inputs.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Inputs.set_step"><code class="docutils literal notranslate"><span class="pre">Inputs.set_step()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Inputs.set_template"><code class="docutils literal notranslate"><span class="pre">Inputs.set_template()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.LocalArtifact"><code class="docutils literal notranslate"><span class="pre">LocalArtifact</span></code></a></li>
+<li><a class="reference internal" href="#dflow.OPTemplate"><code class="docutils literal notranslate"><span class="pre">OPTemplate</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.OPTemplate.handle_key"><code class="docutils literal notranslate"><span class="pre">OPTemplate.handle_key()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.OutputArtifact"><code class="docutils literal notranslate"><span class="pre">OutputArtifact</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.OutputArtifact.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">OutputArtifact.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.OutputArtifact.get_path_list_parameter"><code class="docutils literal notranslate"><span class="pre">OutputArtifact.get_path_list_parameter()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.OutputArtifact.handle_path_list"><code class="docutils literal notranslate"><span class="pre">OutputArtifact.handle_path_list()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.OutputArtifact.pvc"><code class="docutils literal notranslate"><span class="pre">OutputArtifact.pvc()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.OutputArtifact.sub_path"><code class="docutils literal notranslate"><span class="pre">OutputArtifact.sub_path()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.OutputParameter"><code class="docutils literal notranslate"><span class="pre">OutputParameter</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.OutputParameter.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">OutputParameter.convert_to_argo()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.Outputs"><code class="docutils literal notranslate"><span class="pre">Outputs</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.Outputs.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Outputs.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Outputs.set_step"><code class="docutils literal notranslate"><span class="pre">Outputs.set_step()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Outputs.set_template"><code class="docutils literal notranslate"><span class="pre">Outputs.set_template()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.PythonScriptOPTemplate"><code class="docutils literal notranslate"><span class="pre">PythonScriptOPTemplate</span></code></a></li>
+<li><a class="reference internal" href="#dflow.RemoteExecutor"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.RemoteExecutor.download"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.download()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.RemoteExecutor.execute"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.execute()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.RemoteExecutor.get_script"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.get_script()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.RemoteExecutor.mkdir_and_download"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.mkdir_and_download()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.RemoteExecutor.render"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.render()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.RemoteExecutor.run"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.run()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.RemoteExecutor.upload"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.upload()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.RemoteExecutor.upload_if_exists"><code class="docutils literal notranslate"><span class="pre">RemoteExecutor.upload_if_exists()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.Resource"><code class="docutils literal notranslate"><span class="pre">Resource</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.Resource.action"><code class="docutils literal notranslate"><span class="pre">Resource.action</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Resource.failure_condition"><code class="docutils literal notranslate"><span class="pre">Resource.failure_condition</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Resource.get_manifest"><code class="docutils literal notranslate"><span class="pre">Resource.get_manifest()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Resource.success_condition"><code class="docutils literal notranslate"><span class="pre">Resource.success_condition</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.S3Artifact"><code class="docutils literal notranslate"><span class="pre">S3Artifact</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.S3Artifact.sub_path"><code class="docutils literal notranslate"><span class="pre">S3Artifact.sub_path()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.ShellOPTemplate"><code class="docutils literal notranslate"><span class="pre">ShellOPTemplate</span></code></a></li>
+<li><a class="reference internal" href="#dflow.SlurmJob"><code class="docutils literal notranslate"><span class="pre">SlurmJob</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.SlurmJob.get_manifest"><code class="docutils literal notranslate"><span class="pre">SlurmJob.get_manifest()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.SlurmJobTemplate"><code class="docutils literal notranslate"><span class="pre">SlurmJobTemplate</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.SlurmJobTemplate.render"><code class="docutils literal notranslate"><span class="pre">SlurmJobTemplate.render()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.SlurmRemoteExecutor"><code class="docutils literal notranslate"><span class="pre">SlurmRemoteExecutor</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.SlurmRemoteExecutor.render"><code class="docutils literal notranslate"><span class="pre">SlurmRemoteExecutor.render()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.SlurmRemoteExecutor.run"><code class="docutils literal notranslate"><span class="pre">SlurmRemoteExecutor.run()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.Step"><code class="docutils literal notranslate"><span class="pre">Step</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.Step.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Step.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.exec"><code class="docutils literal notranslate"><span class="pre">Step.exec()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.exec_with_queue"><code class="docutils literal notranslate"><span class="pre">Step.exec_with_queue()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.prepare_argo_arguments"><code class="docutils literal notranslate"><span class="pre">Step.prepare_argo_arguments()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.run"><code class="docutils literal notranslate"><span class="pre">Step.run()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.run_with_queue"><code class="docutils literal notranslate"><span class="pre">Step.run_with_queue()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.set_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.set_artifacts()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.set_parameters"><code class="docutils literal notranslate"><span class="pre">Step.set_parameters()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.Steps"><code class="docutils literal notranslate"><span class="pre">Steps</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.Steps.add"><code class="docutils literal notranslate"><span class="pre">Steps.add()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Steps.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Steps.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Steps.run"><code class="docutils literal notranslate"><span class="pre">Steps.run()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.Task"><code class="docutils literal notranslate"><span class="pre">Task</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.Task.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Task.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Task.set_artifacts"><code class="docutils literal notranslate"><span class="pre">Task.set_artifacts()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Task.set_parameters"><code class="docutils literal notranslate"><span class="pre">Task.set_parameters()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.Workflow"><code class="docutils literal notranslate"><span class="pre">Workflow</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.Workflow.add"><code class="docutils literal notranslate"><span class="pre">Workflow.add()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Workflow.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.delete"><code class="docutils literal notranslate"><span class="pre">Workflow.delete()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.handle_template"><code class="docutils literal notranslate"><span class="pre">Workflow.handle_template()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.query"><code class="docutils literal notranslate"><span class="pre">Workflow.query()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.query_keys_of_steps"><code class="docutils literal notranslate"><span class="pre">Workflow.query_keys_of_steps()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.query_status"><code class="docutils literal notranslate"><span class="pre">Workflow.query_status()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.query_step"><code class="docutils literal notranslate"><span class="pre">Workflow.query_step()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.resubmit"><code class="docutils literal notranslate"><span class="pre">Workflow.resubmit()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.resume"><code class="docutils literal notranslate"><span class="pre">Workflow.resume()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.retry"><code class="docutils literal notranslate"><span class="pre">Workflow.retry()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.stop"><code class="docutils literal notranslate"><span class="pre">Workflow.stop()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.submit"><code class="docutils literal notranslate"><span class="pre">Workflow.submit()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.suspend"><code class="docutils literal notranslate"><span class="pre">Workflow.suspend()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.terminate"><code class="docutils literal notranslate"><span class="pre">Workflow.terminate()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.argo_len"><code class="docutils literal notranslate"><span class="pre">argo_len()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.argo_range"><code class="docutils literal notranslate"><span class="pre">argo_range()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.argo_sequence"><code class="docutils literal notranslate"><span class="pre">argo_sequence()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.copy_artifact"><code class="docutils literal notranslate"><span class="pre">copy_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.copy_s3"><code class="docutils literal notranslate"><span class="pre">copy_s3()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.download_artifact"><code class="docutils literal notranslate"><span class="pre">download_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.download_s3"><code class="docutils literal notranslate"><span class="pre">download_s3()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.if_expression"><code class="docutils literal notranslate"><span class="pre">if_expression()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.path_list_of_artifact"><code class="docutils literal notranslate"><span class="pre">path_list_of_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.randstr"><code class="docutils literal notranslate"><span class="pre">randstr()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.upload_artifact"><code class="docutils literal notranslate"><span class="pre">upload_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.upload_s3"><code class="docutils literal notranslate"><span class="pre">upload_s3()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -2665,7 +3177,7 @@ parameters</p></li>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, zjgemi.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.1.
     </div>
   </body>
 </html>

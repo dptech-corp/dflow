@@ -16,6 +16,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -586,11 +587,89 @@ one</p></li>
     <ul>
 <li><a class="reference internal" href="#">dflow.python package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-dflow.python.op">dflow.python.op module</a></li>
-<li><a class="reference internal" href="#module-dflow.python.opio">dflow.python.opio module</a></li>
-<li><a class="reference internal" href="#module-dflow.python.python_op_template">dflow.python.python_op_template module</a></li>
-<li><a class="reference internal" href="#module-dflow.python.utils">dflow.python.utils module</a></li>
-<li><a class="reference internal" href="#module-dflow.python">Module contents</a></li>
+<li><a class="reference internal" href="#module-dflow.python.op">dflow.python.op module</a><ul>
+<li><a class="reference internal" href="#dflow.python.op.OP"><code class="docutils literal notranslate"><span class="pre">OP</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.python.op.OP.exec_sign_check"><code class="docutils literal notranslate"><span class="pre">OP.exec_sign_check()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.op.OP.execute"><code class="docutils literal notranslate"><span class="pre">OP.execute()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.op.OP.function"><code class="docutils literal notranslate"><span class="pre">OP.function()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.op.OP.get_input_artifact_link"><code class="docutils literal notranslate"><span class="pre">OP.get_input_artifact_link()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.op.OP.get_input_artifact_storage_key"><code class="docutils literal notranslate"><span class="pre">OP.get_input_artifact_storage_key()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.op.OP.get_input_sign"><code class="docutils literal notranslate"><span class="pre">OP.get_input_sign()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.op.OP.get_output_artifact_link"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_link()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.op.OP.get_output_artifact_storage_key"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_storage_key()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.op.OP.get_output_sign"><code class="docutils literal notranslate"><span class="pre">OP.get_output_sign()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.op.OP.progress_current"><code class="docutils literal notranslate"><span class="pre">OP.progress_current</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.op.OP.progress_total"><code class="docutils literal notranslate"><span class="pre">OP.progress_total</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.op.OP.subclass"><code class="docutils literal notranslate"><span class="pre">OP.subclass</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.python.opio">dflow.python.opio module</a><ul>
+<li><a class="reference internal" href="#dflow.python.opio.Artifact"><code class="docutils literal notranslate"><span class="pre">Artifact</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.opio.BigParameter"><code class="docutils literal notranslate"><span class="pre">BigParameter</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.opio.OPIO"><code class="docutils literal notranslate"><span class="pre">OPIO</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.opio.OPIOSign"><code class="docutils literal notranslate"><span class="pre">OPIOSign</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.opio.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.python.python_op_template">dflow.python.python_op_template module</a><ul>
+<li><a class="reference internal" href="#dflow.python.python_op_template.FatalError"><code class="docutils literal notranslate"><span class="pre">FatalError</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.python_op_template.PythonOPTemplate"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.python.python_op_template.PythonOPTemplate.get_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.get_slices()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.python_op_template.PythonOPTemplate.init_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.init_slices()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.python_op_template.PythonOPTemplate.render_script"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_script()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.python_op_template.PythonOPTemplate.render_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_slices()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.python.python_op_template.Slices"><code class="docutils literal notranslate"><span class="pre">Slices</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.python_op_template.TransientError"><code class="docutils literal notranslate"><span class="pre">TransientError</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.python.utils">dflow.python.utils module</a><ul>
+<li><a class="reference internal" href="#dflow.python.utils.copy_results"><code class="docutils literal notranslate"><span class="pre">copy_results()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.utils.copy_results_and_return_path_item"><code class="docutils literal notranslate"><span class="pre">copy_results_and_return_path_item()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.utils.handle_empty_dir"><code class="docutils literal notranslate"><span class="pre">handle_empty_dir()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.utils.handle_input_artifact"><code class="docutils literal notranslate"><span class="pre">handle_input_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.utils.handle_input_parameter"><code class="docutils literal notranslate"><span class="pre">handle_input_parameter()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.utils.handle_output_artifact"><code class="docutils literal notranslate"><span class="pre">handle_output_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.utils.handle_output_parameter"><code class="docutils literal notranslate"><span class="pre">handle_output_parameter()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.utils.path_or_none"><code class="docutils literal notranslate"><span class="pre">path_or_none()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.python">Module contents</a><ul>
+<li><a class="reference internal" href="#dflow.python.Artifact"><code class="docutils literal notranslate"><span class="pre">Artifact</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.BigParameter"><code class="docutils literal notranslate"><span class="pre">BigParameter</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.FatalError"><code class="docutils literal notranslate"><span class="pre">FatalError</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP"><code class="docutils literal notranslate"><span class="pre">OP</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.python.OP.exec_sign_check"><code class="docutils literal notranslate"><span class="pre">OP.exec_sign_check()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP.execute"><code class="docutils literal notranslate"><span class="pre">OP.execute()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP.function"><code class="docutils literal notranslate"><span class="pre">OP.function()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP.get_input_artifact_link"><code class="docutils literal notranslate"><span class="pre">OP.get_input_artifact_link()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP.get_input_artifact_storage_key"><code class="docutils literal notranslate"><span class="pre">OP.get_input_artifact_storage_key()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP.get_input_sign"><code class="docutils literal notranslate"><span class="pre">OP.get_input_sign()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP.get_output_artifact_link"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_link()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP.get_output_artifact_storage_key"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_storage_key()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP.get_output_sign"><code class="docutils literal notranslate"><span class="pre">OP.get_output_sign()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP.progress_current"><code class="docutils literal notranslate"><span class="pre">OP.progress_current</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP.progress_total"><code class="docutils literal notranslate"><span class="pre">OP.progress_total</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP.subclass"><code class="docutils literal notranslate"><span class="pre">OP.subclass</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.python.OPIO"><code class="docutils literal notranslate"><span class="pre">OPIO</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OPIOSign"><code class="docutils literal notranslate"><span class="pre">OPIOSign</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.PythonOPTemplate"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.python.PythonOPTemplate.get_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.get_slices()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.PythonOPTemplate.init_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.init_slices()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.PythonOPTemplate.render_script"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_script()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.PythonOPTemplate.render_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_slices()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.python.Slices"><code class="docutils literal notranslate"><span class="pre">Slices</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.TransientError"><code class="docutils literal notranslate"><span class="pre">TransientError</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -633,7 +712,7 @@ one</p></li>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, zjgemi.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.2.1.
     </div>
   </body>
 </html>
