@@ -1,5 +1,4 @@
 import logging
-from multiprocessing.sharedctypes import Value
 import re
 from copy import deepcopy
 from typing import Any, Dict, List, Union
@@ -10,8 +9,8 @@ from .common import LocalArtifact, S3Artifact
 from .config import config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
-from .io import (PVC, ArgoVar, FutureLen, InputArtifact, InputParameter, OutputArtifact,
-                 OutputParameter)
+from .io import (PVC, ArgoVar, FutureLen, InputArtifact, InputParameter,
+                 OutputArtifact, OutputParameter)
 from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
@@ -683,6 +682,7 @@ class Step:
 
         import os
         from copy import copy
+
         from .dag import DAG
         from .steps import Steps
 
