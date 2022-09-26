@@ -65,7 +65,7 @@ def download_artifact(
     elif hasattr(artifact, "key"):
         key = artifact.key
     else:
-        raise NotImplementedError()
+        raise FileNotFoundError("The artifact does not exist in the storage.")
 
     if slice is not None:
         sub_path = path_list_of_artifact(artifact)[slice]
