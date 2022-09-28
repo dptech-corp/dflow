@@ -155,6 +155,8 @@ def upload_artifact(
         if config["mode"] == "debug":
             os.makedirs("upload", exist_ok=True)
             resdir = shutil.move(tmpdir, "upload")
+            # To prevent exception in destruction
+            os.makedirs(tmpdir, exist_ok=True)
             return LocalArtifact(local_path=os.path.abspath(resdir))
 
         if archive == "tar":

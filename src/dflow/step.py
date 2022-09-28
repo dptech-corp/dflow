@@ -966,15 +966,11 @@ class Step:
 
         # render variables in the script
         script = self.template.script
-        if hasattr(self.template, "tmp_root"):
+        if hasattr(self.template, "tmp_root") and self.executor is None:
             # do not modify self.template
             template = deepcopy(self.template)
             template.tmp_root = "%s%s" % (workdir, template.tmp_root)
             template.render_script()
-            if self.executor is not None:
-                if hasattr(self.executor, "work_root"):
-                    self.executor.work_root = "."
-                template = self.executor.render(template)
             script = template.script
         script = render_script(script, parameters,
                                context.workflow_id, step_id)

@@ -264,7 +264,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         elif command is not None:
             self.command = command
         else:
-            self.command = ["python"]
+            self.command = ["python3"]
         self.init_progress = "%s/%s" % (op_class.progress_current,
                                         op_class.progress_total)
         self.memoize_key = memoize_key

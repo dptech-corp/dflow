@@ -87,7 +87,7 @@ if __name__ == "__main__":
     )
     step = Step(
         name="step",
-        template=PythonOPTemplate(Duplicate, command=["python3"]),
+        template=PythonOPTemplate(Duplicate),
         parameters={"msg": "Hello", "num": 3},
         artifacts={"foo": artifact0, "idir": artifact1},
         executor=dispatcher_executor
