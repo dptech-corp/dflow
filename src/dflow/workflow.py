@@ -73,6 +73,7 @@ class Workflow:
             dag: DAG = None,
             namespace: str = "argo",
             id: str = None,
+            uid: str = None,
             host: str = None,
             token: str = None,
             k8s_config_file: os.PathLike = None,
@@ -112,6 +113,10 @@ class Workflow:
 
         self.namespace = namespace
         self.id = id
+        # alias uid to id if uid not provided
+        if uid is None:
+            uid = id
+        self.uid = uid
         self.name = name
         if steps is not None:
             assert isinstance(steps, Steps)
@@ -180,6 +185,7 @@ class Workflow:
         workflow = ArgoWorkflow(response)
 
         self.id = workflow.metadata.name
+        self.uid = workflow.metadata.uid
         print("Workflow has been submitted (ID: %s)" % self.id)
         return workflow
 
@@ -332,15 +338,13 @@ class Workflow:
         Returns:
             an ArgoWorkflow object
         """
-        if self.id is None:
-            raise RuntimeError("Workflow ID is None")
         try:
             response = self.api_instance.api_client.call_api(
                 '/api/v1/workflows/%s/%s' % (self.namespace, self.id),
                 'GET', response_type=object, _return_http_data_only=True)
         except Exception:
             response = self.api_instance.api_client.call_api(
-                '/api/v1/archived-workflows/%s' % self.id,
+                '/api/v1/archived-workflows/%s' % self.uid,
                 'GET', response_type=object, _return_http_data_only=True)
         workflow = ArgoWorkflow(response)
         return workflow
@@ -400,7 +404,7 @@ class Workflow:
                     query_params=[('fields', 'status.outputs')])
             except Exception:
                 response = self.api_instance.api_client.call_api(
-                    '/api/v1/archived-workflows/%s' % self.id,
+                    '/api/v1/archived-workflows/%s' % self.uid,
                     'GET', response_type=object, _return_http_data_only=True,
                     query_params=[('fields', 'status.outputs')])
             return [par["name"] for par in
