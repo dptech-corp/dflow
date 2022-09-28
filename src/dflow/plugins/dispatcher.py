@@ -59,7 +59,7 @@ class DispatcherExecutor(Executor):
                  private_key_file: os.PathLike = None,
                  image: str = None,
                  image_pull_policy: str = None,
-                 command: Union[str, List[str]] = "python",
+                 command: Union[str, List[str]] = "python3",
                  remote_command: Union[str, List[str]] = None,
                  map_tmp_dir: bool = True,
                  machine_dict: dict = None,
@@ -69,7 +69,6 @@ class DispatcherExecutor(Executor):
                  docker_executable: str = None,
                  singularity_executable: str = None,
                  podman_executable: str = None,
-                 work_root: str = "/",
                  remote_root: str = None,
                  ) -> None:
         self.host = host
@@ -98,7 +97,10 @@ class DispatcherExecutor(Executor):
                 self.singularity_executable is not None or \
                 self.podman_executable is not None:
             self.map_tmp_dir = False
-        self.work_root = work_root
+        if config["mode"] == "debug":
+            self.work_root = "."
+        else:
+            self.work_root = "/"
         self.remote_root = remote_root
 
         conf = {}
@@ -210,6 +212,9 @@ class DispatcherExecutor(Executor):
             "\n" % json.dumps(self.task_dict)
         new_template.script += "task.forward_files = list(filter("\
             "os.path.exists, task.forward_files))\n"
+        new_template.script += "for f in task.backward_files:\n"
+        new_template.script += "    os.makedirs(os.path.dirname(f), "\
+            "exist_ok=True)\n"
         new_template.script += "submission = Submission(work_base='.', "\
             "machine=machine, resources=resources, task_list=[task])\n"
         new_template.script += "submission.run_submission()\n"

@@ -331,7 +331,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         **kwargs,
     ) -> None:
         if command is None:
-            command = ["python"]
+            command = ["python3"]
         super().__init__(
             name=name, inputs=inputs, outputs=outputs, image=image,
             command=command, script=script, volumes=volumes, mounts=mounts,
