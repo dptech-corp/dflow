@@ -9,3 +9,4 @@ minio
 kubernetes
 pyyaml
 cloudpickle
+requests
