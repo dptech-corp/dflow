@@ -35,5 +35,6 @@ setup(
         "kubernetes",
         "pyyaml",
         "cloudpickle",
+        "requests",
     ]
 )

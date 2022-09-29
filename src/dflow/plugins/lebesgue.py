@@ -2,8 +2,6 @@ import json
 from copy import deepcopy
 from getpass import getpass
 
-import requests
-
 from ..context import Context
 from ..executor import Executor
 from ..op_template import PythonScriptOPTemplate, ShellOPTemplate
@@ -106,6 +104,7 @@ class LebesgueContext(Context):
                 "username": self.username,
                 "password": self.password,
             }
+            import requests
             rsp = requests.post(self.login_url, headers={
                                 "Content-type": "application/json"}, json=data)
             res = json.loads(rsp.text)
@@ -141,7 +140,8 @@ class LebesgueContext(Context):
                 new_template.script = new_template.script.replace(
                     "/tmp", "$(pwd)/tmp")
                 if isinstance(template, ShellOPTemplate):
-                    new_template.script = "mkdir -p tmp\n" + new_template.script
+                    new_template.script = "mkdir -p tmp\n" + \
+                        new_template.script
                 if isinstance(template, PythonScriptOPTemplate):
                     new_template.script = "import os\nos.makedirs('tmp', "\
                         "exist_ok=True)\n" + new_template.script
