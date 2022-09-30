@@ -1128,7 +1128,6 @@ def get_var(expr, context):
 def eval_bool_expr(expr):
     # For the original evaluator in argo, please refer to
     # https://github.com/antonmedv/expr
-    print("debug: expr:", expr)
     expr_list = expr.split()
     operator = expr_list[1]
 
