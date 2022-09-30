@@ -119,6 +119,11 @@ class ArgoVar:
         raise TypeError("'ArgoVar' object is not iterable")
 
     def __eq__(self, other):
+        if config["mode"] == "debug":
+            if isinstance(other, ArgoVar) or isinstance(other, str):
+                return ArgoVar("%s == %s" % (self, other))
+            else:
+                return ArgoVar("%s == %s" % (self, jsonpickle.dumps(other)))
         if isinstance(other, ArgoVar):
             other = other.expr
         elif isinstance(other, str):
@@ -128,6 +133,11 @@ class ArgoVar:
         return ArgoVar("%s == %s" % (self.expr, other))
 
     def __ne__(self, other):
+        if config["mode"] == "debug":
+            if isinstance(other, ArgoVar) or isinstance(other, str):
+                return ArgoVar("%s != %s" % (self, other))
+            else:
+                return ArgoVar("%s != %s" % (self, jsonpickle.dumps(other)))
         if isinstance(other, ArgoVar):
             other = other.expr
         elif isinstance(other, str):
@@ -137,21 +147,29 @@ class ArgoVar:
         return ArgoVar("%s != %s" % (self.expr, other))
 
     def __lt__(self, other):
+        if config["mode"] == "debug":
+            return ArgoVar("%s < %s" % (self, other))
         if isinstance(other, ArgoVar):
             other = "asFloat(%s)" % other.expr
         return ArgoVar("asFloat(%s) < %s" % (self.expr, other))
 
     def __le__(self, other):
+        if config["mode"] == "debug":
+            return ArgoVar("%s <= %s" % (self, other))
         if isinstance(other, ArgoVar):
             other = "asFloat(%s)" % other.expr
         return ArgoVar("asFloat(%s) <= %s" % (self.expr, other))
 
     def __gt__(self, other):
+        if config["mode"] == "debug":
+            return ArgoVar("%s > %s" % (self, other))
         if isinstance(other, ArgoVar):
             other = "asFloat(%s)" % other.expr
         return ArgoVar("asFloat(%s) > %s" % (self.expr, other))
 
     def __ge__(self, other):
+        if config["mode"] == "debug":
+            return ArgoVar("%s >= %s" % (self, other))
         if isinstance(other, ArgoVar):
             other = "asFloat(%s)" % other.expr
         return ArgoVar("asFloat(%s) >= %s" % (self.expr, other))
