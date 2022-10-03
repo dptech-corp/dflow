@@ -186,7 +186,8 @@ class Workflow:
 
         self.id = workflow.metadata.name
         self.uid = workflow.metadata.uid
-        print("Workflow has been submitted (ID: %s)" % self.id)
+        print("Workflow has been submitted (ID: %s, UID: %s)" % (self.id,
+                                                                 self.uid))
         return workflow
 
     def convert_to_argo(self, reuse_step=None):
@@ -198,10 +199,12 @@ class Workflow:
         if reuse_step is not None:
             self.id = self.name + "-" + randstr()
             copied_keys = []
+            reused_keys = []
             for step in reuse_step:
                 data = {}
                 if step.key is None:
                     continue
+                reused_keys.append(step.key)
                 outputs = {}
                 if hasattr(step, "outputs"):
                     if hasattr(step.outputs, "exitCode"):
@@ -269,6 +272,8 @@ class Workflow:
             self.handle_template(
                 self.entrypoint, memoize_prefix=self.id,
                 memoize_configmap="dflow")
+            status = {"outputs": {"parameters": [{"name": key} for key in
+                                                 reused_keys]}}
         else:
             self.handle_template(self.entrypoint)
 
