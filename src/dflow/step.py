@@ -553,16 +553,22 @@ class Step:
                         InputParameter()
                     step.with_sequence.start = "{{=%s}}" % \
                         steps.inputs.parameters["dflow_sequence_start"].expr
+                    self.inputs.parameters["dflow_sequence_start"] = \
+                        InputParameter(value=self.with_sequence.start)
                 if self.with_sequence.end is not None:
                     steps.inputs.parameters["dflow_sequence_end"] = \
                         InputParameter()
                     step.with_sequence.end = "{{=%s}}" % \
                         steps.inputs.parameters["dflow_sequence_end"].expr
+                    self.inputs.parameters["dflow_sequence_end"] = \
+                        InputParameter(value=self.with_sequence.end)
                 if self.with_sequence.count is not None:
                     steps.inputs.parameters["dflow_sequence_count"] = \
                         InputParameter()
                     step.with_sequence.count = "{{=%s}}" % \
                         steps.inputs.parameters["dflow_sequence_count"].expr
+                    self.inputs.parameters["dflow_sequence_count"] = \
+                        InputParameter(value=self.with_sequence.count)
                 self.with_sequence = None
 
         if GLOBAL_CONTEXT.in_context:
