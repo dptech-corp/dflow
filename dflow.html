@@ -96,9 +96,11 @@
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.exec_sign_check"><code class="docutils literal notranslate"><span class="pre">OP.exec_sign_check()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.execute"><code class="docutils literal notranslate"><span class="pre">OP.execute()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.function"><code class="docutils literal notranslate"><span class="pre">OP.function()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.get_info"><code class="docutils literal notranslate"><span class="pre">OP.get_info()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.get_input_artifact_link"><code class="docutils literal notranslate"><span class="pre">OP.get_input_artifact_link()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.get_input_artifact_storage_key"><code class="docutils literal notranslate"><span class="pre">OP.get_input_artifact_storage_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.get_input_sign"><code class="docutils literal notranslate"><span class="pre">OP.get_input_sign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.get_opio_info"><code class="docutils literal notranslate"><span class="pre">OP.get_opio_info()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.get_output_artifact_link"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_link()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.get_output_artifact_storage_key"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_storage_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.get_output_sign"><code class="docutils literal notranslate"><span class="pre">OP.get_output_sign()</span></code></a></li>
@@ -107,6 +109,7 @@
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.op.OP.subclass"><code class="docutils literal notranslate"><span class="pre">OP.subclass</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.op.type_to_str"><code class="docutils literal notranslate"><span class="pre">type_to_str()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="dflow.python.html#module-dflow.python.opio">dflow.python.opio module</a><ul>
@@ -149,9 +152,11 @@
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.exec_sign_check"><code class="docutils literal notranslate"><span class="pre">OP.exec_sign_check()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.execute"><code class="docutils literal notranslate"><span class="pre">OP.execute()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.function"><code class="docutils literal notranslate"><span class="pre">OP.function()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.get_info"><code class="docutils literal notranslate"><span class="pre">OP.get_info()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.get_input_artifact_link"><code class="docutils literal notranslate"><span class="pre">OP.get_input_artifact_link()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.get_input_artifact_storage_key"><code class="docutils literal notranslate"><span class="pre">OP.get_input_artifact_storage_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.get_input_sign"><code class="docutils literal notranslate"><span class="pre">OP.get_input_sign()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.get_opio_info"><code class="docutils literal notranslate"><span class="pre">OP.get_opio_info()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.get_output_artifact_link"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_link()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.get_output_artifact_storage_key"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_storage_key()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.OP.get_output_sign"><code class="docutils literal notranslate"><span class="pre">OP.get_output_sign()</span></code></a></li>
@@ -325,6 +330,36 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 </section>
 <section id="module-dflow.config">
 <span id="dflow-config-module"></span><h2>dflow.config module<a class="headerlink" href="#module-dflow.config" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.config.set_config">
+<span class="sig-prename descclassname"><span class="pre">dflow.config.</span></span><span class="sig-name descname"><span class="pre">set_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dflow.config.set_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set global configurations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> – host of Argo server</p></li>
+<li><p><strong>token</strong> – token for authentication, necessary for reused workflows</p></li>
+<li><p><strong>k8s_config_file</strong> – location of kube config file if it is used for</p></li>
+<li><p><strong>authentication</strong> – </p></li>
+<li><p><strong>k8s_api_server</strong> – address of Kubernetes API server, necessary for reused</p></li>
+<li><p><strong>workflows</strong> – </p></li>
+<li><p><strong>private_key_host_path</strong> – path of private key on the Kubernetes nodes</p></li>
+<li><p><strong>save_path_as_parameter</strong> – save catalog of artifacts as parameters</p></li>
+<li><p><strong>catalog_dir_name</strong> – catalog directory name for artifacts</p></li>
+<li><p><strong>archive_mode</strong> – “tar” for archiving with tar, None for no archive</p></li>
+<li><p><strong>util_image</strong> – image for util step</p></li>
+<li><p><strong>util_image_pull_policy</strong> – image pull policy for util step</p></li>
+<li><p><strong>extender_image</strong> – image for dflow extender</p></li>
+<li><p><strong>extender_image_pull_policy</strong> – image pull policy for dflow extender</p></li>
+<li><p><strong>dispatcher_image</strong> – image for dpdispatcher</p></li>
+<li><p><strong>dispatcher_image_pull_policy</strong> – image pull policy for dpdispatcher</p></li>
+<li><p><strong>save_keys_in_global_outputs</strong> – save keys of steps in global outputs</p></li>
+<li><p><strong>mode</strong> – “default” for normal, “debug” for debugging locally</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-dflow.context">
 <span id="dflow-context-module"></span><h2>dflow.context module<a class="headerlink" href="#module-dflow.context" title="Permalink to this heading">¶</a></h2>
@@ -1382,6 +1417,11 @@ generated parallel tasks greater than certain number</p></li>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="dflow.utils.find_subclass">
+<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">find_subclass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.find_subclass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="dflow.utils.get_md5">
 <span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">get_md5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.get_md5" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1454,6 +1494,24 @@ generated parallel tasks greater than certain number</p></li>
 <span class="gp">... </span>   <span class="n">do_something</span><span class="p">()</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.utils.set_s3_config">
+<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">set_s3_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dflow.utils.set_s3_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set S3 configurations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endpoint</strong> – endpoint for S3 storage</p></li>
+<li><p><strong>console</strong> – console address for S3 storage</p></li>
+<li><p><strong>access_key</strong> – access key for S3 storage</p></li>
+<li><p><strong>secret_key</strong> – secret key for S3 storage</p></li>
+<li><p><strong>secure</strong> – secure or not</p></li>
+<li><p><strong>bucket_name</strong> – name of S3 bucket</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -2669,6 +2727,54 @@ parameters</p></li>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="dflow.set_config">
+<span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">set_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dflow.set_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set global configurations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> – host of Argo server</p></li>
+<li><p><strong>token</strong> – token for authentication, necessary for reused workflows</p></li>
+<li><p><strong>k8s_config_file</strong> – location of kube config file if it is used for</p></li>
+<li><p><strong>authentication</strong> – </p></li>
+<li><p><strong>k8s_api_server</strong> – address of Kubernetes API server, necessary for reused</p></li>
+<li><p><strong>workflows</strong> – </p></li>
+<li><p><strong>private_key_host_path</strong> – path of private key on the Kubernetes nodes</p></li>
+<li><p><strong>save_path_as_parameter</strong> – save catalog of artifacts as parameters</p></li>
+<li><p><strong>catalog_dir_name</strong> – catalog directory name for artifacts</p></li>
+<li><p><strong>archive_mode</strong> – “tar” for archiving with tar, None for no archive</p></li>
+<li><p><strong>util_image</strong> – image for util step</p></li>
+<li><p><strong>util_image_pull_policy</strong> – image pull policy for util step</p></li>
+<li><p><strong>extender_image</strong> – image for dflow extender</p></li>
+<li><p><strong>extender_image_pull_policy</strong> – image pull policy for dflow extender</p></li>
+<li><p><strong>dispatcher_image</strong> – image for dpdispatcher</p></li>
+<li><p><strong>dispatcher_image_pull_policy</strong> – image pull policy for dpdispatcher</p></li>
+<li><p><strong>save_keys_in_global_outputs</strong> – save keys of steps in global outputs</p></li>
+<li><p><strong>mode</strong> – “default” for normal, “debug” for debugging locally</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.set_s3_config">
+<span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">set_s3_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dflow.set_s3_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set S3 configurations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endpoint</strong> – endpoint for S3 storage</p></li>
+<li><p><strong>console</strong> – console address for S3 storage</p></li>
+<li><p><strong>access_key</strong> – access key for S3 storage</p></li>
+<li><p><strong>secret_key</strong> – secret key for S3 storage</p></li>
+<li><p><strong>secure</strong> – secure or not</p></li>
+<li><p><strong>bucket_name</strong> – name of S3 bucket</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="dflow.upload_artifact">
 <span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">upload_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">PathLike</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.common.S3Artifact" title="dflow.common.S3Artifact"><span class="pre">S3Artifact</span></a></span></span><a class="headerlink" href="#dflow.upload_artifact" title="Permalink to this definition">¶</a></dt>
 <dd><p>Upload an artifact from local to Argo</p>
@@ -2741,7 +2847,10 @@ parameters</p></li>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-dflow.config">dflow.config module</a></li>
+<li><a class="reference internal" href="#module-dflow.config">dflow.config module</a><ul>
+<li><a class="reference internal" href="#dflow.config.set_config"><code class="docutils literal notranslate"><span class="pre">set_config()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-dflow.context">dflow.context module</a><ul>
 <li><a class="reference internal" href="#dflow.context.Context"><code class="docutils literal notranslate"><span class="pre">Context</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.context.Context.render"><code class="docutils literal notranslate"><span class="pre">Context.render()</span></code></a></li>
@@ -2950,6 +3059,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.utils.copy_s3"><code class="docutils literal notranslate"><span class="pre">copy_s3()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.download_artifact"><code class="docutils literal notranslate"><span class="pre">download_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.download_s3"><code class="docutils literal notranslate"><span class="pre">download_s3()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.find_subclass"><code class="docutils literal notranslate"><span class="pre">find_subclass()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.get_md5"><code class="docutils literal notranslate"><span class="pre">get_md5()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.merge_dir"><code class="docutils literal notranslate"><span class="pre">merge_dir()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.path_list_of_artifact"><code class="docutils literal notranslate"><span class="pre">path_list_of_artifact()</span></code></a></li>
@@ -2957,6 +3067,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.utils.remove_empty_dir_tag"><code class="docutils literal notranslate"><span class="pre">remove_empty_dir_tag()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.run_command"><code class="docutils literal notranslate"><span class="pre">run_command()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.set_directory"><code class="docutils literal notranslate"><span class="pre">set_directory()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.set_s3_config"><code class="docutils literal notranslate"><span class="pre">set_s3_config()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.upload_artifact"><code class="docutils literal notranslate"><span class="pre">upload_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.upload_s3"><code class="docutils literal notranslate"><span class="pre">upload_s3()</span></code></a></li>
 </ul>
@@ -3131,6 +3242,8 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.if_expression"><code class="docutils literal notranslate"><span class="pre">if_expression()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.path_list_of_artifact"><code class="docutils literal notranslate"><span class="pre">path_list_of_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.randstr"><code class="docutils literal notranslate"><span class="pre">randstr()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.set_config"><code class="docutils literal notranslate"><span class="pre">set_config()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.set_s3_config"><code class="docutils literal notranslate"><span class="pre">set_s3_config()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.upload_artifact"><code class="docutils literal notranslate"><span class="pre">upload_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.upload_s3"><code class="docutils literal notranslate"><span class="pre">upload_s3()</span></code></a></li>
 </ul>
