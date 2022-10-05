@@ -1,4 +1,5 @@
 from .common import LocalArtifact, S3Artifact
+from .config import config, set_config
 from .context import Context
 from .dag import DAG
 from .executor import Executor, RemoteExecutor
@@ -12,9 +13,9 @@ from .step import Step, argo_len, argo_range, argo_sequence
 from .steps import Steps
 from .task import Task
 from .utils import (copy_artifact, copy_s3, download_artifact, download_s3,
-                    path_list_of_artifact, randstr, s3_config, upload_artifact,
-                    upload_s3)
-from .workflow import Workflow, config
+                    path_list_of_artifact, randstr, s3_config, set_s3_config,
+                    upload_artifact, upload_s3)
+from .workflow import Workflow
 
 __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "IfExpression", "InputArtifact", "InputParameter", "Inputs",
@@ -25,4 +26,5 @@ __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "argo_sequence", "Steps", "Task", "copy_artifact", "copy_s3",
            "download_artifact", "download_s3", "path_list_of_artifact",
            "s3_config", "upload_artifact", "upload_s3", "Workflow", "config",
-           "Context", "randstr", "LocalArtifact"]
+           "Context", "randstr", "LocalArtifact", "set_config",
+           "set_s3_config"]

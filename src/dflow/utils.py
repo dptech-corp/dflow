@@ -1,7 +1,9 @@
 import contextlib
 import hashlib
+import inspect
 import logging
 import os
+import pkgutil
 import random
 import shutil
 import string
@@ -32,6 +34,23 @@ s3_config = {
     "secure": False,
     "bucket_name": "my-bucket"
 }
+
+
+def set_s3_config(
+    **kwargs,
+) -> None:
+    """
+    Set S3 configurations
+
+    Args:
+        endpoint: endpoint for S3 storage
+        console: console address for S3 storage
+        access_key: access key for S3 storage
+        secret_key: secret key for S3 storage
+        secure: secure or not
+        bucket_name: name of S3 bucket
+    """
+    s3_config.update(kwargs)
 
 
 def download_artifact(
@@ -581,3 +600,25 @@ def run_command(
     if raise_error:
         assert return_code == 0, "Command %s failed: \n%s" % (cmd, err)
     return return_code, out, err
+
+
+def find_subclass(module, cls):
+    ops = []
+    for _, m in inspect.getmembers(module):
+        if inspect.isclass(m) and issubclass(m, cls) and m != cls and \
+                m not in ops:
+            ops.append(m)
+    if hasattr(module, "__path__"):
+        for path in module.__path__:
+            for dir, _, _ in os.walk(path):
+                pkg = (module.__name__ + dir[len(path):]).replace("/", ".")
+                for _, name, _ in pkgutil.iter_modules([dir]):
+                    try:
+                        mod = __import__(pkg + "." + name, fromlist=pkg)
+                        for _, m in inspect.getmembers(mod):
+                            if inspect.isclass(m) and issubclass(m, cls) and \
+                                    m != cls and m not in ops:
+                                ops.append(m)
+                    except Exception:
+                        pass
+    return ops
