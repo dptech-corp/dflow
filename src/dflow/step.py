@@ -945,7 +945,10 @@ class Step:
                         sub_path = render_item(sub_path, item)
                     os.symlink(os.path.join(art.source.local_path, sub_path),
                                art_path)
-                elif isinstance(art.source, InputArtifact) and art.optional and not hasattr(art.source, 'local_path'):
+                elif isinstance(
+                        art.source,
+                        InputArtifact) and art.optional and not hasattr(
+                            art.source, 'local_path'):
                     pass
                 else:
                     os.symlink(art.source.local_path, art_path)
@@ -963,7 +966,9 @@ class Step:
             os.makedirs(os.path.dirname(
                 os.path.abspath(path)), exist_ok=True)
             backup(path)
-            if isinstance(art.source, InputArtifact) and art.source is None and art.optional:
+            if isinstance(
+                    art.source,
+                    InputArtifact) and art.source is None and art.optional:
                 pass
             else:
                 os.symlink(art_path, path)
