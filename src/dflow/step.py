@@ -945,6 +945,11 @@ class Step:
                         sub_path = render_item(sub_path, item)
                     os.symlink(os.path.join(art.source.local_path, sub_path),
                                art_path)
+                elif isinstance(
+                        art.source,
+                        InputArtifact) and art.optional and not hasattr(
+                            art.source, 'local_path'):
+                    pass
                 else:
                     os.symlink(art.source.local_path, art_path)
             elif isinstance(art.source, str):
@@ -961,7 +966,12 @@ class Step:
             os.makedirs(os.path.dirname(
                 os.path.abspath(path)), exist_ok=True)
             backup(path)
-            os.symlink(art_path, path)
+            if isinstance(
+                    art.source,
+                    InputArtifact) and art.source is None and art.optional:
+                pass
+            else:
+                os.symlink(art_path, path)
 
         # clean output path
         for art in self.outputs.artifacts.values():
@@ -1125,20 +1135,25 @@ def get_var(expr, context):
 def eval_bool_expr(expr):
     # For the original evaluator in argo, please refer to
     # https://github.com/antonmedv/expr
-    import os
-    expr = expr.replace("<=", "-le")
-    expr = expr.replace(">=", "-ge")
-    expr = expr.replace("<", "-lt")
-    expr = expr.replace(">", "-gt")
-    result = os.popen(
-        "sh -c 'if [[ %s ]]; then echo 1; else echo 0; fi'"
-        % expr).read().strip()
-    if result == "1":
-        return True
-    elif result == "0":
-        return False
-    else:
-        raise RuntimeError("Evaluate expression failed: %s" % expr)
+    expr_list = expr.split()
+    operator = expr_list[1]
+
+    assert (len(expr_list) == 3)
+    if operator == "==":
+        return expr_list[0] == expr_list[2]
+    elif operator == "!=":
+        return expr_list[0] != expr_list[2]
+    expr_right = float(expr_list[2])
+    expr_left = float(expr_list[0])
+    if operator == "<=":
+        return expr_left <= expr_right
+    elif operator == "<":
+        return expr_left <= expr_right
+    elif operator == ">=":
+        return expr_left >= expr_right
+    elif operator == ">":
+        return expr_left > expr_right
+    raise RuntimeError("Evaluate expression failed: %s" % expr)
 
 
 def render_script(script, parameters, workflow_id=None, step_id=None):
