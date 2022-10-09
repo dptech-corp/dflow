@@ -553,16 +553,22 @@ class Step:
                         InputParameter()
                     step.with_sequence.start = "{{=%s}}" % \
                         steps.inputs.parameters["dflow_sequence_start"].expr
+                    self.inputs.parameters["dflow_sequence_start"] = \
+                        InputParameter(value=self.with_sequence.start)
                 if self.with_sequence.end is not None:
                     steps.inputs.parameters["dflow_sequence_end"] = \
                         InputParameter()
                     step.with_sequence.end = "{{=%s}}" % \
                         steps.inputs.parameters["dflow_sequence_end"].expr
+                    self.inputs.parameters["dflow_sequence_end"] = \
+                        InputParameter(value=self.with_sequence.end)
                 if self.with_sequence.count is not None:
                     steps.inputs.parameters["dflow_sequence_count"] = \
                         InputParameter()
                     step.with_sequence.count = "{{=%s}}" % \
                         steps.inputs.parameters["dflow_sequence_count"].expr
+                    self.inputs.parameters["dflow_sequence_count"] = \
+                        InputParameter(value=self.with_sequence.count)
                 self.with_sequence = None
 
         if GLOBAL_CONTEXT.in_context:
@@ -971,15 +977,11 @@ class Step:
 
         # render variables in the script
         script = self.template.script
-        if hasattr(self.template, "tmp_root"):
+        if hasattr(self.template, "tmp_root") and self.executor is None:
             # do not modify self.template
             template = deepcopy(self.template)
             template.tmp_root = "%s%s" % (workdir, template.tmp_root)
             template.render_script()
-            if self.executor is not None:
-                if hasattr(self.executor, "work_root"):
-                    self.executor.work_root = "."
-                template = self.executor.render(template)
             script = template.script
         script = render_script(script, parameters,
                                context.workflow_id, step_id)

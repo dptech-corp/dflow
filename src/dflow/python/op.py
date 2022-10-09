@@ -8,10 +8,21 @@ import pathlib
 import warnings
 from abc import ABC
 
+import jsonpickle
 from typeguard import check_type
 
-from .opio import OPIO, Artifact, OPIOSign, Parameter
 from ..utils import s3_config
+from .opio import OPIO, Artifact, BigParameter, OPIOSign, Parameter
+
+
+def type_to_str(type):
+    if hasattr(type, "__module__") and hasattr(type, "__name__"):
+        if type.__module__ == "builtins":
+            return type.__name__
+        else:
+            return "%s.%s" % (type.__module__, type.__name__)
+    else:
+        return str(type)
 
 
 class OP(ABC):
@@ -244,3 +255,37 @@ class OP(ABC):
             f"""        return {func.__name__}(**op_in)\n""" + \
             """"""
         return cls.subclass[func.__name__]
+
+    @classmethod
+    def get_opio_info(cls, opio_sign):
+        opio = {}
+        for io, sign in opio_sign.items():
+            if isinstance(sign, Artifact):
+                type = type_to_str(sign.type)
+                opio[io] = "Artifact(type=%s, optional=%s)" % (
+                    type, sign.optional)
+            elif isinstance(sign, Parameter):
+                type = type_to_str(sign.type)
+                if hasattr(sign, "default"):
+                    default = sign.default if isinstance(sign.default, str) \
+                        else jsonpickle.dumps(sign.default)
+                    opio[io] = "Parameter(type=%s, default=%s)" % (
+                        type, default)
+                else:
+                    opio[io] = "Parameter(type=%s)" % type
+            elif isinstance(sign, BigParameter):
+                type = type_to_str(sign.type)
+                opio[io] = "BigParameter(type=%s)" % type
+            else:
+                opio[io] = type_to_str(sign)
+        return opio
+
+    @classmethod
+    def get_info(cls):
+        res = {}
+        name = "%s.%s" % (cls.__module__, cls.__name__)
+        res["name"] = name
+        res["inputs"] = cls.get_opio_info(cls.get_input_sign())
+        res["outputs"] = cls.get_opio_info(cls.get_output_sign())
+        res["execute"] = "".join(inspect.getsourcelines(cls.execute)[0])
+        return res

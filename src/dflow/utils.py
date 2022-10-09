@@ -1,6 +1,9 @@
 import contextlib
+import hashlib
+import inspect
 import logging
 import os
+import pkgutil
 import random
 import shutil
 import string
@@ -33,6 +36,23 @@ s3_config = {
 }
 
 
+def set_s3_config(
+    **kwargs,
+) -> None:
+    """
+    Set S3 configurations
+
+    Args:
+        endpoint: endpoint for S3 storage
+        console: console address for S3 storage
+        access_key: access key for S3 storage
+        secret_key: secret key for S3 storage
+        secure: secure or not
+        bucket_name: name of S3 bucket
+    """
+    s3_config.update(kwargs)
+
+
 def download_artifact(
         artifact,
         extract: bool = True,
@@ -46,12 +66,15 @@ def download_artifact(
     Args:
         artifact: artifact to be downloaded
         extract: extract files if the artifact is compressed
+        sub_path: download a subdir of an artifact
+        slice: download a slice of an artifact
         path: local path
         endpoint: endpoint for Minio
         access_key: access key for Minio
         secret_key: secret key for Minio
         secure: secure or not for Minio
         bucket_name: bucket name for Minio
+        skip_exists: skip files with the same MD5
     """
     if config["mode"] == "debug":
         return assemble_path_list(artifact.local_path)
@@ -61,7 +84,7 @@ def download_artifact(
     elif hasattr(artifact, "key"):
         key = artifact.key
     else:
-        raise NotImplementedError()
+        raise FileNotFoundError("The artifact does not exist in the storage.")
 
     if slice is not None:
         sub_path = path_list_of_artifact(artifact)[slice]
@@ -151,6 +174,8 @@ def upload_artifact(
         if config["mode"] == "debug":
             os.makedirs("upload", exist_ok=True)
             resdir = shutil.move(tmpdir, "upload")
+            # To prevent exception in destruction
+            os.makedirs(tmpdir, exist_ok=True)
             return LocalArtifact(local_path=os.path.abspath(resdir))
 
         if archive == "tar":
@@ -214,6 +239,14 @@ def copy_artifact(src, dst, sort=False) -> S3Artifact:
     return S3Artifact(key=dst_key)
 
 
+def get_md5(f):
+    md5 = hashlib.md5()
+    with open(f, "rb") as fd:
+        for chunk in iter(lambda: fd.read(4096), b""):
+            md5.update(chunk)
+    return md5.hexdigest()
+
+
 def download_s3(
         key: str,
         path: os.PathLike = None,
@@ -223,6 +256,7 @@ def download_s3(
         secret_key: str = None,
         secure: bool = None,
         bucket_name: str = None,
+        skip_exists: bool = False,
         **kwargs,
 ) -> str:
     if endpoint is None:
@@ -249,6 +283,15 @@ def download_s3(
                 file_path = os.path.join(path, os.path.basename(key))
             else:
                 file_path = os.path.join(path, rel_path)
+
+            if skip_exists and os.path.isfile(file_path):
+                remote_md5 = client.stat_object(
+                    bucket_name=bucket_name, object_name=obj.object_name).etag
+                local_md5 = get_md5(file_path)
+                if remote_md5 == local_md5:
+                    logging.debug("skip object: %s" % obj.object_name)
+                    continue
+
             client.fget_object(bucket_name=bucket_name,
                                object_name=obj.object_name,
                                file_path=file_path)
@@ -557,3 +600,25 @@ def run_command(
     if raise_error:
         assert return_code == 0, "Command %s failed: \n%s" % (cmd, err)
     return return_code, out, err
+
+
+def find_subclass(module, cls):
+    ops = []
+    for _, m in inspect.getmembers(module):
+        if inspect.isclass(m) and issubclass(m, cls) and m != cls and \
+                m not in ops:
+            ops.append(m)
+    if hasattr(module, "__path__"):
+        for path in module.__path__:
+            for dir, _, _ in os.walk(path):
+                pkg = (module.__name__ + dir[len(path):]).replace("/", ".")
+                for _, name, _ in pkgutil.iter_modules([dir]):
+                    try:
+                        mod = __import__(pkg + "." + name, fromlist=pkg)
+                        for _, m in inspect.getmembers(mod):
+                            if inspect.isclass(m) and issubclass(m, cls) and \
+                                    m != cls and m not in ops:
+                                ops.append(m)
+                    except Exception:
+                        pass
+    return ops

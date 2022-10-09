@@ -79,7 +79,6 @@ if __name__ == "__main__":
     wf = Workflow("slurm-slices")
     hello = Step("hello",
                  PythonOPTemplate(Hello,
-                                  command=["python3"],
                                   slices=Slices("{{item}}",
                                                 input_parameter=["filename"],
                                                 output_artifact=["foo"]

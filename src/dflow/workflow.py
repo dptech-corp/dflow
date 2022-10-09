@@ -23,7 +23,8 @@ try:
     from argo.workflows.client import (ApiClient, Configuration, V1alpha1PodGC,
                                        V1alpha1Workflow,
                                        V1alpha1WorkflowCreateRequest,
-                                       V1alpha1WorkflowSpec, V1ObjectMeta,
+                                       V1alpha1WorkflowSpec,
+                                       V1LocalObjectReference, V1ObjectMeta,
                                        V1PersistentVolumeClaim,
                                        V1PersistentVolumeClaimSpec,
                                        V1ResourceRequirements,
@@ -57,6 +58,7 @@ class Workflow:
         pod_gc_stategy: pod GC provides the ability to delete pods
             automatically without deleting the workflow, pod GC strategy
             must be one of the following:
+
             * OnPodCompletion - delete pods immediately when pod is completed
                 (including errors/failures)
             * OnPodSuccess - delete pods immediately when pod is successful
@@ -71,6 +73,7 @@ class Workflow:
             dag: DAG = None,
             namespace: str = "argo",
             id: str = None,
+            uid: str = None,
             host: str = None,
             token: str = None,
             k8s_config_file: os.PathLike = None,
@@ -79,6 +82,7 @@ class Workflow:
             annotations: Dict[str, str] = None,
             parallelism: int = None,
             pod_gc_strategy: str = None,
+            image_pull_secrets: Union[str, List[str]] = None,
     ) -> None:
         self.host = host if host is not None else config["host"]
         self.token = token if token is not None else config["token"]
@@ -92,6 +96,9 @@ class Workflow:
         self.annotations = annotations
         self.parallelism = parallelism
         self.pod_gc_strategy = pod_gc_strategy
+        if isinstance(image_pull_secrets, str):
+            image_pull_secrets = [image_pull_secrets]
+        self.image_pull_secrets = image_pull_secrets
 
         configuration = Configuration(host=self.host)
         configuration.verify_ssl = False
@@ -106,6 +113,10 @@ class Workflow:
 
         self.namespace = namespace
         self.id = id
+        # alias uid to id if uid not provided
+        if uid is None:
+            uid = id
+        self.uid = uid
         self.name = name
         if steps is not None:
             assert isinstance(steps, Steps)
@@ -174,7 +185,9 @@ class Workflow:
         workflow = ArgoWorkflow(response)
 
         self.id = workflow.metadata.name
-        print("Workflow has been submitted (ID: %s)" % self.id)
+        self.uid = workflow.metadata.uid
+        print("Workflow has been submitted (ID: %s, UID: %s)" % (self.id,
+                                                                 self.uid))
         return workflow
 
     def convert_to_argo(self, reuse_step=None):
@@ -186,10 +199,12 @@ class Workflow:
         if reuse_step is not None:
             self.id = self.name + "-" + randstr()
             copied_keys = []
+            reused_keys = []
             for step in reuse_step:
                 data = {}
                 if step.key is None:
                     continue
+                reused_keys.append(step.key)
                 outputs = {}
                 if hasattr(step, "outputs"):
                     if hasattr(step.outputs, "exitCode"):
@@ -257,6 +272,8 @@ class Workflow:
             self.handle_template(
                 self.entrypoint, memoize_prefix=self.id,
                 memoize_configmap="dflow")
+            status = {"outputs": {"parameters": [{"name": key} for key in
+                                                 reused_keys]}}
         else:
             self.handle_template(self.entrypoint)
 
@@ -288,6 +305,8 @@ class Workflow:
                 parallelism=self.parallelism,
                 volume_claim_templates=argo_pvcs,
                 pod_gc=V1alpha1PodGC(strategy=self.pod_gc_strategy),
+                image_pull_secrets=None if self.image_pull_secrets is None else
+                [V1LocalObjectReference(s) for s in self.image_pull_secrets]
             ),
             status=status)
 
@@ -324,15 +343,13 @@ class Workflow:
         Returns:
             an ArgoWorkflow object
         """
-        if self.id is None:
-            raise RuntimeError("Workflow ID is None")
         try:
             response = self.api_instance.api_client.call_api(
                 '/api/v1/workflows/%s/%s' % (self.namespace, self.id),
                 'GET', response_type=object, _return_http_data_only=True)
         except Exception:
             response = self.api_instance.api_client.call_api(
-                '/api/v1/archived-workflows/%s' % self.id,
+                '/api/v1/archived-workflows/%s' % self.uid,
                 'GET', response_type=object, _return_http_data_only=True)
         workflow = ArgoWorkflow(response)
         return workflow
@@ -392,7 +409,7 @@ class Workflow:
                     query_params=[('fields', 'status.outputs')])
             except Exception:
                 response = self.api_instance.api_client.call_api(
-                    '/api/v1/archived-workflows/%s' % self.id,
+                    '/api/v1/archived-workflows/%s' % self.uid,
                     'GET', response_type=object, _return_http_data_only=True,
                     query_params=[('fields', 'status.outputs')])
             return [par["name"] for par in
