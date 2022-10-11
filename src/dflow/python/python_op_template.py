@@ -42,7 +42,7 @@ class Slices:
         output_parameter: list of output parameters to be stacked
         output_artifact: list of output artifacts to be stacked
         pool_size: for multi slices per step, use a multiprocessing pool to
-            handle each slice, 1 for parallel, -1 for infinity (i.e. equals to
+            handle each slice, 1 for serial, -1 for infinity (i.e. equals to
             the number of slices)
     """
 
