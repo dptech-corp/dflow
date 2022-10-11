@@ -3,6 +3,7 @@ import json
 import os
 import random
 import string
+from pathlib import Path
 from typing import Any, Dict, List, Union
 
 import jsonpickle
@@ -14,13 +15,13 @@ from ..config import config
 from ..io import (PVC, InputArtifact, InputParameter, Inputs, OutputArtifact,
                   OutputParameter, Outputs)
 from ..op_template import PythonScriptOPTemplate
+from ..utils import s3_config
 from .op import OP
 from .opio import Artifact, BigParameter, Parameter
-from ..utils import s3_config
 
 try:
-    from argo.workflows.client import (V1Volume, V1VolumeMount,
-                                       V1alpha1UserContainer)
+    from argo.workflows.client import (V1alpha1UserContainer, V1Volume,
+                                       V1VolumeMount)
 
     from ..client import V1alpha1RetryStrategy
 except Exception:
@@ -40,6 +41,9 @@ class Slices:
         input_artifact: list of input artifacts to be sliced
         output_parameter: list of output parameters to be stacked
         output_artifact: list of output artifacts to be stacked
+        pool_size: for multi slices per step, use a multiprocessing pool to
+            handle each slice, 1 for parallel, -1 for infinity (i.e. equals to
+            the number of slices)
     """
 
     def __init__(
@@ -50,6 +54,7 @@ class Slices:
             output_parameter: List[str] = None,
             output_artifact: List[str] = None,
             sub_path: bool = False,
+            pool_size: int = None,
     ) -> None:
         self.input_parameter = input_parameter if input_parameter is not \
             None else []
@@ -66,6 +71,7 @@ class Slices:
             self.slices = "{{item.order}}"
         else:
             self.slices = "{{item}}"
+        self.pool_size = pool_size
 
 
 class PythonOPTemplate(PythonScriptOPTemplate):
@@ -390,6 +396,16 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 jsonpickle.dumps(op)
         script += "input = OPIO()\n"
         script += "input_sign = %s.get_input_sign()\n" % class_name
+        script += "output_sign = %s.get_output_sign()\n" % class_name
+        if self.slices is not None and self.slices.pool_size is not None:
+            script += "from typing import List\n"
+            script += "from pathlib import Path\n"
+            for name in self.slices.input_artifact:
+                if isinstance(input_sign[name], Artifact):
+                    if input_sign[name].type == str:
+                        script += "input_sign['%s'].type = List[str]\n" % name
+                    elif input_sign[name].type == Path:
+                        script += "input_sign['%s'].type = List[Path]\n" % name
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(input_artifact_slices, name)
@@ -417,7 +433,49 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                                          self.tmp_root)
 
         script += "try:\n"
-        script += "    output = op_obj.execute(input)\n"
+        if self.slices is not None and self.slices.pool_size is not None:
+            sliced_inputs = self.slices.input_artifact + \
+                self.slices.input_parameter
+            if len(sliced_inputs) > 1:
+                script += "    assert %s\n" % " == ".join(
+                    ["len(input['%s'])" % i for i in sliced_inputs])
+            script += "    n_slices = len(input['%s'])\n" % sliced_inputs[0]
+            script += "    input_list = []\n"
+            script += "    from copy import deepcopy\n"
+            script += "    for i in range(n_slices):\n"
+            script += "        input1 = deepcopy(input)\n"
+            for name in sliced_inputs:
+                script += "        input1['%s'] = list(input['%s'])[i]\n" % (
+                    name, name)
+            script += "        input_list.append(input1)\n"
+            if self.slices.pool_size == 1:
+                script += "    output_list = []\n"
+                script += "    for input in input_list:\n"
+                script += "        output = op_obj.execute(input)\n"
+                script += "        output_list.append(output)\n"
+            else:
+                script += "    from multiprocessing import Pool\n"
+                if self.slices.pool_size == -1:
+                    script += "    pool = Pool(n_slices)\n"
+                else:
+                    script += "    pool = Pool(%s)\n" % self.slices.pool_size
+                script += "    output_list = pool.map(op_obj.execute, "\
+                    "input_list)\n"
+            sliced_outputs = self.slices.output_artifact + \
+                self.slices.output_parameter
+            script += "    output = deepcopy(output_list[0])\n"
+            for name in sliced_outputs:
+                script += "    output['%s'] = [o['%s'] for o in output_list]"\
+                    "\n" % (name, name)
+                if isinstance(output_sign[name], Artifact):
+                    if output_sign[name].type == str:
+                        script += "    output_sign['%s'].type = List[str]\n"\
+                            % name
+                    elif output_sign[name].type == Path:
+                        script += "    output_sign['%s'].type = List[Path]\n"\
+                            % name
+        else:
+            script += "    output = op_obj.execute(input)\n"
         script += "except TransientError:\n"
         script += "    traceback.print_exc()\n"
         script += "    sys.exit(1)\n"
@@ -429,7 +487,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             % self.tmp_root
         script += "os.makedirs('%s/outputs/artifacts', exist_ok=True)\n" \
             % self.tmp_root
-        script += "output_sign = %s.get_output_sign()\n" % class_name
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(output_artifact_slices, name)
