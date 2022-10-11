@@ -434,6 +434,28 @@ class Step:
                 }
             )
         elif self.continue_on_success_ratio is not None:
+            if self.with_param is not None:
+                if isinstance(self.with_param, ArgoVar):
+                    total = argo_len(self.with_param)
+                else:
+                    total = len(self.with_param)
+            elif self.with_sequence is not None:
+                if self.with_sequence.count is not None:
+                    count = self.with_sequence.count
+                    if isinstance(count, ArgoVar):
+                        count = count.expr
+                    total = count
+                start = 0
+                if self.with_sequence.start is not None:
+                    start = self.with_sequence.start
+                    if isinstance(start, ArgoVar):
+                        start = start.expr
+                if self.with_sequence.end is not None:
+                    end = self.with_sequence.end
+                    if isinstance(end, ArgoVar):
+                        end = end.expr
+                    total = "%s > %s ? %s + 1 - %s : %s + 1 - %s" \
+                        % (end, start, end, start, start, end)
             self.check_step = self.__class__(
                 name="%s-check-success-ratio" % self.name,
                 template=CheckSuccessRatio(
@@ -441,6 +463,7 @@ class Step:
                     image_pull_policy=self.util_image_pull_policy),
                 parameters={
                     "success": self.outputs.parameters["dflow_success_tag"],
+                    "total": "{{=%s}}" % total,
                     "threshold": self.continue_on_success_ratio
                 }
             )
@@ -798,7 +821,10 @@ class Step:
                         end = end.get()
                     if isinstance(end, (InputParameter, OutputParameter)):
                         end = end.value
-                    sequence = list(range(start, end + 1))
+                    if end >= start:
+                        sequence = list(range(start, end + 1))
+                    else:
+                        sequence = list(range(start, end - 1, -1))
                 if self.with_sequence.format is not None:
                     item_list = [self.with_sequence.format % i
                                  for i in sequence]
