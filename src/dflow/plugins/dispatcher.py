@@ -138,13 +138,14 @@ class DispatcherExecutor(Executor):
         self.resources_dict = {
             "number_node": 1,
             "cpu_per_node": 1,
-            "queue_name": self.queue_name,
             "group_size": 5,
             "envs": {
                 "DFLOW_WORKFLOW": "{{workflow.name}}",
                 "DFLOW_POD": "{{pod.name}}"
             }
         }
+        if self.queue_name is not None:
+            self.resources_dict["queue_name"] = self.queue_name
         if "resources" in conf:
             update_dict(self.resources_dict, conf["resources"])
         if resources_dict is not None:
