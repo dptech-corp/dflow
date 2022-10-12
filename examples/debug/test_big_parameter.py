@@ -1,3 +1,5 @@
+import time
+
 from dflow import InputParameter, OutputParameter, Step, Steps, Workflow
 from dflow.python import (OP, OPIO, BigParameter, OPIOSign, PythonOPTemplate,
                           upload_packages)
@@ -73,6 +75,14 @@ def test_big_parameter():
                     parameters={"foo": Hello("hello")})
     wf.add(big_step)
     wf.submit()
+
+    while wf.query_status() in ["Pending", "Running"]:
+        time.sleep(1)
+
+    assert(wf.query_status() == "Succeeded")
+    step = wf.query_step(name="step1")[0]
+    assert(step.phase == "Succeeded")
+    assert(isinstance(step.outputs.parameters["foo"].value, Hello))
 
 
 if __name__ == "__main__":

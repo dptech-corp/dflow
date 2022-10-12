@@ -77,7 +77,9 @@ def download_artifact(
         skip_exists: skip files with the same MD5
     """
     if config["mode"] == "debug":
-        return assemble_path_list(artifact.local_path)
+        path = kwargs["path"] if "path" in kwargs else "."
+        merge_dir(artifact.local_path, path)
+        return assemble_path_list(path, remove=True)
 
     if hasattr(artifact, "s3"):
         key = artifact.s3.key

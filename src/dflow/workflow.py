@@ -168,9 +168,52 @@ class Workflow:
                     if not os.path.exists(self.id):
                         os.makedirs(self.id)
                         break
+
+            if reuse_step is not None:
+                for step in reuse_step:
+                    if step.key is None:
+                        continue
+                    stepdir = os.path.join(self.id, step.key)
+                    os.makedirs(stepdir, exist_ok=True)
+                    with open(os.path.join(stepdir, "phase"), "w") as f:
+                        f.write(step.phase)
+                    for io in ["inputs", "outputs"]:
+                        os.makedirs(os.path.join(stepdir, io, "parameters"),
+                                    exist_ok=True)
+                        for name, par in step[io].parameters.items():
+                            with open(os.path.join(stepdir, io, "parameters",
+                                                   name), "w") as f:
+                                if isinstance(par.value, str):
+                                    f.write(par.value)
+                                else:
+                                    f.write(jsonpickle.dumps(par.value))
+                            if par.type is not None:
+                                os.makedirs(os.path.join(
+                                    stepdir, io, "parameters/.dflow"),
+                                    exist_ok=True)
+                                with open(os.path.join(
+                                        stepdir, io, "parameters/.dflow",
+                                        name), "w") as f:
+                                    f.write(par.type)
+
+                        os.makedirs(os.path.join(stepdir, io, "artifacts"),
+                                    exist_ok=True)
+                        for name, art in step[io].artifacts.items():
+                            os.symlink(art.local_path, os.path.join(
+                                stepdir, io, "artifacts", name))
+
             os.chdir(self.id)
             print("Workflow is running locally (ID: %s)" % self.id)
-            self.entrypoint.run(self.id)
+            with open("status", "w") as f:
+                f.write("Running")
+            try:
+                self.entrypoint.run(self.id)
+            except Exception:
+                with open("status", "w") as f:
+                    f.write("Failed")
+                raise RuntimeError("Workflow %s failed" % self.id)
+            with open("status", "w") as f:
+                f.write("Succeeded")
             os.chdir("..")
             return ArgoWorkflow({"id": self.id})
 
@@ -363,6 +406,9 @@ class Workflow:
         Returns:
             Pending, Running, Succeeded, Failed, Error, etc
         """
+        if config["mode"] == "debug":
+            with open("%s/status" % self.id, "r") as f:
+                return f.read()
         workflow = self.query()
         if "phase" not in workflow.status:
             return "Pending"
@@ -389,6 +435,67 @@ class Workflow:
         Returns:
             a list of steps
         """
+        if config["mode"] == "debug":
+            if key is not None and not isinstance(key, list):
+                key = [key]
+            step_list = []
+            for s in os.listdir(self.id):
+                stepdir = os.path.join(self.id, s)
+                if not os.path.isdir(stepdir):
+                    continue
+                if name is not None and not s[:len(name)] == name:
+                    continue
+                if key is not None and s not in key:
+                    continue
+                if os.path.exists(os.path.join(stepdir, "phase")):
+                    with open(os.path.join(stepdir, "phase"), "r") as f:
+                        phase = f.read()
+                else:
+                    phase = "Pending"
+                step = {
+                    "displayName": s,
+                    "key": s,
+                    "startedAt": os.path.getmtime(stepdir),
+                    "phase": phase,
+                    "inputs": {
+                        "parameters": [],
+                        "artifacts": [],
+                    },
+                    "outputs": {
+                        "parameters": [],
+                        "artifacts": [],
+                    },
+                }
+                for io in ["inputs", "outputs"]:
+                    for p in os.listdir(os.path.join(stepdir, io,
+                                                     "parameters")):
+                        if p == ".dflow":
+                            continue
+                        with open(os.path.join(stepdir, io, "parameters",
+                                               p), "r") as f:
+                            val = f.read()
+                        type = None
+                        if os.path.exists(os.path.join(
+                                stepdir, io, "parameters/.dflow", p)):
+                            with open(os.path.join(
+                                    stepdir, io, "parameters/.dflow", p),
+                                    "r") as f:
+                                type = json.load(f)["type"]
+                            if type != str(str):
+                                val = jsonpickle.loads(val)
+                        step[io]["parameters"].append({
+                            "name": p, "value": val, "type": type})
+                    for a in os.listdir(os.path.join(stepdir, io,
+                                                     "artifacts")):
+                        step[io]["artifacts"].append({
+                            "name": a,
+                            "local_path": os.path.abspath(os.path.join(
+                                stepdir, io, "artifacts", a)),
+                        })
+                step = ArgoStep(step)
+                step_list.append(step)
+            return step_list
+
         return self.query().get_step(name=name, key=key, phase=phase, id=id,
                                      type=type)
 
@@ -401,6 +508,8 @@ class Workflow:
         Returns:
             a list of keys
         """
+        if config["mode"] == "debug":
+            return [step.key for step in self.query_step()]
         try:
             try:
                 response = self.api_instance.api_client.call_api(

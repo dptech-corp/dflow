@@ -1,9 +1,10 @@
+import time
+
 from dflow import (OutputArtifact, OutputParameter, Outputs, Step, Steps,
                    Workflow, if_expression)
 from dflow.python import (OP, OPIO, Artifact, OPIOSign, PythonOPTemplate,
                           upload_packages)
 from dflow import config
-from dflow.utils import download_artifact
 config["mode"] = "debug"
 
 if "__file__" in locals():
@@ -68,11 +69,10 @@ def test_conditional_outputs():
     wf.add(step)
     wf.submit()
 
-    assert step.outputs.parameters["msg"] == "tail"
-    print(step.outputs.artifacts["res"].local_path)
-    res = download_artifact(step.outputs.artifacts["res"])[0]
-    with open(res, "r") as f:
-        assert f.read() == "tail"
+    while wf.query_status() in ["Pending", "Running"]:
+        time.sleep(1)
+
+    assert(wf.query_status() == "Succeeded")
 
 
 if __name__ == "__main__":

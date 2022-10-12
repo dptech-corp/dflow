@@ -1,4 +1,4 @@
-import os
+import time
 from pathlib import Path
 
 from dflow import Step, Workflow, download_artifact, upload_artifact
@@ -85,18 +85,15 @@ def test_python():
     wf.add(step)
     wf.submit()
 
-    assert step.outputs.parameters["msg"].value == "HelloHelloHello"
-    bar = download_artifact(step.outputs.artifacts["bar"])[0]
-    with open(bar, "r") as f:
-        content = f.read()
-    assert content == "HiHiHi"
-    odir = download_artifact(step.outputs.artifacts["odir"])[0]
-    with open(os.path.join(odir, "f1"), "r") as f:
-        f1 = f.read()
-    assert f1 == "foofoofoo"
-    with open(os.path.join(odir, "f2"), "r") as f:
-        f2 = f.read()
-    assert f2 == "barbarbar"
+    while wf.query_status() in ["Pending", "Running"]:
+        time.sleep(1)
+
+    assert(wf.query_status() == "Succeeded")
+    step = wf.query_step(name="step")[0]
+    assert(step.phase == "Succeeded")
+
+    print(download_artifact(step.outputs.artifacts["bar"]))
+    print(download_artifact(step.outputs.artifacts["odir"]))
 
 
 if __name__ == "__main__":

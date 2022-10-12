@@ -619,8 +619,17 @@ class Step:
                     v.type = self.inputs.parameters[k].type
 
                 if self.inputs.parameters[k].save_as_artifact:
+                    if not v.save_as_artifact and v.step is not None:
+                        raise TypeError("%s is big parameter, but %s is not"
+                                        " big parameter" % (
+                                            self.inputs.parameters[k], v))
                     v.save_as_artifact = True
                 if v.save_as_artifact:
+                    if not self.inputs.parameters[k].save_as_artifact and \
+                            v.step is not None:
+                        raise TypeError("%s is big parameter, but %s is not"
+                                        " big parameter" % (
+                                            v, self.inputs.parameters[k]))
                     self.inputs.parameters[k].save_as_artifact = True
 
             if self.inputs.parameters[k].save_as_artifact and isinstance(v, (
@@ -880,6 +889,8 @@ class Step:
                 self.exec(context, parameters)
             except Exception:
                 self.phase = "Failed"
+                with open(os.path.join(self.stepdir, "phase"), "w") as f:
+                    f.write("Failed")
                 if not self.continue_on_failed:
                     raise RuntimeError("Step %s failed" % self)
 
@@ -937,8 +948,10 @@ class Step:
                     art.local_path = art_path
 
                 os.chdir(cwd)
-                self.phase = "Succeeded"
+                with open(os.path.join(stepdir, "phase"), "r") as f:
+                    self.phase = f.read()
                 return
+            os.makedirs(stepdir)
         else:
             while True:
                 step_id = self.name + "-" + randstr()
@@ -947,6 +960,9 @@ class Step:
                     os.makedirs(stepdir)
                     break
 
+        self.stepdir = stepdir
+        with open(os.path.join(stepdir, "phase"), "w") as f:
+            f.write("Running")
         workdir = os.path.join(stepdir, "workdir")
         os.makedirs(workdir, exist_ok=True)
         os.chdir(workdir)
@@ -958,6 +974,13 @@ class Step:
             with open(par_path, "w") as f:
                 f.write(par.value if isinstance(par.value, str)
                         else jsonpickle.dumps(par.value))
+            if par.type is not None:
+                os.makedirs(os.path.join(
+                    stepdir, "inputs/parameters/.dflow"), exist_ok=True)
+                with open(os.path.join(
+                        stepdir, "inputs/parameters/.dflow/%s" % name),
+                        "w") as f:
+                    f.write(jsonpickle.dumps({"type": str(par.type)}))
 
         # render artifacts
         os.makedirs(os.path.join(stepdir, "inputs/artifacts"), exist_ok=True)
@@ -1049,6 +1072,13 @@ class Step:
                     value = jsonpickle.dumps(par.value)
                 with open(par_path, "w") as f:
                     f.write(value)
+            if par.type is not None:
+                os.makedirs(os.path.join(
+                    stepdir, "outputs/parameters/.dflow"), exist_ok=True)
+                with open(os.path.join(
+                        stepdir, "outputs/parameters/.dflow/%s" % name),
+                        "w") as f:
+                    f.write(jsonpickle.dumps({"type": str(par.type)}))
 
         # save artifacts
         os.makedirs(os.path.join(stepdir, "outputs/artifacts"), exist_ok=True)
@@ -1077,6 +1107,8 @@ class Step:
 
         os.chdir(cwd)
         self.phase = "Succeeded"
+        with open(os.path.join(stepdir, "phase"), "w") as f:
+            f.write("Succeeded")
 
     def exec_with_queue(self, context, parameters, order, queue, item=None):
         try:
@@ -1174,7 +1206,7 @@ def eval_bool_expr(expr):
     if operator == "<=":
         return expr_left <= expr_right
     elif operator == "<":
-        return expr_left <= expr_right
+        return expr_left < expr_right
     elif operator == ">=":
         return expr_left >= expr_right
     elif operator == ">":
