@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 from copy import deepcopy
 from typing import Any, Dict, List, Union
@@ -770,7 +771,32 @@ class Step:
             for name, art in self.inputs.artifacts.items():
                 steps.inputs.artifacts[name].local_path = art.source.local_path
 
-            steps.run(context.workflow_id)
+            if "dflow_key" in steps.inputs.parameters:
+                step_id = steps.inputs.parameters["dflow_key"].value
+                stepdir = os.path.abspath(step_id)
+                os.makedirs(stepdir, exist_ok=True)
+            else:
+                while True:
+                    step_id = self.name + "-" + randstr()
+                    stepdir = os.path.abspath(step_id)
+                    if not os.path.exists(stepdir):
+                        os.makedirs(stepdir)
+                        break
+
+            with open(os.path.join(stepdir, "type"), "w") as f:
+                f.write(type(self.template).__name__)
+            with open(os.path.join(stepdir, "phase"), "w") as f:
+                f.write("Running")
+            self.record_input_parameters(stepdir, steps.inputs.parameters)
+            self.record_input_artifacts(stepdir, steps.inputs.artifacts, None)
+
+            try:
+                steps.run(context.workflow_id)
+            except Exception:
+                self.phase = "Failed"
+                with open(os.path.join(stepdir, "phase"), "w") as f:
+                    f.write("Failed")
+                raise RuntimeError("Step %s failed" % self)
 
             for name, par in self.outputs.parameters.items():
                 if par.value_from_parameter is not None:
@@ -798,7 +824,11 @@ class Step:
                         _else = art.from_expression._else
                         art.local_path = get_var(_else, steps).local_path
 
+            self.record_output_parameters(stepdir, self.outputs.parameters)
+            self.record_output_artifacts(stepdir, self.outputs.artifacts)
             self.phase = "Succeeded"
+            with open(os.path.join(stepdir, "phase"), "w") as f:
+                f.write("Succeeded")
             return
 
         if self.with_param is not None or self.with_sequence is not None:
@@ -903,6 +933,71 @@ class Step:
             traceback.print_exc()
             queue.put((order, None))
 
+    def record_input_parameters(self, stepdir, parameters):
+        os.makedirs(os.path.join(stepdir, "inputs/parameters"), exist_ok=True)
+        for name, par in parameters.items():
+            par_path = os.path.join(stepdir, "inputs/parameters/%s" % name)
+            with open(par_path, "w") as f:
+                f.write(par.value if isinstance(par.value, str)
+                        else jsonpickle.dumps(par.value))
+            if par.type is not None:
+                os.makedirs(os.path.join(
+                    stepdir, "inputs/parameters/.dflow"), exist_ok=True)
+                with open(os.path.join(
+                        stepdir, "inputs/parameters/.dflow/%s" % name),
+                        "w") as f:
+                    f.write(jsonpickle.dumps({"type": str(par.type)}))
+
+    def record_input_artifacts(self, stepdir, artifacts, item):
+        os.makedirs(os.path.join(stepdir, "inputs/artifacts"), exist_ok=True)
+        for name, art in artifacts.items():
+            art_path = os.path.join(stepdir, "inputs/artifacts/%s" % name)
+            if isinstance(art.source, (InputArtifact, OutputArtifact,
+                                       LocalArtifact)):
+                if art.sub_path is not None:
+                    sub_path = art.sub_path
+                    if item is not None:
+                        sub_path = render_item(sub_path, item)
+                    os.symlink(os.path.join(art.source.local_path, sub_path),
+                               art_path)
+                elif isinstance(
+                        art.source,
+                        InputArtifact) and art.optional and not hasattr(
+                            art.source, 'local_path'):
+                    pass
+                else:
+                    os.symlink(art.source.local_path, art_path)
+            elif isinstance(art.source, str):
+                with open(art_path, "w") as f:
+                    f.write(art.source)
+            else:
+                raise RuntimeError("Not supported: ", art.source)
+
+    def record_output_parameters(self, stepdir, parameters):
+        os.makedirs(os.path.join(stepdir, "outputs/parameters"), exist_ok=True)
+        for name, par in parameters.items():
+            par_path = os.path.join(stepdir,
+                                    "outputs/parameters/%s" % name)
+            if isinstance(par.value, str):
+                value = par.value
+            else:
+                value = jsonpickle.dumps(par.value)
+            with open(par_path, "w") as f:
+                f.write(value)
+            if par.type is not None:
+                os.makedirs(os.path.join(
+                    stepdir, "outputs/parameters/.dflow"), exist_ok=True)
+                with open(os.path.join(
+                        stepdir, "outputs/parameters/.dflow/%s" % name),
+                        "w") as f:
+                    f.write(jsonpickle.dumps({"type": str(par.type)}))
+
+    def record_output_artifacts(self, stepdir, artifacts):
+        os.makedirs(os.path.join(stepdir, "outputs/artifacts"), exist_ok=True)
+        for name, art in artifacts.items():
+            art_path = os.path.join(stepdir, "outputs/artifacts/%s" % name)
+            os.symlink(art.local_path, art_path)
+
     def exec(self, context, parameters, item=None):
         """
         directory structure:
@@ -961,52 +1056,21 @@ class Step:
                     break
 
         self.stepdir = stepdir
+        with open(os.path.join(stepdir, "type"), "w") as f:
+            f.write("Pod")
         with open(os.path.join(stepdir, "phase"), "w") as f:
             f.write("Running")
         workdir = os.path.join(stepdir, "workdir")
         os.makedirs(workdir, exist_ok=True)
         os.chdir(workdir)
 
-        # render parameters
-        os.makedirs(os.path.join(stepdir, "inputs/parameters"), exist_ok=True)
-        for name, par in parameters.items():
-            par_path = os.path.join(stepdir, "inputs/parameters/%s" % name)
-            with open(par_path, "w") as f:
-                f.write(par.value if isinstance(par.value, str)
-                        else jsonpickle.dumps(par.value))
-            if par.type is not None:
-                os.makedirs(os.path.join(
-                    stepdir, "inputs/parameters/.dflow"), exist_ok=True)
-                with open(os.path.join(
-                        stepdir, "inputs/parameters/.dflow/%s" % name),
-                        "w") as f:
-                    f.write(jsonpickle.dumps({"type": str(par.type)}))
+        self.record_input_parameters(stepdir, parameters)
 
-        # render artifacts
-        os.makedirs(os.path.join(stepdir, "inputs/artifacts"), exist_ok=True)
+        self.record_input_artifacts(stepdir, self.inputs.artifacts, item)
+
+        # prepare inputs artifacts
         for name, art in self.inputs.artifacts.items():
             art_path = os.path.join(stepdir, "inputs/artifacts/%s" % name)
-            if isinstance(art.source, (InputArtifact, OutputArtifact,
-                                       LocalArtifact)):
-                if art.sub_path is not None:
-                    sub_path = art.sub_path
-                    if item is not None:
-                        sub_path = render_item(sub_path, item)
-                    os.symlink(os.path.join(art.source.local_path, sub_path),
-                               art_path)
-                elif isinstance(
-                        art.source,
-                        InputArtifact) and art.optional and not hasattr(
-                            art.source, 'local_path'):
-                    pass
-                else:
-                    os.symlink(art.source.local_path, art_path)
-            elif isinstance(art.source, str):
-                with open(art_path, "w") as f:
-                    f.write(art.source)
-            else:
-                raise RuntimeError("Not supported: ", art.source)
-
             path = self.template.inputs.artifacts[name].path
             if hasattr(self.template, "tmp_root"):
                 path = "%s/%s" % (workdir, path)
@@ -1042,16 +1106,14 @@ class Step:
         script_path = os.path.join(stepdir, "script")
         with open(script_path, "w") as f:
             f.write(script)
-        cmd = " ".join(self.template.command) + " " + script_path
+        cmd = " ".join(self.template.command) + " " + script_path \
+            + " | tee log"
         ret_code = os.system(cmd)
         if ret_code != 0:
             raise RuntimeError("Run [%s] failed" % cmd)
 
-        # save parameters
-        os.makedirs(os.path.join(stepdir, "outputs/parameters"), exist_ok=True)
+        # generate output parameters
         for name, par in self.outputs.parameters.items():
-            par_path = os.path.join(stepdir,
-                                    "outputs/parameters/%s" % name)
             path = par.value_from_path
             if path is not None:
                 if hasattr(self.template, "tmp_root"):
@@ -1061,34 +1123,19 @@ class Step:
                         par.value = f.read()
                     else:
                         par.value = jsonpickle.loads(f.read())
-                os.symlink(path, par_path)
             elif hasattr(par, "value"):
                 if isinstance(par.value, str):
                     par.value = render_script(
                         par.value, parameters, context.workflow_id,
                         step_id)
-                    value = par.value
-                else:
-                    value = jsonpickle.dumps(par.value)
-                with open(par_path, "w") as f:
-                    f.write(value)
-            if par.type is not None:
-                os.makedirs(os.path.join(
-                    stepdir, "outputs/parameters/.dflow"), exist_ok=True)
-                with open(os.path.join(
-                        stepdir, "outputs/parameters/.dflow/%s" % name),
-                        "w") as f:
-                    f.write(jsonpickle.dumps({"type": str(par.type)}))
+        self.record_output_parameters(stepdir, self.outputs.parameters)
 
         # save artifacts
-        os.makedirs(os.path.join(stepdir, "outputs/artifacts"), exist_ok=True)
         for name, art in self.outputs.artifacts.items():
-            art_path = os.path.join(stepdir, "outputs/artifacts/%s" % name)
             path = art.path
             if hasattr(self.template, "tmp_root"):
                 path = "%s/%s" % (workdir, path)
-            os.symlink(path, art_path)
-            art.local_path = art_path
+            art.local_path = path
             for save in self.template.outputs.artifacts[name].save:
                 if isinstance(save, S3Artifact):
                     key = render_script(save.key, parameters,
@@ -1101,9 +1148,10 @@ class Step:
                             os.link(src, dst)
                         except Exception:
                             pass
-                    shutil.copytree(art_path, save_path, copy_function=link,
+                    shutil.copytree(path, save_path, copy_function=link,
                                     dirs_exist_ok=True)
                     art.local_path = save_path
+        self.record_output_artifacts(stepdir, self.outputs.artifacts)
 
         os.chdir(cwd)
         self.phase = "Succeeded"

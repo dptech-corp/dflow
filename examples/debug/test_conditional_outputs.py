@@ -73,6 +73,9 @@ def test_conditional_outputs():
         time.sleep(1)
 
     assert(wf.query_status() == "Succeeded")
+    step = wf.query_step(name="conditional")[0]
+    assert(step.phase == "Succeeded")
+    assert step.outputs.parameters["msg"].value == "tail"
 
 
 if __name__ == "__main__":

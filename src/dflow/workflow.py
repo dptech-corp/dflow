@@ -449,14 +449,21 @@ class Workflow:
                     continue
                 if os.path.exists(os.path.join(stepdir, "phase")):
                     with open(os.path.join(stepdir, "phase"), "r") as f:
-                        phase = f.read()
+                        _phase = f.read()
                 else:
-                    phase = "Pending"
+                    _phase = "Pending"
+                if phase is not None and phase != _phase:
+                    continue
+                with open(os.path.join(stepdir, "type"), "r") as f:
+                    _type = f.read()
+                if type is not None and type != _type:
+                    continue
                 step = {
                     "displayName": s,
                     "key": s,
                     "startedAt": os.path.getmtime(stepdir),
-                    "phase": phase,
+                    "phase": _phase,
+                    "type": _type,
                     "inputs": {
                         "parameters": [],
                         "artifacts": [],
@@ -474,17 +481,17 @@ class Workflow:
                         with open(os.path.join(stepdir, io, "parameters",
                                                p), "r") as f:
                             val = f.read()
-                        type = None
+                        _type = None
                         if os.path.exists(os.path.join(
                                 stepdir, io, "parameters/.dflow", p)):
                             with open(os.path.join(
                                     stepdir, io, "parameters/.dflow", p),
                                     "r") as f:
-                                type = json.load(f)["type"]
-                            if type != str(str):
+                                _type = json.load(f)["type"]
+                            if _type != str(str):
                                 val = jsonpickle.loads(val)
                         step[io]["parameters"].append({
-                            "name": p, "value": val, "type": type})
+                            "name": p, "value": val, "type": _type})
                     for a in os.listdir(os.path.join(stepdir, io,
                                                      "artifacts")):
                         step[io]["artifacts"].append({
