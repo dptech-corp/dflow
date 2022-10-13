@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.5.12](https://github.com/deepmodeling/dflow/compare/v1.5.11...v1.5.12) (2022-10-13)
+
+
+### Bug Fixes
+
+* optional input artifact in debug mode ([2eb90e8](https://github.com/deepmodeling/dflow/commit/2eb90e879f35f2a3181c8a2add503cc2005405b5))
+* use subprocess.Popen in debug mode ([2eb90e8](https://github.com/deepmodeling/dflow/commit/2eb90e879f35f2a3181c8a2add503cc2005405b5))
+
 ## [1.5.11](https://github.com/deepmodeling/dflow/compare/v1.5.10...v1.5.11) (2022-10-13)
 
 
