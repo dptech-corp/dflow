@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.5.13](https://github.com/deepmodeling/dflow/compare/v1.5.12...v1.5.13) (2022-10-13)
+
+
+### Bug Fixes
+
+* support for python3.7 in debug mode ([6d7d971](https://github.com/deepmodeling/dflow/commit/6d7d9714bfec35e694ea401b940f00b555571583))
+
 ## [1.5.12](https://github.com/deepmodeling/dflow/compare/v1.5.11...v1.5.12) (2022-10-13)
 
 
