@@ -1128,8 +1128,38 @@ step-xxxxx
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dflow.step.Step.load_output_artifacts">
+<span class="sig-name descname"><span class="pre">load_output_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifacts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.load_output_artifacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.step.Step.load_output_parameters">
+<span class="sig-name descname"><span class="pre">load_output_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.load_output_parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dflow.step.Step.prepare_argo_arguments">
 <span class="sig-name descname"><span class="pre">prepare_argo_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.prepare_argo_arguments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.step.Step.record_input_artifacts">
+<span class="sig-name descname"><span class="pre">record_input_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifacts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_nonexist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.record_input_artifacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.step.Step.record_input_parameters">
+<span class="sig-name descname"><span class="pre">record_input_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.record_input_parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.step.Step.record_output_artifacts">
+<span class="sig-name descname"><span class="pre">record_output_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifacts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.record_output_artifacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.step.Step.record_output_parameters">
+<span class="sig-name descname"><span class="pre">record_output_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.record_output_parameters" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1424,6 +1454,16 @@ generated parallel tasks greater than certain number</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="dflow.utils.get_md5">
 <span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">get_md5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.get_md5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.utils.link">
+<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func=&lt;built-in</span> <span class="pre">function</span> <span class="pre">symlink&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.link" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.utils.linktree">
+<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">linktree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func=&lt;built-in</span> <span class="pre">function</span> <span class="pre">symlink&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.linktree" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -2324,8 +2364,38 @@ step-xxxxx
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dflow.Step.load_output_artifacts">
+<span class="sig-name descname"><span class="pre">load_output_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifacts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.load_output_artifacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.Step.load_output_parameters">
+<span class="sig-name descname"><span class="pre">load_output_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.load_output_parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dflow.Step.prepare_argo_arguments">
 <span class="sig-name descname"><span class="pre">prepare_argo_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.prepare_argo_arguments" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.Step.record_input_artifacts">
+<span class="sig-name descname"><span class="pre">record_input_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifacts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_nonexist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.record_input_artifacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.Step.record_input_parameters">
+<span class="sig-name descname"><span class="pre">record_input_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.record_input_parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.Step.record_output_artifacts">
+<span class="sig-name descname"><span class="pre">record_output_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifacts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.record_output_artifacts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.Step.record_output_parameters">
+<span class="sig-name descname"><span class="pre">record_output_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.record_output_parameters" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -3005,7 +3075,13 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.step.Step.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Step.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.exec"><code class="docutils literal notranslate"><span class="pre">Step.exec()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.exec_with_queue"><code class="docutils literal notranslate"><span class="pre">Step.exec_with_queue()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.load_output_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.load_output_artifacts()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.load_output_parameters"><code class="docutils literal notranslate"><span class="pre">Step.load_output_parameters()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.prepare_argo_arguments"><code class="docutils literal notranslate"><span class="pre">Step.prepare_argo_arguments()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.record_input_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.record_input_artifacts()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.record_input_parameters"><code class="docutils literal notranslate"><span class="pre">Step.record_input_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.record_output_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.record_output_artifacts()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.record_output_parameters"><code class="docutils literal notranslate"><span class="pre">Step.record_output_parameters()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.run"><code class="docutils literal notranslate"><span class="pre">Step.run()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.run_with_queue"><code class="docutils literal notranslate"><span class="pre">Step.run_with_queue()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.set_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.set_artifacts()</span></code></a></li>
@@ -3061,6 +3137,8 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.utils.download_s3"><code class="docutils literal notranslate"><span class="pre">download_s3()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.find_subclass"><code class="docutils literal notranslate"><span class="pre">find_subclass()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.get_md5"><code class="docutils literal notranslate"><span class="pre">get_md5()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.link"><code class="docutils literal notranslate"><span class="pre">link()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.linktree"><code class="docutils literal notranslate"><span class="pre">linktree()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.merge_dir"><code class="docutils literal notranslate"><span class="pre">merge_dir()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.path_list_of_artifact"><code class="docutils literal notranslate"><span class="pre">path_list_of_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.randstr"><code class="docutils literal notranslate"><span class="pre">randstr()</span></code></a></li>
@@ -3195,7 +3273,13 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.Step.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Step.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.exec"><code class="docutils literal notranslate"><span class="pre">Step.exec()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.exec_with_queue"><code class="docutils literal notranslate"><span class="pre">Step.exec_with_queue()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.load_output_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.load_output_artifacts()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.load_output_parameters"><code class="docutils literal notranslate"><span class="pre">Step.load_output_parameters()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.prepare_argo_arguments"><code class="docutils literal notranslate"><span class="pre">Step.prepare_argo_arguments()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.record_input_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.record_input_artifacts()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.record_input_parameters"><code class="docutils literal notranslate"><span class="pre">Step.record_input_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.record_output_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.record_output_artifacts()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.record_output_parameters"><code class="docutils literal notranslate"><span class="pre">Step.record_output_parameters()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.run"><code class="docutils literal notranslate"><span class="pre">Step.run()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.run_with_queue"><code class="docutils literal notranslate"><span class="pre">Step.run_with_queue()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.set_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.set_artifacts()</span></code></a></li>
