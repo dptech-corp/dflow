@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+import sys
 from copy import deepcopy
 from typing import Any, Dict, List, Union
 
@@ -769,6 +770,8 @@ class Step:
                 steps.inputs.parameters[name].value = par.value
 
             for name, art in self.inputs.artifacts.items():
+                if not hasattr(art.source, "local_path") and art.optional:
+                    continue
                 steps.inputs.artifacts[name].local_path = art.source.local_path
 
             if "dflow_key" in steps.inputs.parameters and \
@@ -1127,11 +1130,24 @@ class Step:
         script_path = os.path.join(stepdir, "script")
         with open(script_path, "w") as f:
             f.write(script)
-        cmd = "set -o pipefail && " + " ".join(self.template.command) + " " + \
-            script_path + " 2>&1 | tee %s/dflow_log" % stepdir
-        ret_code = os.system(cmd)
+
+        import subprocess
+        args = self.template.command + [script_path]
+        p = subprocess.Popen(
+            args=args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        with open("%s/log.txt" % stepdir, "w") as f:
+            line = p.stdout.readline().decode(sys.stdin.encoding)
+            while line:
+                sys.stdout.write(line)
+                f.write(line)
+                line = p.stdout.readline().decode(sys.stdin.encoding)
+        p.wait()
+        ret_code = p.poll()
         if ret_code != 0:
-            raise RuntimeError("Run [%s] failed" % cmd)
+            raise RuntimeError("Run %s failed" % args)
 
         # generate output parameters
         for name, par in self.outputs.parameters.items():
