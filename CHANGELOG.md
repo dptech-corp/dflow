@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## [1.5.11](https://github.com/deepmodeling/dflow/compare/v1.5.10...v1.5.11) (2022-10-13)
+
+
+### Bug Fixes
+
+* a typo ([c93235f](https://github.com/deepmodeling/dflow/commit/c93235f339edebe175897d545e17da1c72ed3840))
+* add comments for config and s3_config ([358d4f1](https://github.com/deepmodeling/dflow/commit/358d4f1e262ea422eef34cbe2da3ce0122f199fe))
+* add pool_size for slices ([7fe9d8c](https://github.com/deepmodeling/dflow/commit/7fe9d8c1d9d4809dccc18e885f0bbce6af156ccc))
+* add utils for find OPs in a package ([358d4f1](https://github.com/deepmodeling/dflow/commit/358d4f1e262ea422eef34cbe2da3ce0122f199fe))
+* consistent APIs for default mode and debug mode ([2e8f5cf](https://github.com/deepmodeling/dflow/commit/2e8f5cf74e0f797e4031bdc4deca3e87102415b4))
+* format error some lines are too long ([06f4dd5](https://github.com/deepmodeling/dflow/commit/06f4dd56d527390a103816af4542d488ed86780e))
+* omit queue_name if it is None in dispatcher executor ([2438c6c](https://github.com/deepmodeling/dflow/commit/2438c6c0a0f416365ed429131dd69125d05696ff))
+* pass n_total explicitly in continue_on_success_ratio ([2438c6c](https://github.com/deepmodeling/dflow/commit/2438c6c0a0f416365ed429131dd69125d05696ff))
+* raise Exception when a parameter passed to a big parameter, vice versa ([2e8f5cf](https://github.com/deepmodeling/dflow/commit/2e8f5cf74e0f797e4031bdc4deca3e87102415b4))
+* save info of Steps/DAG in debug mode ([93784c2](https://github.com/deepmodeling/dflow/commit/93784c23f7d102ea7424d43d6870697645136dd9))
+* support for download slices and modify slices in debug mode ([fb1da44](https://github.com/deepmodeling/dflow/commit/fb1da441a131503bcdd0fb3474e409ffebb93a96))
+
 ## [1.5.10](https://github.com/deepmodeling/dflow/compare/v1.5.9...v1.5.10) (2022-10-03)
 
 
