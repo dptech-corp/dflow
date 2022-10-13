@@ -5,6 +5,7 @@ from typing import Any, List, Union
 
 import jsonpickle
 
+from .config import config
 from .io import S3Artifact
 from .utils import download_artifact, download_s3, upload_artifact, upload_s3
 
@@ -168,6 +169,9 @@ class ArgoStep(ArgoObjectDict):
             name: artifact name
             s3: replace the artifact with a s3 object
         """
+        if config["mode"] == "debug":
+            self.outputs.artifacts[name].local_path = s3.local_path
+            return
         assert isinstance(s3, S3Artifact), "must provide a S3Artifact object"
         self.outputs.artifacts[name].s3 = s3
         if s3.key[-4:] == ".tgz" and hasattr(self.outputs.artifacts[name],
@@ -196,9 +200,16 @@ class ArgoStep(ArgoObjectDict):
         path_list = jsonpickle.loads(
             self.outputs.parameters["dflow_%s_path_list" % name].value)
         for item in path_list:
-            download_s3(self.outputs.artifacts[name].s3.key + "/" +
-                        item["dflow_list_item"],
-                        path=os.path.join(path, item["dflow_list_item"]))
+            sub_path = item["dflow_list_item"]
+            if config["mode"] == "debug":
+                os.makedirs(os.path.dirname(os.path.join(path, sub_path)),
+                            exist_ok=True)
+                os.symlink(
+                    os.path.join(self.outputs.artifacts[name].local_path,
+                                 sub_path), os.path.join(path, sub_path))
+            else:
+                download_s3(self.outputs.artifacts[name].s3.key + "/" +
+                            sub_path, path=os.path.join(path, sub_path))
 
     def upload_and_modify_sliced_output_artifact(
             self,

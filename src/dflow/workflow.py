@@ -14,7 +14,7 @@ from .dag import DAG
 from .step import Step
 from .steps import Steps
 from .task import Task
-from .utils import copy_s3, randstr
+from .utils import copy_s3, linktree, randstr
 
 try:
     import kubernetes
@@ -165,15 +165,16 @@ class Workflow:
             if self.id is None:
                 while True:
                     self.id = self.name + "-" + randstr()
-                    if not os.path.exists(self.id):
-                        os.makedirs(self.id)
+                    wfdir = os.path.abspath(self.id)
+                    if not os.path.exists(wfdir):
+                        os.makedirs(wfdir)
                         break
 
             if reuse_step is not None:
                 for step in reuse_step:
                     if step.key is None:
                         continue
-                    stepdir = os.path.join(self.id, step.key)
+                    stepdir = os.path.join(wfdir, step.key)
                     os.makedirs(stepdir, exist_ok=True)
                     with open(os.path.join(stepdir, "phase"), "w") as f:
                         f.write(step.phase)
@@ -183,10 +184,11 @@ class Workflow:
                         for name, par in step[io].parameters.items():
                             with open(os.path.join(stepdir, io, "parameters",
                                                    name), "w") as f:
-                                if isinstance(par.value, str):
-                                    f.write(par.value)
+                                value = par.recover()["value"]
+                                if isinstance(value, str):
+                                    f.write(value)
                                 else:
-                                    f.write(jsonpickle.dumps(par.value))
+                                    f.write(jsonpickle.dumps(value))
                             if par.type is not None:
                                 os.makedirs(os.path.join(
                                     stepdir, io, "parameters/.dflow"),
@@ -198,23 +200,52 @@ class Workflow:
 
                         os.makedirs(os.path.join(stepdir, io, "artifacts"),
                                     exist_ok=True)
+                        if "dflow_group_key" in step.inputs.parameters:
+                            key = step.inputs.parameters[
+                                "dflow_group_key"].value
+                            if not os.path.exists(os.path.join(wfdir, key)):
+                                os.symlink(
+                                    os.path.join(
+                                        os.path.abspath(step.workflow), key),
+                                    os.path.join(wfdir, key))
                         for name, art in step[io].artifacts.items():
-                            os.symlink(art.local_path, os.path.join(
-                                stepdir, io, "artifacts", name))
+                            if "dflow_group_key" in step.inputs.parameters:
+                                key = step.inputs.parameters[
+                                    "dflow_group_key"].value
+                                if os.path.exists(os.path.join(wfdir, key,
+                                                               name)):
+                                    if not os.path.samefile(
+                                            art.local_path,
+                                            os.path.join(wfdir, key, name)):
+                                        linktree(
+                                            art.local_path,
+                                            os.path.join(wfdir, key, name))
+                                        os.symlink(
+                                            os.path.join(wfdir, key, name),
+                                            os.path.join(stepdir, io,
+                                                         "artifacts", name))
+                                else:
+                                    os.symlink(art.local_path, os.path.join(
+                                        stepdir, io, "artifacts", name))
+                            else:
+                                os.symlink(art.local_path, os.path.join(
+                                    stepdir, io, "artifacts", name))
 
-            os.chdir(self.id)
+            cwd = os.getcwd()
+            os.chdir(wfdir)
             print("Workflow is running locally (ID: %s)" % self.id)
-            with open("status", "w") as f:
+            with open(os.path.join(wfdir, "status"), "w") as f:
                 f.write("Running")
             try:
                 self.entrypoint.run(self.id)
+                with open(os.path.join(wfdir, "status"), "w") as f:
+                    f.write("Succeeded")
             except Exception:
-                with open("status", "w") as f:
+                import traceback
+                traceback.print_exc()
+                with open(os.path.join(wfdir, "status"), "w") as f:
                     f.write("Failed")
-                raise RuntimeError("Workflow %s failed" % self.id)
-            with open("status", "w") as f:
-                f.write("Succeeded")
-            os.chdir("..")
+            os.chdir(cwd)
             return ArgoWorkflow({"id": self.id})
 
         assert self.id is None, "Do not submit a workflow repeatedly"
@@ -447,6 +478,12 @@ class Workflow:
                     continue
                 if key is not None and s not in key:
                     continue
+                if not os.path.exists(os.path.join(stepdir, "type")):
+                    continue
+                with open(os.path.join(stepdir, "type"), "r") as f:
+                    _type = f.read()
+                if type is not None and type != _type:
+                    continue
                 if os.path.exists(os.path.join(stepdir, "phase")):
                     with open(os.path.join(stepdir, "phase"), "r") as f:
                         _phase = f.read()
@@ -454,11 +491,8 @@ class Workflow:
                     _phase = "Pending"
                 if phase is not None and phase != _phase:
                     continue
-                with open(os.path.join(stepdir, "type"), "r") as f:
-                    _type = f.read()
-                if type is not None and type != _type:
-                    continue
                 step = {
+                    "workflow": self.id,
                     "displayName": s,
                     "key": s,
                     "startedAt": os.path.getmtime(stepdir),
@@ -474,31 +508,33 @@ class Workflow:
                     },
                 }
                 for io in ["inputs", "outputs"]:
-                    for p in os.listdir(os.path.join(stepdir, io,
-                                                     "parameters")):
-                        if p == ".dflow":
-                            continue
-                        with open(os.path.join(stepdir, io, "parameters",
-                                               p), "r") as f:
-                            val = f.read()
-                        _type = None
-                        if os.path.exists(os.path.join(
-                                stepdir, io, "parameters/.dflow", p)):
-                            with open(os.path.join(
-                                    stepdir, io, "parameters/.dflow", p),
-                                    "r") as f:
-                                _type = json.load(f)["type"]
-                            if _type != str(str):
-                                val = jsonpickle.loads(val)
-                        step[io]["parameters"].append({
-                            "name": p, "value": val, "type": _type})
-                    for a in os.listdir(os.path.join(stepdir, io,
-                                                     "artifacts")):
-                        step[io]["artifacts"].append({
-                            "name": a,
-                            "local_path": os.path.abspath(os.path.join(
-                                stepdir, io, "artifacts", a)),
-                        })
+                    if os.path.exists(os.path.join(stepdir, io, "parameters")):
+                        for p in os.listdir(os.path.join(stepdir, io,
+                                                         "parameters")):
+                            if p == ".dflow":
+                                continue
+                            with open(os.path.join(stepdir, io, "parameters",
+                                                   p), "r") as f:
+                                val = f.read()
+                            _type = None
+                            if os.path.exists(os.path.join(
+                                    stepdir, io, "parameters/.dflow", p)):
+                                with open(os.path.join(
+                                        stepdir, io, "parameters/.dflow", p),
+                                        "r") as f:
+                                    _type = json.load(f)["type"]
+                                if _type != str(str):
+                                    val = jsonpickle.loads(val)
+                            step[io]["parameters"].append({
+                                "name": p, "value": val, "type": _type})
+                    if os.path.exists(os.path.join(stepdir, io, "artifacts")):
+                        for a in os.listdir(os.path.join(stepdir, io,
+                                                         "artifacts")):
+                            step[io]["artifacts"].append({
+                                "name": a,
+                                "local_path": os.path.abspath(os.path.join(
+                                    stepdir, io, "artifacts", a)),
+                            })
                 step = ArgoStep(step)
                 step_list.append(step)
             return step_list

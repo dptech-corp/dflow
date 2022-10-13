@@ -771,10 +771,19 @@ class Step:
             for name, art in self.inputs.artifacts.items():
                 steps.inputs.artifacts[name].local_path = art.source.local_path
 
-            if "dflow_key" in steps.inputs.parameters:
+            if "dflow_key" in steps.inputs.parameters and \
+                    steps.inputs.parameters["dflow_key"].value:
                 step_id = steps.inputs.parameters["dflow_key"].value
                 stepdir = os.path.abspath(step_id)
-                os.makedirs(stepdir, exist_ok=True)
+                if os.path.exists(stepdir):
+                    self.load_output_parameters(stepdir,
+                                                self.outputs.parameters)
+                    self.load_output_artifacts(stepdir,
+                                               self.outputs.artifacts)
+                    with open(os.path.join(stepdir, "phase"), "r") as f:
+                        self.phase = f.read()
+                    return
+                os.makedirs(stepdir)
             else:
                 while True:
                     step_id = self.name + "-" + randstr()
@@ -784,11 +793,15 @@ class Step:
                         break
 
             with open(os.path.join(stepdir, "type"), "w") as f:
-                f.write(type(self.template).__name__)
+                if isinstance(self.template, Steps):
+                    f.write("Steps")
+                elif isinstance(self.template, DAG):
+                    f.write("DAG")
             with open(os.path.join(stepdir, "phase"), "w") as f:
                 f.write("Running")
             self.record_input_parameters(stepdir, steps.inputs.parameters)
-            self.record_input_artifacts(stepdir, steps.inputs.artifacts, None)
+            self.record_input_artifacts(stepdir, steps.inputs.artifacts, None,
+                                        True)
 
             try:
                 steps.run(context.workflow_id)
@@ -799,29 +812,31 @@ class Step:
                 raise RuntimeError("Step %s failed" % self)
 
             for name, par in self.outputs.parameters.items():
-                if par.value_from_parameter is not None:
-                    par.value = get_var(par.value_from_parameter, steps).value
-                elif par.value_from_expression is not None:
-                    _if = par.value_from_expression._if
+                par1 = self.template.outputs.parameters[name]
+                if par1.value_from_parameter is not None:
+                    par.value = get_var(par1.value_from_parameter, steps).value
+                elif par1.value_from_expression is not None:
+                    _if = par1.value_from_expression._if
                     _if = render_expr(_if, steps)
                     if eval_bool_expr(_if):
-                        _then = par.value_from_expression._then
+                        _then = par1.value_from_expression._then
                         par.value = get_var(_then, steps).value
                     else:
-                        _else = par.value_from_expression._else
+                        _else = par1.value_from_expression._else
                         par.value = get_var(_else, steps).value
 
             for name, art in self.outputs.artifacts.items():
-                if art._from is not None:
-                    art.local_path = get_var(art._from, steps).local_path
-                elif art.from_expression is not None:
-                    _if = art.from_expression._if
+                art1 = self.template.outputs.artifacts[name]
+                if art1._from is not None:
+                    art.local_path = get_var(art1._from, steps).local_path
+                elif art1.from_expression is not None:
+                    _if = art1.from_expression._if
                     _if = render_expr(_if, steps)
                     if eval_bool_expr(_if):
-                        _then = art.from_expression._then
+                        _then = art1.from_expression._then
                         art.local_path = get_var(_then, steps).local_path
                     else:
-                        _else = art.from_expression._else
+                        _else = art1.from_expression._else
                         art.local_path = get_var(_else, steps).local_path
 
             self.record_output_parameters(stepdir, self.outputs.parameters)
@@ -948,7 +963,8 @@ class Step:
                         "w") as f:
                     f.write(jsonpickle.dumps({"type": str(par.type)}))
 
-    def record_input_artifacts(self, stepdir, artifacts, item):
+    def record_input_artifacts(self, stepdir, artifacts, item,
+                               ignore_nonexist=False):
         os.makedirs(os.path.join(stepdir, "inputs/artifacts"), exist_ok=True)
         for name, art in artifacts.items():
             art_path = os.path.join(stepdir, "inputs/artifacts/%s" % name)
@@ -970,7 +986,7 @@ class Step:
             elif isinstance(art.source, str):
                 with open(art_path, "w") as f:
                     f.write(art.source)
-            else:
+            elif not ignore_nonexist:
                 raise RuntimeError("Not supported: ", art.source)
 
     def record_output_parameters(self, stepdir, parameters):
@@ -997,6 +1013,22 @@ class Step:
         for name, art in artifacts.items():
             art_path = os.path.join(stepdir, "outputs/artifacts/%s" % name)
             os.symlink(art.local_path, art_path)
+
+    def load_output_parameters(self, stepdir, parameters):
+        for name, par in parameters.items():
+            par_path = os.path.join(stepdir,
+                                    "outputs/parameters/%s" % name)
+            with open(par_path, "r") as f:
+                if par.type is None or par.type == str:
+                    par.value = f.read()
+                else:
+                    par.value = jsonpickle.loads(f.read())
+
+    def load_output_artifacts(self, stepdir, artifacts):
+        for name, art in artifacts.items():
+            art_path = os.path.join(stepdir,
+                                    "outputs/artifacts/%s" % name)
+            art.local_path = art_path
 
     def exec(self, context, parameters, item=None):
         """
@@ -1026,21 +1058,10 @@ class Step:
             step_id = parameters["dflow_key"].value
             stepdir = os.path.abspath(step_id)
             if os.path.exists(stepdir):
-                # load parameters
-                for name, par in self.outputs.parameters.items():
-                    par_path = os.path.join(stepdir,
-                                            "outputs/parameters/%s" % name)
-                    with open(par_path, "r") as f:
-                        if par.type is None or par.type == str:
-                            par.value = f.read()
-                        else:
-                            par.value = jsonpickle.loads(f.read())
-
-                # load artifacts
-                for name, art in self.outputs.artifacts.items():
-                    art_path = os.path.join(stepdir,
-                                            "outputs/artifacts/%s" % name)
-                    art.local_path = art_path
+                self.load_output_parameters(stepdir,
+                                            self.outputs.parameters)
+                self.load_output_artifacts(stepdir,
+                                           self.outputs.artifacts)
 
                 os.chdir(cwd)
                 with open(os.path.join(stepdir, "phase"), "r") as f:
@@ -1106,8 +1127,8 @@ class Step:
         script_path = os.path.join(stepdir, "script")
         with open(script_path, "w") as f:
             f.write(script)
-        cmd = " ".join(self.template.command) + " " + script_path \
-            + " | tee log"
+        cmd = "set -o pipefail && " + " ".join(self.template.command) + " " + \
+            script_path + " 2>&1 | tee %s/dflow_log" % stepdir
         ret_code = os.system(cmd)
         if ret_code != 0:
             raise RuntimeError("Run [%s] failed" % cmd)
@@ -1145,7 +1166,7 @@ class Step:
 
                     def link(src, dst):
                         try:
-                            os.link(src, dst)
+                            os.symlink(src, dst)
                         except Exception:
                             pass
                     shutil.copytree(path, save_path, copy_function=link,
