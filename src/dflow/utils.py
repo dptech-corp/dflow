@@ -12,6 +12,7 @@ import sys
 import tarfile
 import tempfile
 import uuid
+from functools import partial
 from pathlib import Path
 from typing import List, Optional, Set, Tuple, Union
 
@@ -77,7 +78,9 @@ def download_artifact(
         skip_exists: skip files with the same MD5
     """
     if config["mode"] == "debug":
-        return assemble_path_list(artifact.local_path)
+        path = kwargs["path"] if "path" in kwargs else "."
+        linktree(artifact.local_path, path)
+        return assemble_path_list(path, remove=True)
 
     if hasattr(artifact, "s3"):
         key = artifact.s3.key
@@ -489,8 +492,8 @@ def assemble_path_list(art_path, remove=False):
                     for item in jsonpickle.loads(fd.read())['path_list']:
                         if item not in dflow_list:
                             dflow_list.append(item)  # remove duplicate
-                if remove:
-                    os.remove(os.path.join(catalog_dir, f))
+            if remove:
+                shutil.rmtree(catalog_dir)
         if len(dflow_list) > 0:
             path_list = list(map(lambda x: os.path.join(
                 art_path, x) if x is not None else None,
@@ -622,3 +625,16 @@ def find_subclass(module, cls):
                     except Exception:
                         pass
     return ops
+
+
+def linktree(src, dst, func=os.symlink):
+    shutil.copytree(src, dst, copy_function=partial(link, func=func),
+                    dirs_exist_ok=True)
+
+
+def link(src, dst, func=os.symlink):
+    if os.path.exists(dst):
+        if os.path.samefile(src, dst):
+            return
+        os.remove(dst)
+    func(src, dst)

@@ -1,9 +1,10 @@
+import time
 from typing import List
 
-from dflow import Step, Workflow, argo_range
+from dflow import Step, Workflow, argo_range, config
 from dflow.python import (OP, OPIO, Artifact, OPIOSign, PythonOPTemplate,
                           Slices, upload_packages)
-from dflow import config
+
 config["mode"] = "debug"
 
 if "__file__" in locals():
@@ -79,6 +80,11 @@ def test_slices():
                  artifacts={"foo": hello.outputs.artifacts["foo"]})
     wf.add(check)
     wf.submit()
+
+    while wf.query_status() in ["Pending", "Running"]:
+        time.sleep(1)
+
+    assert(wf.query_status() == "Succeeded")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,8 @@
-from dflow import InputParameter, Inputs, Step, Steps, Workflow
+import time
+
+from dflow import InputParameter, Inputs, Step, Steps, Workflow, config
 from dflow.python import OP, OPIO, OPIOSign, PythonOPTemplate, upload_packages
-from dflow import config
+
 config["mode"] = "debug"
 
 if "__file__" in locals():
@@ -41,7 +43,8 @@ def test_recurse():
     plus1 = Step(name="plus1",
                  template=PythonOPTemplate(Plus1,
                                            image="python:3.8"),
-                 parameters={"iter": steps.inputs.parameters["iter"]})
+                 parameters={"iter": steps.inputs.parameters["iter"]},
+                 key="iter-%s" % steps.inputs.parameters["iter"])
     steps.add(plus1)
     next = Step(name="next", template=steps,
                 parameters={"iter": plus1.outputs.parameters["iter"]},
@@ -53,7 +56,13 @@ def test_recurse():
     wf = Workflow("recurse", steps=steps)
     wf.submit()
 
-    assert plus1.outputs.parameters["iter"].value == 5
+    while wf.query_status() in ["Pending", "Running"]:
+        time.sleep(1)
+
+    assert(wf.query_status() == "Succeeded")
+    step = wf.query_step(key="iter-4")[0]
+    assert(step.phase == "Succeeded")
+    assert step.outputs.parameters["iter"].value == 5
 
 
 if __name__ == "__main__":

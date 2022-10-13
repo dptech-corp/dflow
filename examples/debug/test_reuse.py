@@ -1,6 +1,6 @@
-import os
+import time
 
-from dflow import InputParameter, Inputs, Step, Steps, Workflow, randstr
+from dflow import InputParameter, Inputs, Step, Steps, Workflow
 from dflow.python import OP, OPIO, OPIOSign, PythonOPTemplate, upload_packages
 from dflow import config
 config["mode"] = "debug"
@@ -56,15 +56,17 @@ def test_reuse():
     wf = Workflow("recurse", steps=steps)
     wf.submit()
 
-    old_wf_id = wf.id
-    new_wf_id = "recurse-" + randstr()
-    os.makedirs(new_wf_id, exist_ok=True)
-    os.symlink(os.path.join(os.path.abspath(old_wf_id), "iter-0"),
-               os.path.join(os.path.abspath(new_wf_id), "iter-0"))
-    os.symlink(os.path.join(os.path.abspath(old_wf_id), "iter-1"),
-               os.path.join(os.path.abspath(new_wf_id), "iter-1"))
-    new_wf = Workflow(id=new_wf_id, steps=steps)
-    new_wf.submit()
+    while wf.query_status() in ["Pending", "Running"]:
+        time.sleep(1)
+
+    assert(wf.query_status() == "Succeeded")
+
+    step0 = wf.query_step(key="iter-0")[0]
+    step1 = wf.query_step(key="iter-1")[0]
+    step1.modify_output_parameter("iter", 3)
+
+    wf = Workflow("recurse-resubmit", steps=steps)
+    wf.submit(reuse_step=[step0, step1])
 
 
 if __name__ == "__main__":

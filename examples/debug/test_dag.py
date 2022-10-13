@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 
 from dflow import DAG, Task, Workflow, download_artifact
@@ -85,8 +86,15 @@ def test_dag():
     wf = Workflow(name="dag", dag=dag)
     wf.submit()
 
+    while wf.query_status() in ["Pending", "Running"]:
+        time.sleep(1)
+
+    assert(wf.query_status() == "Succeeded")
+    step = wf.query_step(name="hello1")[0]
+    assert(step.phase == "Succeeded")
+
     assert hello1.outputs.parameters["msg"].value == 2
-    bar = download_artifact(hello1.outputs.artifacts["bar"])[0]
+    bar = download_artifact(step.outputs.artifacts["bar"])[0]
     with open(bar, "r") as f:
         content = f.read()
     assert content == "HelloHello"
