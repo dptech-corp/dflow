@@ -451,21 +451,27 @@ def path_list_of_artifact(art, **kwargs) -> List[str]:
     return convert_dflow_list(catalog_of_artifact(art, **kwargs))
 
 
-def merge_dir(src, dst):
+def force_move(src, dst):
+    if os.path.exists(dst):
+        if os.path.samefile(src, dst):
+            return
+        os.remove(dst)
+    shutil.move(src, dst)
+
+
+def merge_dir(src, dst, func=force_move):
     for f in os.listdir(src):
         src_file = os.path.join(src, f)
         dst_file = os.path.join(dst, f)
-        if not os.path.exists(dst_file):
-            shutil.move(src_file, dst_file)
-        elif os.path.isdir(dst_file):
-            if os.path.isdir(src_file):
-                merge_dir(src_file, dst_file)
-            else:
+        if os.path.isdir(src_file):
+            if os.path.isfile(dst_file):
+                os.remove(dst_file)
+            os.makedirs(dst_file, exist_ok=True)
+            merge_dir(src_file, dst_file, func)
+        elif os.path.isfile(src_file):
+            if os.path.isdir(dst_file):
                 shutil.rmtree(dst_file)
-                shutil.move(src_file, dst_file)
-        else:
-            os.remove(dst_file)
-            shutil.move(src_file, dst_file)
+            func(src_file, dst_file)
 
 
 def copy_file(src, dst, func=os.link):
@@ -628,11 +634,10 @@ def find_subclass(module, cls):
 
 
 def linktree(src, dst, func=os.symlink):
-    shutil.copytree(src, dst, copy_function=partial(link, func=func),
-                    dirs_exist_ok=True)
+    merge_dir(src, dst, partial(force_link, func=func))
 
 
-def link(src, dst, func=os.symlink):
+def force_link(src, dst, func=os.symlink):
     if os.path.exists(dst):
         if os.path.samefile(src, dst):
             return

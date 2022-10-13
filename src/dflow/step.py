@@ -16,7 +16,7 @@ from .io import (PVC, ArgoVar, InputArtifact, InputParameter, OutputArtifact,
 from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
-from .utils import catalog_of_artifact, randstr, upload_artifact
+from .utils import catalog_of_artifact, merge_dir, randstr, upload_artifact
 
 try:
     from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
@@ -1055,7 +1055,6 @@ class Step:
                     par.value = render_item(par.value, item)
 
         import os
-        import shutil
         cwd = os.getcwd()
         if "dflow_key" in parameters:
             step_id = parameters["dflow_key"].value
@@ -1180,13 +1179,12 @@ class Step:
                     save_path = os.path.join(cwd, "..", key)
                     os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
-                    def link(src, dst):
+                    def try_link(src, dst):
                         try:
                             os.symlink(src, dst)
                         except Exception:
                             pass
-                    shutil.copytree(path, save_path, copy_function=link,
-                                    dirs_exist_ok=True)
+                    merge_dir(path, save_path, try_link)
                     art.local_path = save_path
         self.record_output_artifacts(stepdir, self.outputs.artifacts)
 
