@@ -12,6 +12,8 @@ pip install cookiecutter
 cookiecutter https://github.com/deepmodeling/dflow-op-cutter.git
 ```
 
+Dflow provides a debug mode for running workflows bare-metally whose backend is implemented in dflow in pure Python, independent of Argo/Kubernetes. The debug mode uses local environment to execute OPs instead of containers. It implements most APIs of the default mode in order to provide an identical user experience. The debug mode offer convenience for debugging or testing without container. For the clusters having problem deploying docker and Kubernetes and difficult to access from outside, the debug mode may also be used for production, despite less robustness and observability.
+
 <!-- vscode-markdown-toc -->
 * 1. [ Overview](#Overview)
 	* 1.1. [ Architecture](#Architecture)
@@ -48,7 +50,8 @@ cookiecutter https://github.com/deepmodeling/dflow-op-cutter.git
 		* 3.1.17. [ Submit HPC job via dispatcher plugin](#SubmitHPCjobviadispatcherplugin)
 		* 3.1.18. [ Submit Slurm job via virtual node](#SubmitSlurmjobviavirtualnode)
 		* 3.1.19. [ Use resources in Kubernetes](#UseresourcesinKubernetes)
-		* 3.1.20. [ Important note: variable names](#Importantnote:variablenames)
+		* 3.1.20. [ Important note: variable names](#Importantnotevariablenames)
+        * 3.1.21. [ Debug mode: dflow independent of Kubernetes](#DebugmodeDflowindependentofKubernetes)
 	* 3.2. [ Interface layer](#Interfacelayer-1)
 		* 3.2.1. [ Slices](#Slices)
 		* 3.2.2. [ Retry and error handling](#Retryanderrorhandling)
@@ -488,7 +491,7 @@ class Resource(object):
 
 - [Wlm example](examples/test_wlm.py)
 
-####  3.1.20. <a name='Importantnote:variablenames'></a> Important note: variable names
+####  3.1.20. <a name='Importantnotevariablenames'></a> Important note: variable names
 
 Dflow has following restrictions on variable names.
 
@@ -499,6 +502,42 @@ Dflow has following restrictions on variable names.
 | Parameter/Artifact name | Static | Must consist of alpha-numeric characters, '_' or '-' | my_param_1, MY-PARAM-1 |
 | Key name | Dynamic | Lowercase RFC 1123 subdomain (must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character | my-name |
 
+#### 3.1.21. <a name='DebugmodeDflowindependentofKubernetes'></a> Debug mode: dflow independent of Kubernetes
+
+The debug mode is enabled by setting
+```python
+from dflow import config
+config["mode"] = "debug"
+```
+Before running a workflow locally, make sure that the dependencies of all OPs in the workflow are well-configured in the locally environment, unless the dispatcher executor is employed to submit jobs to some remote environments. The debug mode uses the current directory as the working directory by default. Each workflow will create a new directory there, whose structure will be like
+```
+python-lsev6
+├── status
+└── step-penf5
+    ├── inputs
+    │   ├── artifacts
+    │   │   ├── dflow_python_packages
+    │   │   ├── foo
+    │   │   └── idir
+    │   └── parameters
+    │       ├── msg
+    │       └── num
+    ├── log.txt
+    ├── outputs
+    │   ├── artifacts
+    │   │   ├── bar
+    │   │   └── odir
+    │   └── parameters
+    │       └── msg
+    ├── phase
+    ├── script
+    ├── type
+    └── workdir
+        ├── ...
+```
+The top level contains the status and all steps of the workflow. The directory name for each step will be its key if provided, or generated from its name otherwise. The step directory contains the input/output parameters/artifacts, the type and the phase of the step. For a step of type "Pod", its directory also includes the script, the log file and the working directory for the step.
+
+- [Debug mode examples](examples/debug)
 
 ###  3.2. <a name='Interfacelayer-1'></a> Interface layer
 
