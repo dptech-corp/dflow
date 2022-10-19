@@ -264,13 +264,13 @@ kubectl apply -n argo -f https://raw.githubusercontent.com/deepmodeling/dflow/ma
 ```
 If you are running Argo Workflows locally (e.g. using Minikube or Docker for Desktop), open a port-forward so you can access the namespace:
 ```
-kubectl -n argo port-forward deployment/argo-server 2746:2746
+kubectl -n argo port-forward deployment/argo-server 2746:2746 --address 0.0.0.0
 ```
 This will serve the user interface on https://localhost:2746
 
 For access to the minio object storage, open a port-forward for minio
 ```
-kubectl -n argo port-forward deployment/minio 9000:9000
+kubectl -n argo port-forward deployment/minio 9000:9000 --address 0.0.0.0
 ```
 
 ###  2.3. <a name='Installdflow'></a> Install dflow

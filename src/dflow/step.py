@@ -11,8 +11,8 @@ from .common import LocalArtifact, S3Artifact
 from .config import config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
-from .io import (PVC, ArgoVar, InputArtifact, InputParameter, OutputArtifact,
-                 OutputParameter)
+from .io import (PVC, ArgoVar, IfExpression, InputArtifact, InputParameter,
+                 OutputArtifact, OutputParameter)
 from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
@@ -40,6 +40,9 @@ class FutureLen:
     def __init__(self, par):
         self.par = par
 
+    def __repr__(self):
+        return "len(%s)" % self.par
+
     def get(self):
         return len(self.par.value)
 
@@ -48,13 +51,19 @@ class FutureRange:
     def __init__(self, *args):
         self.args = args
 
-    def get(self):
+    def get(self, context=None):
         args = []
         for i in self.args:
             if isinstance(i, FutureLen):
                 args.append(i.get())
             elif isinstance(i, (InputParameter, OutputParameter)):
                 args.append(i.value)
+            elif isinstance(i, IfExpression):
+                _if = render_expr(i._if, context)
+                if eval_bool_expr(_if):
+                    args.append(int(eval(render_expr(i._then, context))))
+                else:
+                    args.append(int(eval(render_expr(i._else, context))))
             else:
                 args.append(i)
         args = tuple(args)
@@ -750,7 +759,9 @@ class Step:
         parameters = deepcopy(self.inputs.parameters)
         for name, par in parameters.items():
             value = par.value
-            if isinstance(value, (InputParameter, OutputParameter)):
+            if isinstance(value, FutureLen):
+                par.value = value.get()
+            elif isinstance(value, (InputParameter, OutputParameter)):
                 par.value = get_var(value, context).value
             elif isinstance(value, str):
                 par.value = render_expr(par.value, context)
@@ -851,7 +862,7 @@ class Step:
 
         if self.with_param is not None or self.with_sequence is not None:
             if isinstance(self.with_param, FutureRange):
-                item_list = self.with_param.get()
+                item_list = self.with_param.get(context)
             elif isinstance(self.with_param, (InputParameter,
                                               OutputParameter)):
                 item_list = self.with_param.value
@@ -1276,6 +1287,11 @@ def get_var(expr, context):
 def eval_bool_expr(expr):
     # For the original evaluator in argo, please refer to
     # https://github.com/antonmedv/expr
+    try:
+        return eval(expr)
+    except Exception:
+        pass
+
     expr_list = expr.split()
     operator = expr_list[1]
 

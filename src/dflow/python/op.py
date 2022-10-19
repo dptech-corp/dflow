@@ -109,9 +109,9 @@ class OP(ABC):
     def exec_sign_check(func):
         @functools.wraps(func)
         def wrapper_exec(self, op_in):
-            OP._check_signature(op_in, self.get_input_sign())
+            OP._check_signature(op_in, self.get_input_sign(), True)
             op_out = func(self, op_in)
-            OP._check_signature(op_out, self.get_output_sign())
+            OP._check_signature(op_out, self.get_output_sign(), False)
             return op_out
 
         return wrapper_exec
@@ -120,6 +120,7 @@ class OP(ABC):
     def _check_signature(
             opio: OPIO,
             sign: OPIOSign,
+            is_input: bool,
     ) -> None:
         for ii in sign.keys():
             if ii not in opio.keys():
@@ -129,12 +130,24 @@ class OP(ABC):
                 elif isinstance(sign[ii], Artifact) and sign[ii].optional:
                     opio[ii] = None
                 else:
-                    raise RuntimeError('key %s required in signature is '
-                                       'not provided by the opio' % ii)
+                    if is_input:
+                        raise RuntimeError('key %s declared in the input sign'
+                                           ' is not present in the input'
+                                           ' passed to the OP' % ii)
+                    else:
+                        raise RuntimeError('key %s declared in the output sign'
+                                           ' is not present in the output'
+                                           ' given by the OP' % ii)
         for ii in opio.keys():
             if ii not in sign.keys():
-                raise RuntimeError(
-                    'key %s in OPIO is not in its signature' % ii)
+                if is_input:
+                    raise RuntimeError(
+                        'key %s in the input passed to the OP is not declared'
+                        ' in its input sign' % ii)
+                else:
+                    raise RuntimeError(
+                        'key %s in the output given by the OP is not declared'
+                        ' in its output sign' % ii)
             io = opio[ii]
             ss = sign[ii]
             if isinstance(ss, Artifact):
