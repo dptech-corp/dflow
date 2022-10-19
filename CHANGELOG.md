@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.5.14](https://github.com/deepmodeling/dflow/compare/v1.5.13...v1.5.14) (2022-10-19)
+
+
+### Bug Fixes
+
+* add readme for debug mode ([151130c](https://github.com/deepmodeling/dflow/commit/151130c8d27ddc4928bc829ee963a3a013c91262))
+* enhance error message ([f009607](https://github.com/deepmodeling/dflow/commit/f0096074d97343ad75646931aec2c3a1f28fb1ab))
+* port-forward --address 0.0.0.0 in readme ([f009607](https://github.com/deepmodeling/dflow/commit/f0096074d97343ad75646931aec2c3a1f28fb1ab))
+* slice by group in debug mode ([f009607](https://github.com/deepmodeling/dflow/commit/f0096074d97343ad75646931aec2c3a1f28fb1ab))
+
 ## [1.5.13](https://github.com/deepmodeling/dflow/compare/v1.5.12...v1.5.13) (2022-10-13)
 
 
