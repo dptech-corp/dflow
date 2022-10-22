@@ -4,6 +4,14 @@ dflow.plugins package
 Submodules
 ----------
 
+dflow.plugins.bohrium module
+----------------------------
+
+.. automodule:: dflow.plugins.bohrium
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dflow.plugins.dispatcher module
 -------------------------------
 
