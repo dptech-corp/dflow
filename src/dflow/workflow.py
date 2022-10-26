@@ -20,8 +20,9 @@ try:
     import kubernetes
     import urllib3
     urllib3.disable_warnings()
-    from argo.workflows.client import (ApiClient, Configuration, V1alpha1PodGC,
-                                       V1alpha1Workflow,
+    from argo.workflows.client import (ApiClient, Configuration,
+                                       V1alpha1ArtifactRepositoryRef,
+                                       V1alpha1PodGC, V1alpha1Workflow,
                                        V1alpha1WorkflowCreateRequest,
                                        V1alpha1WorkflowSpec,
                                        V1LocalObjectReference, V1ObjectMeta,
@@ -64,6 +65,8 @@ class Workflow:
             * OnPodSuccess - delete pods immediately when pod is successful
             * OnWorkflowCompletion - delete pods when workflow is completed
             * OnWorkflowSuccess - delete pods when workflow is successful
+        image_pull_secrets: secrets for image registies
+        artifact_repo_key: use artifact repository reference by key
     """
 
     def __init__(
@@ -83,6 +86,7 @@ class Workflow:
             parallelism: int = None,
             pod_gc_strategy: str = None,
             image_pull_secrets: Union[str, List[str]] = None,
+            artifact_repo_key: str = None,
     ) -> None:
         self.host = host if host is not None else config["host"]
         self.token = token if token is not None else config["token"]
@@ -99,6 +103,7 @@ class Workflow:
         if isinstance(image_pull_secrets, str):
             image_pull_secrets = [image_pull_secrets]
         self.image_pull_secrets = image_pull_secrets
+        self.artifact_repo_key = artifact_repo_key
 
         configuration = Configuration(host=self.host)
         configuration.verify_ssl = False
@@ -380,7 +385,9 @@ class Workflow:
                 volume_claim_templates=argo_pvcs,
                 pod_gc=V1alpha1PodGC(strategy=self.pod_gc_strategy),
                 image_pull_secrets=None if self.image_pull_secrets is None else
-                [V1LocalObjectReference(s) for s in self.image_pull_secrets]
+                [V1LocalObjectReference(s) for s in self.image_pull_secrets],
+                artifact_repository_ref=None if self.artifact_repo_key is None
+                else V1alpha1ArtifactRepositoryRef(key=self.artifact_repo_key)
             ),
             status=status)
 

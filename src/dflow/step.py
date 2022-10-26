@@ -14,6 +14,7 @@ from .executor import Executor
 from .io import (PVC, ArgoVar, IfExpression, InputArtifact, InputParameter,
                  OutputArtifact, OutputParameter)
 from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
+from .python import Slices
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
 from .utils import catalog_of_artifact, merge_dir, randstr, upload_artifact
@@ -187,6 +188,7 @@ class Step:
         util_image_pull_policy: image pull policy for utility step
         util_command: command for utility step
         parallelism: parallelism for sliced step
+        slices: override slices of OP template
     """
 
     def __init__(
@@ -210,6 +212,7 @@ class Step:
             util_image_pull_policy: str = None,
             util_command: Union[str, List[str]] = None,
             parallelism: int = None,
+            slices: Slices = None,
             **kwargs,
     ) -> None:
         self.name = name
@@ -268,6 +271,121 @@ class Step:
 
         new_template = None
 
+        if slices is not None:
+            new_template = deepcopy(self.template)
+            new_template.name = self.template.name + "-" + randstr()
+            new_template.slices = slices
+            for name, par in new_template.inputs.parameters.items():
+                if name not in self.inputs.parameters:
+                    self.inputs.parameters[name] = deepcopy(par)
+
+            for name in slices.input_parameter:
+                for step in (new_template if hasattr(new_template, "__iter__")
+                             else []):
+                    for par in step.inputs.parameters.values():
+                        # input parameter referring to sliced input parameter
+                        if par.value == new_template.inputs.parameters[name]:
+                            if step.template.slices is None:
+                                step.template.slices = Slices(
+                                    slices.slices, input_parameter=[par.name],
+                                    sub_path=slices.sub_path,
+                                    pool_size=slices.pool_size)
+                            else:
+                                step.template.slices.input_parameter.append(
+                                    par.name)
+                                # trigger re-render
+                                step.template.slices = step.template.slices
+
+            for name in slices.input_artifact:
+                for step in (new_template if hasattr(new_template, "__iter__")
+                             else []):
+                    for art in step.inputs.artifacts.values():
+                        # input artifact referring to sliced input artifact
+                        if art.source == new_template.inputs.artifacts[name]:
+                            if step.template.slices is None:
+                                step.template.slices = Slices(
+                                    slices.slices, input_artifact=[art.name],
+                                    sub_path=slices.sub_path,
+                                    pool_size=slices.pool_size)
+                            else:
+                                step.template.slices.input_artifact.append(
+                                    art.name)
+                                # trigger re-render
+                                step.template.slices = step.template.slices
+
+            def stack_output_parameter(par):
+                if isinstance(par, OutputParameter):
+                    template = par.step.template
+                    if template.slices is None:
+                        template.slices = Slices(
+                            slices.slices, output_parameter=[par.name],
+                            sub_path=slices.sub_path,
+                            pool_size=slices.pool_size)
+                    else:
+                        template.slices.output_parameter.append(par.name)
+                        # trigger re-render
+                        template.slices = template.slices
+
+            for name in slices.output_parameter:
+                # sliced output parameter from
+                if new_template.outputs.parameters[name].value_from_parameter\
+                        is not None:
+                    stack_output_parameter(new_template.outputs.parameters[
+                        name].value_from_parameter)
+                elif new_template.outputs.parameters[name].\
+                        value_from_expression is not None:
+                    stack_output_parameter(new_template.outputs.parameters[
+                        name].value_from_expression._then)
+                    stack_output_parameter(new_template.outputs.parameters[
+                        name].value_from_expression._else)
+
+            def stack_output_artifact(art):
+                if isinstance(art, OutputArtifact):
+                    template = art.step.template
+                    if template.slices is None:
+                        template.slices = Slices(
+                            slices.slices, output_artifact=[art.name],
+                            sub_path=slices.sub_path,
+                            pool_size=slices.pool_size)
+                    else:
+                        template.slices.output_artifact.append(art.name)
+                        # trigger re-render
+                        template.slices = template.slices
+
+            for name in slices.output_artifact:
+                # sliced output artifact from
+                if new_template.outputs.artifacts[name]._from is not None:
+                    stack_output_artifact(
+                        new_template.outputs.artifacts[name]._from)
+                elif new_template.outputs.artifacts[name].from_expression is \
+                        not None:
+                    stack_output_artifact(new_template.outputs.artifacts[name].
+                                          from_expression._then)
+                    stack_output_artifact(new_template.outputs.artifacts[name].
+                                          from_expression._else)
+
+            # pass dflow vars
+            self.dflow_vars = {}
+            for step in (new_template if hasattr(new_template, "__iter__")
+                         else []):
+                for name, par in step.template.inputs.parameters.items():
+                    if name[:10] == "dflow_var_":
+                        if par.value not in self.dflow_vars:
+                            var_name = "dflow_var_%s" % len(self.dflow_vars)
+                            new_template.inputs.parameters[
+                                var_name] = InputParameter(value=par.value)
+                            self.inputs.parameters[
+                                var_name] = InputParameter(value=par.value)
+                            self.dflow_vars[par.value] = var_name
+                        else:
+                            var_name = self.dflow_vars[par.value]
+
+                        step.inputs.parameters[name] = InputParameter(
+                            value=str(new_template.inputs.parameters[
+                                var_name]))
+
+            self.template = new_template
+
         if hasattr(self.template, "slices") and self.template.slices is not \
                 None and (self.template.slices.output_artifact or (
                     self.template.slices.sub_path and
@@ -292,6 +410,30 @@ class Step:
                     new_template.outputs.artifacts[name].save.append(
                         S3Artifact(key="{{workflow.name}}/{{inputs."
                                    "parameters.dflow_group_key}}/%s" % name))
+
+                    def merge_output_artifact(art):
+                        step = art.step
+                        template = step.template
+                        template.inputs.parameters["dflow_group_key"] = \
+                            InputParameter()
+                        step.inputs.parameters["dflow_group_key"] = \
+                            InputParameter(
+                                value="{{inputs.parameters.dflow_group_key}}")
+                        template.outputs.artifacts[art.name].save.append(
+                            S3Artifact(
+                                key="{{workflow.name}}/{{inputs."
+                                "parameters.dflow_group_key}}/%s" % name))
+
+                    if new_template.outputs.artifacts[name]._from is not \
+                            None:
+                        merge_output_artifact(
+                            new_template.outputs.artifacts[name]._from)
+                    elif new_template.outputs.artifacts[name].\
+                            from_expression is not None:
+                        merge_output_artifact(new_template.outputs.artifacts[
+                            name].from_expression._then)
+                        merge_output_artifact(new_template.outputs.artifacts[
+                            name].from_expression._else)
             else:
                 new_template.inputs.parameters["dflow_artifact_key"] = \
                     InputParameter(value="")
@@ -299,6 +441,30 @@ class Step:
                     new_template.outputs.artifacts[name].save.append(
                         S3Artifact(key="{{inputs.parameters."
                                    "dflow_artifact_key}}/%s" % name))
+
+                    def merge_output_artifact(art):
+                        step = art.step
+                        template = step.template
+                        template.inputs.parameters["dflow_artifact_key"] = \
+                            InputParameter()
+                        step.inputs.parameters["dflow_artifact_key"] = \
+                            InputParameter(value="{{inputs.parameters."
+                                           "dflow_artifact_key}}")
+                        template.outputs.artifacts[art.name].save.append(
+                            S3Artifact(
+                                key="{{inputs.parameters."
+                                "dflow_artifact_key}}/%s" % name))
+
+                    if new_template.outputs.artifacts[name]._from is not \
+                            None:
+                        merge_output_artifact(
+                            new_template.outputs.artifacts[name]._from)
+                    elif new_template.outputs.artifacts[name].\
+                            from_expression is not None:
+                        merge_output_artifact(new_template.outputs.artifacts[
+                            name].from_expression._then)
+                        merge_output_artifact(new_template.outputs.artifacts[
+                            name].from_expression._else)
 
             if self.key is not None:
                 self.prepare_step = self.__class__(
