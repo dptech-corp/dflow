@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## [1.6.0](https://github.com/deepmodeling/dflow/compare/v1.5.14...v1.6.0) (2022-10-26)
+
+
+### Features
+
+* introduce bohrium plugin which provide realtime log and adapt bohrium platform ([9296a3f](https://github.com/deepmodeling/dflow/commit/9296a3fecb8d5eb7ad30b573e7f58e57520aaa4a))
+
+
+### Bug Fixes
+
+* add artifact_repo_key ([0818d12](https://github.com/deepmodeling/dflow/commit/0818d1299fb3cc8f48a43102f268e8747bf3f918))
+* slices for Steps/DAG ([0818d12](https://github.com/deepmodeling/dflow/commit/0818d1299fb3cc8f48a43102f268e8747bf3f918))
+
 ## [1.5.14](https://github.com/deepmodeling/dflow/compare/v1.5.13...v1.5.14) (2022-10-19)
 
 
