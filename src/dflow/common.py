@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import Any, Union
 
 try:
-    from argo.workflows.client import V1alpha1S3Artifact
+    from argo.workflows.client import V1alpha1OSSArtifact, V1alpha1S3Artifact
     from argo.workflows.client.configuration import Configuration
 except Exception:
     V1alpha1S3Artifact = object
@@ -38,6 +38,9 @@ class S3Artifact(V1alpha1S3Artifact):
             artifact.key += "/"
         artifact.key += path
         return artifact
+
+    def oss(self):
+        return V1alpha1OSSArtifact(key=self.key)
 
 
 class LocalArtifact:

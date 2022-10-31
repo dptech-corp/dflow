@@ -296,22 +296,29 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             self.render_script()
 
     def init_slices(self, slices):
+        self.input_artifact_slices = {}
+        self.input_parameter_slices = {}
+        self.output_artifact_slices = {}
+        self.output_parameter_slices = {}
+        self.add_slices(slices)
+
+    def add_slices(self, slices):
         if slices is not None:
             assert isinstance(slices, Slices)
             if slices.input_artifact and not slices.sub_path:
-                self.input_artifact_slices = {
-                    name: slices.slices for name in slices.input_artifact}
+                for name in slices.input_artifact:
+                    self.input_artifact_slices[name] = slices.slices
             if slices.input_parameter:
-                self.input_parameter_slices = {
-                    name: slices.slices for name in slices.input_parameter}
+                for name in slices.input_parameter:
+                    self.input_parameter_slices[name] = slices.slices
             if slices.output_artifact:
                 self.output_artifact_slices = {}
                 for name in slices.output_artifact:
                     self.output_artifact_slices[name] = slices.slices
                     self.outputs.artifacts[name].archive = None  # no archive
             if slices.output_parameter:
-                self.output_parameter_slices = {
-                    name: slices.slices for name in slices.output_parameter}
+                for name in slices.output_parameter:
+                    self.output_parameter_slices[name] = slices.slices
 
             if slices.sub_path:
                 for name in slices.input_artifact:
@@ -360,7 +367,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "from dflow import config, s3_config\n"
         script += "config.update(json.loads('%s'))\n" % json.dumps(config)
         script += "s3_config.update(json.loads('%s'))\n" % \
-            json.dumps(s3_config)
+            json.dumps({k: v for k, v in s3_config.items()
+                        if k != "storage_client"})
         if op_class.__module__ in ["__main__", "__mp_main__"]:
             try:
                 source_lines, start_line = inspect.getsourcelines(op_class)
