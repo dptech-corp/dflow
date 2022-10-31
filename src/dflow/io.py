@@ -8,7 +8,7 @@ import jsonpickle
 
 from .common import S3Artifact
 from .config import config
-from .utils import randstr, upload_s3
+from .utils import randstr, s3_config, upload_s3
 
 try:
     from argo.workflows.client import (V1alpha1ArchiveStrategy, V1alpha1Inputs,
@@ -346,8 +346,14 @@ class InputParameter(ArgoVar):
                             f.write(jsonpickle.dumps(content))
                         key = upload_s3(path)
                         s3 = S3Artifact(key=key)
-                    return V1alpha1Artifact(name="dflow_bigpar_" + self.name,
-                                            path=self.path, s3=s3)
+                    if s3_config["repo_type"] == "s3":
+                        return V1alpha1Artifact(
+                            name="dflow_bigpar_" + self.name, path=self.path,
+                            s3=s3)
+                    elif s3_config["repo_type"] == "oss":
+                        return V1alpha1Artifact(
+                            name="dflow_bigpar_" + self.name, path=self.path,
+                            oss=s3.oss())
             elif isinstance(self.source, (InputParameter, OutputParameter,
                                           InputArtifact, OutputArtifact)):
                 return V1alpha1Artifact(name="dflow_bigpar_" + self.name,
@@ -460,9 +466,15 @@ class InputArtifact(ArgoVar):
                                     _from=str(self.source), sub_path=sub_path,
                                     mode=self.mode)
         elif isinstance(self.source, S3Artifact):
-            return V1alpha1Artifact(name=self.name, path=self.path,
-                                    optional=self.optional, s3=self.source,
-                                    sub_path=self.sub_path, mode=self.mode)
+            if s3_config["repo_type"] == "s3":
+                return V1alpha1Artifact(name=self.name, path=self.path,
+                                        optional=self.optional, s3=self.source,
+                                        sub_path=self.sub_path, mode=self.mode)
+            else:
+                return V1alpha1Artifact(name=self.name, path=self.path,
+                                        optional=self.optional,
+                                        oss=self.source.oss(),
+                                        sub_path=self.sub_path, mode=self.mode)
         elif isinstance(self.source, str):
             return V1alpha1Artifact(name=self.name, path=self.path,
                                     optional=self.optional,
@@ -809,18 +821,38 @@ class OutputArtifact(ArgoVar):
             if isinstance(save, S3Artifact):
                 s3 = save
 
+        if s3_config["prefix"] and s3 is None:
+            s3 = S3Artifact(key="%s{{workflow.name}}/{{pod.name}}/%s" %
+                            (s3_config["prefix"], self.name))
+
         if self.path is not None:
-            return V1alpha1Artifact(name=self.name, path=self.path,
-                                    archive=archive, s3=s3,
-                                    global_name=self.global_name)
+            if s3_config["repo_type"] == "s3":
+                return V1alpha1Artifact(name=self.name, path=self.path,
+                                        archive=archive, s3=s3,
+                                        global_name=self.global_name)
+            elif s3_config["repo_type"] == "oss":
+                return V1alpha1Artifact(name=self.name, path=self.path,
+                                        archive=archive, oss=s3.oss(),
+                                        global_name=self.global_name)
         elif self._from is not None:
-            return V1alpha1Artifact(name=self.name, _from=str(self._from),
-                                    archive=archive, s3=s3,
-                                    global_name=self.global_name)
+            if s3_config["repo_type"] == "s3":
+                return V1alpha1Artifact(name=self.name, _from=str(self._from),
+                                        archive=archive, s3=s3,
+                                        global_name=self.global_name)
+            elif s3_config["repo_type"] == "oss":
+                return V1alpha1Artifact(name=self.name, _from=str(self._from),
+                                        archive=archive, oss=s3.oss(),
+                                        global_name=self.global_name)
         elif self.from_expression is not None:
-            return V1alpha1Artifact(
-                name=self.name, from_expression=str(self.from_expression),
-                archive=archive, s3=s3, global_name=self.global_name)
+            if s3_config["repo_type"] == "s3":
+                return V1alpha1Artifact(
+                    name=self.name, from_expression=str(self.from_expression),
+                    archive=archive, s3=s3, global_name=self.global_name)
+            elif s3_config["repo_type"] == "oss":
+                return V1alpha1Artifact(
+                    name=self.name, from_expression=str(self.from_expression),
+                    archive=archive, oss=s3.oss(),
+                    global_name=self.global_name)
         else:
             raise RuntimeError("Output artifact %s is not specified" % self)
 

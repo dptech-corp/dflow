@@ -33,7 +33,11 @@ s3_config = {
     "access_key": "admin",
     "secret_key": "password",
     "secure": False,
-    "bucket_name": "my-bucket"
+    "bucket_name": "my-bucket",
+    "repo_type": "s3",
+    "repo_key": None,
+    "prefix": "",
+    "storage_client": None,
 }
 
 
@@ -50,6 +54,10 @@ def set_s3_config(
         secret_key: secret key for S3 storage
         secure: secure or not
         bucket_name: name of S3 bucket
+        repo_type: s3 or oss
+        repo_key: key of artifact repository
+        prefix: prefix of storage key
+        storage_client: client for plugin storage backend
     """
     s3_config.update(kwargs)
 
@@ -254,32 +262,18 @@ def download_s3(
         key: str,
         path: os.PathLike = None,
         recursive: bool = True,
-        endpoint: str = None,
-        access_key: str = None,
-        secret_key: str = None,
-        secure: bool = None,
-        bucket_name: str = None,
         skip_exists: bool = False,
         **kwargs,
 ) -> str:
-    if endpoint is None:
-        endpoint = s3_config["endpoint"]
-    if access_key is None:
-        access_key = s3_config["access_key"]
-    if secret_key is None:
-        secret_key = s3_config["secret_key"]
-    if secure is None:
-        secure = s3_config["secure"]
-    if bucket_name is None:
-        bucket_name = s3_config["bucket_name"]
     if path is None:
         path = "."
-    client = Minio(endpoint=endpoint, access_key=access_key,
-                   secret_key=secret_key, secure=secure)
+    if s3_config["storage_client"] is not None:
+        client = s3_config["storage_client"]
+    else:
+        client = MinioClient(**kwargs)
     if recursive:
-        for obj in client.list_objects(bucket_name=bucket_name, prefix=key,
-                                       recursive=True):
-            rel_path = obj.object_name[len(key):]
+        for obj in client.list(prefix=key, recursive=True):
+            rel_path = obj[len(key):]
             if rel_path[:1] == "/":
                 rel_path = rel_path[1:]
             if rel_path == "":
@@ -288,20 +282,16 @@ def download_s3(
                 file_path = os.path.join(path, rel_path)
 
             if skip_exists and os.path.isfile(file_path):
-                remote_md5 = client.stat_object(
-                    bucket_name=bucket_name, object_name=obj.object_name).etag
+                remote_md5 = client.get_md5(key=obj)
                 local_md5 = get_md5(file_path)
                 if remote_md5 == local_md5:
-                    logging.debug("skip object: %s" % obj.object_name)
+                    logging.debug("skip object: %s" % obj)
                     continue
 
-            client.fget_object(bucket_name=bucket_name,
-                               object_name=obj.object_name,
-                               file_path=file_path)
+            client.download(key=obj, path=file_path)
     else:
         path = os.path.join(path, os.path.basename(key))
-        client.fget_object(bucket_name=bucket_name,
-                           object_name=key, file_path=path)
+        client.download(key=key, path=path)
     return path
 
 
@@ -309,40 +299,26 @@ def upload_s3(
         path: os.PathLike,
         key: str = None,
         prefix: str = None,
-        endpoint: str = None,
-        access_key: str = None,
-        secret_key: str = None,
-        secure: bool = None,
-        bucket_name: str = None,
         **kwargs,
 ) -> str:
-    if endpoint is None:
-        endpoint = s3_config["endpoint"]
-    if access_key is None:
-        access_key = s3_config["access_key"]
-    if secret_key is None:
-        secret_key = s3_config["secret_key"]
-    if secure is None:
-        secure = s3_config["secure"]
-    if bucket_name is None:
-        bucket_name = s3_config["bucket_name"]
-    client = Minio(endpoint=endpoint, access_key=access_key,
-                   secret_key=secret_key, secure=secure)
+    if s3_config["storage_client"] is not None:
+        client = s3_config["storage_client"]
+    else:
+        client = MinioClient(**kwargs)
     if key is not None:
         pass
     elif prefix is not None:
         if prefix[-1] != "/":
             prefix += "/"
-        objs = list(client.list_objects(
-            bucket_name=bucket_name, prefix=prefix))
-        if len(objs) == 1 and objs[0].object_name[-1] == "/":
-            prefix = objs[0].object_name
+        objs = client.list(prefix=prefix)
+        if len(objs) == 1 and objs[0][-1] == "/":
+            prefix = objs[0]
         key = "%s%s" % (prefix, os.path.basename(path))
     else:
-        key = "upload/%s/%s" % (uuid.uuid4(), os.path.basename(path))
+        key = "%supload/%s/%s" % (s3_config["prefix"],
+                                  uuid.uuid4(), os.path.basename(path))
     if os.path.isfile(path):
-        client.fput_object(bucket_name=bucket_name,
-                           object_name=key, file_path=path)
+        client.upload(key=key, path=path)
     elif os.path.isdir(path):
         for dn, ds, fs in os.walk(path, followlinks=True):
             rel_path = dn[len(path):]
@@ -351,10 +327,8 @@ def upload_s3(
             elif rel_path[0] != "/":
                 rel_path = "/" + rel_path
             for f in fs:
-                client.fput_object(bucket_name=bucket_name,
-                                   object_name="%s%s/%s" %
-                                   (key, rel_path, f),
-                                   file_path=os.path.join(dn, f))
+                client.upload(key="%s%s/%s" % (key, rel_path, f),
+                              path=os.path.join(dn, f))
     return key
 
 
@@ -362,51 +336,33 @@ def copy_s3(
         src_key: str,
         dst_key: str,
         recursive: bool = True,
-        endpoint: str = None,
-        access_key: str = None,
-        secret_key: str = None,
-        secure: bool = None,
-        bucket_name: str = None,
         ignore_catalog: bool = False,
         **kwargs,
 ) -> None:
-    if endpoint is None:
-        endpoint = s3_config["endpoint"]
-    if access_key is None:
-        access_key = s3_config["access_key"]
-    if secret_key is None:
-        secret_key = s3_config["secret_key"]
-    if secure is None:
-        secure = s3_config["secure"]
-    if bucket_name is None:
-        bucket_name = s3_config["bucket_name"]
-    client = Minio(endpoint=endpoint, access_key=access_key,
-                   secret_key=secret_key, secure=secure)
+    if s3_config["storage_client"] is not None:
+        client = s3_config["storage_client"]
+    else:
+        client = MinioClient(**kwargs)
     if recursive:
         if src_key[-1] != "/":
             src_key += "/"
-        src_objs = list(client.list_objects(
-            bucket_name=bucket_name, prefix=src_key))
-        if len(src_objs) == 1 and src_objs[0].object_name[-1] == "/":
-            src_key = src_objs[0].object_name
+        src_objs = client.list(prefix=src_key)
+        if len(src_objs) == 1 and src_objs[0][-1] == "/":
+            src_key = src_objs[0]
         if dst_key[-1] != "/":
             dst_key += "/"
-        dst_objs = list(client.list_objects(
-            bucket_name=bucket_name, prefix=dst_key))
-        if len(dst_objs) == 1 and dst_objs[0].object_name[-1] == "/":
-            dst_key = dst_objs[0].object_name
-        for obj in client.list_objects(bucket_name=bucket_name,
-                                       prefix=src_key, recursive=True):
+        dst_objs = client.list(prefix=dst_key)
+        if len(dst_objs) == 1 and dst_objs[0][-1] == "/":
+            dst_key = dst_objs[0]
+        for obj in client.list(prefix=src_key, recursive=True):
             if ignore_catalog:
-                fields = obj.object_name.split("/")
+                fields = obj.split("/")
                 if len(fields) > 1 and fields[-2] == \
                         config["catalog_dir_name"]:
                     continue
-            client.copy_object(bucket_name, dst_key + obj.object_name[len(
-                src_key):], CopySource(bucket_name, obj.object_name))
+            client.copy(obj, dst_key + obj[len(src_key):])
     else:
-        client.copy_object(bucket_name, dst_key,
-                           CopySource(bucket_name, src_key))
+        client.copy(src_key, dst_key)
 
 
 def catalog_of_artifact(art, **kwargs) -> List[dict]:
@@ -419,29 +375,19 @@ def catalog_of_artifact(art, **kwargs) -> List[dict]:
     if key[-1] != "/":
         key += "/"
 
-    endpoint = kwargs["endpoint"] if "endpoint" in kwargs \
-        else s3_config["endpoint"]
-    access_key = kwargs["access_key"] if "access_key" in kwargs \
-        else s3_config["access_key"]
-    secret_key = kwargs["secret_key"] if "secret_key" in kwargs \
-        else s3_config["secret_key"]
-    secure = kwargs["secure"] if "secure" in kwargs else s3_config["secure"]
-    bucket_name = kwargs["bucket_name"] if "bucket_name" in kwargs \
-        else s3_config["bucket_name"]
-
-    client = Minio(endpoint=endpoint, access_key=access_key,
-                   secret_key=secret_key, secure=secure)
+    if s3_config["storage_client"] is not None:
+        client = s3_config["storage_client"]
+    else:
+        client = MinioClient(**kwargs)
     catalog = []
     with tempfile.TemporaryDirectory() as tmpdir:
-        objs = list(client.list_objects(bucket_name=bucket_name, prefix=key))
-        if len(objs) == 1 and objs[0].object_name[-1] == "/":
-            key = objs[0].object_name
+        objs = client.list(prefix=key)
+        if len(objs) == 1 and objs[0][-1] == "/":
+            key = objs[0]
         prefix = key + config["catalog_dir_name"] + "/"
-        for obj in client.list_objects(bucket_name=bucket_name, prefix=prefix):
-            fname = obj.object_name[len(prefix):]
-            client.fget_object(
-                bucket_name=bucket_name, object_name=obj.object_name,
-                file_path=os.path.join(tmpdir, fname))
+        for obj in client.list(prefix=prefix):
+            fname = obj[len(prefix):]
+            client.download(key=obj, path=os.path.join(tmpdir, fname))
             with open(os.path.join(tmpdir, fname), "r") as f:
                 catalog += jsonpickle.loads(f.read())['path_list']
     return catalog
@@ -643,3 +589,62 @@ def force_link(src, dst, func=os.symlink):
             return
         os.remove(dst)
     func(src, dst)
+
+
+class StorageClient:
+    def upload(self, key: str, path: str) -> None:
+        pass
+
+    def download(self, key: str, path: str) -> None:
+        pass
+
+    def list(self, prefix: str, recursive: bool = False) -> List[str]:
+        pass
+
+    def copy(self, src: str, dst: str) -> None:
+        pass
+
+    def get_md5(self, key: str) -> str:
+        pass
+
+
+class MinioClient(StorageClient):
+    def __init__(self,
+                 endpoint: str = None,
+                 access_key: str = None,
+                 secret_key: str = None,
+                 secure: bool = None,
+                 bucket_name: str = None,
+                 **kwargs,
+                 ) -> None:
+        self.client = Minio(
+            endpoint=endpoint if endpoint is not None else
+            s3_config["endpoint"],
+            access_key=access_key if access_key is not None else
+            s3_config["access_key"],
+            secret_key=secret_key if secret_key is not None else
+            s3_config["secret_key"],
+            secure=secure if secure is not None else s3_config["secure"],
+        )
+        self.bucket_name = bucket_name if bucket_name is not None else \
+            s3_config["bucket_name"]
+
+    def upload(self, key: str, path: str) -> None:
+        self.client.fput_object(bucket_name=self.bucket_name,
+                                object_name=key, file_path=path)
+
+    def download(self, key: str, path: str) -> None:
+        self.client.fget_object(bucket_name=self.bucket_name,
+                                object_name=key, file_path=path)
+
+    def list(self, prefix: str, recursive: bool = False) -> List[str]:
+        return [obj.object_name for obj in self.client.list_objects(
+            bucket_name=self.bucket_name, prefix=prefix, recursive=recursive)]
+
+    def copy(self, src: str, dst: str) -> None:
+        self.client.copy_object(self.bucket_name, dst,
+                                CopySource(self.bucket_name, src))
+
+    def get_md5(self, key: str) -> str:
+        return self.client.stat_object(bucket_name=self.bucket_name,
+                                       object_name=key).etag

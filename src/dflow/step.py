@@ -17,7 +17,8 @@ from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .python import Slices
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
-from .utils import catalog_of_artifact, merge_dir, randstr, upload_artifact
+from .utils import (catalog_of_artifact, merge_dir, randstr, s3_config,
+                    upload_artifact)
 
 try:
     from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
@@ -279,52 +280,60 @@ class Step:
                 if name not in self.inputs.parameters:
                     self.inputs.parameters[name] = deepcopy(par)
 
+            new_template.inputs.parameters["dflow_item"] = InputParameter(
+                value=slices.slices)
+            self.inputs.parameters["dflow_item"] = InputParameter(
+                value=slices.slices)
             for name in slices.input_parameter:
                 for step in (new_template if hasattr(new_template, "__iter__")
                              else []):
-                    for par in step.inputs.parameters.values():
+                    for par in list(step.inputs.parameters.values()):
                         # input parameter referring to sliced input parameter
-                        if par.value == new_template.inputs.parameters[name]:
-                            if step.template.slices is None:
-                                step.template.slices = Slices(
-                                    slices.slices, input_parameter=[par.name],
-                                    sub_path=slices.sub_path,
-                                    pool_size=slices.pool_size)
-                            else:
-                                step.template.slices.input_parameter.append(
-                                    par.name)
-                                # trigger re-render
-                                step.template.slices = step.template.slices
+                        if par.value is new_template.inputs.parameters[name]:
+                            step.template.inputs.parameters["dflow_item"] = \
+                                InputParameter()
+                            step.template.add_slices(Slices(
+                                "{{inputs.parameters.dflow_item}}",
+                                input_parameter=[par.name],
+                                sub_path=slices.sub_path,
+                                pool_size=slices.pool_size))
+                            step.template.render_script()
+                            step.inputs.parameters["dflow_item"] = \
+                                InputParameter(
+                                    value="{{inputs.parameters.dflow_item}}")
 
             for name in slices.input_artifact:
                 for step in (new_template if hasattr(new_template, "__iter__")
                              else []):
-                    for art in step.inputs.artifacts.values():
+                    for art in list(step.inputs.artifacts.values()):
                         # input artifact referring to sliced input artifact
-                        if art.source == new_template.inputs.artifacts[name]:
-                            if step.template.slices is None:
-                                step.template.slices = Slices(
-                                    slices.slices, input_artifact=[art.name],
-                                    sub_path=slices.sub_path,
-                                    pool_size=slices.pool_size)
-                            else:
-                                step.template.slices.input_artifact.append(
-                                    art.name)
-                                # trigger re-render
-                                step.template.slices = step.template.slices
+                        if art.source is new_template.inputs.artifacts[name]:
+                            step.template.inputs.parameters["dflow_item"] = \
+                                InputParameter()
+                            step.template.add_slices(Slices(
+                                "{{inputs.parameters.dflow_item}}",
+                                input_artifact=[art.name],
+                                sub_path=slices.sub_path,
+                                pool_size=slices.pool_size))
+                            step.template.render_script()
+                            step.inputs.parameters["dflow_item"] = \
+                                InputParameter(
+                                    value="{{inputs.parameters.dflow_item}}")
 
             def stack_output_parameter(par):
                 if isinstance(par, OutputParameter):
-                    template = par.step.template
-                    if template.slices is None:
-                        template.slices = Slices(
-                            slices.slices, output_parameter=[par.name],
-                            sub_path=slices.sub_path,
-                            pool_size=slices.pool_size)
-                    else:
-                        template.slices.output_parameter.append(par.name)
-                        # trigger re-render
-                        template.slices = template.slices
+                    step = par.step
+                    step.template.inputs.parameters["dflow_item"] = \
+                        InputParameter()
+                    step.template.add_slices(Slices(
+                        "{{inputs.parameters.dflow_item}}",
+                        output_parameter=[par.name],
+                        sub_path=slices.sub_path,
+                        pool_size=slices.pool_size))
+                    step.template.render_script()
+                    step.inputs.parameters["dflow_item"] = \
+                        InputParameter(
+                            value="{{inputs.parameters.dflow_item}}")
 
             for name in slices.output_parameter:
                 # sliced output parameter from
@@ -341,16 +350,18 @@ class Step:
 
             def stack_output_artifact(art):
                 if isinstance(art, OutputArtifact):
-                    template = art.step.template
-                    if template.slices is None:
-                        template.slices = Slices(
-                            slices.slices, output_artifact=[art.name],
-                            sub_path=slices.sub_path,
-                            pool_size=slices.pool_size)
-                    else:
-                        template.slices.output_artifact.append(art.name)
-                        # trigger re-render
-                        template.slices = template.slices
+                    step = par.step
+                    step.template.inputs.parameters["dflow_item"] = \
+                        InputParameter()
+                    step.template.add_slices(Slices(
+                        "{{inputs.parameters.dflow_item}}",
+                        output_artifact=[art.name],
+                        sub_path=slices.sub_path,
+                        pool_size=slices.pool_size))
+                    step.template.render_script()
+                    step.inputs.parameters["dflow_item"] = \
+                        InputParameter(
+                            value="{{inputs.parameters.dflow_item}}")
 
             for name in slices.output_artifact:
                 # sliced output artifact from
@@ -363,26 +374,6 @@ class Step:
                                           from_expression._then)
                     stack_output_artifact(new_template.outputs.artifacts[name].
                                           from_expression._else)
-
-            # pass dflow vars
-            self.dflow_vars = {}
-            for step in (new_template if hasattr(new_template, "__iter__")
-                         else []):
-                for name, par in step.template.inputs.parameters.items():
-                    if name[:10] == "dflow_var_":
-                        if par.value not in self.dflow_vars:
-                            var_name = "dflow_var_%s" % len(self.dflow_vars)
-                            new_template.inputs.parameters[
-                                var_name] = InputParameter(value=par.value)
-                            self.inputs.parameters[
-                                var_name] = InputParameter(value=par.value)
-                            self.dflow_vars[par.value] = var_name
-                        else:
-                            var_name = self.dflow_vars[par.value]
-
-                        step.inputs.parameters[name] = InputParameter(
-                            value=str(new_template.inputs.parameters[
-                                var_name]))
 
             self.template = new_template
 
@@ -408,8 +399,9 @@ class Step:
                 # artifacts are reused
                 for name in new_template.slices.output_artifact:
                     new_template.outputs.artifacts[name].save.append(
-                        S3Artifact(key="{{workflow.name}}/{{inputs."
-                                   "parameters.dflow_group_key}}/%s" % name))
+                        S3Artifact(key="%s{{workflow.name}}/{{inputs."
+                                   "parameters.dflow_group_key}}/%s" % (
+                                       s3_config["prefix"], name)))
 
                     def merge_output_artifact(art):
                         step = art.step
@@ -421,8 +413,9 @@ class Step:
                                 value="{{inputs.parameters.dflow_group_key}}")
                         template.outputs.artifacts[art.name].save.append(
                             S3Artifact(
-                                key="{{workflow.name}}/{{inputs."
-                                "parameters.dflow_group_key}}/%s" % name))
+                                key="%s{{workflow.name}}/{{inputs."
+                                "parameters.dflow_group_key}}/%s" % (
+                                    s3_config["prefix"], name)))
 
                     if new_template.outputs.artifacts[name]._from is not \
                             None:
