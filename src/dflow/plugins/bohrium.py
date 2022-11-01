@@ -1,8 +1,7 @@
 import json
+import os
 from copy import deepcopy
 from getpass import getpass
-
-import requests
 
 from ..context import Context
 from ..executor import Executor
@@ -12,15 +11,17 @@ from ..workflow import Workflow
 
 succ_code = [0, "0000"]
 config = {
-    "endpoint": "https://bohrium.dp.tech",
+    "bohrium_url": "https://bohrium.dp.tech",
     "username": None,
     "password": None,
     "authorization": None,
     "project_id": None,
+    "tiefblue_url": "https://tiefblue.dp.tech",
 }
 
 
 def _login(login_url=None, username=None, password=None):
+    import requests
     if username is None:
         username = input("Bohrium username: ")
     if password is None:
@@ -107,7 +108,7 @@ class BohriumContext(Context):
             authorization: str = None,
     ) -> None:
         self.login_url = login_url if login_url is not None else \
-            config["endpoint"] + "/account/login"
+            config["bohrium_url"] + "/account/login"
         self.username = username if username is not None else \
             config["username"]
         self.password = password if password is not None else \
@@ -155,16 +156,22 @@ class BohriumContext(Context):
 class TiefblueClient:
     def __init__(
             self,
-            endpoint: str = None,
+            bohrium_url: str = None,
             username: str = None,
             password: str = None,
             authorization: str = None,
             project_id: str = None,
             token: str = None,
             prefix: str = None,
+            tiefblue_url: str = None,
     ) -> None:
-        self.endpoint = endpoint if endpoint is not None else \
-            config["endpoint"]
+        # only set s3_config["storage_client"] once
+        if isinstance(s3_config["storage_client"], self.__class__):
+            self.__dict__.update(s3_config["storage_client"].__dict__)
+            return
+
+        self.bohrium_url = bohrium_url if bohrium_url is not None else \
+            config["bohrium_url"]
         self.username = username if username is not None else \
             config["username"]
         self.password = password if password is not None else \
@@ -173,6 +180,8 @@ class TiefblueClient:
             config["authorization"]
         self.project_id = project_id if project_id is not None else \
             config["project_id"]
+        self.tiefblue_url = tiefblue_url if tiefblue_url is not None else \
+            config["tiefblue_url"]
         self.token = token
         self.prefix = prefix
         if self.token is None:
@@ -180,14 +189,23 @@ class TiefblueClient:
         s3_config["repo_type"] = "oss"
         s3_config["prefix"] = self.prefix
 
+    def __getstate__(self):
+        retained_keys = ["bohrium_url", "tiefblue_url", "project_id", "token",
+                         "prefix"]
+        return {k: self.__dict__[k] for k in retained_keys}
+
+    def __setstate__(self, d):
+        self.__dict__.update(d)
+
     def get_token(self):
+        import requests
         if self.authorization is None:
             self.authorization = _login(
-                self.endpoint + "/account/login",
+                self.bohrium_url + "/account/login",
                 self.username, self.password)
             config["authorization"] = self.authorization
         rsp = requests.get(
-            self.endpoint + "/brm/v1/storage/token",
+            self.bohrium_url + "/brm/v1/storage/token",
             headers={
                 "Content-type": "application/json",
                 "Authorization": "jwt " + self.authorization},
@@ -198,19 +216,39 @@ class TiefblueClient:
 
     def upload(self, key, path, **kwargs):
         import tiefblue
-        client = tiefblue.Client(base_url="xxx", token=self.token)
+        client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
         client.upload_from_file(key, path)
 
     def download(self, key, path, **kwargs):
         import tiefblue
-        client = tiefblue.Client(base_url="xxx", token=self.token)
+        client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         client.download_from_file(key, path)
 
     def list(self, prefix, recursive=False):
-        pass
+        import tiefblue
+        client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
+        keys = []
+        next_token = ""
+        while True:
+            res = client.list(prefix=prefix, recursive=recursive,
+                              next_token=next_token)
+            for obj in res["objects"]:
+                if recursive and obj["path"][-1:] == "/":
+                    continue
+                keys.append(obj["path"])
+            if not res["hasNext"]:
+                break
+            next_token = res["nextToken"]
+        return keys
 
     def copy(self, src, dst):
-        pass
+        import tiefblue
+        client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
+        client.copy(src, dst)
 
     def get_md5(self, key):
-        pass
+        import tiefblue
+        client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
+        meta = client.meta(key)
+        return meta["entityTag"] if "entityTag" in meta else ""

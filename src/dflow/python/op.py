@@ -11,7 +11,8 @@ from abc import ABC
 import jsonpickle
 from typeguard import check_type
 
-from ..utils import s3_config
+from ..argo_objects import ArgoObjectDict
+from ..utils import get_key, s3_config
 from .opio import OPIO, Artifact, BigParameter, OPIOSign, Parameter
 
 
@@ -74,7 +75,7 @@ class OP(ABC):
         templ = json.loads(os.environ.get("ARGO_TEMPLATE"))
         art = next(filter(lambda x: x["name"] == name,
                           templ["inputs"]["artifacts"]))
-        return art["s3"]["key"]
+        return get_key(ArgoObjectDict(art))
 
     def get_input_artifact_link(self, name: str) -> str:
         key = self.get_input_artifact_storage_key(name)
@@ -84,14 +85,15 @@ class OP(ABC):
         templ = json.loads(os.environ.get("ARGO_TEMPLATE"))
         art = next(filter(lambda x: x["name"] == name,
                           templ["outputs"]["artifacts"]))
-        if "s3" in art:
-            return art["s3"]["key"]
+        key = get_key(ArgoObjectDict(art), raise_error=False)
+        if key is not None:
+            return key
+
+        key = get_key(ArgoObjectDict(templ["archiveLocation"]))
+        if "archive" in art and "none" in art["archive"]:
+            return "%s/%s" % (key, name)
         else:
-            if "archive" in art and "none" in art["archive"]:
-                return "%s/%s" % (templ["archiveLocation"]["s3"]["key"], name)
-            else:
-                return "%s/%s.tgz" % (templ["archiveLocation"]["s3"]["key"],
-                                      name)
+            return "%s/%s.tgz" % (key, name)
 
     def get_output_artifact_link(self, name: str) -> str:
         key = self.get_output_artifact_storage_key(name)

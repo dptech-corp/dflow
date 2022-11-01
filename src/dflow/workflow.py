@@ -6,15 +6,14 @@ from typing import Dict, List, Union
 import jsonpickle
 
 from .argo_objects import ArgoStep, ArgoWorkflow
-from .common import S3Artifact
-from .config import config
+from .config import config, s3_config
 from .context import Context
 from .context_syntax import GLOBAL_CONTEXT
 from .dag import DAG
 from .step import Step
 from .steps import Steps
 from .task import Task
-from .utils import copy_s3, linktree, randstr
+from .utils import copy_s3, get_key, linktree, randstr
 
 try:
     import kubernetes
@@ -103,7 +102,8 @@ class Workflow:
         if isinstance(image_pull_secrets, str):
             image_pull_secrets = [image_pull_secrets]
         self.image_pull_secrets = image_pull_secrets
-        self.artifact_repo_key = artifact_repo_key
+        self.artifact_repo_key = artifact_repo_key if artifact_repo_key is \
+            not None else s3_config["repo_key"]
 
         configuration = Configuration(host=self.host)
         configuration.verify_ssl = False
@@ -305,19 +305,16 @@ class Workflow:
                         for name, art in step.outputs.artifacts.items():
                             if hasattr(step, "inputs") and \
                                 hasattr(step.inputs, "parameters") and \
-                                "dflow_group_key" in \
-                                    step.inputs.parameters:
-                                if hasattr(art, "s3") and \
-                                        art.s3.key not in copied_keys:
-                                    key = "%s/%s/%s" % (
-                                        self.id,
+                                "dflow_group_key" in step.inputs.parameters \
+                                    and name != "main-logs":
+                                old_key = get_key(art, raise_error=False)
+                                if old_key and old_key not in copied_keys:
+                                    key = "%s%s/%s/%s" % (
+                                        s3_config["prefix"], self.id,
                                         step.inputs.parameters[
                                             "dflow_group_key"].value, name)
-                                    copy_s3(art.s3.key, key)
-                                    copied_keys.append(art.s3.key)
-                            if hasattr(art, "s3") and isinstance(art.s3,
-                                                                 S3Artifact):
-                                art.s3 = art.s3.to_dict()
+                                    copy_s3(old_key, key)
+                                    copied_keys.append(old_key)
                         outputs["artifacts"] = [
                             art.recover()
                             for art in step.outputs.artifacts.values()]

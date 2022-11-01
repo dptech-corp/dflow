@@ -45,3 +45,39 @@ def set_config(
         mode: "default" for normal, "debug" for debugging locally
     """
     config.update(kwargs)
+
+
+s3_config = {
+    "endpoint": "127.0.0.1:9000",
+    "console": "http://127.0.0.1:9001",
+    "access_key": "admin",
+    "secret_key": "password",
+    "secure": False,
+    "bucket_name": "my-bucket",
+    "repo_type": "s3",
+    "repo_key": None,
+    "repo_prefix": "",
+    "prefix": "",
+    "storage_client": None,
+}
+
+
+def set_s3_config(
+    **kwargs,
+) -> None:
+    """
+    Set S3 configurations
+
+    Args:
+        endpoint: endpoint for S3 storage
+        console: console address for S3 storage
+        access_key: access key for S3 storage
+        secret_key: secret key for S3 storage
+        secure: secure or not
+        bucket_name: name of S3 bucket
+        repo_type: s3 or oss
+        repo_key: key of artifact repository
+        prefix: prefix of storage key
+        storage_client: client for plugin storage backend
+    """
+    s3_config.update(kwargs)

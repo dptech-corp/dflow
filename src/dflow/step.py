@@ -350,7 +350,7 @@ class Step:
 
             def stack_output_artifact(art):
                 if isinstance(art, OutputArtifact):
-                    step = par.step
+                    step = art.step
                     step.template.inputs.parameters["dflow_item"] = \
                         InputParameter()
                     step.template.add_slices(Slices(
