@@ -1,6 +1,8 @@
 from copy import deepcopy
 from typing import Any, Union
 
+from .config import s3_config
+
 try:
     from argo.workflows.client import V1alpha1OSSArtifact, V1alpha1S3Artifact
     from argo.workflows.client.configuration import Configuration
@@ -40,7 +42,10 @@ class S3Artifact(V1alpha1S3Artifact):
         return artifact
 
     def oss(self):
-        return V1alpha1OSSArtifact(key=self.key)
+        config = Configuration()
+        config.client_side_validation = False
+        return V1alpha1OSSArtifact(key=s3_config["repo_prefix"] + self.key,
+                                   local_vars_configuration=config)
 
 
 class LocalArtifact:

@@ -5,9 +5,10 @@ from typing import Any, List, Union
 
 import jsonpickle
 
-from .config import config
+from .config import config, s3_config
 from .io import S3Artifact
-from .utils import download_artifact, download_s3, upload_artifact, upload_s3
+from .utils import (download_artifact, download_s3, get_key, upload_artifact,
+                    upload_s3)
 
 
 class ArgoObjectDict(UserDict):
@@ -155,7 +156,12 @@ class ArgoStep(ArgoObjectDict):
                     f.write(jsonpickle.dumps(content))
                 key = upload_s3(path)
                 s3 = S3Artifact(key=key)
-                self.outputs.artifacts["dflow_bigpar_" + name].s3 = s3
+                if s3_config["repo_type"] == "s3":
+                    self.outputs.artifacts["dflow_bigpar_" + name].s3 = \
+                        ArgoObjectDict(s3.to_dict())
+                elif s3_config["repo_type"] == "oss":
+                    self.outputs.artifacts["dflow_bigpar_" + name].oss = \
+                        ArgoObjectDict(s3.oss().to_dict())
 
     def modify_output_artifact(
             self,
@@ -173,7 +179,11 @@ class ArgoStep(ArgoObjectDict):
             self.outputs.artifacts[name].local_path = s3.local_path
             return
         assert isinstance(s3, S3Artifact), "must provide a S3Artifact object"
-        self.outputs.artifacts[name].s3 = s3
+        if s3_config["repo_type"] == "s3":
+            self.outputs.artifacts[name].s3 = ArgoObjectDict(s3.to_dict())
+        elif s3_config["repo_type"] == "oss":
+            self.outputs.artifacts[name].oss = ArgoObjectDict(
+                s3.oss().to_dict())
         if s3.key[-4:] == ".tgz" and hasattr(self.outputs.artifacts[name],
                                              "archive"):
             del self.outputs.artifacts[name]["archive"]
@@ -208,7 +218,7 @@ class ArgoStep(ArgoObjectDict):
                     os.path.join(self.outputs.artifacts[name].local_path,
                                  sub_path), os.path.join(path, sub_path))
             else:
-                download_s3(self.outputs.artifacts[name].s3.key + "/" +
+                download_s3(get_key(self.outputs.artifacts[name]) + "/" +
                             sub_path, path=os.path.join(path, sub_path))
 
     def upload_and_modify_sliced_output_artifact(

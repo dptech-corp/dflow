@@ -363,12 +363,11 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "                sys.path.insert(0, os.path.join("\
                 "package_root, os.path.dirname(item['dflow_list_item'])))\n"
 
-        script += "import json\n"
+        script += "import json, jsonpickle\n"
         script += "from dflow import config, s3_config\n"
         script += "config.update(json.loads('%s'))\n" % json.dumps(config)
-        script += "s3_config.update(json.loads('%s'))\n" % \
-            json.dumps({k: v for k, v in s3_config.items()
-                        if k != "storage_client"})
+        script += "s3_config.update(jsonpickle.loads('%s'))\n" % \
+            jsonpickle.dumps(s3_config)
         if op_class.__module__ in ["__main__", "__mp_main__"]:
             try:
                 source_lines, start_line = inspect.getsourcelines(op_class)

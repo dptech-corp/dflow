@@ -19,7 +19,7 @@ from typing import List, Optional, Set, Tuple, Union
 import jsonpickle
 
 from .common import LocalArtifact, S3Artifact
-from .config import config
+from .config import config, s3_config
 
 try:
     from minio import Minio
@@ -27,39 +27,24 @@ try:
 except Exception:
     pass
 
-s3_config = {
-    "endpoint": "127.0.0.1:9000",
-    "console": "http://127.0.0.1:9001",
-    "access_key": "admin",
-    "secret_key": "password",
-    "secure": False,
-    "bucket_name": "my-bucket",
-    "repo_type": "s3",
-    "repo_key": None,
-    "prefix": "",
-    "storage_client": None,
-}
 
-
-def set_s3_config(
-    **kwargs,
-) -> None:
-    """
-    Set S3 configurations
-
-    Args:
-        endpoint: endpoint for S3 storage
-        console: console address for S3 storage
-        access_key: access key for S3 storage
-        secret_key: secret key for S3 storage
-        secure: secure or not
-        bucket_name: name of S3 bucket
-        repo_type: s3 or oss
-        repo_key: key of artifact repository
-        prefix: prefix of storage key
-        storage_client: client for plugin storage backend
-    """
-    s3_config.update(kwargs)
+def get_key(artifact, raise_error=True):
+    if hasattr(artifact, "s3"):
+        return artifact.s3.key
+    elif hasattr(artifact, "oss"):
+        key = artifact.oss.key
+        if key.startswith(s3_config["repo_prefix"]):
+            return key[len(s3_config["repo_prefix"]):]
+        else:
+            return key
+    elif hasattr(artifact, "key"):
+        return artifact.key
+    else:
+        if raise_error:
+            raise FileNotFoundError(
+                "The artifact does not exist in the storage.")
+        else:
+            return None
 
 
 def download_artifact(
@@ -90,12 +75,7 @@ def download_artifact(
         linktree(artifact.local_path, path)
         return assemble_path_list(path, remove=True)
 
-    if hasattr(artifact, "s3"):
-        key = artifact.s3.key
-    elif hasattr(artifact, "key"):
-        key = artifact.key
-    else:
-        raise FileNotFoundError("The artifact does not exist in the storage.")
+    key = get_key(artifact)
 
     if slice is not None:
         sub_path = path_list_of_artifact(artifact)[slice]
@@ -214,19 +194,8 @@ def copy_artifact(src, dst, sort=False) -> S3Artifact:
         dst: destination artifact
         sort: append the path list of dst after that of src
     """
-    if hasattr(src, "s3"):
-        src_key = src.s3.key
-    elif hasattr(src, "key"):
-        src_key = src.key
-    else:
-        raise NotImplementedError()
-
-    if hasattr(dst, "s3"):
-        dst_key = dst.s3.key
-    elif hasattr(dst, "key"):
-        dst_key = dst.key
-    else:
-        raise NotImplementedError()
+    src_key = get_key(src)
+    dst_key = get_key(dst)
 
     ignore_catalog = False
     if sort:
@@ -366,11 +335,8 @@ def copy_s3(
 
 
 def catalog_of_artifact(art, **kwargs) -> List[dict]:
-    if hasattr(art, "s3"):
-        key = art.s3.key
-    elif hasattr(art, "key"):
-        key = art.key
-    else:
+    key = get_key(art, raise_error=False)
+    if not key:
         return []
     if key[-1] != "/":
         key += "/"
