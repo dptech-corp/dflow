@@ -388,6 +388,28 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 </dl>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.config.set_s3_config">
+<span class="sig-prename descclassname"><span class="pre">dflow.config.</span></span><span class="sig-name descname"><span class="pre">set_s3_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dflow.config.set_s3_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set S3 configurations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endpoint</strong> – endpoint for S3 storage</p></li>
+<li><p><strong>console</strong> – console address for S3 storage</p></li>
+<li><p><strong>access_key</strong> – access key for S3 storage</p></li>
+<li><p><strong>secret_key</strong> – secret key for S3 storage</p></li>
+<li><p><strong>secure</strong> – secure or not</p></li>
+<li><p><strong>bucket_name</strong> – name of S3 bucket</p></li>
+<li><p><strong>repo_type</strong> – s3 or oss</p></li>
+<li><p><strong>repo_key</strong> – key of artifact repository</p></li>
+<li><p><strong>prefix</strong> – prefix of storage key</p></li>
+<li><p><strong>storage_client</strong> – client for plugin storage backend</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-dflow.context">
 <span id="dflow-context-module"></span><h2>dflow.context module<a class="headerlink" href="#module-dflow.context" title="Permalink to this heading">¶</a></h2>
@@ -1553,6 +1575,11 @@ generated parallel tasks greater than certain number</p></li>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="dflow.utils.get_key">
+<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">get_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">artifact</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.get_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="dflow.utils.get_md5">
 <span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">get_md5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.get_md5" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1639,28 +1666,6 @@ generated parallel tasks greater than certain number</p></li>
 <span class="gp">... </span>   <span class="n">do_something</span><span class="p">()</span>
 </pre></div>
 </div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="dflow.utils.set_s3_config">
-<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">set_s3_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dflow.utils.set_s3_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set S3 configurations</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>endpoint</strong> – endpoint for S3 storage</p></li>
-<li><p><strong>console</strong> – console address for S3 storage</p></li>
-<li><p><strong>access_key</strong> – access key for S3 storage</p></li>
-<li><p><strong>secret_key</strong> – secret key for S3 storage</p></li>
-<li><p><strong>secure</strong> – secure or not</p></li>
-<li><p><strong>bucket_name</strong> – name of S3 bucket</p></li>
-<li><p><strong>repo_type</strong> – s3 or oss</p></li>
-<li><p><strong>repo_key</strong> – key of artifact repository</p></li>
-<li><p><strong>prefix</strong> – prefix of storage key</p></li>
-<li><p><strong>storage_client</strong> – client for plugin storage backend</p></li>
-</ul>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -3043,6 +3048,7 @@ parameters</p></li>
 </li>
 <li><a class="reference internal" href="#module-dflow.config">dflow.config module</a><ul>
 <li><a class="reference internal" href="#dflow.config.set_config"><code class="docutils literal notranslate"><span class="pre">set_config()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.config.set_s3_config"><code class="docutils literal notranslate"><span class="pre">set_s3_config()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-dflow.context">dflow.context module</a><ul>
@@ -3278,6 +3284,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.utils.find_subclass"><code class="docutils literal notranslate"><span class="pre">find_subclass()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.force_link"><code class="docutils literal notranslate"><span class="pre">force_link()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.force_move"><code class="docutils literal notranslate"><span class="pre">force_move()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.get_key"><code class="docutils literal notranslate"><span class="pre">get_key()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.get_md5"><code class="docutils literal notranslate"><span class="pre">get_md5()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.linktree"><code class="docutils literal notranslate"><span class="pre">linktree()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.merge_dir"><code class="docutils literal notranslate"><span class="pre">merge_dir()</span></code></a></li>
@@ -3286,7 +3293,6 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.utils.remove_empty_dir_tag"><code class="docutils literal notranslate"><span class="pre">remove_empty_dir_tag()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.run_command"><code class="docutils literal notranslate"><span class="pre">run_command()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.set_directory"><code class="docutils literal notranslate"><span class="pre">set_directory()</span></code></a></li>
-<li><a class="reference internal" href="#dflow.utils.set_s3_config"><code class="docutils literal notranslate"><span class="pre">set_s3_config()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.upload_artifact"><code class="docutils literal notranslate"><span class="pre">upload_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.upload_s3"><code class="docutils literal notranslate"><span class="pre">upload_s3()</span></code></a></li>
 </ul>
