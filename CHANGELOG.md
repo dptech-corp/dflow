@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.6.1](https://github.com/deepmodeling/dflow/compare/v1.6.0...v1.6.1) (2022-11-01)
+
+
+### Bug Fixes
+
+* a bug in sliced super op ([e1bf3a0](https://github.com/deepmodeling/dflow/commit/e1bf3a044e33273031170bf873227ccd3de945f4))
+* add bohrium storage client ([8c7092c](https://github.com/deepmodeling/dflow/commit/8c7092c65b5f4ca3260fc46c0624f8f3b45c924a))
+* support for sliced python op in sliced super op ([e1bf3a0](https://github.com/deepmodeling/dflow/commit/e1bf3a044e33273031170bf873227ccd3de945f4))
+* support for storage plugins ([8c7092c](https://github.com/deepmodeling/dflow/commit/8c7092c65b5f4ca3260fc46c0624f8f3b45c924a))
+
 ## [1.6.0](https://github.com/deepmodeling/dflow/compare/v1.5.14...v1.6.0) (2022-10-26)
 
 
