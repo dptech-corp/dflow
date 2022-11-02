@@ -628,13 +628,6 @@ class OutputParameter(ArgoVar):
                 "global_name": self.global_name,
             }
             if self.value_from_path is not None:
-                if s3_config["prefix"]:
-                    s3 = S3Artifact(key="%s{{workflow.name}}/{{pod.name}}/%s" %
-                                    (s3_config["prefix"], self.name))
-                    if s3_config["repo_type"] == "s3":
-                        kwargs["s3"] = s3
-                    elif s3_config["repo_type"] == "oss":
-                        kwargs["oss"] = s3.oss()
                 return V1alpha1Artifact(path=self.value_from_path, **kwargs)
             elif self.value_from_parameter is not None:
                 return V1alpha1Artifact(
@@ -827,14 +820,6 @@ class OutputArtifact(ArgoVar):
         for save in self.save:
             if isinstance(save, S3Artifact):
                 s3 = save
-
-        if s3_config["prefix"] and s3 is None and self.path is not None:
-            if self.archive is None:
-                s3 = S3Artifact(key="%s{{workflow.name}}/{{pod.name}}/%s" %
-                                (s3_config["prefix"], self.name))
-            else:
-                s3 = S3Artifact(key="%s{{workflow.name}}/{{pod.name}}/%s.tgz" %
-                                (s3_config["prefix"], self.name))
 
         if s3 is not None:
             if s3_config["repo_type"] == "s3":

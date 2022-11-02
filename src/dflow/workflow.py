@@ -19,6 +19,7 @@ try:
     import kubernetes
     import urllib3
     urllib3.disable_warnings()
+    import yaml
     from argo.workflows.client import (ApiClient, Configuration,
                                        V1alpha1ArtifactRepositoryRef,
                                        V1alpha1PodGC, V1alpha1Workflow,
@@ -73,7 +74,7 @@ class Workflow:
             name: str = "workflow",
             steps: Steps = None,
             dag: DAG = None,
-            namespace: str = "argo",
+            namespace: str = None,
             id: str = None,
             uid: str = None,
             host: str = None,
@@ -116,7 +117,8 @@ class Workflow:
 
         self.api_instance = WorkflowServiceApi(api_client)
 
-        self.namespace = namespace
+        self.namespace = namespace if namespace is not None else \
+            config["namespace"]
         self.id = id
         # alias uid to id if uid not provided
         if uid is None:
@@ -134,6 +136,39 @@ class Workflow:
         self.templates = {}
         self.argo_templates = {}
         self.pvcs = {}
+
+        if self.k8s_api_server is not None:
+            k8s_configuration = kubernetes.client.Configuration(
+                host=self.k8s_api_server)
+            k8s_configuration.verify_ssl = False
+            if self.token is None:
+                k8s_client = kubernetes.client.ApiClient(
+                    k8s_configuration)
+            else:
+                k8s_client = kubernetes.client.ApiClient(
+                    k8s_configuration, header_name='Authorization',
+                    header_value='Bearer %s' % self.token)
+            self.core_v1_api = kubernetes.client.CoreV1Api(k8s_client)
+        else:
+            kubernetes.config.load_kube_config(
+                config_file=self.k8s_config_file)
+            self.core_v1_api = kubernetes.client.CoreV1Api()
+
+        if self.artifact_repo_key is not None:
+            cm = self.core_v1_api.read_namespaced_config_map(
+                namespace=self.namespace, name="artifact-repositories")
+            repo = yaml.full_load(cm.data[self.artifact_repo_key])
+            s3_config["repo"] = repo
+            if "s3" in repo:
+                s3_config["repo_type"] = "s3"
+                s3 = repo["s3"]
+            elif "oss" in repo:
+                s3_config["repo_type"] = "oss"
+                s3 = repo["oss"]
+            if "keyFormat" in s3:
+                t = "{{workflow.name}}/{{pod.name}}"
+                if s3["keyFormat"].endswith(t):
+                    s3_config["repo_prefix"] = s3["keyFormat"][:-len(t)]
 
     def __enter__(self) -> 'Workflow':
         GLOBAL_CONTEXT.in_context = True
@@ -327,24 +362,8 @@ class Workflow:
                 config_map = kubernetes.client.V1ConfigMap(
                     data=data, metadata=kubernetes.client.V1ObjectMeta(
                         name="dflow-%s-%s" % (self.id, step.key)))
-                if self.k8s_api_server is not None:
-                    k8s_configuration = kubernetes.client.Configuration(
-                        host=self.k8s_api_server)
-                    k8s_configuration.verify_ssl = False
-                    if self.token is None:
-                        k8s_client = kubernetes.client.ApiClient(
-                            k8s_configuration)
-                    else:
-                        k8s_client = kubernetes.client.ApiClient(
-                            k8s_configuration, header_name='Authorization',
-                            header_value='Bearer %s' % self.token)
-                    v1 = kubernetes.client.CoreV1Api(k8s_client)
-                else:
-                    kubernetes.config.load_kube_config(
-                        config_file=self.k8s_config_file)
-                    v1 = kubernetes.client.CoreV1Api()
-                v1.create_namespaced_config_map(namespace=self.namespace,
-                                                body=config_map)
+                self.core_v1_api.create_namespaced_config_map(
+                    namespace=self.namespace, body=config_map)
             self.handle_template(
                 self.entrypoint, memoize_prefix=self.id,
                 memoize_configmap="dflow")

@@ -1,6 +1,8 @@
+from copy import deepcopy
 from typing import Dict, List, Union
 
 from .config import config as global_config
+from .config import s3_config
 from .io import PVC, InputParameter, Inputs, OutputParameter, Outputs
 from .utils import randstr
 
@@ -9,10 +11,10 @@ try:
                                        V1alpha1Metadata,
                                        V1alpha1ResourceTemplate,
                                        V1alpha1ScriptTemplate,
-                                       V1alpha1Template,
+                                       V1alpha1Template, V1alpha1UserContainer,
                                        V1ConfigMapKeySelector, V1EnvVar,
                                        V1ResourceRequirements, V1Volume,
-                                       V1VolumeMount, V1alpha1UserContainer)
+                                       V1VolumeMount)
     from argo.workflows.client.configuration import Configuration
 
     from .client.v1alpha1_retry_strategy import V1alpha1RetryStrategy
@@ -196,6 +198,13 @@ class ScriptOPTemplate(OPTemplate):
                 env = [V1EnvVar(name=k, value=v) for k, v in self.envs.items()]
             else:
                 env = None
+            if s3_config["prefix"] and s3_config["repo"] is not None:
+                loc = deepcopy(s3_config["repo"])
+                loc[s3_config["repo_type"]]["key"] = \
+                    "%s%s{{workflow.name}}/{{pod.name}}" % (
+                        s3_config["repo_prefix"], s3_config["prefix"])
+            else:
+                loc = None
             return \
                 V1alpha1Template(name=self.name,
                                  metadata=V1alpha1Metadata(
@@ -216,6 +225,7 @@ class ScriptOPTemplate(OPTemplate):
                                          requests=self.requests),
                                      env=env),
                                  init_containers=self.init_containers,
+                                 archive_location=loc,
                                  )
 
 
