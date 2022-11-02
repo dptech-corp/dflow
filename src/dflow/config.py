@@ -1,5 +1,6 @@
 config = {
     "host": "https://127.0.0.1:2746",
+    "namespace": "argo",
     "token": None,
     "k8s_config_file": None,
     "k8s_api_server": None,
@@ -26,6 +27,7 @@ def set_config(
 
     Args:
         host: host of Argo server
+        namespace: k8s namespace
         token: token for authentication, necessary for reused workflows
         k8s_config_file: location of kube config file if it is used for
         authentication
@@ -54,8 +56,9 @@ s3_config = {
     "secret_key": "password",
     "secure": False,
     "bucket_name": "my-bucket",
-    "repo_type": "s3",
     "repo_key": None,
+    "repo": None,
+    "repo_type": "s3",
     "repo_prefix": "",
     "prefix": "",
     "storage_client": None,
@@ -75,8 +78,10 @@ def set_s3_config(
         secret_key: secret key for S3 storage
         secure: secure or not
         bucket_name: name of S3 bucket
-        repo_type: s3 or oss
         repo_key: key of artifact repository
+        repo: artifact repository, parsed from repo_key
+        repo_type: s3 or oss, parsed from repo_key
+        repo_prefix: prefix of artifact repository, parsed from repo_key
         prefix: prefix of storage key
         storage_client: client for plugin storage backend
     """
