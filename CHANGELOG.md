@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.2](https://github.com/deepmodeling/dflow/compare/v1.6.1...v1.6.2) (2022-11-02)
+
+
+### Bug Fixes
+
+* parse repo info from configmap ([f1aab93](https://github.com/deepmodeling/dflow/commit/f1aab932550d3fcfb53706117a0c95e49d843a37))
+
 ## [1.6.1](https://github.com/deepmodeling/dflow/compare/v1.6.0...v1.6.1) (2022-11-01)
 
 
