@@ -137,25 +137,9 @@ class Workflow:
         self.argo_templates = {}
         self.pvcs = {}
 
-        if self.k8s_api_server is not None:
-            k8s_configuration = kubernetes.client.Configuration(
-                host=self.k8s_api_server)
-            k8s_configuration.verify_ssl = False
-            if self.token is None:
-                k8s_client = kubernetes.client.ApiClient(
-                    k8s_configuration)
-            else:
-                k8s_client = kubernetes.client.ApiClient(
-                    k8s_configuration, header_name='Authorization',
-                    header_value='Bearer %s' % self.token)
-            self.core_v1_api = kubernetes.client.CoreV1Api(k8s_client)
-        else:
-            kubernetes.config.load_kube_config(
-                config_file=self.k8s_config_file)
-            self.core_v1_api = kubernetes.client.CoreV1Api()
-
         if self.artifact_repo_key is not None:
-            cm = self.core_v1_api.read_namespaced_config_map(
+            core_v1_api = self.get_k8s_core_v1_api()
+            cm = core_v1_api.read_namespaced_config_map(
                 namespace=self.namespace, name="artifact-repositories")
             repo = yaml.full_load(cm.data[self.artifact_repo_key])
             s3_config["repo"] = repo
@@ -169,6 +153,24 @@ class Workflow:
                 t = "{{workflow.name}}/{{pod.name}}"
                 if s3["keyFormat"].endswith(t):
                     s3_config["repo_prefix"] = s3["keyFormat"][:-len(t)]
+
+    def get_k8s_core_v1_api(self):
+        if self.k8s_api_server is not None:
+            k8s_configuration = kubernetes.client.Configuration(
+                host=self.k8s_api_server)
+            k8s_configuration.verify_ssl = False
+            if self.token is None:
+                k8s_client = kubernetes.client.ApiClient(
+                    k8s_configuration)
+            else:
+                k8s_client = kubernetes.client.ApiClient(
+                    k8s_configuration, header_name='Authorization',
+                    header_value='Bearer %s' % self.token)
+            return kubernetes.client.CoreV1Api(k8s_client)
+        else:
+            kubernetes.config.load_kube_config(
+                config_file=self.k8s_config_file)
+            return kubernetes.client.CoreV1Api()
 
     def __enter__(self) -> 'Workflow':
         GLOBAL_CONTEXT.in_context = True
@@ -362,7 +364,8 @@ class Workflow:
                 config_map = kubernetes.client.V1ConfigMap(
                     data=data, metadata=kubernetes.client.V1ObjectMeta(
                         name="dflow-%s-%s" % (self.id, step.key)))
-                self.core_v1_api.create_namespaced_config_map(
+                core_v1_api = self.get_k8s_core_v1_api()
+                core_v1_api.create_namespaced_config_map(
                     namespace=self.namespace, body=config_map)
             self.handle_template(
                 self.entrypoint, memoize_prefix=self.id,
