@@ -31,6 +31,18 @@ class S3Artifact(V1alpha1S3Artifact):
             path_list = []
         self.path_list = path_list
 
+    def to_dict(self):
+        d = {"key": self.key}
+        if s3_config["storage_client"] is None:
+            d.update(s3_config)
+        else:
+            d.update(s3_config["storage_client"].to_dict())
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(key=d["key"])
+
     def sub_path(
             self,
             path: str,
