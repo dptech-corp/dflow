@@ -29,9 +29,9 @@ except Exception:
 
 
 def get_key(artifact, raise_error=True):
-    if hasattr(artifact, "s3"):
+    if hasattr(artifact, "s3") and hasattr(artifact.s3, "key"):
         return artifact.s3.key
-    elif hasattr(artifact, "oss"):
+    elif hasattr(artifact, "oss") and hasattr(artifact.oss, "key"):
         key = artifact.oss.key
         if key.startswith(s3_config["repo_prefix"]):
             return key[len(s3_config["repo_prefix"]):]
