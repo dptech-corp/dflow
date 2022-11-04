@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.4](https://github.com/deepmodeling/dflow/compare/v1.6.3...v1.6.4) (2022-11-04)
+
+
+### Bug Fixes
+
+* get k8s client when used ([c1b3470](https://github.com/deepmodeling/dflow/commit/c1b3470a09694430b47a42e9d535b273221887db))
+
 ## [1.6.3](https://github.com/deepmodeling/dflow/compare/v1.6.2...v1.6.3) (2022-11-04)
 
 
