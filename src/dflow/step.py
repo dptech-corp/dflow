@@ -45,7 +45,9 @@ class FutureLen:
     def __repr__(self):
         return "len(%s)" % self.par
 
-    def get(self):
+    def get(self, context=None):
+        if context is not None and isinstance(self.par, InputParameter):
+            return len(context.inputs.parameters[self.par.name].value)
         return len(self.par.value)
 
 
@@ -57,7 +59,7 @@ class FutureRange:
         args = []
         for i in self.args:
             if isinstance(i, FutureLen):
-                args.append(i.get())
+                args.append(i.get(context))
             elif isinstance(i, (InputParameter, OutputParameter)):
                 args.append(i.value)
             elif isinstance(i, IfExpression):
@@ -919,7 +921,7 @@ class Step:
         for name, par in parameters.items():
             value = par.value
             if isinstance(value, FutureLen):
-                par.value = value.get()
+                par.value = value.get(context)
             elif isinstance(value, (InputParameter, OutputParameter)):
                 par.value = get_var(value, context).value
             elif isinstance(value, str):
@@ -1032,20 +1034,20 @@ class Step:
                 if self.with_sequence.start is not None:
                     start = self.with_sequence.start
                     if isinstance(start, FutureLen):
-                        start = start.get()
+                        start = start.get(context)
                     if isinstance(start, (InputParameter, OutputParameter)):
                         start = start.value
                 if self.with_sequence.count is not None:
                     count = self.with_sequence.count
                     if isinstance(count, FutureLen):
-                        count = count.get()
+                        count = count.get(context)
                     if isinstance(count, (InputParameter, OutputParameter)):
                         count = count.value
                     sequence = list(range(start, start + count))
                 if self.with_sequence.end is not None:
                     end = self.with_sequence.end
                     if isinstance(end, FutureLen):
-                        end = end.get()
+                        end = end.get(context)
                     if isinstance(end, (InputParameter, OutputParameter)):
                         end = end.value
                     if end >= start:
