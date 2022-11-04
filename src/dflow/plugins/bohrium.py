@@ -189,6 +189,11 @@ class TiefblueClient:
         s3_config["repo_type"] = "oss"
         s3_config["prefix"] = self.prefix
 
+    def to_dict(self):
+        retained_keys = ["bohrium_url",
+                         "tiefblue_url", "username", "project_id"]
+        return {k: self.__dict__[k] for k in retained_keys}
+
     def __getstate__(self):
         retained_keys = ["bohrium_url", "tiefblue_url", "project_id", "token",
                          "prefix"]
