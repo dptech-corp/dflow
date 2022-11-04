@@ -53,6 +53,10 @@ class S3Artifact(V1alpha1S3Artifact):
         artifact.key += path
         return artifact
 
+    def download(self, **kwargs):
+        from .utils import download_artifact
+        download_artifact(self, **kwargs)
+
     def oss(self):
         config = Configuration()
         config.client_side_validation = False
