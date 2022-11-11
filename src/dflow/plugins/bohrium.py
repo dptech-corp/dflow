@@ -20,6 +20,16 @@ config = {
 }
 
 
+def _raise_error(res, op):
+    if res["code"] not in succ_code:
+        if "error" in res:
+            raise RuntimeError("%s failed: %s" % (op, res["error"]["msg"]))
+        elif "message" in res:
+            raise RuntimeError("%s failed: %s" % (op, res["message"]))
+        else:
+            raise RuntimeError("%s failed" % op)
+
+
 def _login(login_url=None, username=None, password=None):
     import requests
     if username is None:
@@ -33,14 +43,7 @@ def _login(login_url=None, username=None, password=None):
     rsp = requests.post(login_url, headers={
                         "Content-type": "application/json"}, json=data)
     res = json.loads(rsp.text)
-    if res["code"] not in succ_code:
-        if "error" in res:
-            raise RuntimeError("Login failed: %s" %
-                               res["error"]["msg"])
-        elif "message" in res:
-            raise RuntimeError("Login failed: %s" % res["message"])
-        else:
-            raise RuntimeError("Login failed")
+    _raise_error(res, "login")
     return res["data"]["token"]
 
 
@@ -219,6 +222,7 @@ class TiefblueClient:
                 "Authorization": "jwt " + self.authorization},
             params={"projectId": self.project_id})
         res = json.loads(rsp.text)
+        _raise_error(res, "get storage token")
         self.token = res["data"]["token"]
         self.prefix = res["data"]["path"]
 
