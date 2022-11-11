@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## [1.6.5](https://github.com/deepmodeling/dflow/compare/v1.6.4...v1.6.5) (2022-11-11)
+
+
+### Bug Fixes
+
+* add download method to S3Artifact ([6c2150a](https://github.com/deepmodeling/dflow/commit/6c2150a7f3f2cfbb6f792ab36d472798ef0882f7))
+* add to_dict and from_dict methods to S3Artifact ([e999917](https://github.com/deepmodeling/dflow/commit/e999917add6047898457d384f6846038a78ae3ab))
+* bug in collecting output parameters of sliced step ([a84f840](https://github.com/deepmodeling/dflow/commit/a84f8401697b5200e55a6494cb5cb1e97214448a))
+* download S3Artifact ([adfd046](https://github.com/deepmodeling/dflow/commit/adfd046dc35497986282ecf5c3f818ab73060928))
+* support for setting bohrium url for bohrium executor ([a84f840](https://github.com/deepmodeling/dflow/commit/a84f8401697b5200e55a6494cb5cb1e97214448a))
+
 ## [1.6.4](https://github.com/deepmodeling/dflow/compare/v1.6.3...v1.6.4) (2022-11-04)
 
 
