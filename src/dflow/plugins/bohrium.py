@@ -92,7 +92,7 @@ class BohriumContext(Context):
     Args:
         username: user name for Bohrium
         password: password for Bohrium
-        login_url: login url for Bohrium
+        bohrium_url: url for Bohrium
         executor: executor
         extra: extra arguments
         authorization: JWT token
@@ -102,13 +102,14 @@ class BohriumContext(Context):
             self,
             username: str = None,
             password: str = None,
-            login_url: str = None,
+            bohrium_url: str = None,
             executor: str = None,
             extra: dict = None,
             authorization: str = None,
     ) -> None:
-        self.login_url = login_url if login_url is not None else \
-            config["bohrium_url"] + "/account/login"
+        self.bohrium_url = bohrium_url if bohrium_url is not None else \
+            config["bohrium_url"]
+        self.login_url = self.bohrium_url + "/account/login"
         self.username = username if username is not None else \
             config["username"]
         self.password = password if password is not None else \
@@ -132,6 +133,8 @@ class BohriumContext(Context):
                 self.extra) if isinstance(self.extra, dict) else self.extra
             template.annotations["workflow.dp.tech/authorization"] = \
                 self.authorization
+            template.annotations["workflow.dp.tech/executor_addr"] = \
+                self.bohrium_url + "/"
             return template
 
         if isinstance(template, (ShellOPTemplate, PythonScriptOPTemplate)):
