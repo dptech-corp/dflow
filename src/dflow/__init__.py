@@ -14,7 +14,7 @@ from .steps import Steps
 from .task import Task
 from .utils import (copy_artifact, copy_s3, download_artifact, download_s3,
                     path_list_of_artifact, randstr, upload_artifact, upload_s3)
-from .workflow import Workflow
+from .workflow import DockerSecret, Workflow
 
 __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "IfExpression", "InputArtifact", "InputParameter", "Inputs",
@@ -26,4 +26,4 @@ __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "download_artifact", "download_s3", "path_list_of_artifact",
            "s3_config", "upload_artifact", "upload_s3", "Workflow", "config",
            "Context", "randstr", "LocalArtifact", "set_config",
-           "set_s3_config"]
+           "set_s3_config", "DockerSecret"]
