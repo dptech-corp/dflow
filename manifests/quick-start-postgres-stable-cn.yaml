@@ -924,6 +924,7 @@ rules:
   - secrets
   verbs:
   - get
+  - create
 - apiGroups:
   - argoproj.io
   resources:

@@ -34,6 +34,16 @@ except Exception:
     pass
 
 
+class DockerSecret:
+    def __init__(self, registry, username, password, name=None):
+        self.registry = registry
+        self.username = username
+        self.password = password
+        if name is None:
+            name = "dflow-%s" % randstr()
+        self.name = name
+
+
 class Workflow:
     """
     Workflow
@@ -85,7 +95,8 @@ class Workflow:
             annotations: Dict[str, str] = None,
             parallelism: int = None,
             pod_gc_strategy: str = None,
-            image_pull_secrets: Union[str, List[str]] = None,
+            image_pull_secrets: Union[str, DockerSecret,
+                                      List[Union[str, DockerSecret]]] = None,
             artifact_repo_key: str = None,
     ) -> None:
         self.host = host if host is not None else config["host"]
@@ -100,7 +111,7 @@ class Workflow:
         self.annotations = annotations
         self.parallelism = parallelism
         self.pod_gc_strategy = pod_gc_strategy
-        if isinstance(image_pull_secrets, str):
+        if not isinstance(image_pull_secrets, list):
             image_pull_secrets = [image_pull_secrets]
         self.image_pull_secrets = image_pull_secrets
         self.artifact_repo_key = artifact_repo_key if artifact_repo_key is \
@@ -393,6 +404,21 @@ class Workflow:
         else:
             metadata = V1ObjectMeta(
                 generate_name=self.name + '-', annotations=self.annotations)
+
+        if self.image_pull_secrets is not None:
+            for i, s in enumerate(self.image_pull_secrets):
+                if isinstance(s, DockerSecret):
+                    data = {".dockerconfigjson": json.dumps({
+                        "auths": {s.registry: {
+                            "username": s.username, "password": s.password}}})}
+                    secret = kubernetes.client.V1Secret(
+                        string_data=data,
+                        metadata=kubernetes.client.V1ObjectMeta(name=s.name),
+                        type="kubernetes.io/dockerconfigjson")
+                    core_v1_api = self.get_k8s_core_v1_api()
+                    core_v1_api.create_namespaced_secret(
+                        namespace=self.namespace, body=secret)
+                    self.image_pull_secrets[i] = s.name
 
         return V1alpha1Workflow(
             metadata=metadata,
