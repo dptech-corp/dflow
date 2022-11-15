@@ -74,6 +74,21 @@ class FutureRange:
         return list(range(*args))
 
 
+class ArgoRange(ArgoVar):
+    def __init__(self, end, start=0, step=1):
+        self.end = end
+        self.start = start
+        self.step = step
+        if isinstance(start, (InputParameter, OutputParameter)):
+            start = "sprig.atoi(%s)" % start.expr
+        if isinstance(step, (InputParameter, OutputParameter)):
+            step = "sprig.atoi(%s)" % step.expr
+        if isinstance(end, (InputParameter, OutputParameter)):
+            end = "sprig.atoi(%s)" % end.expr
+        super().__init__("toJson(sprig.untilStep(%s, %s, %s))" %
+                         (start, end, step))
+
+
 def argo_range(
         *args,
 ) -> ArgoVar:
@@ -98,13 +113,28 @@ def argo_range(
         step = args[2]
     else:
         raise TypeError("Expected 1-3 arguments, got %s" % len(args))
-    if isinstance(start, (InputParameter, OutputParameter)):
-        start = "sprig.atoi(%s)" % start.expr
-    if isinstance(step, (InputParameter, OutputParameter)):
-        step = "sprig.atoi(%s)" % step.expr
-    if isinstance(end, (InputParameter, OutputParameter)):
-        end = "sprig.atoi(%s)" % end.expr
-    return ArgoVar("toJson(sprig.untilStep(%s, %s, %s))" % (start, end, step))
+    return ArgoRange(end, start, step)
+
+
+class ArgoSequence:
+    def __init__(self, count, start, end, format):
+        self.count = count
+        self.start = start
+        self.end = end
+        self.format = format
+
+    def convert_to_argo(self):
+        count = self.count
+        start = self.start
+        end = self.end
+        if isinstance(count, ArgoVar):
+            count = "{{=%s}}" % count.expr
+        if isinstance(start, ArgoVar):
+            start = "{{=%s}}" % start.expr
+        if isinstance(end, ArgoVar):
+            end = "{{=%s}}" % end.expr
+        return V1alpha1Sequence(count=count, start=start, end=end,
+                                format=self.format)
 
 
 def argo_sequence(
@@ -125,14 +155,30 @@ def argo_sequence(
             with count, can be an Argo parameter
         format: a printf format string to format the value in the sequence
     """
-    if config["mode"] != "debug":
-        if isinstance(count, ArgoVar):
-            count = "{{=%s}}" % count.expr
-        if isinstance(start, ArgoVar):
-            start = "{{=%s}}" % start.expr
-        if isinstance(end, ArgoVar):
-            end = "{{=%s}}" % end.expr
-    return V1alpha1Sequence(count=count, start=start, end=end, format=format)
+    return ArgoSequence(count=count, start=start, end=end, format=format)
+
+
+class ArgoLen(ArgoVar):
+    def __init__(self, param):
+        self.param = param
+        if isinstance(param, S3Artifact):
+            try:
+                path_list = catalog_of_artifact(param)
+                if path_list:
+                    param.path_list = path_list
+            except Exception:
+                pass
+            super().__init__(str(len(param.path_list)))
+        if isinstance(param, InputArtifact):
+            assert config["save_path_as_parameter"]
+            super().__init__("len(sprig.fromJson(%s))" %
+                             param.get_path_list_parameter())
+        elif isinstance(param, OutputArtifact):
+            assert config["save_path_as_parameter"]
+            super().__init__("len(sprig.fromJson(%s))" %
+                             param.get_path_list_parameter())
+        else:
+            super().__init__("len(sprig.fromJson(%s))" % param.expr)
 
 
 def argo_len(
@@ -146,24 +192,43 @@ def argo_len(
     """
     if config["mode"] == "debug":
         return FutureLen(param)
-    if isinstance(param, S3Artifact):
-        try:
-            path_list = catalog_of_artifact(param)
-            if path_list:
-                param.path_list = path_list
-        except Exception:
-            pass
-        return ArgoVar(str(len(param.path_list)))
-    if isinstance(param, InputArtifact):
-        assert config["save_path_as_parameter"]
-        return ArgoVar("len(sprig.fromJson(%s))" %
-                       param.get_path_list_parameter())
-    elif isinstance(param, OutputArtifact):
-        assert config["save_path_as_parameter"]
-        return ArgoVar("len(sprig.fromJson(%s))" %
-                       param.get_path_list_parameter())
-    else:
-        return ArgoVar("len(sprig.fromJson(%s))" % param.expr)
+    return ArgoLen(param)
+
+
+class ArgoSum:
+    def __init__(self, param):
+        self.param = param
+        self.expr = "sum(%s)" % param
+
+
+def argo_sum(
+        param: ArgoVar,
+) -> ArgoSum:
+    """
+    Return the sum of a list of integers which is an Argo parameter
+
+    Args:
+        param: the Argo parameter which is a list of integers
+    """
+    return ArgoSum(param)
+
+
+class ArgoConcat:
+    def __init__(self, param):
+        self.param = param
+        self.expr = "concat(%s)" % param
+
+
+def argo_concat(
+        param: ArgoVar,
+) -> ArgoConcat:
+    """
+    Return the concatenation of a list of lists which is an Argo parameter
+
+    Args:
+        param: the Argo parameter which is a list of lists
+    """
+    return ArgoConcat(param)
 
 
 class Step:
@@ -381,19 +446,44 @@ class Step:
 
             self.template = new_template
 
-        if hasattr(self.template, "slices") and self.template.slices is not \
-                None and (self.template.slices.output_artifact or (
-                    self.template.slices.sub_path and
-                    self.template.slices.input_artifact)):
+        sum_var = None
+        if isinstance(self.with_param, ArgoRange) and \
+                isinstance(self.with_param.end, ArgoSum):
+            sum_var = self.with_param.end.param
+
+        if self.with_sequence is not None and \
+                isinstance(self.with_sequence.count, ArgoSum):
+            sum_var = self.with_sequence.count.param
+
+        concat_var = None
+        if isinstance(self.with_param, ArgoRange) and \
+                isinstance(self.with_param.end, ArgoLen) and \
+                isinstance(self.with_param.end.param, ArgoConcat):
+            concat_var = self.with_param.end.param.param
+
+        if self.with_sequence is not None and \
+                isinstance(self.with_sequence.count, ArgoLen) and \
+                isinstance(self.with_sequence.count.param, ArgoConcat):
+            concat_var = self.with_sequence.count.param.param
+
+        sliced_output_artifact = self.template.slices.output_artifact if \
+            hasattr(self.template, "slices") and \
+            self.template.slices is not None else []
+
+        sliced_input_artifact = self.template.slices.input_artifact if \
+            hasattr(self.template, "slices") and \
+            self.template.slices is not None and \
+            self.template.slices.sub_path else []
+
+        if sliced_output_artifact or sliced_input_artifact or \
+                sum_var is not None or concat_var is not None:
             if new_template is None:
                 new_template = deepcopy(self.template)
                 new_template.name = self.template.name + "-" + randstr()
             init_template = InitArtifactForSlices(
                 new_template.name, self.util_image, self.util_command,
-                self.util_image_pull_policy, self.key,
-                self.template.slices.output_artifact,
-                self.template.slices.sub_path,
-                self.template.slices.input_artifact)
+                self.util_image_pull_policy, self.key, sliced_output_artifact,
+                sliced_input_artifact, sum_var, concat_var)
             if self.key is not None:
                 new_template.inputs.parameters["dflow_group_key"] = \
                     InputParameter(value="")
@@ -401,7 +491,7 @@ class Step:
                     value=re.sub("{{item.*}}", "group", str(self.key)))
                 # For the case of reusing sliced steps, ensure that the output
                 # artifacts are reused
-                for name in new_template.slices.output_artifact:
+                for name in sliced_output_artifact:
                     new_template.outputs.artifacts[name].save.append(
                         S3Artifact(key="%s{{workflow.name}}/{{inputs."
                                    "parameters.dflow_group_key}}/%s" % (
@@ -434,7 +524,7 @@ class Step:
             else:
                 new_template.inputs.parameters["dflow_artifact_key"] = \
                     InputParameter(value="")
-                for name in new_template.slices.output_artifact:
+                for name in sliced_output_artifact:
                     new_template.outputs.artifacts[name].save.append(
                         S3Artifact(key="{{inputs.parameters."
                                    "dflow_artifact_key}}/%s" % name))
@@ -478,9 +568,8 @@ class Step:
                     value=self.prepare_step.outputs.parameters[
                         "dflow_artifact_key"])
 
-            if new_template.slices.sub_path and \
-                    new_template.slices.input_artifact:
-                for name in new_template.slices.input_artifact:
+            if sliced_input_artifact:
+                for name in sliced_input_artifact:
                     self.inputs.parameters["dflow_%s_sub_path" %
                                            name].value = "{{item.%s}}" % name
                     # step cannot resolve
@@ -500,9 +589,53 @@ class Step:
                 self.with_param = self.prepare_step.outputs.parameters[
                     "dflow_slices_path"]
 
-            for name in new_template.slices.output_artifact:
+            for name in sliced_output_artifact:
                 self.outputs.artifacts[name].redirect = \
                     self.prepare_step.outputs.artifacts[name]
+
+            if isinstance(self.with_param, ArgoRange) and \
+                    isinstance(self.with_param.end, ArgoSum):
+                name = sum_var.name
+                self.prepare_step.inputs.parameters[name] = InputParameter(
+                    value=str(sum_var))
+                self.with_param = ArgoRange(
+                    self.prepare_step.outputs.parameters["sum_%s" % name],
+                    self.with_param.start,
+                    self.with_param.step)
+
+            if self.with_sequence is not None and \
+                    isinstance(self.with_sequence.count, ArgoSum):
+                name = sum_var.name
+                self.prepare_step.inputs.parameters[name] = InputParameter(
+                    value=str(sum_var))
+                self.with_sequence = argo_sequence(
+                    self.prepare_step.outputs.parameters["sum_%s" % name],
+                    self.with_sequence.start, self.with_sequence.end,
+                    self.with_sequence.format)
+
+            if isinstance(self.with_param, ArgoRange) and \
+                    isinstance(self.with_param.end, ArgoLen) and \
+                    isinstance(self.with_param.end.param, ArgoConcat):
+                name = concat_var.name
+                self.prepare_step.inputs.parameters[name] = InputParameter(
+                    value=str(concat_var))
+                self.with_param = ArgoRange(
+                    argo_len(self.prepare_step.outputs.parameters[
+                        "concat_%s" % name]),
+                    self.with_param.start,
+                    self.with_param.step)
+
+            if self.with_sequence is not None and \
+                    isinstance(self.with_sequence.count, ArgoLen) and \
+                    isinstance(self.with_sequence.count.param, ArgoConcat):
+                name = concat_var.name
+                self.prepare_step.inputs.parameters[name] = InputParameter(
+                    value=str(concat_var))
+                self.with_sequence = argo_sequence(
+                    argo_len(self.prepare_step.outputs.parameters[
+                        "concat_%s" % name]),
+                    self.with_sequence.start, self.with_sequence.end,
+                    self.with_sequence.format)
 
         pvc_arts = []
         for art in self.inputs.artifacts.values():
@@ -748,22 +881,22 @@ class Step:
                 if self.with_sequence.start is not None:
                     steps.inputs.parameters["dflow_sequence_start"] = \
                         InputParameter()
-                    step.with_sequence.start = "{{=%s}}" % \
-                        steps.inputs.parameters["dflow_sequence_start"].expr
+                    step.with_sequence.start = steps.inputs.parameters[
+                        "dflow_sequence_start"]
                     self.inputs.parameters["dflow_sequence_start"] = \
                         InputParameter(value=self.with_sequence.start)
                 if self.with_sequence.end is not None:
                     steps.inputs.parameters["dflow_sequence_end"] = \
                         InputParameter()
-                    step.with_sequence.end = "{{=%s}}" % \
-                        steps.inputs.parameters["dflow_sequence_end"].expr
+                    step.with_sequence.end = steps.inputs.parameters[
+                        "dflow_sequence_end"]
                     self.inputs.parameters["dflow_sequence_end"] = \
                         InputParameter(value=self.with_sequence.end)
                 if self.with_sequence.count is not None:
                     steps.inputs.parameters["dflow_sequence_count"] = \
                         InputParameter()
-                    step.with_sequence.count = "{{=%s}}" % \
-                        steps.inputs.parameters["dflow_sequence_count"].expr
+                    step.with_sequence.count = steps.inputs.parameters[
+                        "dflow_sequence_count"]
                     self.inputs.parameters["dflow_sequence_count"] = \
                         InputParameter(value=self.with_sequence.count)
                 self.with_sequence = None
@@ -910,7 +1043,8 @@ class Step:
                 parameters=self.argo_parameters,
                 artifacts=self.argo_artifacts
             ), when=self.when, with_param=self.with_param,
-            with_sequence=self.with_sequence,
+            with_sequence=None if self.with_sequence is None else
+            self.with_sequence.convert_to_argo(),
             continue_on=V1alpha1ContinueOn(failed=self.continue_on_failed)
         )
 

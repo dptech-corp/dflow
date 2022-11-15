@@ -9,7 +9,8 @@ from .io import (AutonamedDict, IfExpression, InputArtifact, InputParameter,
 from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .resource import Resource
 from .slurm import SlurmJob, SlurmJobTemplate, SlurmRemoteExecutor
-from .step import Step, argo_len, argo_range, argo_sequence
+from .step import (Step, argo_concat, argo_len, argo_range, argo_sequence,
+                   argo_sum)
 from .steps import Steps
 from .task import Task
 from .utils import (copy_artifact, copy_s3, download_artifact, download_s3,
@@ -26,4 +27,4 @@ __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "download_artifact", "download_s3", "path_list_of_artifact",
            "s3_config", "upload_artifact", "upload_s3", "Workflow", "config",
            "Context", "randstr", "LocalArtifact", "set_config",
-           "set_s3_config", "DockerSecret"]
+           "set_s3_config", "DockerSecret", "argo_sum", "argo_concat"]
