@@ -1242,7 +1242,10 @@ class Step:
                 par.value = []
                 for ps in self.parallel_steps:
                     value = ps.outputs.parameters[name].value
-                    par.value.append(value)
+                    if isinstance(value, str):
+                        par.value.append(value)
+                    else:
+                        par.value.append(jsonpickle.dumps(value))
             for name, art in self.outputs.artifacts.items():
                 for save in self.template.outputs.artifacts[name].save:
                     if isinstance(save, S3Artifact):
