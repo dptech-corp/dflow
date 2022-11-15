@@ -8,14 +8,15 @@ from .utils import s3_config
 
 class InitArtifactForSlices(PythonScriptOPTemplate):
     def __init__(self, name, image, command, image_pull_policy, key,
-                 sliced_output_artifact, sub_path, sliced_input_artifact,
-                 tmp_root="/tmp"):
+                 sliced_output_artifact, sliced_input_artifact, sum_var,
+                 concat_var, tmp_root="/tmp"):
         super().__init__(name="%s-init-artifact" % name, image=image,
                          command=command, image_pull_policy=image_pull_policy)
         self.key = key
         self.sliced_output_artifact = sliced_output_artifact
-        self.sub_path = sub_path
         self.sliced_input_artifact = sliced_input_artifact
+        self.sum_var = sum_var
+        self.concat_var = concat_var
         self.tmp_root = tmp_root
 
         if self.key is not None:
@@ -40,14 +41,28 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
                                     % (s3_config["prefix"], name)),
                     archive=None)
 
-        if self.sub_path and self.sliced_input_artifact:
+        if self.sliced_input_artifact:
             for name in self.sliced_input_artifact:
                 self.inputs.artifacts[name] = InputArtifact(
                     path="%s/inputs/artifacts/%s" % (self.tmp_root, name),
                     optional=True, sub_path=config["catalog_dir_name"])
                 self.outputs.parameters["dflow_slices_path"] = OutputParameter(
                     value_from_path="%s/outputs/parameters/dflow_slices_path"
-                    % self.tmp_root, type=str(dict))
+                    % self.tmp_root, type=dict)
+
+        if self.sum_var is not None:
+            name = self.sum_var.name
+            self.inputs.parameters[name] = InputParameter()
+            self.outputs.parameters["sum_%s" % name] = OutputParameter(
+                value_from_path="%s/outputs/parameters/sum_%s" %
+                (self.tmp_root, name), type=int)
+
+        if self.concat_var is not None:
+            name = self.concat_var.name
+            self.inputs.parameters[name] = InputParameter()
+            self.outputs.parameters["concat_%s" % name] = OutputParameter(
+                value_from_path="%s/outputs/parameters/concat_%s" %
+                (self.tmp_root, name), type=list)
 
         self.render_script()
 
@@ -62,7 +77,7 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
                                    config["catalog_dir_name"])
             script += "    json.dump({'path_list': []}, f)\n"
 
-        if self.sub_path and self.sliced_input_artifact:
+        if self.sliced_input_artifact:
             for i, name in enumerate(self.sliced_input_artifact):
                 script += "path_list_%s = []\n" % i
                 script += "path = '%s/inputs/artifacts/%s'\n" % \
@@ -93,6 +108,41 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
             script += "with open('%s/outputs/parameters/dflow_slices_path',"\
                 " 'w') as f:\n" % self.tmp_root
             script += "    json.dump(slices_path, f)\n"
+
+        if self.sum_var is not None:
+            name = self.sum_var.name
+            script += """value = r'{{inputs.parameters.%s}}'
+if "dflow_list_item" in value:
+    dflow_list = []
+    for item in json.loads(value):
+        dflow_list += json.loads(item)
+    var = list(map(lambda x: x['dflow_list_item'], dflow_list))
+else:
+    var = json.loads(value)
+os.makedirs('%s/outputs/parameters', exist_ok=True)
+with open('%s/outputs/parameters/sum_%s', 'w') as f:
+    f.write(str(sum(map(int, var))))\n""" % (
+                name, self.tmp_root, self.tmp_root, name)
+
+        if self.concat_var is not None:
+            name = self.concat_var.name
+            script += """value = r'{{inputs.parameters.%s}}'
+var = []
+if "dflow_list_item" in value:
+    for item in json.loads(value):
+        for i in json.loads(item):
+            var += i['dflow_list_item']
+else:
+    for item in json.loads(value):
+        if isinstance(item, str):
+            var += json.loads(item)
+        else:
+            var += item
+os.makedirs('%s/outputs/parameters', exist_ok=True)
+with open('%s/outputs/parameters/concat_%s', 'w') as f:
+    f.write(json.dumps(var))\n""" % (
+                name, self.tmp_root, self.tmp_root, name)
+
         self.script = script
 
 
