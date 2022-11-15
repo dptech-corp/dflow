@@ -1114,6 +1114,41 @@ self in this method to make the executor reusable</p>
 <section id="module-dflow.step">
 <span id="dflow-step-module"></span><h2>dflow.step module<a class="headerlink" href="#module-dflow.step" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="dflow.step.ArgoConcat">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">ArgoConcat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.ArgoConcat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.step.ArgoLen">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">ArgoLen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.ArgoLen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArgoVar</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.step.ArgoRange">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">ArgoRange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.ArgoRange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArgoVar</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.step.ArgoSequence">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">ArgoSequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.ArgoSequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.step.ArgoSequence.convert_to_argo">
+<span class="sig-name descname"><span class="pre">convert_to_argo</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.ArgoSequence.convert_to_argo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.step.ArgoSum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">ArgoSum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.ArgoSum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="dflow.step.FutureLen">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">FutureLen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">par</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.FutureLen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -1255,6 +1290,17 @@ step-xxxxx
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="dflow.step.argo_concat">
+<span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">argo_concat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.step.ArgoConcat" title="dflow.step.ArgoConcat"><span class="pre">ArgoConcat</span></a></span></span><a class="headerlink" href="#dflow.step.argo_concat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the concatenation of a list of lists which is an Argo parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>param</strong> – the Argo parameter which is a list of lists</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="dflow.step.argo_len">
 <span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">argo_len</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#dflow.common.S3Artifact" title="dflow.common.S3Artifact"><span class="pre">S3Artifact</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></span><a class="headerlink" href="#dflow.step.argo_len" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the length of a list which is an Argo parameter</p>
@@ -1291,6 +1337,17 @@ Argo parameter</p></li>
 with count, can be an Argo parameter</p></li>
 <li><p><strong>format</strong> – a printf format string to format the value in the sequence</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.step.argo_sum">
+<span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">argo_sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.step.ArgoSum" title="dflow.step.ArgoSum"><span class="pre">ArgoSum</span></a></span></span><a class="headerlink" href="#dflow.step.argo_sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the sum of a list of integers which is an Argo parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>param</strong> – the Argo parameter which is a list of integers</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1436,7 +1493,7 @@ generated parallel tasks greater than certain number</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="dflow.util_ops.InitArtifactForSlices">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.util_ops.</span></span><span class="sig-name descname"><span class="pre">InitArtifactForSlices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_pull_policy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sliced_output_artifact</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sliced_input_artifact</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/tmp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.util_ops.InitArtifactForSlices" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.util_ops.</span></span><span class="sig-name descname"><span class="pre">InitArtifactForSlices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_pull_policy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sliced_output_artifact</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sliced_input_artifact</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sum_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concat_var</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/tmp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.util_ops.InitArtifactForSlices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dflow.op_template.PythonScriptOPTemplate" title="dflow.op_template.PythonScriptOPTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PythonScriptOPTemplate</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.util_ops.InitArtifactForSlices.render_script">
@@ -2862,6 +2919,17 @@ must be one of the following:</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="dflow.argo_concat">
+<span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">argo_concat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.step.ArgoConcat" title="dflow.step.ArgoConcat"><span class="pre">ArgoConcat</span></a></span></span><a class="headerlink" href="#dflow.argo_concat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the concatenation of a list of lists which is an Argo parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>param</strong> – the Argo parameter which is a list of lists</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="dflow.argo_len">
 <span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">argo_len</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#dflow.common.S3Artifact" title="dflow.common.S3Artifact"><span class="pre">S3Artifact</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></span><a class="headerlink" href="#dflow.argo_len" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the length of a list which is an Argo parameter</p>
@@ -2898,6 +2966,17 @@ Argo parameter</p></li>
 with count, can be an Argo parameter</p></li>
 <li><p><strong>format</strong> – a printf format string to format the value in the sequence</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.argo_sum">
+<span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">argo_sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.step.ArgoSum" title="dflow.step.ArgoSum"><span class="pre">ArgoSum</span></a></span></span><a class="headerlink" href="#dflow.argo_sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the sum of a list of integers which is an Argo parameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>param</strong> – the Argo parameter which is a list of integers</p>
 </dd>
 </dl>
 </dd></dl>
@@ -3255,6 +3334,14 @@ parameters</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-dflow.step">dflow.step module</a><ul>
+<li><a class="reference internal" href="#dflow.step.ArgoConcat"><code class="docutils literal notranslate"><span class="pre">ArgoConcat</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.ArgoLen"><code class="docutils literal notranslate"><span class="pre">ArgoLen</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.ArgoRange"><code class="docutils literal notranslate"><span class="pre">ArgoRange</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.ArgoSequence"><code class="docutils literal notranslate"><span class="pre">ArgoSequence</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.step.ArgoSequence.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">ArgoSequence.convert_to_argo()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.step.ArgoSum"><code class="docutils literal notranslate"><span class="pre">ArgoSum</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.FutureLen"><code class="docutils literal notranslate"><span class="pre">FutureLen</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.step.FutureLen.get"><code class="docutils literal notranslate"><span class="pre">FutureLen.get()</span></code></a></li>
 </ul>
@@ -3280,9 +3367,11 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.step.Step.set_parameters"><code class="docutils literal notranslate"><span class="pre">Step.set_parameters()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#dflow.step.argo_concat"><code class="docutils literal notranslate"><span class="pre">argo_concat()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.argo_len"><code class="docutils literal notranslate"><span class="pre">argo_len()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.argo_range"><code class="docutils literal notranslate"><span class="pre">argo_range()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.argo_sequence"><code class="docutils literal notranslate"><span class="pre">argo_sequence()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.argo_sum"><code class="docutils literal notranslate"><span class="pre">argo_sum()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.backup"><code class="docutils literal notranslate"><span class="pre">backup()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.eval_bool_expr"><code class="docutils literal notranslate"><span class="pre">eval_bool_expr()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.get_var"><code class="docutils literal notranslate"><span class="pre">get_var()</span></code></a></li>
@@ -3533,9 +3622,11 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.Workflow.terminate"><code class="docutils literal notranslate"><span class="pre">Workflow.terminate()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#dflow.argo_concat"><code class="docutils literal notranslate"><span class="pre">argo_concat()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.argo_len"><code class="docutils literal notranslate"><span class="pre">argo_len()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.argo_range"><code class="docutils literal notranslate"><span class="pre">argo_range()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.argo_sequence"><code class="docutils literal notranslate"><span class="pre">argo_sequence()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.argo_sum"><code class="docutils literal notranslate"><span class="pre">argo_sum()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.copy_artifact"><code class="docutils literal notranslate"><span class="pre">copy_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.copy_s3"><code class="docutils literal notranslate"><span class="pre">copy_s3()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.download_artifact"><code class="docutils literal notranslate"><span class="pre">download_artifact()</span></code></a></li>
