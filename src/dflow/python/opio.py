@@ -14,7 +14,7 @@ class Artifact:
     OPIO signature of artifact
 
     Args:
-        type: str, Path, Set[str], Set[Path], List[str] or List[Path]
+        _type: str, Path, Set[str], Set[Path], List[str] or List[Path]
         archive: compress format of the artifact, None for no compression
         save: place to store the output artifact instead of default storage,
             can be a list
@@ -24,23 +24,25 @@ class Artifact:
 
     def __init__(
             self,
-            type_artifact: Any,
+            _type: Any,
             archive: str = "default",
             save: List[Union[PVC, S3Artifact]] = None,
             optional: bool = False,
             global_name: str = None,
+            sub_path: bool = True,
     ) -> None:
-        self.type = type_artifact
+        self.type = _type
         if archive == "default":
             archive = config["archive_mode"]
         self.archive = archive
         self.save = save
         self.optional = optional
         self.global_name = global_name
-        if type(type_artifact) == type:
-            self.type_string = type_artifact.__name__
+        if type(_type) == type:
+            self.type_string = _type.__name__
         else:
-            self.type_string = str(type_artifact)
+            self.type_string = str(_type)
+        self.sub_path = sub_path
 
     def __setattr__(self, key, value):
         if key == "type":

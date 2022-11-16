@@ -26,12 +26,12 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
         slices = slices if isinstance(slices, list) else [slices]
         path_list = [path_list[i] for i in slices]
     if sign.type == str:
-        if len(path_list) == 1:
+        if len(path_list) == 1 and sign.sub_path:
             return path_list[0]
         else:
             return art_path
     elif sign.type == Path:
-        if len(path_list) == 1:
+        if len(path_list) == 1 and sign.sub_path:
             return path_or_none(path_list[0])
         else:
             return path_or_none(art_path)
