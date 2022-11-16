@@ -111,7 +111,8 @@ class Workflow:
         self.annotations = annotations
         self.parallelism = parallelism
         self.pod_gc_strategy = pod_gc_strategy
-        if not isinstance(image_pull_secrets, list):
+        if image_pull_secrets is not None and not isinstance(
+                image_pull_secrets, list):
             image_pull_secrets = [image_pull_secrets]
         self.image_pull_secrets = image_pull_secrets
         self.artifact_repo_key = artifact_repo_key if artifact_repo_key is \
