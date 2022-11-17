@@ -17,8 +17,7 @@ from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .python import Slices
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
-from .utils import (catalog_of_artifact, merge_dir, randstr, s3_config,
-                    upload_artifact)
+from .utils import catalog_of_artifact, merge_dir, randstr, upload_artifact
 
 try:
     from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
@@ -493,9 +492,8 @@ class Step:
                 # artifacts are reused
                 for name in sliced_output_artifact:
                     new_template.outputs.artifacts[name].save.append(
-                        S3Artifact(key="%s{{workflow.name}}/{{inputs."
-                                   "parameters.dflow_group_key}}/%s" % (
-                                       s3_config["prefix"], name)))
+                        S3Artifact(key="{{workflow.name}}/{{inputs."
+                                   "parameters.dflow_group_key}}/%s" % name))
 
                     def merge_output_artifact(art):
                         step = art.step
@@ -507,9 +505,8 @@ class Step:
                                 value="{{inputs.parameters.dflow_group_key}}")
                         template.outputs.artifacts[art.name].save.append(
                             S3Artifact(
-                                key="%s{{workflow.name}}/{{inputs."
-                                "parameters.dflow_group_key}}/%s" % (
-                                    s3_config["prefix"], name)))
+                                key="{{workflow.name}}/{{inputs."
+                                "parameters.dflow_group_key}}/%s" % name))
 
                     if new_template.outputs.artifacts[name]._from is not \
                             None:
@@ -538,9 +535,8 @@ class Step:
                             InputParameter(value="{{inputs.parameters."
                                            "dflow_artifact_key}}")
                         template.outputs.artifacts[art.name].save.append(
-                            S3Artifact(
-                                key="{{inputs.parameters."
-                                "dflow_artifact_key}}/%s" % name))
+                            S3Artifact(key="{{inputs.parameters."
+                                       "dflow_artifact_key}}/%s" % name))
 
                     if new_template.outputs.artifacts[name]._from is not \
                             None:

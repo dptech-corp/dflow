@@ -27,6 +27,9 @@ class S3Artifact(V1alpha1S3Artifact):
         config = Configuration()
         config.client_side_validation = False
         super().__init__(local_vars_configuration=config, *args, **kwargs)
+        assert isinstance(self.key, str)
+        if not self.key.startswith(s3_config["prefix"]):
+            self.key = s3_config["prefix"] + self.key
         if path_list is None:
             path_list = []
         self.path_list = path_list
