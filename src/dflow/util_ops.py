@@ -3,7 +3,6 @@ from .config import config
 from .io import (InputArtifact, InputParameter, Inputs, OutputArtifact,
                  OutputParameter)
 from .op_template import PythonScriptOPTemplate, ShellOPTemplate
-from .utils import s3_config
 
 
 class InitArtifactForSlices(PythonScriptOPTemplate):
@@ -26,19 +25,17 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
             for name in self.sliced_output_artifact:
                 self.outputs.artifacts[name] = OutputArtifact(
                     path="%s/outputs/artifacts/%s" % (self.tmp_root, name),
-                    save=S3Artifact(key="%s{{workflow.name}}/{{inputs."
-                                    "parameters.dflow_group_key}}/%s"
-                                    % (s3_config["prefix"], name)),
+                    save=S3Artifact(key="{{workflow.name}}/{{inputs."
+                                    "parameters.dflow_group_key}}/%s" % name),
                     archive=None)
         else:
             self.outputs.parameters["dflow_artifact_key"] = OutputParameter(
-                value="%s{{workflow.name}}/{{pod.name}}" %
-                s3_config["prefix"])
+                value="{{workflow.name}}/{{pod.name}}")
             for name in self.sliced_output_artifact:
                 self.outputs.artifacts[name] = OutputArtifact(
                     path="%s/outputs/artifacts/%s" % (self.tmp_root, name),
-                    save=S3Artifact(key="%s{{workflow.name}}/{{pod.name}}/%s"
-                                    % (s3_config["prefix"], name)),
+                    save=S3Artifact(key="{{workflow.name}}/{{pod.name}}/%s"
+                                    % name),
                     archive=None)
 
         if self.sliced_input_artifact:
