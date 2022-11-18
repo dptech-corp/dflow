@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## [1.6.6](https://github.com/deepmodeling/dflow/compare/v1.6.5...v1.6.6) (2022-11-18)
+
+
+### Bug Fixes
+
+* add argo_sum and argo_concat ([487349f](https://github.com/deepmodeling/dflow/commit/487349f6d696a4dbf3b7efce4440b66aaa7338dc))
+* add register_output_artifacts for step ([e047cf4](https://github.com/deepmodeling/dflow/commit/e047cf41dba7b919f7b42343f69f1344a83c8775))
+* create secret for private registry ([e047cf4](https://github.com/deepmodeling/dflow/commit/e047cf41dba7b919f7b42343f69f1344a83c8775))
+* debug mode: mimic argo's behavior on output parameter of parallel steps ([35f7f99](https://github.com/deepmodeling/dflow/commit/35f7f997c8e95f1ac3d95b8e2ba87215617b24d3))
+* enhance error message of bohrium client ([615f4c0](https://github.com/deepmodeling/dflow/commit/615f4c03cbb3f876bd6091f5e22e1eb3b2ad9410))
+* enhance function OP ([6c92799](https://github.com/deepmodeling/dflow/commit/6c9279938cde2904c4b8ccf27902728dc9ec8676))
+* no prefix when user use S3Artifact() ([7d17af3](https://github.com/deepmodeling/dflow/commit/7d17af3ba0a039b3c8b5cd8cca0e9dd3f016c82a))
+* support for always passing root path of artifact ([e9257fa](https://github.com/deepmodeling/dflow/commit/e9257faae5449f9821f7b8f04d8e1a39bf6d39da))
+
 ## [1.6.5](https://github.com/deepmodeling/dflow/compare/v1.6.4...v1.6.5) (2022-11-11)
 
 
