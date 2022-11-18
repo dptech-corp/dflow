@@ -1,6 +1,9 @@
+import json
 from collections.abc import MutableMapping
 from pathlib import Path
 from typing import Any, List, Set, Union
+
+import jsonpickle
 
 from ..common import S3Artifact
 from ..config import config
@@ -9,12 +12,22 @@ from ..io import PVC
 ArtifactAllowedTypes = [str, Path, Set[str], Set[Path], List[str], List[Path]]
 
 
+def type_to_str(type):
+    if hasattr(type, "__module__") and hasattr(type, "__name__"):
+        if type.__module__ == "builtins":
+            return type.__name__
+        else:
+            return "%s.%s" % (type.__module__, type.__name__)
+    else:
+        return str(type)
+
+
 class Artifact:
     """
     OPIO signature of artifact
 
     Args:
-        _type: str, Path, Set[str], Set[Path], List[str] or List[Path]
+        type: str, Path, Set[str], Set[Path], List[str] or List[Path]
         archive: compress format of the artifact, None for no compression
         save: place to store the output artifact instead of default storage,
             can be a list
@@ -24,24 +37,20 @@ class Artifact:
 
     def __init__(
             self,
-            _type: Any,
+            type: Any,
             archive: str = "default",
             save: List[Union[PVC, S3Artifact]] = None,
             optional: bool = False,
             global_name: str = None,
             sub_path: bool = True,
     ) -> None:
-        self.type = _type
+        self.type = type
         if archive == "default":
             archive = config["archive_mode"]
         self.archive = archive
         self.save = save
         self.optional = optional
         self.global_name = global_name
-        if type(_type) == type:
-            self.type_string = _type.__name__
-        else:
-            self.type_string = str(_type)
         self.sub_path = sub_path
 
     def __setattr__(self, key, value):
@@ -52,6 +61,10 @@ class Artifact:
                                                         value,
                                                         ArtifactAllowedTypes)
         super().__setattr__(key, value)
+
+    def to_str(self):
+        return "Artifact(type=%s, optional=%s, sub_path=%s)" % (
+            type_to_str(self.type), self.optional, self.sub_path)
 
 
 class Parameter:
@@ -75,6 +88,16 @@ class Parameter:
         if "default" in kwargs:
             self.default = kwargs["default"]
 
+    def to_str(self):
+        default = ""
+        if hasattr(self, "default"):
+            try:
+                default = ", default=%s" % json.dumps(self.default)
+            except Exception:
+                default = ", default=jsonpickle.loads('%s')" % \
+                    jsonpickle.dumps(self.default)
+        return "Parameter(type=%s%s)" % (type_to_str(self.type), default)
+
 
 class BigParameter:
     """
@@ -89,6 +112,9 @@ class BigParameter:
             type: Any,
     ) -> None:
         self.type = type
+
+    def to_str(self):
+        return "BigParameter(type=%s)" % type_to_str(self.type)
 
 
 class OPIOSign(MutableMapping):
