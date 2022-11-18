@@ -405,7 +405,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "from dflow.python.utils import handle_output_artifact," \
                   " handle_output_parameter\n"
         script += f"from {op_class.__module__} import {class_name}\n\n"
-        if op is None:
+        if hasattr(op_class, "func"):
+            script += "op_obj = %s\n" % class_name
+        elif op is None:
             script += "op_obj = %s()\n" % class_name
         else:
             script += "op_obj = jsonpickle.loads(r'''%s''')\n" % \
