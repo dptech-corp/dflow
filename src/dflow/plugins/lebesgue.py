@@ -73,6 +73,7 @@ class LebesgueContext(Context):
             self,
             username: str = None,
             password: str = None,
+            bohrium_url: str = "https://bohrium.dp.tech",
             login_url: str = "https://workflow.dp.tech/account_gw/login",
             app_name: str = None,
             org_id: str = None,
@@ -82,6 +83,7 @@ class LebesgueContext(Context):
             extra: dict = None,
             authorization: str = None,
     ) -> None:
+        self.bohrium_url = bohrium_url
         self.login_url = login_url
         self.username = username
         self.password = password
@@ -129,6 +131,8 @@ class LebesgueContext(Context):
                 self.extra) if isinstance(self.extra, dict) else self.extra
             template.annotations["workflow.dp.tech/authorization"] = \
                 self.authorization
+            template.annotations["workflow.dp.tech/executor_addr"] = \
+                self.bohrium_url + "/"
             return template
 
         if isinstance(template, (ShellOPTemplate, PythonScriptOPTemplate)):

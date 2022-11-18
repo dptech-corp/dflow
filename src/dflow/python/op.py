@@ -187,10 +187,13 @@ class OP(ABC):
                 op_out = func(**op_in)
                 return op_out
 
+            def __call__(self, **op_in):
+                return self.execute(op_in)
+
         subclass.func = func
         subclass.__name__ = func.__name__
         subclass.__module__ = func.__module__
-        return subclass
+        return subclass()
 
     @classmethod
     def get_opio_info(cls, opio_sign):
