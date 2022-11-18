@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.7](https://github.com/deepmodeling/dflow/compare/v1.6.6...v1.6.7) (2022-11-18)
+
+
+### Bug Fixes
+
+* add host addr for lebesgue executor ([d57b425](https://github.com/deepmodeling/dflow/commit/d57b4250f2d4a14fb76ad361320087911c870d18))
+* make OP function callable ([d57b425](https://github.com/deepmodeling/dflow/commit/d57b4250f2d4a14fb76ad361320087911c870d18))
+
 ## [1.6.6](https://github.com/deepmodeling/dflow/compare/v1.6.5...v1.6.6) (2022-11-18)
 
 
