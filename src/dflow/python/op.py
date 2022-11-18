@@ -4,26 +4,15 @@ import functools
 import inspect
 import json
 import os
-import pathlib
 import warnings
 from abc import ABC
 
-import jsonpickle
 from typeguard import check_type
 
 from ..argo_objects import ArgoObjectDict
 from ..utils import get_key, s3_config
-from .opio import OPIO, Artifact, BigParameter, OPIOSign, Parameter
-
-
-def type_to_str(type):
-    if hasattr(type, "__module__") and hasattr(type, "__name__"):
-        if type.__module__ == "builtins":
-            return type.__name__
-        else:
-            return "%s.%s" % (type.__module__, type.__name__)
-    else:
-        return str(type)
+from .opio import (OPIO, Artifact, BigParameter, OPIOSign, Parameter,
+                   type_to_str)
 
 
 class OP(ABC):
@@ -36,7 +25,6 @@ class OP(ABC):
     """
     progress_total = 1
     progress_current = 0
-    subclass = {}
 
     def __init__(
             self,
@@ -161,136 +149,55 @@ class OP(ABC):
                 check_type(ii, io, ss)
 
     @classmethod
-    def function(cls, func=None, *, msg=None):
-        if func is None:
-            return functools.partial(cls.function, msg=msg)
-
+    def function(cls, func):
         signature = func.__annotations__
         return_type = signature.get('return', None)
 
-        def get_input_sign():
-            return OPIOSign(
+        input_sign = OPIOSign(
                 {k: v for k, v in signature.items() if k != 'return'})
 
-        class subclass(cls, abc.ABC):
-            pass
-
-        cls.subclass[func.__name__] = subclass
-        cls.subclass[func.__name__].get_input_sign = get_input_sign
-
-        def get_output_sign():
-            if isinstance(return_type, dict):
-                return OPIOSign({k: v for k, v in return_type.items()})
-            elif return_type.hasattr('__annotations__'):
-                return OPIOSign(
-                    {k: v for k, v in return_type.__annotations__.items()})
-            elif not return_type:
-                warnings.warn(
-                    'We recommended using return type signature like:'
-                    '\n'
-                    "def func()->TypedDict('op',{'x': int, 'y': str})")
-                return {}
-            else:
-                raise ValueError(
-                    'Unknown return value annotation, '
-                    f'Expected class dict or typing.TypedDict, '
-                    f'got {type(return_type)}.')
-
-        cls.subclass[func.__name__].get_output_sign = get_output_sign
-
-        def execute(
-                self,
-                op_in: OPIO,
-        ) -> OPIO:
-            op_out = func(**op_in)
-            return op_out
-
-        cls.subclass[func.__name__].execute = execute
-        cls.subclass[func.__name__].func = func
-        cls.subclass[func.__name__].__name__ = func.__name__
-        input_sign_dict = {k: v for k, v in signature.items() if
-                           k != 'return'}
-        input_sign = '{'
-        # type of value defined in annotation maybe builtin type or Artifact;
-        # Artifact has type name from typing package(List), or builtin
-        # type(str) and also pathlib.Path
-        for k, v in input_sign_dict.items():
-            if type(v) == type:
-                input_sign += f'"{k}":{v.__name__},'
-            else:
-                input_sign += f'"{k}":{f"Artifact({v.type_string})"}'
-        input_sign += '}'
-        output_sign = "{"
         if isinstance(return_type, dict):
-            output_sign_dict = {k: v for k, v in return_type.items()}
+            output_sign = OPIOSign({k: v for k, v in return_type.items()})
         elif return_type.hasattr('__annotations__'):
-            output_sign_dict = {k: v for k, v in
-                                return_type.__annotations__.items()}
+            output_sign = OPIOSign(
+                {k: v for k, v in return_type.__annotations__.items()})
         elif not return_type:
             warnings.warn(
                 'We recommended using return type signature like:'
                 '\n'
-                "def func()->TypedDict('op',{'x': int, 'y': str})")
-            output_sign_dict = {}
+                "def func()->TypedDict('op', {'x': int, 'y': str})")
+            output_sign = {}
         else:
             raise ValueError(
                 'Unknown return value annotation, '
                 f'Expected class dict or typing.TypedDict, '
                 f'got {type(return_type)}.')
-        for k, v in output_sign_dict.items():
-            if type(v) == type:
-                output_sign += f'"{k}":{v.__name__}'
-            else:
-                output_sign += f'"{k}":{f"Artifact({v.type_string})"}'
-        output_sign += '}'
-        sourcelinnum = inspect.getsourcelines(func)[1]
-        cls.subclass[func.__name__].script = "\n".join(
-            pathlib.Path(
-                inspect.getsourcefile(func)
-            ).read_text().split("\n")[:sourcelinnum - 1])
-        cls.subclass[func.__name__].script += \
-            """from dflow.python import (Artifact, OPIOSign) \n""" + \
-            """import typing\nimport pathlib\n""" + \
-            f"""class {func.__name__}(OP):           \n""" + \
-            """    @classmethod                     \n""" + \
-            """    def get_input_sign(cls):         \n""" + \
-            """        return OPIOSign(             \n""" + \
-            """                {})                  \n""".format(
-                input_sign
-        ) + \
-            """                                     \n""" + \
-            """    @classmethod                     \n""" + \
-            """    def get_output_sign(cls):        \n""" + \
-            """        return OPIOSign({})          \n""".format(
-                output_sign) + \
-            """    @OP.exec_sign_check              \n""" + \
-            """    def execute(self,op_in: OPIO,):   \n""" + \
-            """        {}                           \n""".format(
-                "\n        ".join(inspect.getsource(func).split("\n")[1:])) + \
-            f"""        return {func.__name__}(**op_in)\n""" + \
-            """"""
-        return cls.subclass[func.__name__]
+
+        class subclass(cls):
+            @classmethod
+            def get_input_sign(cls):
+                return input_sign
+
+            @classmethod
+            def get_output_sign(cls):
+                return output_sign
+
+            @OP.exec_sign_check
+            def execute(self, op_in):
+                op_out = func(**op_in)
+                return op_out
+
+        subclass.func = func
+        subclass.__name__ = func.__name__
+        subclass.__module__ = func.__module__
+        return subclass
 
     @classmethod
     def get_opio_info(cls, opio_sign):
         opio = {}
         for io, sign in opio_sign.items():
-            if isinstance(sign, Artifact):
-                type = type_to_str(sign.type)
-                opio[io] = "Artifact(type=%s, optional=%s)" % (
-                    type, sign.optional)
-            elif isinstance(sign, Parameter):
-                type = type_to_str(sign.type)
-                if hasattr(sign, "default"):
-                    default = sign.default if isinstance(sign.default, str) \
-                        else jsonpickle.dumps(sign.default)
-                    opio[io] = "Parameter(type=%s, default=%s)" % (
-                        type, default)
-                else:
-                    opio[io] = "Parameter(type=%s)" % type
-            elif isinstance(sign, BigParameter):
-                type = type_to_str(sign.type)
-                opio[io] = "BigParameter(type=%s)" % type
+            if type(sign) in [Artifact, Parameter, BigParameter]:
+                opio[io] = sign.to_str()
             else:
                 opio[io] = type_to_str(sign)
         return opio

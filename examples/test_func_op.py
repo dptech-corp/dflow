@@ -1,23 +1,16 @@
 import time
 from pathlib import Path
-from typing import TypeVar
 
 from dflow import Step, Workflow, download_artifact, upload_artifact
-from dflow.python import (OP, Artifact, PythonOPTemplate,
-                          upload_packages)
+from dflow.python import OP, Artifact, PythonOPTemplate, upload_packages
 
 if '__file__' in locals():
     upload_packages.append(__file__)
 
-msg = TypeVar('msg')
-bar = TypeVar('bar')
-odir = TypeVar('odir')
-
 
 @OP.function
-def Duplicate(msg: str, num: int, foo: Artifact(Path), idir: Artifact(
-    Path), ) -> {'msg': str, 'bar': Artifact(Path), 'odir': Artifact(Path),
-                 }:
+def Duplicate(msg: str, num: int, foo: Artifact(Path), idir: Artifact(Path)
+              ) -> {'msg': str, 'bar': Artifact(Path), 'odir': Artifact(Path)}:
     msg_out = msg * num
     bar = Path('output.txt')
     odir = Path('todir')
