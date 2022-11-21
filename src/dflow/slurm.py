@@ -1,10 +1,11 @@
-import copy
 import os
 import re
+from copy import deepcopy
 from typing import Dict, List, Union
 
 from .config import config
-from .executor import Executor, RemoteExecutor, run_script
+from .executor import (Executor, RemoteExecutor, render_script_with_tmp_root,
+                       run_script)
 from .io import (PVC, InputArtifact, InputParameter, OutputArtifact,
                  OutputParameter)
 from .op_template import ScriptOPTemplate, ShellOPTemplate
@@ -47,10 +48,12 @@ class SlurmJob(Resource):
             self.remote_command
         batch = self.header + "\n"
         batch += "mkdir -p %s\ncd %s\n" % (self.workdir, self.workdir)
-        batch += "cat <<'EOF' > script\n%s\nEOF\n" % template.script
         if self.map_tmp_dir:
-            batch += "sed -i \"s#/tmp#$(pwd)/tmp#g\" script\n"
-
+            remote_script = render_script_with_tmp_root(
+                template, "%s/tmp" % self.workdir)
+        else:
+            remote_script = template.script
+        batch += "cat <<'EOF' > script\n%s\nEOF\n" % remote_script
         batch += run_script(template.image, remote_command,
                             self.docker_executable,
                             self.singularity_executable,
@@ -158,7 +161,7 @@ class SlurmJobTemplate(Executor):
                     prepare_template.inputs.parameters[name] = \
                         InputParameter(
                         value="{{inputs.parameters.%s}}" % name)
-            prepare_template.inputs.artifacts = copy.deepcopy(
+            prepare_template.inputs.artifacts = deepcopy(
                 template.inputs.artifacts)
             prepare_template.outputs.parameters["dflow_vol_path"] = \
                 OutputParameter(value="/tmp/{{pod.name}}")
@@ -208,7 +211,7 @@ class SlurmJobTemplate(Executor):
                 success_condition=slurm_job.success_condition,
                 failure_condition=slurm_job.failure_condition,
                 manifest=slurm_job.get_manifest(template=template)))
-        run_template.inputs.parameters = copy.deepcopy(
+        run_template.inputs.parameters = deepcopy(
             template.inputs.parameters)
         parameters = {}
         for par_name in template.inputs.parameters:
@@ -249,9 +252,9 @@ class SlurmJobTemplate(Executor):
                     collect_template.inputs.parameters[name] = \
                         InputParameter(
                         value="{{inputs.parameters.%s}}" % name)
-            collect_template.outputs.parameters = copy.deepcopy(
+            collect_template.outputs.parameters = deepcopy(
                 template.outputs.parameters)
-            collect_template.outputs.artifacts = copy.deepcopy(
+            collect_template.outputs.artifacts = deepcopy(
                 template.outputs.artifacts)
             collect_step = Step("slurm-collect", template=collect_template,
                                 parameters={
@@ -333,10 +336,8 @@ class SlurmRemoteExecutor(RemoteExecutor):
         self.pvc = pvc
 
     def run(self, image, remote_command):
-        map_cmd = "sed -i \"s#/tmp#$(pwd)/tmp#g\" script" if \
-            self.map_tmp_dir else ""
-        script = "echo '%s\n%s\n%s' > slurm.sh\n" % (
-            self.header, map_cmd, run_script(
+        script = "echo '%s\n%s' > slurm.sh\n" % (
+            self.header, run_script(
                 image, remote_command, self.docker_executable,
                 self.singularity_executable, self.podman_executable))
 

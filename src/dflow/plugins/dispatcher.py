@@ -5,7 +5,7 @@ from typing import List, Union
 
 from ..common import S3Artifact
 from ..config import config
-from ..executor import Executor, run_script
+from ..executor import Executor, render_script_with_tmp_root, run_script
 from ..io import InputArtifact
 from ..utils import randstr, upload_s3
 
@@ -189,9 +189,7 @@ class DispatcherExecutor(Executor):
             else self.remote_command
         cmd = ""
         if self.map_tmp_dir:
-            cmd += "if [ \\\"$(head -n 1 script)\\\" != \\\"# modified by "\
-                "dflow\\\" ]; then sed -i \\\"s#/tmp#$(pwd)/tmp#g\\\" script"\
-                "; sed -i \\\"1i # modified by dflow\\\" script; fi && "
+            cmd += "sed -i \\\"s#\\\\$(pwd)#$(pwd)#g\\\" script && "
 
         cmd += run_script(template.image, remote_command,
                           self.docker_executable, self.singularity_executable,
@@ -217,7 +215,11 @@ class DispatcherExecutor(Executor):
         new_template.script += "os.chdir('%s')\n" % self.work_root
         new_template.script += "with open('script', 'w') as f:\n"
         new_template.script += "    f.write(r\"\"\"\n"
-        new_template.script += template.script
+        if self.map_tmp_dir:
+            new_template.script += render_script_with_tmp_root(template,
+                                                               "$(pwd)/tmp")
+        else:
+            new_template.script += template.script
         new_template.script += "\"\"\")\n"
 
         if self.machine_dict["context_type"] == "Bohrium" and "image_name" \

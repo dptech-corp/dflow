@@ -48,6 +48,16 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None):
         return "%s script" % " ".join(cmd)
 
 
+def render_script_with_tmp_root(template, tmp_root):
+    if hasattr(template, "render_script"):
+        tmp_template = deepcopy(template)
+        tmp_template.tmp_root = tmp_root
+        tmp_template.render_script()
+        return tmp_template.script
+    else:
+        return template.script.replace("/tmp", tmp_root)
+
+
 class RemoteExecutor(Executor):
     def __init__(
             self,
@@ -111,8 +121,6 @@ class RemoteExecutor(Executor):
 
     def run(self, image, remote_command):
         script = "cd %s && " % self.workdir
-        if self.map_tmp_dir:
-            script += "sed -i \"s#/tmp#$(pwd)/tmp#g\" script && "
         return self.execute(script + run_script(
             image, remote_command, self.docker_executable,
             self.singularity_executable, self.podman_executable)) + \
@@ -129,7 +137,11 @@ class RemoteExecutor(Executor):
                           os.path.dirname(path)) + "\n"
 
     def get_script(self, template):
-        remote_script = template.script
+        if self.map_tmp_dir:
+            remote_script = render_script_with_tmp_root(
+                template, "%s/tmp" % self.workdir)
+        else:
+            remote_script = template.script
         remote_command = template.command if self.remote_command is None \
             else self.remote_command
         ssh_pass = "sshpass -p %s " % self.password if self.password is not \
