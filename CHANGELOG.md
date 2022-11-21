@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.9](https://github.com/deepmodeling/dflow/compare/v1.6.8...v1.6.9) (2022-11-21)
+
+
+### Bug Fixes
+
+* use render_script method to map /tmp to /Users/x.liu/workflows/dflow/tmp for PythonOPTemplate ([77a50a6](https://github.com/deepmodeling/dflow/commit/77a50a6c0ac2bdec1faba73ec3a6f663e737a27e))
+
 ## [1.6.8](https://github.com/deepmodeling/dflow/compare/v1.6.7...v1.6.8) (2022-11-21)
 
 
