@@ -134,6 +134,25 @@ class DispatcherExecutor(Executor):
         if machine_dict is not None:
             update_dict(self.machine_dict, machine_dict)
 
+        if self.machine_dict["context_type"] == "Bohrium":
+            if "batch_type" not in self.machine_dict:
+                self.machine_dict["batch_type"] = "Bohrium"
+            if "email" not in self.machine_dict["remote_profile"]:
+                self.machine_dict["remote_profile"]["email"] = username
+            if "password" not in self.machine_dict["remote_profile"]:
+                self.machine_dict["remote_profile"]["password"] = password
+            if "input_data" not in self.machine_dict["remote_profile"]:
+                self.machine_dict["remote_profile"]["input_data"] = {}
+            input_data = self.machine_dict["remote_profile"]["input_data"]
+            if "job_type" not in input_data:
+                input_data["job_type"] = "container"
+            if "platform" not in input_data:
+                input_data["platform"] = "ali"
+            if "scass_type" not in input_data:
+                input_data["scass_type"] = "c4_m8_cpu"
+            if "job_name" not in input_data:
+                input_data["job_name"] = "{{pod.name}}"
+
         # set env to prevent dispatcher from considering different tasks as one
         self.resources_dict = {
             "number_node": 1,
@@ -200,6 +219,11 @@ class DispatcherExecutor(Executor):
         new_template.script += "    f.write(r\"\"\"\n"
         new_template.script += template.script
         new_template.script += "\"\"\")\n"
+
+        if self.machine_dict["context_type"] == "Bohrium" and "image_name" \
+                not in self.machine_dict["remote_profile"]["input_data"]:
+            self.machine_dict["remote_profile"]["input_data"]["image_name"] = \
+                template.image
 
         self.machine_dict["local_root"] = self.work_root
         new_template.script += "import json\n"
