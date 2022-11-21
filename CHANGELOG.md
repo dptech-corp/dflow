@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.8](https://github.com/deepmodeling/dflow/compare/v1.6.7...v1.6.8) (2022-11-21)
+
+
+### Bug Fixes
+
+* bohrium in dispatcher executor ([2c19211](https://github.com/deepmodeling/dflow/commit/2c192114e475c580897a46df19cf3407caf1ba9b))
+
 ## [1.6.7](https://github.com/deepmodeling/dflow/compare/v1.6.6...v1.6.7) (2022-11-18)
 
 
