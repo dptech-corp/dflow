@@ -3,7 +3,7 @@ from copy import deepcopy
 from getpass import getpass
 
 from ..context import Context
-from ..executor import Executor
+from ..executor import Executor, render_script_with_tmp_root
 from ..op_template import PythonScriptOPTemplate, ShellOPTemplate
 from ..utils import randstr
 from ..workflow import Workflow
@@ -42,8 +42,8 @@ class LebesgueExecutor(Executor):
                 self.extra) if isinstance(self.extra, dict) else self.extra
         if self.executor == "lebesgue_v2" and template.annotations[
                 "workflow.dp.tech/executor"] != "lebesgue_v2":
-            new_template.script = new_template.script.replace(
-                "/tmp", "$(pwd)/tmp")
+            new_template.script = render_script_with_tmp_root(template,
+                                                              "$(pwd)/tmp")
             if isinstance(template, ShellOPTemplate):
                 new_template.script = "mkdir -p tmp\n" + new_template.script
             if isinstance(template, PythonScriptOPTemplate):
@@ -141,8 +141,8 @@ class LebesgueContext(Context):
             new_template.annotations["workflow.dp.tech/executor"] = \
                 self.executor
             if self.executor == "lebesgue_v2":
-                new_template.script = new_template.script.replace(
-                    "/tmp", "$(pwd)/tmp")
+                new_template.script = render_script_with_tmp_root(template,
+                                                                  "$(pwd)/tmp")
                 if isinstance(template, ShellOPTemplate):
                     new_template.script = "mkdir -p tmp\n" + \
                         new_template.script
