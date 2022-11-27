@@ -1,6 +1,6 @@
 import os
 from copy import deepcopy
-from typing import List, Union
+from typing import Optional, List, Union
 
 from .common import S3Artifact
 from .config import config
@@ -64,17 +64,17 @@ class RemoteExecutor(Executor):
             host: str,
             port: int = 22,
             username: str = "root",
-            password: str = None,
-            private_key_file: os.PathLike = None,
+            password: Optional[str] = None,
+            private_key_file: Optional[os.PathLike] = None,
             workdir: str = "~/dflow/workflows/{{workflow.name}}/{{pod.name}}",
             command: Union[str, List[str]] = None,
             remote_command: Union[str, List[str]] = None,
-            image: str = None,
-            image_pull_policy: str = None,
+            image: Optional[str] = None,
+            image_pull_policy: Optional[str] = None,
             map_tmp_dir: bool = True,
-            docker_executable: str = None,
-            singularity_executable: str = None,
-            podman_executable: str = None,
+            docker_executable: Optional[str] = None,
+            singularity_executable: Optional[str] = None,
+            podman_executable: Optional[str] = None,
             action_retries: int = -1,
     ) -> None:
         self.host = host

@@ -50,8 +50,8 @@ def get_key(artifact, raise_error=True):
 def download_artifact(
         artifact,
         extract: bool = True,
-        sub_path: str = None,
-        slice: int = None,
+        sub_path: Optional[str] = None,
+        slice: Optional[int] = None,
         **kwargs,
 ) -> List[str]:
     """
@@ -229,7 +229,7 @@ def get_md5(f):
 
 def download_s3(
         key: str,
-        path: os.PathLike = None,
+        path: Optional[os.PathLike] = None,
         recursive: bool = True,
         skip_exists: bool = False,
         **kwargs,
@@ -266,8 +266,8 @@ def download_s3(
 
 def upload_s3(
         path: os.PathLike,
-        key: str = None,
-        prefix: str = None,
+        key: Optional[str] = None,
+        prefix: Optional[str] = None,
         **kwargs,
 ) -> str:
     if s3_config["storage_client"] is not None:
@@ -576,11 +576,11 @@ class StorageClient:
 
 class MinioClient(StorageClient):
     def __init__(self,
-                 endpoint: str = None,
-                 access_key: str = None,
-                 secret_key: str = None,
-                 secure: bool = None,
-                 bucket_name: str = None,
+                 endpoint: Optional[str] = None,
+                 access_key: Optional[str] = None,
+                 secret_key: Optional[str] = None,
+                 secure: Optional[bool] = None,
+                 bucket_name: Optional[str] = None,
                  **kwargs,
                  ) -> None:
         self.client = Minio(

@@ -2,6 +2,7 @@ import json
 import os
 from copy import deepcopy
 from getpass import getpass
+from typing import Optional
 
 from ..context import Context
 from ..executor import Executor, render_script_with_tmp_root
@@ -58,8 +59,8 @@ class BohriumExecutor(Executor):
 
     def __init__(
             self,
-            executor: str = None,
-            extra: dict = None,
+            executor: Optional[str] = None,
+            extra: Optional[dict] = None,
     ) -> None:
         self.executor = executor
         self.extra = extra
@@ -103,12 +104,12 @@ class BohriumContext(Context):
 
     def __init__(
             self,
-            username: str = None,
-            password: str = None,
-            bohrium_url: str = None,
-            executor: str = None,
-            extra: dict = None,
-            authorization: str = None,
+            username: Optional[str] = None,
+            password: Optional[str] = None,
+            bohrium_url: Optional[str] = None,
+            executor: Optional[str] = None,
+            extra: Optional[dict] = None,
+            authorization: Optional[str] = None,
     ) -> None:
         self.bohrium_url = bohrium_url if bohrium_url is not None else \
             config["bohrium_url"]
@@ -162,14 +163,14 @@ class BohriumContext(Context):
 class TiefblueClient:
     def __init__(
             self,
-            bohrium_url: str = None,
-            username: str = None,
-            password: str = None,
-            authorization: str = None,
-            project_id: str = None,
-            token: str = None,
-            prefix: str = None,
-            tiefblue_url: str = None,
+            bohrium_url: Optional[str] = None,
+            username: Optional[str] = None,
+            password: Optional[str] = None,
+            authorization: Optional[str] = None,
+            project_id: Optional[str] = None,
+            token: Optional[str] = None,
+            prefix: Optional[str] = None,
+            tiefblue_url: Optional[str] = None,
     ) -> None:
         # only set s3_config["storage_client"] once
         if isinstance(s3_config["storage_client"], self.__class__):

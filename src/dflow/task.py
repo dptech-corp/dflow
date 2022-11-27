@@ -1,4 +1,4 @@
-from typing import List
+from typing import Optional, List
 
 from .io import OutputArtifact, OutputParameter
 from .op_template import OPTemplate
@@ -42,7 +42,7 @@ class Task(Step):
             self,
             name: str,
             template: OPTemplate,
-            dependencies: List["Task"] = None,
+            dependencies: Optional[List["Task"]] = None,
             **kwargs,
     ) -> None:
         if dependencies is None:

@@ -4,7 +4,7 @@ import os
 import random
 import string
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Optional, Any, Dict, List, Union
 
 import jsonpickle
 import typeguard
@@ -48,13 +48,13 @@ class Slices:
 
     def __init__(
             self,
-            slices: str = None,
-            input_parameter: List[str] = None,
-            input_artifact: List[str] = None,
-            output_parameter: List[str] = None,
-            output_artifact: List[str] = None,
+            slices: Optional[str] = None,
+            input_parameter: Optional[List[str]] = None,
+            input_artifact: Optional[List[str]] = None,
+            output_parameter: Optional[List[str]] = None,
+            output_artifact: Optional[List[str]] = None,
             sub_path: bool = False,
-            pool_size: int = None,
+            pool_size: Optional[int] = None,
     ) -> None:
         self.input_parameter = input_parameter if input_parameter is not \
             None else []
@@ -125,7 +125,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
     def __init__(self,
                  op_class: OP,
-                 image: str = None,
+                 image: Optional[str] = None,
                  command: Union[str, List[str]] = None,
                  output_artifact_save: Dict[str,
                                             List[Union[PVC, S3Artifact]]]
@@ -138,20 +138,20 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  output_parameter_slices: Dict[str, str] = None,
                  output_artifact_global_name: Dict[str, str] = None,
                  output_parameter_global_name: Dict[str, str] = None,
-                 slices: Slices = None,
-                 python_packages: List[os.PathLike] = None,
-                 timeout: int = None,
-                 retry_on_transient_error: int = None,
+                 slices: Optional[Slices] = None,
+                 python_packages: Optional[List[os.PathLike]] = None,
+                 timeout: Optional[int] = None,
+                 retry_on_transient_error: Optional[int] = None,
                  timeout_as_transient_error: bool = False,
-                 memoize_key: str = None,
-                 volumes: List[V1Volume] = None,
-                 mounts: List[V1VolumeMount] = None,
-                 image_pull_policy: str = None,
+                 memoize_key: Optional[str] = None,
+                 volumes: Optional[List[V1Volume]] = None,
+                 mounts: Optional[List[V1VolumeMount]] = None,
+                 image_pull_policy: Optional[str] = None,
                  requests: Dict[str, str] = None,
                  limits: Dict[str, str] = None,
                  upload_dflow: bool = True,
                  envs: Dict[str, str] = None,
-                 init_containers: List[V1alpha1UserContainer] = None,
+                 init_containers: Optional[List[V1alpha1UserContainer]] = None,
                  tmp_root: str = "/tmp",
                  **kwargs,
                  ) -> None:
@@ -416,7 +416,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "input_sign = %s.get_input_sign()\n" % class_name
         script += "output_sign = %s.get_output_sign()\n" % class_name
         if self.slices is not None and self.slices.pool_size is not None:
-            script += "from typing import List\n"
+            script += "from typing import Optional, List\n"
             script += "from pathlib import Path\n"
             for name in self.slices.input_artifact:
                 if isinstance(input_sign[name], Artifact):

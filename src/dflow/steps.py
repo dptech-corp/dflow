@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Dict, List, Union
+from typing import Optional, Dict, List, Union
 
 from .io import Inputs, Outputs
 from .op_template import OPTemplate
@@ -27,13 +27,13 @@ class Steps(OPTemplate):
 
     def __init__(
             self,
-            name: str = None,
-            inputs: Inputs = None,
-            outputs: Outputs = None,
+            name: Optional[str] = None,
+            inputs: Optional[Inputs] = None,
+            outputs: Optional[Outputs] = None,
             steps: List[Union[Step, List[Step]]] = None,
-            memoize_key: str = None,
+            memoize_key: Optional[str] = None,
             annotations: Dict[str, str] = None,
-            parallelism: int = None,
+            parallelism: Optional[int] = None,
     ) -> None:
         super().__init__(name=name, inputs=inputs, outputs=outputs,
                          memoize_key=memoize_key, annotations=annotations)
