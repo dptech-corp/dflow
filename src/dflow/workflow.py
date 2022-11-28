@@ -305,6 +305,7 @@ class Workflow:
         assert self.id is None, "Do not submit a workflow repeatedly"
         manifest = self.convert_to_argo(reuse_step=reuse_step)
 
+        logging.debug("submit manifest:\n%s" % manifest)
         response = self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s' % self.namespace, 'POST',
             body=V1alpha1WorkflowCreateRequest(workflow=manifest),

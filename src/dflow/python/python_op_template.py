@@ -405,115 +405,120 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "from dflow.python.utils import handle_output_artifact," \
                   " handle_output_parameter\n"
         script += f"from {op_class.__module__} import {class_name}\n\n"
+        script += "if __name__ == '__main__':\n"
         if hasattr(op_class, "func"):
-            script += "op_obj = %s\n" % class_name
+            script += "    op_obj = %s\n" % class_name
         elif op is None:
-            script += "op_obj = %s()\n" % class_name
+            script += "    op_obj = %s()\n" % class_name
         else:
-            script += "op_obj = jsonpickle.loads(r'''%s''')\n" % \
+            script += "    op_obj = jsonpickle.loads(r'''%s''')\n" % \
                 jsonpickle.dumps(op)
-        script += "input = OPIO()\n"
-        script += "input_sign = %s.get_input_sign()\n" % class_name
-        script += "output_sign = %s.get_output_sign()\n" % class_name
+        script += "    input = OPIO()\n"
+        script += "    input_sign = %s.get_input_sign()\n" % class_name
+        script += "    output_sign = %s.get_output_sign()\n" % class_name
         if self.slices is not None and self.slices.pool_size is not None:
-            script += "from typing import List\n"
-            script += "from pathlib import Path\n"
+            script += "    from typing import List\n"
+            script += "    from pathlib import Path\n"
             for name in self.slices.input_artifact:
                 if isinstance(input_sign[name], Artifact):
                     if input_sign[name].type == str:
-                        script += "input_sign['%s'].type = List[str]\n" % name
+                        script += "    input_sign['%s'].type = List[str]\n" % \
+                            name
                     elif input_sign[name].type == Path:
-                        script += "input_sign['%s'].type = List[Path]\n" % name
+                        script += "    input_sign['%s'].type = List[Path]\n" %\
+                            name
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(input_artifact_slices, name)
                 if self.slices is not None and self.slices.sub_path and \
                         name in self.slices.input_artifact:
-                    script += "input['%s'] = handle_input_artifact('%s', "\
+                    script += "    input['%s'] = handle_input_artifact('%s', "\
                         "input_sign['%s'], %s, '%s', '{{inputs.parameters."\
                         "dflow_%s_sub_path}}')\n" % (name, name, name, slices,
                                                      self.tmp_root, name)
                 else:
-                    script += "input['%s'] = handle_input_artifact('%s', "\
+                    script += "    input['%s'] = handle_input_artifact('%s', "\
                         "input_sign['%s'], %s, '%s')\n" \
                         % (name, name, name, slices, self.tmp_root)
             else:
                 slices = self.get_slices(input_parameter_slices, name)
                 if isinstance(sign, BigParameter) and \
                         config["mode"] != "debug":
-                    script += "input['%s'] = handle_input_parameter('%s', '',"\
-                        " input_sign['%s'], %s, '%s')\n" \
+                    script += "    input['%s'] = handle_input_parameter('%s',"\
+                        " '', input_sign['%s'], %s, '%s')\n" \
                         % (name, name, name, slices, self.tmp_root)
                 else:
-                    script += "input['%s'] = handle_input_parameter('%s', "\
-                        "r'''{{inputs.parameters.%s}}''', input_sign['%s'], "\
+                    script += "    input['%s'] = handle_input_parameter('%s',"\
+                        " r'''{{inputs.parameters.%s}}''', input_sign['%s'], "\
                         "%s, '%s')\n" % (name, name, name, name, slices,
                                          self.tmp_root)
 
-        script += "try:\n"
+        script += "    try:\n"
         if self.slices is not None and self.slices.pool_size is not None:
             sliced_inputs = self.slices.input_artifact + \
                 self.slices.input_parameter
             if len(sliced_inputs) > 1:
-                script += "    assert %s\n" % " == ".join(
+                script += "        assert %s\n" % " == ".join(
                     ["len(input['%s'])" % i for i in sliced_inputs])
-            script += "    n_slices = len(input['%s'])\n" % sliced_inputs[0]
-            script += "    input_list = []\n"
-            script += "    from copy import deepcopy\n"
-            script += "    for i in range(n_slices):\n"
-            script += "        input1 = deepcopy(input)\n"
+            script += "        n_slices = len(input['%s'])\n" % \
+                sliced_inputs[0]
+            script += "        input_list = []\n"
+            script += "        from copy import deepcopy\n"
+            script += "        for i in range(n_slices):\n"
+            script += "            input1 = deepcopy(input)\n"
             for name in sliced_inputs:
-                script += "        input1['%s'] = list(input['%s'])[i]\n" % (
-                    name, name)
-            script += "        input_list.append(input1)\n"
+                script += "            input1['%s'] = list(input['%s'])[i]\n" \
+                    % (name, name)
+            script += "            input_list.append(input1)\n"
             if self.slices.pool_size == 1:
-                script += "    output_list = []\n"
-                script += "    for input in input_list:\n"
-                script += "        output = op_obj.execute(input)\n"
-                script += "        output_list.append(output)\n"
+                script += "        output_list = []\n"
+                script += "        for input in input_list:\n"
+                script += "            output = op_obj.execute(input)\n"
+                script += "            output_list.append(output)\n"
             else:
-                script += "    from multiprocessing import Pool\n"
+                script += "        from multiprocessing import Pool\n"
                 if self.slices.pool_size == -1:
-                    script += "    pool = Pool(n_slices)\n"
+                    script += "        pool = Pool(n_slices)\n"
                 else:
-                    script += "    pool = Pool(%s)\n" % self.slices.pool_size
-                script += "    output_list = pool.map(op_obj.execute, "\
+                    script += "        pool = Pool(%s)\n" % \
+                        self.slices.pool_size
+                script += "        output_list = pool.map(op_obj.execute, "\
                     "input_list)\n"
             sliced_outputs = self.slices.output_artifact + \
                 self.slices.output_parameter
-            script += "    output = deepcopy(output_list[0])\n"
+            script += "        output = deepcopy(output_list[0])\n"
             for name in sliced_outputs:
-                script += "    output['%s'] = [o['%s'] for o in output_list]"\
-                    "\n" % (name, name)
+                script += "        output['%s'] = [o['%s'] for o in "\
+                    "output_list]\n" % (name, name)
                 if isinstance(output_sign[name], Artifact):
                     if output_sign[name].type == str:
-                        script += "    output_sign['%s'].type = List[str]\n"\
-                            % name
+                        script += "        output_sign['%s'].type = List[str]"\
+                            "\n" % name
                     elif output_sign[name].type == Path:
-                        script += "    output_sign['%s'].type = List[Path]\n"\
-                            % name
+                        script += "        output_sign['%s'].type = List[Path"\
+                            "]\n" % name
         else:
-            script += "    output = op_obj.execute(input)\n"
-        script += "except TransientError:\n"
-        script += "    traceback.print_exc()\n"
-        script += "    sys.exit(1)\n"
-        script += "except FatalError:\n"
-        script += "    traceback.print_exc()\n"
-        script += "    sys.exit(2)\n"
+            script += "        output = op_obj.execute(input)\n"
+        script += "    except TransientError:\n"
+        script += "        traceback.print_exc()\n"
+        script += "        sys.exit(1)\n"
+        script += "    except FatalError:\n"
+        script += "        traceback.print_exc()\n"
+        script += "        sys.exit(2)\n"
 
-        script += "os.makedirs('%s/outputs/parameters', exist_ok=True)\n" \
+        script += "    os.makedirs('%s/outputs/parameters', exist_ok=True)\n" \
             % self.tmp_root
-        script += "os.makedirs('%s/outputs/artifacts', exist_ok=True)\n" \
+        script += "    os.makedirs('%s/outputs/artifacts', exist_ok=True)\n" \
             % self.tmp_root
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(output_artifact_slices, name)
-                script += "handle_output_artifact('%s', output['%s'], "\
+                script += "    handle_output_artifact('%s', output['%s'], "\
                     "output_sign['%s'], %s, '%s')\n" % (name, name, name,
                                                         slices, self.tmp_root)
             else:
                 slices = self.get_slices(output_parameter_slices, name)
-                script += "handle_output_parameter('%s', output['%s'], "\
+                script += "    handle_output_parameter('%s', output['%s'], "\
                     "output_sign['%s'], %s, '%s')\n" % (name, name, name,
                                                         slices, self.tmp_root)
 
