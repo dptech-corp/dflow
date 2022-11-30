@@ -1,7 +1,7 @@
 import json
 from collections.abc import MutableMapping
 from pathlib import Path
-from typing import Any, List, Set, Union
+from typing import Optional, Any, List, Set, Union
 
 import jsonpickle
 
@@ -41,7 +41,7 @@ class Artifact:
             archive: str = "default",
             save: List[Union[PVC, S3Artifact]] = None,
             optional: bool = False,
-            global_name: str = None,
+            global_name: Optional[str] = None,
             sub_path: bool = True,
     ) -> None:
         self.type = type
@@ -80,7 +80,7 @@ class Parameter:
     def __init__(
             self,
             type: Any,
-            global_name: str = None,
+            global_name: Optional[str] = None,
             **kwargs,
     ) -> None:
         self.type = type

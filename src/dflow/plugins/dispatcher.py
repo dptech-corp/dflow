@@ -1,7 +1,7 @@
 import json
 import os
 from copy import deepcopy
-from typing import List, Union
+from typing import Optional, List, Union
 
 from ..common import S3Artifact
 from ..config import config
@@ -51,25 +51,25 @@ class DispatcherExecutor(Executor):
     """
 
     def __init__(self,
-                 host: str = None,
-                 queue_name: str = None,
+                 host: Optional[str] = None,
+                 queue_name: Optional[str] = None,
                  port: int = 22,
                  username: str = "root",
-                 password: str = None,
-                 private_key_file: os.PathLike = None,
-                 image: str = None,
-                 image_pull_policy: str = None,
+                 password: Optional[str] = None,
+                 private_key_file: Optional[os.PathLike] = None,
+                 image: Optional[str] = None,
+                 image_pull_policy: Optional[str] = None,
                  command: Union[str, List[str]] = "python3",
                  remote_command: Union[str, List[str]] = None,
                  map_tmp_dir: bool = True,
-                 machine_dict: dict = None,
-                 resources_dict: dict = None,
-                 task_dict: dict = None,
-                 json_file: os.PathLike = None,
-                 docker_executable: str = None,
-                 singularity_executable: str = None,
-                 podman_executable: str = None,
-                 remote_root: str = None,
+                 machine_dict: Optional[dict] = None,
+                 resources_dict: Optional[dict] = None,
+                 task_dict: Optional[dict] = None,
+                 json_file: Optional[os.PathLike] = None,
+                 docker_executable: Optional[str] = None,
+                 singularity_executable: Optional[str] = None,
+                 podman_executable: Optional[str] = None,
+                 remote_root: Optional[str] = None,
                  ) -> None:
         self.host = host
         self.queue_name = queue_name

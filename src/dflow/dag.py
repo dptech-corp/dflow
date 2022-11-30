@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Optional, Dict, List, Union
 
 from .io import Inputs, Outputs
 from .op_template import OPTemplate
@@ -27,13 +27,13 @@ class DAG(OPTemplate):
 
     def __init__(
             self,
-            name: str = None,
-            inputs: Inputs = None,
-            outputs: Outputs = None,
-            tasks: List[Task] = None,
-            memoize_key: str = None,
+            name: Optional[str] = None,
+            inputs: Optional[Inputs] = None,
+            outputs: Optional[Outputs] = None,
+            tasks: Optional[List[Task]] = None,
+            memoize_key: Optional[str] = None,
             annotations: Dict[str, str] = None,
-            parallelism: int = None,
+            parallelism: Optional[int] = None,
     ) -> None:
         super().__init__(name=name, inputs=inputs, outputs=outputs,
                          memoize_key=memoize_key, annotations=annotations)

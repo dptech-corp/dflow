@@ -1,7 +1,7 @@
 import os
 import re
 from copy import deepcopy
-from typing import Dict, List, Union
+from typing import Optional, Dict, List, Union
 
 from .config import config
 from .executor import (Executor, RemoteExecutor, render_script_with_tmp_root,
@@ -99,15 +99,15 @@ class SlurmJobTemplate(Executor):
             self,
             header: str = "",
             node_selector: Dict[str, str] = None,
-            prepare_image: str = None,
-            prepare_image_pull_policy: str = None,
-            collect_image: str = None,
-            collect_image_pull_policy: str = None,
+            prepare_image: Optional[str] = None,
+            prepare_image_pull_policy: Optional[str] = None,
+            collect_image: Optional[str] = None,
+            collect_image_pull_policy: Optional[str] = None,
             workdir: str = "dflow/workflows/{{workflow.name}}/{{pod.name}}",
             remote_command: Union[str, List[str]] = None,
-            docker_executable: str = None,
-            singularity_executable: str = None,
-            podman_executable: str = None,
+            docker_executable: Optional[str] = None,
+            singularity_executable: Optional[str] = None,
+            podman_executable: Optional[str] = None,
     ) -> None:
         self.header = header
         self.node_selector = node_selector
@@ -307,21 +307,21 @@ class SlurmRemoteExecutor(RemoteExecutor):
             host: str,
             port: int = 22,
             username: str = "root",
-            password: str = None,
-            private_key_file: os.PathLike = None,
+            password: Optional[str] = None,
+            private_key_file: Optional[os.PathLike] = None,
             workdir: str = "~/dflow/workflows/{{workflow.name}}/{{pod.name}}",
             command: Union[str, List[str]] = None,
             remote_command: Union[str, List[str]] = None,
-            image: str = None,
-            image_pull_policy: str = None,
+            image: Optional[str] = None,
+            image_pull_policy: Optional[str] = None,
             map_tmp_dir: bool = True,
-            docker_executable: str = None,
-            singularity_executable: str = None,
-            podman_executable: str = None,
+            docker_executable: Optional[str] = None,
+            singularity_executable: Optional[str] = None,
+            podman_executable: Optional[str] = None,
             action_retries: int = -1,
             header: str = "",
             interval: int = 3,
-            pvc: PVC = None,
+            pvc: Optional[PVC] = None,
     ) -> None:
         super().__init__(
             host=host, port=port, username=username, password=password,

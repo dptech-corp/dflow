@@ -1,3 +1,5 @@
+from typing import Optional
+
 from .op_template import OPTemplate
 
 
@@ -10,9 +12,9 @@ class Resource(object):
         success_condition: expression representing success
         failure_condition: expression representing failure
     """
-    action: str = None
-    success_condition: str = None
-    failure_condition: str = None
+    action: Optional[str] = None
+    success_condition: Optional[str] = None
+    failure_condition: Optional[str] = None
 
     def get_manifest(
             self,
