@@ -1659,7 +1659,7 @@ generated parallel tasks greater than certain number</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dflow.utils.find_subclass">
-<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">find_subclass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.find_subclass" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">find_subclass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pkg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.find_subclass" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1765,6 +1765,11 @@ generated parallel tasks greater than certain number</p></li>
 </pre></div>
 </div>
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.utils.subclass_or_none">
+<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">subclass_or_none</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.subclass_or_none" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dflow.utils.upload_artifact">
@@ -1976,6 +1981,21 @@ must be one of the following:</p>
 <span class="sig-name descname"><span class="pre">terminate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dflow.workflow.Workflow.terminate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Terminate the workflow</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.workflow.Workflow.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.workflow.Workflow.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow.to_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.workflow.Workflow.to_yaml">
+<span class="sig-name descname"><span class="pre">to_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow.to_yaml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -2938,6 +2958,21 @@ must be one of the following:</p>
 <dd><p>Terminate the workflow</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.Workflow.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Workflow.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.Workflow.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Workflow.to_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.Workflow.to_yaml">
+<span class="sig-name descname"><span class="pre">to_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Workflow.to_yaml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
@@ -3467,6 +3502,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.utils.remove_empty_dir_tag"><code class="docutils literal notranslate"><span class="pre">remove_empty_dir_tag()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.run_command"><code class="docutils literal notranslate"><span class="pre">run_command()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.set_directory"><code class="docutils literal notranslate"><span class="pre">set_directory()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.subclass_or_none"><code class="docutils literal notranslate"><span class="pre">subclass_or_none()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.upload_artifact"><code class="docutils literal notranslate"><span class="pre">upload_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.upload_s3"><code class="docutils literal notranslate"><span class="pre">upload_s3()</span></code></a></li>
 </ul>
@@ -3490,6 +3526,9 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.workflow.Workflow.submit"><code class="docutils literal notranslate"><span class="pre">Workflow.submit()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.workflow.Workflow.suspend"><code class="docutils literal notranslate"><span class="pre">Workflow.suspend()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.workflow.Workflow.terminate"><code class="docutils literal notranslate"><span class="pre">Workflow.terminate()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.to_dict"><code class="docutils literal notranslate"><span class="pre">Workflow.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.to_json"><code class="docutils literal notranslate"><span class="pre">Workflow.to_json()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.to_yaml"><code class="docutils literal notranslate"><span class="pre">Workflow.to_yaml()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -3643,6 +3682,9 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.Workflow.submit"><code class="docutils literal notranslate"><span class="pre">Workflow.submit()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Workflow.suspend"><code class="docutils literal notranslate"><span class="pre">Workflow.suspend()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Workflow.terminate"><code class="docutils literal notranslate"><span class="pre">Workflow.terminate()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.to_dict"><code class="docutils literal notranslate"><span class="pre">Workflow.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.to_json"><code class="docutils literal notranslate"><span class="pre">Workflow.to_json()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.to_yaml"><code class="docutils literal notranslate"><span class="pre">Workflow.to_yaml()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#dflow.argo_concat"><code class="docutils literal notranslate"><span class="pre">argo_concat()</span></code></a></li>
