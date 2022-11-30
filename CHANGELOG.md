@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.6.10](https://github.com/deepmodeling/dflow/compare/v1.6.9...v1.6.10) (2022-11-30)
+
+
+### Bug Fixes
+
+* add debug info for workflow manifest ([5ca6fa7](https://github.com/deepmodeling/dflow/commit/5ca6fa7230d286b596685ce99bf859c3c18f60af))
+* add if __name__ == '__main__': to Python OP ([5ca6fa7](https://github.com/deepmodeling/dflow/commit/5ca6fa7230d286b596685ce99bf859c3c18f60af))
+* add to_dict, to_json, to_yaml methods to workflow ([56ccf13](https://github.com/deepmodeling/dflow/commit/56ccf137b3029138efc5f09545f28ec714039e4a))
+* find function OPs ([56ccf13](https://github.com/deepmodeling/dflow/commit/56ccf137b3029138efc5f09545f28ec714039e4a))
+
 ## [1.6.9](https://github.com/deepmodeling/dflow/compare/v1.6.8...v1.6.9) (2022-11-21)
 
 
