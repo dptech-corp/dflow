@@ -305,6 +305,7 @@ class Workflow:
         assert self.id is None, "Do not submit a workflow repeatedly"
         manifest = self.convert_to_argo(reuse_step=reuse_step)
 
+        logging.debug("submit manifest:\n%s" % manifest)
         response = self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s' % self.namespace, 'POST',
             body=V1alpha1WorkflowCreateRequest(workflow=manifest),
@@ -436,6 +437,16 @@ class Workflow:
                 else V1alpha1ArtifactRepositoryRef(key=self.artifact_repo_key)
             ),
             status=status)
+
+    def to_dict(self):
+        return self.api_instance.api_client.sanitize_for_serialization(
+            self.convert_to_argo())
+
+    def to_json(self, **kwargs):
+        return json.dumps(self.to_dict(), **kwargs)
+
+    def to_yaml(self, **kwargs):
+        return yaml.dump(self.to_dict(), **kwargs)
 
     def handle_template(self, template, memoize_prefix=None,
                         memoize_configmap="dflow"):
