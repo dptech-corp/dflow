@@ -438,6 +438,16 @@ class Workflow:
             ),
             status=status)
 
+    def to_dict(self):
+        return self.api_instance.api_client.sanitize_for_serialization(
+            self.convert_to_argo())
+
+    def to_json(self, **kwargs):
+        return json.dumps(self.to_dict(), **kwargs)
+
+    def to_yaml(self, **kwargs):
+        return yaml.dump(self.to_dict(), **kwargs)
+
     def handle_template(self, template, memoize_prefix=None,
                         memoize_configmap="dflow"):
         if template.name in self.templates:

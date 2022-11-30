@@ -523,26 +523,36 @@ def run_command(
     return return_code, out, err
 
 
-def find_subclass(module, cls):
-    ops = []
-    for _, m in inspect.getmembers(module):
-        if inspect.isclass(m) and issubclass(m, cls) and m != cls and \
-                m not in ops:
-            ops.append(m)
-    if hasattr(module, "__path__"):
-        for path in module.__path__:
+def subclass_or_none(m, cls):
+    if inspect.isclass(m) and issubclass(m, cls) and m != cls:
+        return m
+    elif isinstance(m, cls) and m.__class__ != cls:
+        return m.__class__
+    else:
+        return None
+
+
+def find_subclass(pkg, cls):
+    subclasses = []
+    for _, m in inspect.getmembers(pkg):
+        s = subclass_or_none(m, cls)
+        if s is not None and s not in subclasses:
+            subclasses.append(m)
+    if hasattr(pkg, "__path__"):
+        for path in pkg.__path__:
             for dir, _, _ in os.walk(path):
-                pkg = (module.__name__ + dir[len(path):]).replace("/", ".")
+                subpkg = (pkg.__name__ + dir[len(path):]).replace("/", ".")
                 for _, name, _ in pkgutil.iter_modules([dir]):
                     try:
-                        mod = __import__(pkg + "." + name, fromlist=pkg)
+                        mod = __import__(subpkg + "." + name, fromlist=subpkg)
                         for _, m in inspect.getmembers(mod):
-                            if inspect.isclass(m) and issubclass(m, cls) and \
-                                    m != cls and m not in ops:
-                                ops.append(m)
-                    except Exception:
-                        pass
-    return ops
+                            s = subclass_or_none(m, cls)
+                            if s is not None and s not in subclasses:
+                                subclasses.append(s)
+                    except Exception as e:
+                        logging.warning("Fail to inspect submodule %s: %s" % (
+                            name, e))
+    return subclasses
 
 
 def linktree(src, dst, func=os.symlink):

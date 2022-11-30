@@ -212,5 +212,8 @@ class OP(ABC):
         res["name"] = name
         res["inputs"] = cls.get_opio_info(cls.get_input_sign())
         res["outputs"] = cls.get_opio_info(cls.get_output_sign())
-        res["execute"] = "".join(inspect.getsourcelines(cls.execute)[0])
+        if hasattr(cls, "func"):
+            res["execute"] = "".join(inspect.getsourcelines(cls.func)[0])
+        else:
+            res["execute"] = "".join(inspect.getsourcelines(cls.execute)[0])
         return res
