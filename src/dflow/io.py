@@ -2,7 +2,7 @@ import os
 import tempfile
 from collections import UserDict
 from copy import deepcopy
-from typing import Any, Dict, List, Union
+from typing import Optional, Any, Dict, List, Union
 
 import jsonpickle
 
@@ -222,8 +222,8 @@ class PVC:
             name: str,
             subpath: str,
             size: str = "1Gi",
-            storage_class: str = None,
-            access_modes: List[str] = None,
+            storage_class: Optional[str] = None,
+            access_modes: Optional[List[str]] = None,
     ) -> None:
         self.name = name
         self.subpath = subpath
@@ -246,12 +246,12 @@ class InputParameter(ArgoVar):
 
     def __init__(
             self,
-            name: str = None,
+            name: Optional[str] = None,
             step=None,
             template=None,
-            type: Any = None,
+            type: Optional[Any] = None,
             save_as_artifact: bool = False,
-            path: str = None,
+            path: Optional[str] = None,
             source: Union["InputArtifact",
                           "OutputArtifact", S3Artifact] = None,
             **kwargs,
@@ -391,16 +391,16 @@ class InputArtifact(ArgoVar):
 
     def __init__(
             self,
-            path: str = None,
-            name: str = None,
+            path: Optional[str] = None,
+            name: Optional[str] = None,
             step=None,
             template=None,
             optional: bool = False,
-            type: Any = None,
+            type: Optional[Any] = None,
             source: Union[str, "InputArtifact",
                           "OutputArtifact", S3Artifact] = None,
-            mode: int = None,
-            sub_path: str = None,
+            mode: Optional[int] = None,
+            sub_path: Optional[str] = None,
             **kwargs,
     ) -> None:
         self.path = path
@@ -503,14 +503,14 @@ class OutputParameter(ArgoVar):
 
     def __init__(
             self,
-            value_from_path: str = None,
+            value_from_path: Optional[str] = None,
             value_from_parameter: Union[InputParameter,
                                         "OutputParameter"] = None,
-            name: str = None,
+            name: Optional[str] = None,
             step=None,
             template=None,
-            type: Any = None,
-            global_name: str = None,
+            type: Optional[Any] = None,
+            global_name: Optional[str] = None,
             value_from_expression: Union[str, IfExpression] = None,
             save_as_artifact: bool = False,
             **kwargs,
@@ -697,15 +697,15 @@ class OutputArtifact(ArgoVar):
 
     def __init__(
             self,
-            path: os.PathLike = None,
+            path: Optional[os.PathLike] = None,
             _from: Union[InputArtifact, "OutputArtifact"] = None,
-            name: str = None,
+            name: Optional[str] = None,
             step=None,
             template=None,
-            type: Any = None,
+            type: Optional[Any] = None,
             save: List[Union[PVC, S3Artifact]] = None,
             archive: str = "default",
-            global_name: str = None,
+            global_name: Optional[str] = None,
             from_expression: Union[IfExpression, str] = None,
             **kwargs,
     ) -> None:

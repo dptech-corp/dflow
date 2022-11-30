@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from typing import Dict, List, Union
+from typing import Optional, Dict, List, Union
 
 import jsonpickle
 
@@ -82,22 +82,22 @@ class Workflow:
     def __init__(
             self,
             name: str = "workflow",
-            steps: Steps = None,
-            dag: DAG = None,
-            namespace: str = None,
-            id: str = None,
-            uid: str = None,
-            host: str = None,
-            token: str = None,
-            k8s_config_file: os.PathLike = None,
-            k8s_api_server: str = None,
-            context: Context = None,
+            steps: Optional[Steps] = None,
+            dag: Optional[DAG] = None,
+            namespace: Optional[str] = None,
+            id: Optional[str] = None,
+            uid: Optional[str] = None,
+            host: Optional[str] = None,
+            token: Optional[str] = None,
+            k8s_config_file: Optional[os.PathLike] = None,
+            k8s_api_server: Optional[str] = None,
+            context: Optional[Context] = None,
             annotations: Dict[str, str] = None,
-            parallelism: int = None,
-            pod_gc_strategy: str = None,
+            parallelism: Optional[int] = None,
+            pod_gc_strategy: Optional[str] = None,
             image_pull_secrets: Union[str, DockerSecret,
                                       List[Union[str, DockerSecret]]] = None,
-            artifact_repo_key: str = None,
+            artifact_repo_key: Optional[str] = None,
     ) -> None:
         self.host = host if host is not None else config["host"]
         self.token = token if token is not None else config["token"]
@@ -207,7 +207,7 @@ class Workflow:
 
     def submit(
             self,
-            reuse_step: List[ArgoStep] = None,
+            reuse_step: Optional[List[ArgoStep]] = None,
     ) -> ArgoWorkflow:
         """
         Submit the workflow

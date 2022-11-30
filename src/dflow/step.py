@@ -3,7 +3,7 @@ import os
 import re
 import sys
 from copy import deepcopy
-from typing import Any, Dict, List, Union
+from typing import Optional, Any, Dict, List, Union
 
 import jsonpickle
 
@@ -140,7 +140,7 @@ def argo_sequence(
         count: Union[int, ArgoVar] = None,
         start: Union[int, ArgoVar] = None,
         end: Union[int, ArgoVar] = None,
-        format: str = None,
+        format: Optional[str] = None,
 ) -> V1alpha1Sequence:
     """
     Return a numeric sequence in Argo
@@ -265,21 +265,21 @@ class Step:
             parameters: Dict[str, Any] = None,
             artifacts: Dict[str, Union[S3Artifact,
                                        InputArtifact, OutputArtifact]] = None,
-            when: str = None,
+            when: Optional[str] = None,
             with_param: Union[str, list,
                               InputParameter, OutputParameter] = None,
             continue_on_failed: bool = False,
-            continue_on_num_success: int = None,
-            continue_on_success_ratio: float = None,
-            with_sequence: V1alpha1Sequence = None,
-            key: str = None,
-            executor: Executor = None,
-            use_resource: Resource = None,
-            util_image: str = None,
-            util_image_pull_policy: str = None,
+            continue_on_num_success: Optional[int] = None,
+            continue_on_success_ratio: Optional[float] = None,
+            with_sequence: Optional[V1alpha1Sequence] = None,
+            key: Optional[str] = None,
+            executor: Optional[Executor] = None,
+            use_resource: Optional[Resource] = None,
+            util_image: Optional[str] = None,
+            util_image_pull_policy: Optional[str] = None,
             util_command: Union[str, List[str]] = None,
-            parallelism: int = None,
-            slices: Slices = None,
+            parallelism: Optional[int] = None,
+            slices: Optional[Slices] = None,
             register_output_artifacts: Dict[str, dict] = None,
             **kwargs,
     ) -> None:

@@ -1,6 +1,7 @@
 import json
 from copy import deepcopy
 from getpass import getpass
+from typing import Optional
 
 from ..context import Context
 from ..executor import Executor, render_script_with_tmp_root
@@ -22,8 +23,8 @@ class LebesgueExecutor(Executor):
 
     def __init__(
             self,
-            executor: str = None,
-            extra: dict = None,
+            executor: Optional[str] = None,
+            extra: Optional[dict] = None,
     ) -> None:
         self.executor = executor
         self.extra = extra
@@ -71,17 +72,17 @@ class LebesgueContext(Context):
 
     def __init__(
             self,
-            username: str = None,
-            password: str = None,
+            username: Optional[str] = None,
+            password: Optional[str] = None,
             bohrium_url: str = "https://bohrium.dp.tech",
             login_url: str = "https://workflow.dp.tech/account_gw/login",
-            app_name: str = None,
-            org_id: str = None,
-            user_id: str = None,
-            tag: str = None,
-            executor: str = None,
-            extra: dict = None,
-            authorization: str = None,
+            app_name: Optional[str] = None,
+            org_id: Optional[str] = None,
+            user_id: Optional[str] = None,
+            tag: Optional[str] = None,
+            executor: Optional[str] = None,
+            extra: Optional[dict] = None,
+            authorization: Optional[str] = None,
     ) -> None:
         self.bohrium_url = bohrium_url
         self.login_url = login_url
