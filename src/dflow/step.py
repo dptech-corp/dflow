@@ -951,6 +951,21 @@ class Step:
             if v is None:
                 del self.inputs.artifacts[k]
                 self.template.inputs.artifacts[k].optional = True
+            elif isinstance(v, (list, tuple)):
+                self.template = deepcopy(self.template)
+                for i, a in enumerate(v):
+                    vn = "dflow_%s_%s" % (k, i)
+                    self.template.inputs.artifacts[vn] = deepcopy(
+                        self.template.inputs.artifacts[k])
+                    self.template.inputs.artifacts[vn].path = \
+                        "%s/inputs/artifacts/%s" % (self.template.tmp_root, vn)
+                    self.inputs.artifacts[vn] = deepcopy(
+                        self.template.inputs.artifacts[vn])
+                    self.inputs.artifacts[vn].source = a
+                del self.template.inputs.artifacts[k]
+                del self.inputs.artifacts[k]
+                self.template.n_parts[k] = len(v)
+                self.template.render_script()
             else:
                 self.inputs.artifacts[k].source = v
                 if config["save_path_as_parameter"]:
