@@ -13,15 +13,27 @@ from .opio import BigParameter, Parameter
 
 
 def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
-                          sub_path=None):
-    if sub_path is None:
-        art_path = '%s/inputs/artifacts/%s' % (data_root, name)
+                          sub_path=None, n_parts=None):
+    if n_parts is not None:
+        path_list = []
+        for i in range(n_parts):
+            art_path = '%s/inputs/artifacts/dflow_%s_%s' % (data_root, name, i)
+            remove_empty_dir_tag(art_path)
+            pl = assemble_path_list(art_path)
+            if pl:
+                path_list += pl
+            else:
+                path_list.append(art_path)
     else:
-        art_path = '%s/inputs/artifacts/%s/%s' % (data_root, name, sub_path)
-    if not os.path.exists(art_path):  # for optional artifact
-        return None
-    remove_empty_dir_tag(art_path)
-    path_list = assemble_path_list(art_path)
+        if sub_path is None:
+            art_path = '%s/inputs/artifacts/%s' % (data_root, name)
+        else:
+            art_path = '%s/inputs/artifacts/%s/%s' % (data_root, name,
+                                                      sub_path)
+        if not os.path.exists(art_path):  # for optional artifact
+            return None
+        remove_empty_dir_tag(art_path)
+        path_list = assemble_path_list(art_path)
     if slices is not None:
         slices = slices if isinstance(slices, list) else [slices]
         path_list = [path_list[i] for i in slices]
@@ -122,7 +134,7 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
                     path, name, s, data_root))
 
     os.makedirs(data_root + "/outputs/artifacts/%s/%s" % (name, config[
-            "catalog_dir_name"]), exist_ok=True)
+        "catalog_dir_name"]), exist_ok=True)
     with open(data_root + "/outputs/artifacts/%s/%s/%s" % (name, config[
             "catalog_dir_name"], uuid.uuid4()), "w") as f:
         f.write(jsonpickle.dumps({"path_list": path_list}))

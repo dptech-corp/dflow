@@ -155,6 +155,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  tmp_root: str = "/tmp",
                  **kwargs,
                  ) -> None:
+        self.n_parts = {}
         self.op_class = op_class
         op = None
         if isinstance(op_class, OP):
@@ -434,12 +435,13 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                         name in self.slices.input_artifact:
                     script += "    input['%s'] = handle_input_artifact('%s', "\
                         "input_sign['%s'], %s, '%s', '{{inputs.parameters."\
-                        "dflow_%s_sub_path}}')\n" % (name, name, name, slices,
-                                                     self.tmp_root, name)
+                        "dflow_%s_sub_path}}', None)\n" % (
+                            name, name, name, slices, self.tmp_root, name)
                 else:
                     script += "    input['%s'] = handle_input_artifact('%s', "\
-                        "input_sign['%s'], %s, '%s')\n" \
-                        % (name, name, name, slices, self.tmp_root)
+                        "input_sign['%s'], %s, '%s', None, %s)\n" \
+                        % (name, name, name, slices, self.tmp_root,
+                           self.n_parts.get(name, None))
             else:
                 slices = self.get_slices(input_parameter_slices, name)
                 if isinstance(sign, BigParameter) and \
