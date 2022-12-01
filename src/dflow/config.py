@@ -62,6 +62,7 @@ s3_config = {
     "repo_prefix": "",
     "prefix": "",
     "storage_client": None,
+    "extra_prefixes": [],
 }
 
 
@@ -84,5 +85,6 @@ def set_s3_config(
         repo_prefix: prefix of artifact repository, parsed from repo_key
         prefix: prefix of storage key
         storage_client: client for plugin storage backend
+        extra_prefixes: extra prefixes ignored by auto-prefixing
     """
     s3_config.update(kwargs)

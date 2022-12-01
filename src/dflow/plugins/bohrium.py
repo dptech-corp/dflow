@@ -170,6 +170,8 @@ class TiefblueClient:
             project_id: Optional[str] = None,
             token: Optional[str] = None,
             prefix: Optional[str] = None,
+            sharePath: Optional[str] = None,
+            userSharePath: Optional[str] = None,
             tiefblue_url: Optional[str] = None,
     ) -> None:
         # only set s3_config["storage_client"] once
@@ -191,10 +193,14 @@ class TiefblueClient:
             config["tiefblue_url"]
         self.token = token
         self.prefix = prefix
+        self.sharePath = sharePath
+        self.userSharePath = userSharePath
         if self.token is None:
             self.get_token()
         s3_config["repo_type"] = "oss"
         s3_config["prefix"] = self.prefix
+        s3_config["extra_prefixes"].append(self.sharePath)
+        s3_config["extra_prefixes"].append(self.userSharePath)
 
     def to_dict(self):
         retained_keys = ["bohrium_url",
@@ -203,7 +209,7 @@ class TiefblueClient:
 
     def __getstate__(self):
         retained_keys = ["bohrium_url", "tiefblue_url", "project_id", "token",
-                         "prefix"]
+                         "prefix", "sharePath", "userSharePath"]
         return {k: self.__dict__[k] for k in retained_keys}
 
     def __setstate__(self, d):
@@ -226,6 +232,8 @@ class TiefblueClient:
         _raise_error(res, "get storage token")
         self.token = res["data"]["token"]
         self.prefix = res["data"]["path"]
+        self.sharePath = res["data"]["sharePath"]
+        self.userSharePath = res["data"]["userSharePath"]
 
     def upload(self, key, path, **kwargs):
         import tiefblue
