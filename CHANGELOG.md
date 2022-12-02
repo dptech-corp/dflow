@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.6.11](https://github.com/deepmodeling/dflow/compare/v1.6.10...v1.6.11) (2022-12-02)
+
+
+### Bug Fixes
+
+* add extra prefixes ignored by S3Artifact auto-prefixing ([2e3ce02](https://github.com/deepmodeling/dflow/commit/2e3ce023044da8c11bbe1cf7bc045a0cb17f0c38))
+* replace github link with gitee link in install-*.sh ([2e3ce02](https://github.com/deepmodeling/dflow/commit/2e3ce023044da8c11bbe1cf7bc045a0cb17f0c38))
+* support for pass list of artifacts to input artifact ([b12c62e](https://github.com/deepmodeling/dflow/commit/b12c62e6c5ad16c0b9beec4c3d668e5e2a8d1eb5))
+
 ## [1.6.10](https://github.com/deepmodeling/dflow/compare/v1.6.9...v1.6.10) (2022-11-30)
 
 
