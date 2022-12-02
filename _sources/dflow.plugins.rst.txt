@@ -28,6 +28,14 @@ dflow.plugins.lebesgue module
    :undoc-members:
    :show-inheritance:
 
+dflow.plugins.metadata module
+-----------------------------
+
+.. automodule:: dflow.plugins.metadata
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dflow.plugins.ray module
 ------------------------
 
