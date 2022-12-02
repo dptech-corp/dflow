@@ -16,6 +16,7 @@ config = {
     "dispatcher_image_pull_policy": None,
     "save_keys_in_global_outputs": True,
     "mode": "default",
+    "lineage": None,
 }
 
 

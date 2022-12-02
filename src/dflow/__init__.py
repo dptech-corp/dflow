@@ -1,4 +1,4 @@
-from .common import LocalArtifact, S3Artifact
+from .common import LocalArtifact, S3Artifact, LineageClient
 from .config import config, s3_config, set_config, set_s3_config
 from .context import Context
 from .dag import DAG
@@ -27,4 +27,5 @@ __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "download_artifact", "download_s3", "path_list_of_artifact",
            "s3_config", "upload_artifact", "upload_s3", "Workflow", "config",
            "Context", "randstr", "LocalArtifact", "set_config",
-           "set_s3_config", "DockerSecret", "argo_sum", "argo_concat"]
+           "set_s3_config", "DockerSecret", "argo_sum", "argo_concat",
+           "LineageClient"]

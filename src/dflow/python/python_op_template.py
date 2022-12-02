@@ -1,5 +1,4 @@
 import inspect
-import json
 import os
 import random
 import string
@@ -219,6 +218,11 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                         value_from_path="%s/outputs/parameters/"
                         "dflow_%s_path_list" % (self.tmp_root, name),
                         default=[])
+                if config["lineage"]:
+                    self.outputs.parameters["dflow_%s_urn" % name] = \
+                        OutputParameter(
+                        value_from_path="%s/outputs/parameters/dflow_%s_urn"
+                        % (self.tmp_root, name), default="")
             elif isinstance(sign, BigParameter) and config["mode"] != "debug":
                 self.outputs.parameters[name] = OutputParameter(
                     save_as_artifact=True,
@@ -374,7 +378,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
         script += "import json, jsonpickle\n"
         script += "from dflow import config, s3_config\n"
-        script += "config.update(json.loads('%s'))\n" % json.dumps(config)
+        script += "config.update(jsonpickle.loads('%s'))\n" % \
+            jsonpickle.dumps(config)
         script += "s3_config.update(jsonpickle.loads('%s'))\n" % \
             jsonpickle.dumps(s3_config)
         if op_class.__module__ in ["__main__", "__mp_main__"]:
@@ -404,7 +409,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "from dflow.python.utils import handle_input_artifact," \
                   " handle_input_parameter\n"
         script += "from dflow.python.utils import handle_output_artifact," \
-                  " handle_output_parameter\n"
+                  " handle_output_parameter, handle_lineage\n"
         script += f"from {op_class.__module__} import {class_name}\n\n"
         script += "if __name__ == '__main__':\n"
         if hasattr(op_class, "func"):
@@ -523,6 +528,15 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 script += "    handle_output_parameter('%s', output['%s'], "\
                     "output_sign['%s'], %s, '%s')\n" % (name, name, name,
                                                         slices, self.tmp_root)
+        if config["lineage"]:
+            script += "    input_urns = {}\n"
+            for name, sign in input_sign.items():
+                if isinstance(sign, Artifact):
+                    script += "    input_urns['%s'] = '{{inputs.parameters."\
+                        "dflow_%s_urn}}'\n" % (name, name)
+            script += "    handle_lineage('{{workflow.name}}', "\
+                "'{{pod.name}}', op_obj, input_urns, '{{workflow.parameters."\
+                "dflow_workflow_urn}}', '%s')\n" % self.tmp_root
 
         self.script = script
 
