@@ -992,6 +992,24 @@ class Step:
                             InputParameter(
                             value=v.template.inputs.parameters[
                                 "dflow_%s_path_list" % v.name])
+                if config["lineage"] and k[:6] != "dflow_":
+                    if isinstance(v, S3Artifact):
+                        self.inputs.parameters["dflow_%s_urn" % k] = \
+                            InputParameter(value=v.urn)
+                    elif isinstance(v, OutputArtifact) and v.step is not None \
+                            and "dflow_%s_urn" % v.name in \
+                                v.step.outputs.parameters:
+                        self.inputs.parameters["dflow_%s_urn" % k] = \
+                            InputParameter(
+                            value=v.step.outputs.parameters[
+                                "dflow_%s_urn" % v.name])
+                    elif isinstance(v, InputArtifact) and v.template is not \
+                        None and "dflow_%s_urn" % v.name in \
+                            v.template.inputs.parameters:
+                        self.inputs.parameters["dflow_%s_urn" % k] = \
+                            InputParameter(
+                            value=v.template.inputs.parameters[
+                                "dflow_%s_urn" % v.name])
 
     def prepare_argo_arguments(self, context=None):
         self.argo_parameters = []

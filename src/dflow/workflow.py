@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from typing import Optional, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import jsonpickle
 
@@ -16,13 +16,16 @@ from .task import Task
 from .utils import copy_s3, get_key, linktree, randstr
 
 try:
-    import kubernetes
     import urllib3
+
+    import kubernetes
     urllib3.disable_warnings()
     import yaml
     from argo.workflows.client import (ApiClient, Configuration,
+                                       V1alpha1Arguments,
                                        V1alpha1ArtifactRepositoryRef,
-                                       V1alpha1PodGC, V1alpha1Workflow,
+                                       V1alpha1Parameter, V1alpha1PodGC,
+                                       V1alpha1Workflow,
                                        V1alpha1WorkflowCreateRequest,
                                        V1alpha1WorkflowSpec,
                                        V1LocalObjectReference, V1ObjectMeta,
@@ -77,6 +80,7 @@ class Workflow:
             * OnWorkflowSuccess - delete pods when workflow is successful
         image_pull_secrets: secrets for image registies
         artifact_repo_key: use artifact repository reference by key
+        parameters: global input parameters
     """
 
     def __init__(
@@ -98,6 +102,7 @@ class Workflow:
             image_pull_secrets: Union[str, DockerSecret,
                                       List[Union[str, DockerSecret]]] = None,
             artifact_repo_key: Optional[str] = None,
+            parameters: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.host = host if host is not None else config["host"]
         self.token = token if token is not None else config["token"]
@@ -148,6 +153,9 @@ class Workflow:
         self.templates = {}
         self.argo_templates = {}
         self.pvcs = {}
+        if parameters is None:
+            parameters = {}
+        self.parameters = parameters
 
         if self.artifact_repo_key is not None:
             core_v1_api = self.get_k8s_core_v1_api()
@@ -422,9 +430,18 @@ class Workflow:
                         namespace=self.namespace, body=secret)
                     self.image_pull_secrets[i] = s.name
 
+        if config["lineage"] is not None:
+            workflow_urn = config["lineage"].register_workflow(self.name)
+            self.parameters["dflow_workflow_urn"] = workflow_urn
+
         return V1alpha1Workflow(
             metadata=metadata,
             spec=V1alpha1WorkflowSpec(
+                arguments=V1alpha1Arguments(
+                    parameters=[V1alpha1Parameter(
+                        name=k, value=v if isinstance(v, str) else
+                        jsonpickle.dumps(v)) for k, v in
+                        self.parameters.items()]),
                 service_account_name='argo',
                 entrypoint=self.entrypoint.name,
                 templates=list(self.argo_templates.values()),

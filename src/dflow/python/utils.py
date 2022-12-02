@@ -9,7 +9,7 @@ import jsonpickle
 from ..config import config
 from ..utils import (assemble_path_list, convert_dflow_list, copy_file,
                      remove_empty_dir_tag)
-from .opio import BigParameter, Parameter
+from .opio import Artifact, BigParameter, Parameter
 
 
 def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
@@ -212,3 +212,21 @@ def handle_empty_dir(path):
         if len(ds) == 0 and len(fs) == 0:
             with open(os.path.join(dn, ".empty_dir"), "w"):
                 pass
+
+
+def handle_lineage(wf_name, pod_name, op_obj, input_urns, workflow_urn,
+                   data_root="/tmp"):
+    task_name = wf_name + "/" + pod_name
+    output_sign = op_obj.get_output_sign()
+    output_uris = {}
+    for name, sign in output_sign.items():
+        if isinstance(sign, Artifact):
+            output_uris[name] = op_obj.get_output_artifact_storage_key(name)
+    input_urns = {name: jsonpickle.loads(urn) if urn[:1] == "["
+                  else urn for name, urn in input_urns.items()}
+    output_urns = config["lineage"].register_task(
+        task_name, input_urns, output_uris, workflow_urn)
+    for name, urn in output_urns.items():
+        with open("%s/outputs/parameters/dflow_%s_urn" % (data_root, name),
+                  "w") as f:
+            f.write(urn)
