@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.12](https://github.com/deepmodeling/dflow/compare/v1.6.11...v1.6.12) (2022-12-04)
+
+
+### Bug Fixes
+
+* support Steps template for continue_on_num_success and continue_on_success_ratio ([d1ce485](https://github.com/deepmodeling/dflow/commit/d1ce48529dc9cb6439610347542b2ee49f33d394))
+
 ## [1.6.11](https://github.com/deepmodeling/dflow/compare/v1.6.10...v1.6.11) (2022-12-02)
 
 
