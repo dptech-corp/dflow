@@ -701,6 +701,7 @@ class Step:
             if new_template is None:
                 new_template = deepcopy(self.template)
                 new_template.name = self.template.name + "-" + randstr()
+            from .steps import Steps
             if (isinstance(new_template, ShellOPTemplate)):
                 new_template.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",
@@ -720,6 +721,34 @@ class Step:
                 new_template.script += "\n"
                 new_template.script += "with open('/tmp/success_tag', 'w')"\
                     " as f:\n    f.write('1')\n"
+            elif isinstance(new_template, Steps):
+                last_step = new_template.steps[-1]
+                last_templ = last_step.template
+                last_templ.outputs.parameters["dflow_success_tag"] = \
+                    OutputParameter(value_from_path="/tmp/success_tag",
+                                    default="0")
+                last_step.outputs.parameters["dflow_success_tag"] = \
+                    OutputParameter(value_from_path="/tmp/success_tag",
+                                    default="0")
+                if isinstance(last_templ, ShellOPTemplate):
+                    last_templ.script += "\n"
+                    last_templ.script += "echo 1 > /tmp/success_tag\n"
+                elif isinstance(last_templ, PythonScriptOPTemplate):
+                    last_templ.script += "\n"
+                    last_templ.script += "with open('/tmp/success_tag', 'w')"\
+                        " as f:\n    f.write('1')\n"
+                else:
+                    raise RuntimeError(
+                        "Unsupported type of OPTemplate for "
+                        "continue_on_num_success or continue_on_success_ratio")
+                new_template.outputs.parameters["dflow_success_tag"] = \
+                    OutputParameter(value_from_parameter=last_step.outputs.
+                                    parameters["dflow_success_tag"],
+                                    default="0")
+                self.outputs.parameters["dflow_success_tag"] = \
+                    OutputParameter(value_from_parameter=last_step.outputs.
+                                    parameters["dflow_success_tag"],
+                                    default="0")
             else:
                 raise RuntimeError(
                     "Unsupported type of OPTemplate for "
