@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Optional, Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 from .config import config as global_config
 from .config import s3_config
@@ -13,8 +13,8 @@ try:
                                        V1alpha1ScriptTemplate,
                                        V1alpha1Template, V1alpha1UserContainer,
                                        V1ConfigMapKeySelector, V1EnvVar,
-                                       V1ResourceRequirements, V1Volume,
-                                       V1VolumeMount)
+                                       V1EnvVarSource, V1ResourceRequirements,
+                                       V1Volume, V1VolumeMount)
     from argo.workflows.client.configuration import Configuration
 
     from .client.v1alpha1_retry_strategy import V1alpha1RetryStrategy
@@ -148,7 +148,7 @@ class ScriptOPTemplate(OPTemplate):
             image_pull_policy: Optional[str] = None,
             requests: Dict[str, str] = None,
             limits: Dict[str, str] = None,
-            envs: Dict[str, str] = None,
+            envs: Dict[str, Union[str, V1EnvVarSource]] = None,
             init_containers: Optional[List[V1alpha1UserContainer]] = None,
             **kwargs,
     ) -> None:
@@ -195,7 +195,9 @@ class ScriptOPTemplate(OPTemplate):
                                     )
         else:
             if self.envs is not None:
-                env = [V1EnvVar(name=k, value=v) for k, v in self.envs.items()]
+                env = [V1EnvVar(name=k, value_from=v) if
+                       isinstance(v, V1EnvVarSource) else
+                       V1EnvVar(name=k, value=v) for k, v in self.envs.items()]
             else:
                 env = None
             if s3_config["prefix"] and s3_config["repo"] is not None:
