@@ -192,7 +192,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             if isinstance(sign, Artifact):
                 self.inputs.artifacts[name] = InputArtifact(
                     path="%s/inputs/artifacts/" % self.tmp_root + name,
-                    optional=sign.optional, type=sign.type)
+                    optional=sign.optional, type=sign.type,
+                    archive=sign.archive)
             elif isinstance(sign, BigParameter) and config["mode"] != "debug":
                 self.inputs.parameters[name] = InputParameter(
                     save_as_artifact=True, path="%s/inputs/parameters/"

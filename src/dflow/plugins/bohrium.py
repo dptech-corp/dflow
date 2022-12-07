@@ -4,6 +4,7 @@ from copy import deepcopy
 from getpass import getpass
 from typing import Optional
 
+from ..config import config as dflow_config
 from ..context import Context
 from ..executor import Executor, render_script_with_tmp_root
 from ..op_template import PythonScriptOPTemplate, ShellOPTemplate
@@ -29,6 +30,23 @@ def _raise_error(res, op):
             raise RuntimeError("%s failed: %s" % (op, res["message"]))
         else:
             raise RuntimeError("%s failed" % op)
+
+
+def login(username=None, password=None, bohrium_url=None):
+    if username is None:
+        username = config["username"]
+    if password is None:
+        password = config["password"]
+    if bohrium_url is None:
+        bohrium_url = config["bohrium_url"]
+    if config["authorization"] is None:
+        config["authorization"] = _login(
+            bohrium_url + "/account/login", username, password)
+    headers = dflow_config["http_headers"]
+    if "Cookie" not in headers:
+        headers["Cookie"] = "brmToken=" + config["authorization"]
+    else:
+        headers["Cookie"] += "; brmToken=" + config["authorization"]
 
 
 def _login(login_url=None, username=None, password=None):
