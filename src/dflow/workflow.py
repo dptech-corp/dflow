@@ -318,6 +318,7 @@ class Workflow:
             '/api/v1/workflows/%s' % self.namespace, 'POST',
             body=V1alpha1WorkflowCreateRequest(workflow=manifest),
             response_type=object,
+            header_params=config["http_headers"],
             _return_http_data_only=True)
         workflow = ArgoWorkflow(response)
 
@@ -501,11 +502,13 @@ class Workflow:
         try:
             response = self.api_instance.api_client.call_api(
                 '/api/v1/workflows/%s/%s' % (self.namespace, self.id),
-                'GET', response_type=object, _return_http_data_only=True)
+                'GET', response_type=object, _return_http_data_only=True,
+                header_params=config["http_headers"])
         except Exception:
             response = self.api_instance.api_client.call_api(
                 '/api/v1/archived-workflows/%s' % self.uid,
-                'GET', response_type=object, _return_http_data_only=True)
+                'GET', response_type=object, _return_http_data_only=True,
+                header_params=config["http_headers"])
         workflow = ArgoWorkflow(response)
         return workflow
 
@@ -639,11 +642,13 @@ class Workflow:
                 response = self.api_instance.api_client.call_api(
                     '/api/v1/workflows/%s/%s' % (self.namespace, self.id),
                     'GET', response_type=object, _return_http_data_only=True,
+                    header_params=config["http_headers"],
                     query_params=[('fields', 'status.outputs')])
             except Exception:
                 response = self.api_instance.api_client.call_api(
                     '/api/v1/archived-workflows/%s' % self.uid,
                     'GET', response_type=object, _return_http_data_only=True,
+                    header_params=config["http_headers"],
                     query_params=[('fields', 'status.outputs')])
             return [par["name"] for par in
                     response["status"]["outputs"]["parameters"]]
@@ -659,7 +664,7 @@ class Workflow:
             raise RuntimeError("Workflow ID is None")
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/terminate' % (self.namespace, self.id),
-            'PUT')
+            'PUT', header_params=config["http_headers"])
 
     def delete(self) -> None:
         """
@@ -668,7 +673,8 @@ class Workflow:
         if self.id is None:
             raise RuntimeError("Workflow ID is None")
         self.api_instance.api_client.call_api(
-            '/api/v1/workflows/%s/%s' % (self.namespace, self.id), 'DELETE')
+            '/api/v1/workflows/%s/%s' % (self.namespace, self.id), 'DELETE',
+            header_params=config["http_headers"])
 
     def resubmit(self) -> None:
         """
@@ -678,7 +684,7 @@ class Workflow:
             raise RuntimeError("Workflow ID is None")
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/resubmit' % (self.namespace, self.id),
-            'PUT')
+            'PUT', header_params=config["http_headers"])
 
     def resume(self) -> None:
         """
@@ -688,7 +694,7 @@ class Workflow:
             raise RuntimeError("Workflow ID is None")
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/resume' % (self.namespace, self.id),
-            'PUT')
+            'PUT', header_params=config["http_headers"])
 
     def retry(self) -> None:
         """
@@ -698,7 +704,7 @@ class Workflow:
             raise RuntimeError("Workflow ID is None")
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/retry' % (self.namespace, self.id),
-            'PUT')
+            'PUT', header_params=config["http_headers"])
 
     def stop(self) -> None:
         """
@@ -708,7 +714,7 @@ class Workflow:
             raise RuntimeError("Workflow ID is None")
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/stop' % (self.namespace, self.id),
-            'PUT')
+            'PUT', header_params=config["http_headers"])
 
     def suspend(self) -> None:
         """
@@ -718,4 +724,4 @@ class Workflow:
             raise RuntimeError("Workflow ID is None")
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/suspend' % (self.namespace, self.id),
-            'PUT')
+            'PUT', header_params=config["http_headers"])

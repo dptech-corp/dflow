@@ -414,6 +414,7 @@ class InputArtifact(ArgoVar):
         optional: optional artifact or not
         type: artifact type
         source: default source
+        archive: regarded as archived file or not
     """
 
     def __init__(
@@ -428,6 +429,7 @@ class InputArtifact(ArgoVar):
                           "OutputArtifact", S3Artifact] = None,
             mode: Optional[int] = None,
             sub_path: Optional[str] = None,
+            archive: str = "default",
             **kwargs,
     ) -> None:
         self.path = path
@@ -440,6 +442,7 @@ class InputArtifact(ArgoVar):
         self._sub_path = None
         self.mode = mode
         self.sub_path = sub_path
+        self.archive = archive
 
     def __getattr__(self, key):
         from .task import Task
@@ -482,34 +485,40 @@ class InputArtifact(ArgoVar):
         return self.template.inputs.parameters["dflow_%s_urn" % self.name]
 
     def convert_to_argo(self):
+        archive = None
+        if self.archive is None:
+            archive = V1alpha1ArchiveStrategy(_none={})
         if self.path in NotAllowedInputArtifactPath:
             raise RuntimeError(
                 "Path [%s] is not allowed for input artifact" % self.path)
         if self.source is None:
             return V1alpha1Artifact(name=self.name, path=self.path,
-                                    optional=self.optional, mode=self.mode)
+                                    optional=self.optional, mode=self.mode,
+                                    archive=archive)
         if isinstance(self.source, (InputArtifact, OutputArtifact)):
             sub_path = self.sub_path if self.sub_path is not None else \
                 self.source._sub_path
             return V1alpha1Artifact(name=self.name, path=self.path,
                                     optional=self.optional,
                                     _from=str(self.source), sub_path=sub_path,
-                                    mode=self.mode)
+                                    mode=self.mode, archive=archive)
         elif isinstance(self.source, S3Artifact):
             if s3_config["repo_type"] == "s3":
                 return V1alpha1Artifact(name=self.name, path=self.path,
                                         optional=self.optional, s3=self.source,
-                                        sub_path=self.sub_path, mode=self.mode)
+                                        sub_path=self.sub_path, mode=self.mode,
+                                        archive=archive)
             else:
                 return V1alpha1Artifact(name=self.name, path=self.path,
                                         optional=self.optional,
                                         oss=self.source.oss(),
-                                        sub_path=self.sub_path, mode=self.mode)
+                                        sub_path=self.sub_path, mode=self.mode,
+                                        archive=archive)
         elif isinstance(self.source, str):
             return V1alpha1Artifact(name=self.name, path=self.path,
                                     optional=self.optional,
                                     raw=V1alpha1RawArtifact(data=self.source),
-                                    mode=self.mode)
+                                    mode=self.mode, archive=archive)
         else:
             raise RuntimeError(
                 "Cannot pass an object of type %s to artifact %s" %
