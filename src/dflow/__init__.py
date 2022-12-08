@@ -1,4 +1,4 @@
-from .common import LocalArtifact, S3Artifact, LineageClient
+from .common import LineageClient, LocalArtifact, S3Artifact
 from .config import config, s3_config, set_config, set_s3_config
 from .context import Context
 from .dag import DAG
@@ -6,7 +6,8 @@ from .executor import Executor, RemoteExecutor
 from .io import (AutonamedDict, IfExpression, InputArtifact, InputParameter,
                  Inputs, OutputArtifact, OutputParameter, Outputs,
                  if_expression)
-from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
+from .op_template import (OPTemplate, PythonScriptOPTemplate, Secret,
+                          ShellOPTemplate)
 from .resource import Resource
 from .slurm import SlurmJob, SlurmJobTemplate, SlurmRemoteExecutor
 from .step import (Step, argo_concat, argo_len, argo_range, argo_sequence,
@@ -28,4 +29,4 @@ __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "s3_config", "upload_artifact", "upload_s3", "Workflow", "config",
            "Context", "randstr", "LocalArtifact", "set_config",
            "set_s3_config", "DockerSecret", "argo_sum", "argo_concat",
-           "LineageClient"]
+           "LineageClient", "Secret"]

@@ -14,8 +14,11 @@ try:
                                        V1alpha1Template, V1alpha1UserContainer,
                                        V1ConfigMapKeySelector, V1EnvVar,
                                        V1EnvVarSource, V1ResourceRequirements,
-                                       V1Volume, V1VolumeMount)
+                                       V1SecretKeySelector, V1Volume,
+                                       V1VolumeMount)
     from argo.workflows.client.configuration import Configuration
+
+    import kubernetes
 
     from .client.v1alpha1_retry_strategy import V1alpha1RetryStrategy
 except Exception:
@@ -24,6 +27,45 @@ except Exception:
     V1Volume = object
     V1VolumeMount = object
     V1alpha1UserContainer = object
+    V1EnvVarSource = object
+
+
+class Secret:
+    def __init__(self, value):
+        self.value = value
+        self.secret_name = "dflow-" + randstr(15)
+        self.secret_key = "secret"
+        data = {self.secret_key: value}
+        secret = kubernetes.client.V1Secret(
+            string_data=data,
+            metadata=kubernetes.client.V1ObjectMeta(name=self.secret_name),
+            type="Opaque")
+        core_v1_api = get_k8s_core_v1_api()
+        core_v1_api.create_namespaced_secret(
+            namespace=global_config["namespace"], body=secret)
+
+
+def get_k8s_core_v1_api(k8s_api_server=None, token=None, k8s_config_file=None):
+    if k8s_api_server is None:
+        k8s_api_server = global_config["k8s_api_server"]
+    if token is None:
+        token = global_config["token"]
+    if k8s_config_file is None:
+        k8s_config_file = global_config["k8s_config_file"]
+    if k8s_api_server is not None:
+        k8s_configuration = kubernetes.client.Configuration(
+            host=k8s_api_server)
+        k8s_configuration.verify_ssl = False
+        if token is None:
+            k8s_client = kubernetes.client.ApiClient(k8s_configuration)
+        else:
+            k8s_client = kubernetes.client.ApiClient(
+                k8s_configuration, header_name='Authorization',
+                header_value='Bearer %s' % token)
+        return kubernetes.client.CoreV1Api(k8s_client)
+    else:
+        kubernetes.config.load_kube_config(config_file=k8s_config_file)
+        return kubernetes.client.CoreV1Api()
 
 
 class OPTemplate:
@@ -148,7 +190,7 @@ class ScriptOPTemplate(OPTemplate):
             image_pull_policy: Optional[str] = None,
             requests: Dict[str, str] = None,
             limits: Dict[str, str] = None,
-            envs: Dict[str, Union[str, V1EnvVarSource]] = None,
+            envs: Dict[str, Union[str, Secret, V1EnvVarSource]] = None,
             init_containers: Optional[List[V1alpha1UserContainer]] = None,
             **kwargs,
     ) -> None:
@@ -195,9 +237,16 @@ class ScriptOPTemplate(OPTemplate):
                                     )
         else:
             if self.envs is not None:
-                env = [V1EnvVar(name=k, value_from=v) if
-                       isinstance(v, V1EnvVarSource) else
-                       V1EnvVar(name=k, value=v) for k, v in self.envs.items()]
+                env = []
+                for k, v in self.envs.items():
+                    if isinstance(v, V1EnvVarSource):
+                        env.append(V1EnvVar(name=k, value_from=v))
+                    elif isinstance(v, Secret):
+                        env.append(V1EnvVar(name=k, value_from=V1EnvVarSource(
+                            secret_key_ref=V1SecretKeySelector(
+                                name=v.secret_name, key=v.secret_key))))
+                    else:
+                        env.append(V1EnvVar(name=k, value=v))
             else:
                 env = None
             if s3_config["prefix"] and s3_config["repo"] is not None:
