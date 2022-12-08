@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.6.13](https://github.com/deepmodeling/dflow/compare/v1.6.12...v1.6.13) (2022-12-08)
+
+
+### Bug Fixes
+
+* add HTTP headers to config ([a2573ff](https://github.com/deepmodeling/dflow/commit/a2573ffb962bee56c43cc64902668fdf13245c41))
+* create secret for env var ([547dcaa](https://github.com/deepmodeling/dflow/commit/547dcaaa3625111ecbdc7b1bc3c0db879bc69fb5))
+* support for env from a source ([12cd852](https://github.com/deepmodeling/dflow/commit/12cd8526592c680d267ccfcf501351b35f910faa))
+* support for treating input artifact as non-archived file ([a2573ff](https://github.com/deepmodeling/dflow/commit/a2573ffb962bee56c43cc64902668fdf13245c41))
+
 ## [1.6.12](https://github.com/deepmodeling/dflow/compare/v1.6.11...v1.6.12) (2022-12-04)
 
 
