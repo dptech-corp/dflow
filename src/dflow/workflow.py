@@ -10,6 +10,7 @@ from .config import config, s3_config
 from .context import Context
 from .context_syntax import GLOBAL_CONTEXT
 from .dag import DAG
+from .op_template import get_k8s_core_v1_api
 from .step import Step
 from .steps import Steps
 from .task import Task
@@ -175,22 +176,8 @@ class Workflow:
                     s3_config["repo_prefix"] = s3["keyFormat"][:-len(t)]
 
     def get_k8s_core_v1_api(self):
-        if self.k8s_api_server is not None:
-            k8s_configuration = kubernetes.client.Configuration(
-                host=self.k8s_api_server)
-            k8s_configuration.verify_ssl = False
-            if self.token is None:
-                k8s_client = kubernetes.client.ApiClient(
-                    k8s_configuration)
-            else:
-                k8s_client = kubernetes.client.ApiClient(
-                    k8s_configuration, header_name='Authorization',
-                    header_value='Bearer %s' % self.token)
-            return kubernetes.client.CoreV1Api(k8s_client)
-        else:
-            kubernetes.config.load_kube_config(
-                config_file=self.k8s_config_file)
-            return kubernetes.client.CoreV1Api()
+        return get_k8s_core_v1_api(self.k8s_api_server, self.token,
+                                   self.k8s_config_file)
 
     def __enter__(self) -> 'Workflow':
         GLOBAL_CONTEXT.in_context = True
