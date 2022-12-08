@@ -46,23 +46,234 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 </section>
-<section id="dflow-plugins-bohrium-module">
-<h2>dflow.plugins.bohrium module<a class="headerlink" href="#dflow-plugins-bohrium-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-dflow.plugins.bohrium">
+<span id="dflow-plugins-bohrium-module"></span><h2>dflow.plugins.bohrium module<a class="headerlink" href="#module-dflow.plugins.bohrium" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.plugins.bohrium.BohriumContext">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.bohrium.</span></span><span class="sig-name descname"><span class="pre">BohriumContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bohrium_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">executor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authorization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.bohrium.BohriumContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.context.Context" title="dflow.context.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a></p>
+<p>Bohrium context</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>username</strong> – user name for Bohrium</p></li>
+<li><p><strong>password</strong> – password for Bohrium</p></li>
+<li><p><strong>bohrium_url</strong> – url for Bohrium</p></li>
+<li><p><strong>executor</strong> – executor</p></li>
+<li><p><strong>extra</strong> – extra arguments</p></li>
+<li><p><strong>authorization</strong> – JWT token</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.bohrium.BohriumContext.login">
+<span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.bohrium.BohriumContext.login" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.bohrium.BohriumContext.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.bohrium.BohriumContext.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.plugins.bohrium.BohriumExecutor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.bohrium.</span></span><span class="sig-name descname"><span class="pre">BohriumExecutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.bohrium.BohriumExecutor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a></p>
+<p>Bohrium executor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>executor</strong> – executor</p></li>
+<li><p><strong>extra</strong> – extra arguments, will override extra defined in global context</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.bohrium.BohriumExecutor.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.bohrium.BohriumExecutor.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template, do not modify
+self in this method to make the executor reusable</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.plugins.bohrium.TiefblueClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.bohrium.</span></span><span class="sig-name descname"><span class="pre">TiefblueClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bohrium_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authorization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharePath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">userSharePath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tiefblue_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.bohrium.TiefblueClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.bohrium.TiefblueClient.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.bohrium.TiefblueClient.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.bohrium.TiefblueClient.download">
+<span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.bohrium.TiefblueClient.download" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.bohrium.TiefblueClient.get_md5">
+<span class="sig-name descname"><span class="pre">get_md5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.bohrium.TiefblueClient.get_md5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.bohrium.TiefblueClient.get_token">
+<span class="sig-name descname"><span class="pre">get_token</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.bohrium.TiefblueClient.get_token" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.bohrium.TiefblueClient.list">
+<span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.bohrium.TiefblueClient.list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.bohrium.TiefblueClient.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.bohrium.TiefblueClient.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.bohrium.TiefblueClient.upload">
+<span class="sig-name descname"><span class="pre">upload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.bohrium.TiefblueClient.upload" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.plugins.bohrium.login">
+<span class="sig-prename descclassname"><span class="pre">dflow.plugins.bohrium.</span></span><span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bohrium_url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.bohrium.login" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </section>
-<section id="dflow-plugins-dispatcher-module">
-<h2>dflow.plugins.dispatcher module<a class="headerlink" href="#dflow-plugins-dispatcher-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-dflow.plugins.dispatcher">
+<span id="dflow-plugins-dispatcher-module"></span><h2>dflow.plugins.dispatcher module<a class="headerlink" href="#module-dflow.plugins.dispatcher" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.plugins.dispatcher.DispatcherExecutor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.dispatcher.</span></span><span class="sig-name descname"><span class="pre">DispatcherExecutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">22</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'root'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">private_key_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_pull_policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'python3'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_tmp_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">machine_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resources_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docker_executable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singularity_executable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">podman_executable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.dispatcher.DispatcherExecutor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a></p>
+<p>Dispatcher executor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> – remote host</p></li>
+<li><p><strong>queue_name</strong> – queue name</p></li>
+<li><p><strong>port</strong> – SSH port</p></li>
+<li><p><strong>username</strong> – username</p></li>
+<li><p><strong>password</strong> – password</p></li>
+<li><p><strong>private_key_file</strong> – private key file for SSH</p></li>
+<li><p><strong>image</strong> – image for dispatcher</p></li>
+<li><p><strong>imagePullPolicy</strong> – image pull policy for dispatcher</p></li>
+<li><p><strong>command</strong> – command for dispatcher</p></li>
+<li><p><strong>remote_command</strong> – command for running the script remotely</p></li>
+<li><p><strong>map_tmp_dir</strong> – map /tmp to ./tmp</p></li>
+<li><p><strong>machine_dict</strong> – machine config for dispatcher</p></li>
+<li><p><strong>resources_dict</strong> – resources config for dispatcher</p></li>
+<li><p><strong>task_dict</strong> – task config for dispatcher</p></li>
+<li><p><strong>json_file</strong> – JSON file containing machine and resources config</p></li>
+<li><p><strong>docker_executable</strong> – docker executable to run remotely</p></li>
+<li><p><strong>singularity_executable</strong> – singularity executable to run remotely</p></li>
+<li><p><strong>podman_executable</strong> – podman executable to run remotely</p></li>
+<li><p><strong>remote_root</strong> – remote root path for working</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.dispatcher.DispatcherExecutor.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.dispatcher.DispatcherExecutor.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template, do not modify
+self in this method to make the executor reusable</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.plugins.dispatcher.update_dict">
+<span class="sig-prename descclassname"><span class="pre">dflow.plugins.dispatcher.</span></span><span class="sig-name descname"><span class="pre">update_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dflow.plugins.dispatcher.update_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </section>
-<section id="dflow-plugins-lebesgue-module">
-<h2>dflow.plugins.lebesgue module<a class="headerlink" href="#dflow-plugins-lebesgue-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-dflow.plugins.lebesgue">
+<span id="dflow-plugins-lebesgue-module"></span><h2>dflow.plugins.lebesgue module<a class="headerlink" href="#module-dflow.plugins.lebesgue" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.plugins.lebesgue.LebesgueContext">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.lebesgue.</span></span><span class="sig-name descname"><span class="pre">LebesgueContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bohrium_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://bohrium.dp.tech'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">login_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://workflow.dp.tech/account_gw/login'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">org_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">executor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authorization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.context.Context" title="dflow.context.Context"><code class="xref py py-class docutils literal notranslate"><span class="pre">Context</span></code></a></p>
+<p>Lebesgue context</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>username</strong> – user name for Lebesgue</p></li>
+<li><p><strong>password</strong> – password for Lebesgue</p></li>
+<li><p><strong>login_url</strong> – login url for Lebesgue</p></li>
+<li><p><strong>app_name</strong> – application name</p></li>
+<li><p><strong>org_id</strong> – organization ID</p></li>
+<li><p><strong>user_id</strong> – user ID</p></li>
+<li><p><strong>tag</strong> – tag</p></li>
+<li><p><strong>executor</strong> – executor</p></li>
+<li><p><strong>extra</strong> – extra arguments</p></li>
+<li><p><strong>authorization</strong> – JWT token</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.lebesgue.LebesgueContext.login">
+<span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueContext.login" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.lebesgue.LebesgueContext.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueContext.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.plugins.lebesgue.LebesgueExecutor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.lebesgue.</span></span><span class="sig-name descname"><span class="pre">LebesgueExecutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueExecutor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a></p>
+<p>Lebesgue executor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>executor</strong> – executor</p></li>
+<li><p><strong>extra</strong> – extra arguments, will override extra defined in global context</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.lebesgue.LebesgueExecutor.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.lebesgue.LebesgueExecutor.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template, do not modify
+self in this method to make the executor reusable</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="dflow-plugins-metadata-module">
 <h2>dflow.plugins.metadata module<a class="headerlink" href="#dflow-plugins-metadata-module" title="Permalink to this heading">¶</a></h2>
 </section>
-<section id="dflow-plugins-ray-module">
-<h2>dflow.plugins.ray module<a class="headerlink" href="#dflow-plugins-ray-module" title="Permalink to this heading">¶</a></h2>
+<section id="module-dflow.plugins.ray">
+<span id="dflow-plugins-ray-module"></span><h2>dflow.plugins.ray module<a class="headerlink" href="#module-dflow.plugins.ray" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.plugins.ray.RayClusterExecutor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.ray.</span></span><span class="sig-name descname"><span class="pre">RayClusterExecutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ray_host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ray_remote_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/tmp/ray'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workdir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'~/dflow/workflows/{{workflow.name}}/{{pod.name}}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ray_install_mirror</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ray_dependencies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.ray.RayClusterExecutor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.ray.RayClusterExecutor.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="dflow.html#dflow.op_template.ScriptOPTemplate" title="dflow.op_template.ScriptOPTemplate"><span class="pre">ScriptOPTemplate</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.ray.RayClusterExecutor.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template, do not modify
+self in this method to make the executor reusable</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">¶</a></h2>
+<section id="module-dflow.plugins">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dflow.plugins" title="Permalink to this heading">¶</a></h2>
 </section>
 </section>
 
@@ -78,12 +289,58 @@
     <ul>
 <li><a class="reference internal" href="#">dflow.plugins package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#dflow-plugins-bohrium-module">dflow.plugins.bohrium module</a></li>
-<li><a class="reference internal" href="#dflow-plugins-dispatcher-module">dflow.plugins.dispatcher module</a></li>
-<li><a class="reference internal" href="#dflow-plugins-lebesgue-module">dflow.plugins.lebesgue module</a></li>
+<li><a class="reference internal" href="#module-dflow.plugins.bohrium">dflow.plugins.bohrium module</a><ul>
+<li><a class="reference internal" href="#dflow.plugins.bohrium.BohriumContext"><code class="docutils literal notranslate"><span class="pre">BohriumContext</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.plugins.bohrium.BohriumContext.login"><code class="docutils literal notranslate"><span class="pre">BohriumContext.login()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.bohrium.BohriumContext.render"><code class="docutils literal notranslate"><span class="pre">BohriumContext.render()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.plugins.bohrium.BohriumExecutor"><code class="docutils literal notranslate"><span class="pre">BohriumExecutor</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.plugins.bohrium.BohriumExecutor.render"><code class="docutils literal notranslate"><span class="pre">BohriumExecutor.render()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.plugins.bohrium.TiefblueClient"><code class="docutils literal notranslate"><span class="pre">TiefblueClient</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.plugins.bohrium.TiefblueClient.copy"><code class="docutils literal notranslate"><span class="pre">TiefblueClient.copy()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.bohrium.TiefblueClient.download"><code class="docutils literal notranslate"><span class="pre">TiefblueClient.download()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.bohrium.TiefblueClient.get_md5"><code class="docutils literal notranslate"><span class="pre">TiefblueClient.get_md5()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.bohrium.TiefblueClient.get_token"><code class="docutils literal notranslate"><span class="pre">TiefblueClient.get_token()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.bohrium.TiefblueClient.list"><code class="docutils literal notranslate"><span class="pre">TiefblueClient.list()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.bohrium.TiefblueClient.to_dict"><code class="docutils literal notranslate"><span class="pre">TiefblueClient.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.bohrium.TiefblueClient.upload"><code class="docutils literal notranslate"><span class="pre">TiefblueClient.upload()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.plugins.bohrium.login"><code class="docutils literal notranslate"><span class="pre">login()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.plugins.dispatcher">dflow.plugins.dispatcher module</a><ul>
+<li><a class="reference internal" href="#dflow.plugins.dispatcher.DispatcherExecutor"><code class="docutils literal notranslate"><span class="pre">DispatcherExecutor</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.plugins.dispatcher.DispatcherExecutor.render"><code class="docutils literal notranslate"><span class="pre">DispatcherExecutor.render()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.plugins.dispatcher.update_dict"><code class="docutils literal notranslate"><span class="pre">update_dict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.plugins.lebesgue">dflow.plugins.lebesgue module</a><ul>
+<li><a class="reference internal" href="#dflow.plugins.lebesgue.LebesgueContext"><code class="docutils literal notranslate"><span class="pre">LebesgueContext</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.plugins.lebesgue.LebesgueContext.login"><code class="docutils literal notranslate"><span class="pre">LebesgueContext.login()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.lebesgue.LebesgueContext.render"><code class="docutils literal notranslate"><span class="pre">LebesgueContext.render()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.plugins.lebesgue.LebesgueExecutor"><code class="docutils literal notranslate"><span class="pre">LebesgueExecutor</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.plugins.lebesgue.LebesgueExecutor.render"><code class="docutils literal notranslate"><span class="pre">LebesgueExecutor.render()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a class="reference internal" href="#dflow-plugins-metadata-module">dflow.plugins.metadata module</a></li>
-<li><a class="reference internal" href="#dflow-plugins-ray-module">dflow.plugins.ray module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-dflow.plugins.ray">dflow.plugins.ray module</a><ul>
+<li><a class="reference internal" href="#dflow.plugins.ray.RayClusterExecutor"><code class="docutils literal notranslate"><span class="pre">RayClusterExecutor</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.plugins.ray.RayClusterExecutor.render"><code class="docutils literal notranslate"><span class="pre">RayClusterExecutor.render()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.plugins">Module contents</a></li>
 </ul>
 </li>
 </ul>
