@@ -53,6 +53,7 @@ class MetadataClient(LineageClient):
                     inputs += urn
                 elif isinstance(urn, str):
                     inputs.append(urn)
+            inputs = list(filter(lambda x: x != "", inputs))
             run = client.begin_job(job, inputs=inputs)
             output_urns = {}
             for name, uri in output_uris.items():

@@ -77,7 +77,6 @@ class OPTemplate:
             memoize_key: Optional[str] = None,
             pvcs: Optional[List[PVC]] = None,
             annotations: Dict[str, str] = None,
-            **kwargs,
     ) -> None:
         if name is None:
             name = randstr()
@@ -192,7 +191,6 @@ class ScriptOPTemplate(OPTemplate):
             limits: Dict[str, str] = None,
             envs: Dict[str, Union[str, Secret, V1EnvVarSource]] = None,
             init_containers: Optional[List[V1alpha1UserContainer]] = None,
-            **kwargs,
     ) -> None:
         super().__init__(name=name, inputs=inputs, outputs=outputs,
                          memoize_key=memoize_key, pvcs=pvcs,
@@ -327,7 +325,6 @@ class ShellOPTemplate(ScriptOPTemplate):
         limits: Dict[str, str] = None,
         envs: Dict[str, str] = None,
         init_containers: Optional[List[V1alpha1UserContainer]] = None,
-        **kwargs,
     ) -> None:
         if command is None:
             command = ["sh"]
@@ -389,7 +386,6 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         limits: Dict[str, str] = None,
         envs: Dict[str, str] = None,
         init_containers: Optional[List[V1alpha1UserContainer]] = None,
-        **kwargs,
     ) -> None:
         if command is None:
             command = ["python3"]

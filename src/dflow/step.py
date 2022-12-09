@@ -281,7 +281,6 @@ class Step:
             parallelism: Optional[int] = None,
             slices: Optional[Slices] = None,
             register_output_artifacts: Dict[str, dict] = None,
-            **kwargs,
     ) -> None:
         self.name = name
         self.id = self.name
@@ -348,9 +347,9 @@ class Step:
                 if name not in self.inputs.parameters:
                     self.inputs.parameters[name] = deepcopy(par)
 
-            new_template.inputs.parameters["dflow_item"] = InputParameter(
+            new_template.inputs.parameters["dflow_slice"] = InputParameter(
                 value=slices.slices)
-            self.inputs.parameters["dflow_item"] = InputParameter(
+            self.inputs.parameters["dflow_slice"] = InputParameter(
                 value=slices.slices)
             for name in slices.input_parameter:
                 for step in (new_template if hasattr(new_template, "__iter__")
@@ -358,17 +357,17 @@ class Step:
                     for par in list(step.inputs.parameters.values()):
                         # input parameter referring to sliced input parameter
                         if par.value is new_template.inputs.parameters[name]:
-                            step.template.inputs.parameters["dflow_item"] = \
+                            step.template.inputs.parameters["dflow_slice"] = \
                                 InputParameter()
                             step.template.add_slices(Slices(
-                                "{{inputs.parameters.dflow_item}}",
+                                "{{inputs.parameters.dflow_slice}}",
                                 input_parameter=[par.name],
                                 sub_path=slices.sub_path,
                                 pool_size=slices.pool_size))
                             step.template.render_script()
-                            step.inputs.parameters["dflow_item"] = \
+                            step.inputs.parameters["dflow_slice"] = \
                                 InputParameter(
-                                    value="{{inputs.parameters.dflow_item}}")
+                                    value="{{inputs.parameters.dflow_slice}}")
 
             for name in slices.input_artifact:
                 for step in (new_template if hasattr(new_template, "__iter__")
@@ -376,32 +375,32 @@ class Step:
                     for art in list(step.inputs.artifacts.values()):
                         # input artifact referring to sliced input artifact
                         if art.source is new_template.inputs.artifacts[name]:
-                            step.template.inputs.parameters["dflow_item"] = \
+                            step.template.inputs.parameters["dflow_slice"] = \
                                 InputParameter()
                             step.template.add_slices(Slices(
-                                "{{inputs.parameters.dflow_item}}",
+                                "{{inputs.parameters.dflow_slice}}",
                                 input_artifact=[art.name],
                                 sub_path=slices.sub_path,
                                 pool_size=slices.pool_size))
                             step.template.render_script()
-                            step.inputs.parameters["dflow_item"] = \
+                            step.inputs.parameters["dflow_slice"] = \
                                 InputParameter(
-                                    value="{{inputs.parameters.dflow_item}}")
+                                    value="{{inputs.parameters.dflow_slice}}")
 
             def stack_output_parameter(par):
                 if isinstance(par, OutputParameter):
                     step = par.step
-                    step.template.inputs.parameters["dflow_item"] = \
+                    step.template.inputs.parameters["dflow_slice"] = \
                         InputParameter()
                     step.template.add_slices(Slices(
-                        "{{inputs.parameters.dflow_item}}",
+                        "{{inputs.parameters.dflow_slice}}",
                         output_parameter=[par.name],
                         sub_path=slices.sub_path,
                         pool_size=slices.pool_size))
                     step.template.render_script()
-                    step.inputs.parameters["dflow_item"] = \
+                    step.inputs.parameters["dflow_slice"] = \
                         InputParameter(
-                            value="{{inputs.parameters.dflow_item}}")
+                            value="{{inputs.parameters.dflow_slice}}")
 
             for name in slices.output_parameter:
                 # sliced output parameter from
@@ -419,17 +418,17 @@ class Step:
             def stack_output_artifact(art):
                 if isinstance(art, OutputArtifact):
                     step = art.step
-                    step.template.inputs.parameters["dflow_item"] = \
+                    step.template.inputs.parameters["dflow_slice"] = \
                         InputParameter()
                     step.template.add_slices(Slices(
-                        "{{inputs.parameters.dflow_item}}",
+                        "{{inputs.parameters.dflow_slice}}",
                         output_artifact=[art.name],
                         sub_path=slices.sub_path,
                         pool_size=slices.pool_size))
                     step.template.render_script()
-                    step.inputs.parameters["dflow_item"] = \
+                    step.inputs.parameters["dflow_slice"] = \
                         InputParameter(
-                            value="{{inputs.parameters.dflow_item}}")
+                            value="{{inputs.parameters.dflow_slice}}")
 
             for name in slices.output_artifact:
                 # sliced output artifact from
@@ -632,6 +631,33 @@ class Step:
                         "concat_%s" % name]),
                     self.with_sequence.start, self.with_sequence.end,
                     self.with_sequence.format)
+
+        if config["lineage"] and hasattr(self.template, "slices") and \
+                self.template.slices and \
+                self.template.slices.register_first_only:
+            if new_template is None:
+                new_template = deepcopy(self.template)
+                new_template.name = self.template.name + "-" + randstr()
+            if self.with_param is not None:
+                if isinstance(self.with_param, ArgoVar):
+                    par = self.with_param.expr
+                else:
+                    par = self.with_param
+                first = "jsonpath(%s, '$[0]')" % par
+                self.inputs.parameters["dflow_first"] = InputParameter(
+                    value="{{=string(%s) == %s ? %s : toJson(%s)}}" %
+                    (first, first, first, first))
+            elif self.with_sequence is not None:
+                if self.with_sequence.start is not None:
+                    first = self.with_sequence.start
+                else:
+                    first = 0
+                self.inputs.parameters["dflow_first"] = InputParameter(
+                    value=first)
+                if self.with_sequence.format is not None:
+                    new_template.first_var = "'" + self.with_sequence.format \
+                        + "' % {{inputs.parameters.dflow_first}}"
+                    new_template.render_script()
 
         pvc_arts = []
         for art in self.inputs.artifacts.values():

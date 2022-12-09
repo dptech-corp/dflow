@@ -4,11 +4,6 @@ from dflow import Step, Workflow, config, upload_artifact
 from dflow.plugins.metadata import MetadataClient
 from dflow.python import OP, Artifact, PythonOPTemplate
 
-config["lineage"] = MetadataClient(
-    gms_endpoint="https://datahub-test-gms.codespace.dp.tech",
-    token="<token>",
-)
-
 
 @OP.function
 def duplicate(foo: Artifact(Path)) -> {'bar': Artifact(Path)}:
@@ -20,6 +15,11 @@ def duplicate(foo: Artifact(Path)) -> {'bar': Artifact(Path)}:
 
 
 if __name__ == "__main__":
+    config["lineage"] = MetadataClient(
+        gms_endpoint="https://datahub-test-gms.codespace.dp.tech",
+        token="<token>",
+    )
+
     wf = Workflow(name="lineage")
 
     with open("foo.txt", "w") as f:

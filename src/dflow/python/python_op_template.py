@@ -43,6 +43,7 @@ class Slices:
         pool_size: for multi slices per step, use a multiprocessing pool to
             handle each slice, 1 for serial, -1 for infinity (i.e. equals to
             the number of slices)
+        register_first_only: only register first slice when lineage used
     """
 
     def __init__(
@@ -54,6 +55,7 @@ class Slices:
             output_artifact: Optional[List[str]] = None,
             sub_path: bool = False,
             pool_size: Optional[int] = None,
+            register_first_only: bool = False,
     ) -> None:
         self.input_parameter = input_parameter if input_parameter is not \
             None else []
@@ -71,6 +73,7 @@ class Slices:
         else:
             self.slices = "{{item}}"
         self.pool_size = pool_size
+        self.register_first_only = register_first_only
 
 
 def get_source_code(o):
@@ -152,7 +155,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  envs: Dict[str, str] = None,
                  init_containers: Optional[List[V1alpha1UserContainer]] = None,
                  tmp_root: str = "/tmp",
-                 **kwargs,
                  ) -> None:
         self.n_parts = {}
         self.op_class = op_class
@@ -530,12 +532,27 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     "output_sign['%s'], %s, '%s')\n" % (name, name, name,
                                                         slices, self.tmp_root)
         if config["lineage"]:
-            script += "    input_urns = {}\n"
+            if self.slices is not None and self.slices.register_first_only:
+                if "{{item}}" in self.dflow_vars:
+                    var_name = self.dflow_vars["{{item}}"]
+                else:
+                    var_name = "dflow_var_%s" % len(self.dflow_vars)
+                    self.inputs.parameters[var_name] = InputParameter(
+                        value="{{item}}")
+                    self.dflow_vars["{{item}}"] = var_name
+                self.inputs.parameters["dflow_first"] = InputParameter()
+                if not hasattr(self, "first_var"):
+                    self.first_var = "r'''{{inputs.parameters.dflow_first}}'''"
+                script += "    if r'''{{inputs.parameters.%s}}''' == "\
+                    "%s:\n" % (var_name, self.first_var)
+            else:
+                script += "    if True:\n"
+            script += "        input_urns = {}\n"
             for name, sign in input_sign.items():
                 if isinstance(sign, Artifact):
-                    script += "    input_urns['%s'] = '{{inputs.parameters."\
-                        "dflow_%s_urn}}'\n" % (name, name)
-            script += "    handle_lineage('{{workflow.name}}', "\
+                    script += "        input_urns['%s'] = '{{inputs."\
+                        "parameters.dflow_%s_urn}}'\n" % (name, name)
+            script += "        handle_lineage('{{workflow.name}}', "\
                 "'{{pod.name}}', op_obj, input_urns, '{{workflow.parameters."\
                 "dflow_workflow_urn}}', '%s')\n" % self.tmp_root
 
