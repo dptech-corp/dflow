@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.6.14](https://github.com/deepmodeling/dflow/compare/v1.6.13...v1.6.14) (2022-12-09)
+
+
+### Bug Fixes
+
+* remove unecessary **kwargs ([35f1dee](https://github.com/deepmodeling/dflow/commit/35f1dee34ef7c58e45bd464e5b5f5a51532e5165))
+* support for registering first slice only in lineage ([35f1dee](https://github.com/deepmodeling/dflow/commit/35f1dee34ef7c58e45bd464e5b5f5a51532e5165))
+* support storage to argo gateway ([4ba49f2](https://github.com/deepmodeling/dflow/commit/4ba49f2b2a2324644d1ade256a539ff8508142ee))
+
 ## [1.6.13](https://github.com/deepmodeling/dflow/compare/v1.6.12...v1.6.13) (2022-12-08)
 
 
