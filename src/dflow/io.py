@@ -430,7 +430,6 @@ class InputArtifact(ArgoVar):
             mode: Optional[int] = None,
             sub_path: Optional[str] = None,
             archive: str = "default",
-            **kwargs,
     ) -> None:
         self.path = path
         self.name = name
@@ -746,7 +745,6 @@ class OutputArtifact(ArgoVar):
             archive: str = "default",
             global_name: Optional[str] = None,
             from_expression: Union[IfExpression, str] = None,
-            **kwargs,
     ) -> None:
         self.path = path
         self.name = name

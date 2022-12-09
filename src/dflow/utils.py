@@ -598,7 +598,6 @@ class MinioClient(StorageClient):
                  secret_key: Optional[str] = None,
                  secure: Optional[bool] = None,
                  bucket_name: Optional[str] = None,
-                 **kwargs,
                  ) -> None:
         self.client = Minio(
             endpoint=endpoint if endpoint is not None else

@@ -255,12 +255,12 @@ class TiefblueClient:
         self.sharePath = res["data"]["sharePath"]
         self.userSharePath = res["data"]["userSharePath"]
 
-    def upload(self, key, path, **kwargs):
+    def upload(self, key, path):
         import tiefblue
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
         client.upload_from_file(key, path)
 
-    def download(self, key, path, **kwargs):
+    def download(self, key, path):
         import tiefblue
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
         os.makedirs(os.path.dirname(path), exist_ok=True)
