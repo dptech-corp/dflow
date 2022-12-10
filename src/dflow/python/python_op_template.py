@@ -193,12 +193,12 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 self.inputs.artifacts[name] = InputArtifact(
-                    path=r"%s/inputs/artifacts/" % self.tmp_root + name,
+                    path="%s/inputs/artifacts/" % self.tmp_root + name,
                     optional=sign.optional, type=sign.type,
                     archive=sign.archive)
             elif isinstance(sign, BigParameter) and config["mode"] != "debug":
                 self.inputs.parameters[name] = InputParameter(
-                    save_as_artifact=True, path=r"%s/inputs/parameters/"
+                    save_as_artifact=True, path="%s/inputs/parameters/"
                     % self.tmp_root + name, type=sign.type)
             elif isinstance(sign, Parameter):
                 if hasattr(sign, "default"):
@@ -212,13 +212,13 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 self.outputs.artifacts[name] = OutputArtifact(
-                    path=r"%s/outputs/artifacts/" % self.tmp_root + name,
+                    path="%s/outputs/artifacts/" % self.tmp_root + name,
                     archive=sign.archive, save=sign.save,
                     global_name=sign.global_name, type=sign.type)
                 if config["save_path_as_parameter"]:
                     self.outputs.parameters["dflow_%s_path_list" %
                                             name] = OutputParameter(
-                        value_from_path=r"%s/outputs/parameters/"
+                        value_from_path="%s/outputs/parameters/"
                         "dflow_%s_path_list" % (self.tmp_root, name),
                         default=[])
                 if config["lineage"]:
@@ -229,17 +229,17 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             elif isinstance(sign, BigParameter) and config["mode"] != "debug":
                 self.outputs.parameters[name] = OutputParameter(
                     save_as_artifact=True,
-                    value_from_path=r"%s/outputs/parameters/" % self.tmp_root
+                    value_from_path="%s/outputs/parameters/" % self.tmp_root
                     + name, type=sign.type)
             elif isinstance(sign, Parameter):
                 if hasattr(sign, "default"):
                     self.outputs.parameters[name] = OutputParameter(
-                        value_from_path=r"%s/outputs/parameters/"
+                        value_from_path="%s/outputs/parameters/"
                         % self.tmp_root + name, default=sign.default,
                         global_name=sign.global_name, type=sign.type)
                 else:
                     self.outputs.parameters[name] = OutputParameter(
-                        value_from_path=r"%s/outputs/parameters/"
+                        value_from_path="%s/outputs/parameters/"
                         % self.tmp_root + name, global_name=sign.global_name,
                         type=sign.type)
             else:
@@ -256,7 +256,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                         output_parameter_global_name:
                     global_name = output_parameter_global_name[name]
                 self.outputs.parameters[name] = OutputParameter(
-                    value_from_path=r"%s/outputs/parameters/" % self.tmp_root
+                    value_from_path="%s/outputs/parameters/" % self.tmp_root
                     + name, default=default, global_name=global_name,
                     type=sign)
 
@@ -276,7 +276,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         if python_packages:
             self.python_packages = set(python_packages)
             self.inputs.artifacts["dflow_python_packages"] = InputArtifact(
-                path=r"%s/inputs/artifacts/dflow_python_packages"
+                path="%s/inputs/artifacts/dflow_python_packages"
                 % self.tmp_root)
 
         self.image = image
@@ -342,14 +342,14 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                                            name] = InputParameter(value=".")
                     sign = self.input_sign[name]
                     self.inputs.artifacts[name] = InputArtifact(
-                        path=r"%s/inputs/artifacts/%s/{{inputs.parameters."
+                        path="%s/inputs/artifacts/%s/{{inputs.parameters."
                         "dflow_%s_sub_path}}" % (self.tmp_root, name, name),
                         optional=sign.optional, type=sign.type)
 
             for name in self.output_artifact_slices.keys():
                 self.outputs.parameters["dflow_%s_path_list" %
                                         name] = OutputParameter(
-                    value_from_path=r"%s/outputs/parameters/"
+                    value_from_path="%s/outputs/parameters/"
                     "dflow_%s_path_list" % (self.tmp_root, name),
                     default=[])
 
@@ -554,7 +554,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                         "parameters.dflow_%s_urn}}'\n" % (name, name)
             script += "        handle_lineage('{{workflow.name}}', "\
                 "'{{pod.name}}', op_obj, input_urns, '{{workflow.parameters."\
-                "dflow_workflow_urn}}', '%s')\n" % self.tmp_root
+                "dflow_workflow_urn}}', r'%s')\n" % self.tmp_root
 
         self.script = script
 
