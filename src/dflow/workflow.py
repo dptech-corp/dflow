@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from typing import Optional, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import jsonpickle
 
@@ -10,19 +10,23 @@ from .config import config, s3_config
 from .context import Context
 from .context_syntax import GLOBAL_CONTEXT
 from .dag import DAG
+from .op_template import get_k8s_core_v1_api
 from .step import Step
 from .steps import Steps
 from .task import Task
 from .utils import copy_s3, get_key, linktree, randstr
 
 try:
-    import kubernetes
     import urllib3
+
+    import kubernetes
     urllib3.disable_warnings()
     import yaml
     from argo.workflows.client import (ApiClient, Configuration,
+                                       V1alpha1Arguments,
                                        V1alpha1ArtifactRepositoryRef,
-                                       V1alpha1PodGC, V1alpha1Workflow,
+                                       V1alpha1Parameter, V1alpha1PodGC,
+                                       V1alpha1Workflow,
                                        V1alpha1WorkflowCreateRequest,
                                        V1alpha1WorkflowSpec,
                                        V1LocalObjectReference, V1ObjectMeta,
@@ -77,6 +81,7 @@ class Workflow:
             * OnWorkflowSuccess - delete pods when workflow is successful
         image_pull_secrets: secrets for image registies
         artifact_repo_key: use artifact repository reference by key
+        parameters: global input parameters
     """
 
     def __init__(
@@ -98,6 +103,7 @@ class Workflow:
             image_pull_secrets: Union[str, DockerSecret,
                                       List[Union[str, DockerSecret]]] = None,
             artifact_repo_key: Optional[str] = None,
+            parameters: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.host = host if host is not None else config["host"]
         self.token = token if token is not None else config["token"]
@@ -148,6 +154,9 @@ class Workflow:
         self.templates = {}
         self.argo_templates = {}
         self.pvcs = {}
+        if parameters is None:
+            parameters = {}
+        self.parameters = parameters
 
         if self.artifact_repo_key is not None:
             core_v1_api = self.get_k8s_core_v1_api()
@@ -167,22 +176,8 @@ class Workflow:
                     s3_config["repo_prefix"] = s3["keyFormat"][:-len(t)]
 
     def get_k8s_core_v1_api(self):
-        if self.k8s_api_server is not None:
-            k8s_configuration = kubernetes.client.Configuration(
-                host=self.k8s_api_server)
-            k8s_configuration.verify_ssl = False
-            if self.token is None:
-                k8s_client = kubernetes.client.ApiClient(
-                    k8s_configuration)
-            else:
-                k8s_client = kubernetes.client.ApiClient(
-                    k8s_configuration, header_name='Authorization',
-                    header_value='Bearer %s' % self.token)
-            return kubernetes.client.CoreV1Api(k8s_client)
-        else:
-            kubernetes.config.load_kube_config(
-                config_file=self.k8s_config_file)
-            return kubernetes.client.CoreV1Api()
+        return get_k8s_core_v1_api(self.k8s_api_server, self.token,
+                                   self.k8s_config_file)
 
     def __enter__(self) -> 'Workflow':
         GLOBAL_CONTEXT.in_context = True
@@ -310,6 +305,7 @@ class Workflow:
             '/api/v1/workflows/%s' % self.namespace, 'POST',
             body=V1alpha1WorkflowCreateRequest(workflow=manifest),
             response_type=object,
+            header_params=config["http_headers"],
             _return_http_data_only=True)
         workflow = ArgoWorkflow(response)
 
@@ -422,9 +418,18 @@ class Workflow:
                         namespace=self.namespace, body=secret)
                     self.image_pull_secrets[i] = s.name
 
+        if config["lineage"] is not None:
+            workflow_urn = config["lineage"].register_workflow(self.name)
+            self.parameters["dflow_workflow_urn"] = workflow_urn
+
         return V1alpha1Workflow(
             metadata=metadata,
             spec=V1alpha1WorkflowSpec(
+                arguments=V1alpha1Arguments(
+                    parameters=[V1alpha1Parameter(
+                        name=k, value=v if isinstance(v, str) else
+                        jsonpickle.dumps(v)) for k, v in
+                        self.parameters.items()]),
                 service_account_name='argo',
                 entrypoint=self.entrypoint.name,
                 templates=list(self.argo_templates.values()),
@@ -484,11 +489,13 @@ class Workflow:
         try:
             response = self.api_instance.api_client.call_api(
                 '/api/v1/workflows/%s/%s' % (self.namespace, self.id),
-                'GET', response_type=object, _return_http_data_only=True)
+                'GET', response_type=object, _return_http_data_only=True,
+                header_params=config["http_headers"])
         except Exception:
             response = self.api_instance.api_client.call_api(
                 '/api/v1/archived-workflows/%s' % self.uid,
-                'GET', response_type=object, _return_http_data_only=True)
+                'GET', response_type=object, _return_http_data_only=True,
+                header_params=config["http_headers"])
         workflow = ArgoWorkflow(response)
         return workflow
 
@@ -622,11 +629,13 @@ class Workflow:
                 response = self.api_instance.api_client.call_api(
                     '/api/v1/workflows/%s/%s' % (self.namespace, self.id),
                     'GET', response_type=object, _return_http_data_only=True,
+                    header_params=config["http_headers"],
                     query_params=[('fields', 'status.outputs')])
             except Exception:
                 response = self.api_instance.api_client.call_api(
                     '/api/v1/archived-workflows/%s' % self.uid,
                     'GET', response_type=object, _return_http_data_only=True,
+                    header_params=config["http_headers"],
                     query_params=[('fields', 'status.outputs')])
             return [par["name"] for par in
                     response["status"]["outputs"]["parameters"]]
@@ -642,7 +651,7 @@ class Workflow:
             raise RuntimeError("Workflow ID is None")
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/terminate' % (self.namespace, self.id),
-            'PUT')
+            'PUT', header_params=config["http_headers"])
 
     def delete(self) -> None:
         """
@@ -651,7 +660,8 @@ class Workflow:
         if self.id is None:
             raise RuntimeError("Workflow ID is None")
         self.api_instance.api_client.call_api(
-            '/api/v1/workflows/%s/%s' % (self.namespace, self.id), 'DELETE')
+            '/api/v1/workflows/%s/%s' % (self.namespace, self.id), 'DELETE',
+            header_params=config["http_headers"])
 
     def resubmit(self) -> None:
         """
@@ -661,7 +671,7 @@ class Workflow:
             raise RuntimeError("Workflow ID is None")
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/resubmit' % (self.namespace, self.id),
-            'PUT')
+            'PUT', header_params=config["http_headers"])
 
     def resume(self) -> None:
         """
@@ -671,7 +681,7 @@ class Workflow:
             raise RuntimeError("Workflow ID is None")
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/resume' % (self.namespace, self.id),
-            'PUT')
+            'PUT', header_params=config["http_headers"])
 
     def retry(self) -> None:
         """
@@ -681,7 +691,7 @@ class Workflow:
             raise RuntimeError("Workflow ID is None")
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/retry' % (self.namespace, self.id),
-            'PUT')
+            'PUT', header_params=config["http_headers"])
 
     def stop(self) -> None:
         """
@@ -691,7 +701,7 @@ class Workflow:
             raise RuntimeError("Workflow ID is None")
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/stop' % (self.namespace, self.id),
-            'PUT')
+            'PUT', header_params=config["http_headers"])
 
     def suspend(self) -> None:
         """
@@ -701,4 +711,4 @@ class Workflow:
             raise RuntimeError("Workflow ID is None")
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/suspend' % (self.namespace, self.id),
-            'PUT')
+            'PUT', header_params=config["http_headers"])

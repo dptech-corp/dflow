@@ -16,6 +16,8 @@ config = {
     "dispatcher_image_pull_policy": None,
     "save_keys_in_global_outputs": True,
     "mode": "default",
+    "lineage": None,
+    "http_headers": {},
 }
 
 
@@ -45,6 +47,8 @@ def set_config(
         dispatcher_image_pull_policy: image pull policy for dpdispatcher
         save_keys_in_global_outputs: save keys of steps in global outputs
         mode: "default" for normal, "debug" for debugging locally
+        lineage: lineage client, None by default
+        http_headers: HTTP headers for requesting Argo server
     """
     config.update(kwargs)
 

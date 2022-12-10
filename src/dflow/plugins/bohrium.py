@@ -4,6 +4,7 @@ from copy import deepcopy
 from getpass import getpass
 from typing import Optional
 
+from ..config import config as dflow_config
 from ..context import Context
 from ..executor import Executor, render_script_with_tmp_root
 from ..op_template import PythonScriptOPTemplate, ShellOPTemplate
@@ -29,6 +30,26 @@ def _raise_error(res, op):
             raise RuntimeError("%s failed: %s" % (op, res["message"]))
         else:
             raise RuntimeError("%s failed" % op)
+
+
+def login(username=None, password=None, bohrium_url=None):
+    if username is None:
+        username = config["username"]
+    if password is None:
+        password = config["password"]
+    if bohrium_url is None:
+        bohrium_url = config["bohrium_url"]
+    if config["authorization"] is None:
+        config["authorization"] = _login(
+            bohrium_url + "/account/login", username, password)
+    headers = dflow_config["http_headers"]
+    if "Cookie" not in headers:
+        headers["Cookie"] = "brmToken=" + config["authorization"]
+    else:
+        headers["Cookie"] += "; brmToken=" + config["authorization"]
+    if config["project_id"]:
+        headers["Bohrium-Project-ID"] = config["project_id"]
+    return config["authorization"]
 
 
 def _login(login_url=None, username=None, password=None):
@@ -126,8 +147,8 @@ class BohriumContext(Context):
 
     def login(self):
         if self.authorization is None:
-            self.authorization = _login(self.login_url, self.username,
-                                        self.password)
+            self.authorization = login(self.username, self.password,
+                                       self.bohrium_url)
             config["authorization"] = self.authorization
 
     def render(self, template):
@@ -218,9 +239,8 @@ class TiefblueClient:
     def get_token(self):
         import requests
         if self.authorization is None:
-            self.authorization = _login(
-                self.bohrium_url + "/account/login",
-                self.username, self.password)
+            self.authorization = login(
+                self.username, self.password, self.bohrium_url)
             config["authorization"] = self.authorization
         rsp = requests.get(
             self.bohrium_url + "/brm/v1/storage/token",
@@ -235,12 +255,12 @@ class TiefblueClient:
         self.sharePath = res["data"]["sharePath"]
         self.userSharePath = res["data"]["userSharePath"]
 
-    def upload(self, key, path, **kwargs):
+    def upload(self, key, path):
         import tiefblue
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
         client.upload_from_file(key, path)
 
-    def download(self, key, path, **kwargs):
+    def download(self, key, path):
         import tiefblue
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
         os.makedirs(os.path.dirname(path), exist_ok=True)

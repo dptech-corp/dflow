@@ -1,5 +1,7 @@
+import abc
+from abc import ABC
 from copy import deepcopy
-from typing import Any, Union
+from typing import Any, Dict, List, Union
 
 from .config import s3_config
 
@@ -21,6 +23,7 @@ class S3Artifact(V1alpha1S3Artifact):
     def __init__(
             self,
             path_list: Union[str, list] = None,
+            urn: str = "",
             *args,
             **kwargs,
     ) -> None:
@@ -34,9 +37,10 @@ class S3Artifact(V1alpha1S3Artifact):
         if path_list is None:
             path_list = []
         self.path_list = path_list
+        self.urn = urn
 
     def to_dict(self):
-        d = {"key": self.key}
+        d = {"key": self.key, "urn": self.urn}
         if s3_config["storage_client"] is None:
             d.update(s3_config)
         else:
@@ -45,7 +49,7 @@ class S3Artifact(V1alpha1S3Artifact):
 
     @classmethod
     def from_dict(cls, d):
-        return cls(key=d["key"])
+        return cls(key=d["key"], urn=d.get("urn", ""))
 
     def sub_path(
             self,
@@ -71,3 +75,28 @@ class S3Artifact(V1alpha1S3Artifact):
 class LocalArtifact:
     def __init__(self, local_path):
         self.local_path = local_path
+
+
+class LineageClient(ABC):
+    @abc.abstractmethod
+    def register_workflow(
+            self,
+            workflow_name: str) -> str:
+        pass
+
+    @abc.abstractmethod
+    def register_artifact(
+            self,
+            namespace: str,
+            name: str,
+            uri: str) -> str:
+        pass
+
+    @abc.abstractmethod
+    def register_task(
+            self,
+            task_name: str,
+            input_urns: Dict[str, Union[str, List[str]]],
+            output_uris: Dict[str, str],
+            workflow_urn: str) -> Dict[str, str]:
+        pass

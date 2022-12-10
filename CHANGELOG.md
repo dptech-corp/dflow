@@ -1,5 +1,40 @@
 # CHANGELOG
 
+## [1.6.14](https://github.com/deepmodeling/dflow/compare/v1.6.13...v1.6.14) (2022-12-09)
+
+
+### Bug Fixes
+
+* remove unecessary **kwargs ([35f1dee](https://github.com/deepmodeling/dflow/commit/35f1dee34ef7c58e45bd464e5b5f5a51532e5165))
+* support for registering first slice only in lineage ([35f1dee](https://github.com/deepmodeling/dflow/commit/35f1dee34ef7c58e45bd464e5b5f5a51532e5165))
+* support storage to argo gateway ([4ba49f2](https://github.com/deepmodeling/dflow/commit/4ba49f2b2a2324644d1ade256a539ff8508142ee))
+
+## [1.6.13](https://github.com/deepmodeling/dflow/compare/v1.6.12...v1.6.13) (2022-12-08)
+
+
+### Bug Fixes
+
+* add HTTP headers to config ([a2573ff](https://github.com/deepmodeling/dflow/commit/a2573ffb962bee56c43cc64902668fdf13245c41))
+* create secret for env var ([547dcaa](https://github.com/deepmodeling/dflow/commit/547dcaaa3625111ecbdc7b1bc3c0db879bc69fb5))
+* support for env from a source ([12cd852](https://github.com/deepmodeling/dflow/commit/12cd8526592c680d267ccfcf501351b35f910faa))
+* support for treating input artifact as non-archived file ([a2573ff](https://github.com/deepmodeling/dflow/commit/a2573ffb962bee56c43cc64902668fdf13245c41))
+
+## [1.6.12](https://github.com/deepmodeling/dflow/compare/v1.6.11...v1.6.12) (2022-12-04)
+
+
+### Bug Fixes
+
+* support Steps template for continue_on_num_success and continue_on_success_ratio ([d1ce485](https://github.com/deepmodeling/dflow/commit/d1ce48529dc9cb6439610347542b2ee49f33d394))
+
+## [1.6.11](https://github.com/deepmodeling/dflow/compare/v1.6.10...v1.6.11) (2022-12-02)
+
+
+### Bug Fixes
+
+* add extra prefixes ignored by S3Artifact auto-prefixing ([2e3ce02](https://github.com/deepmodeling/dflow/commit/2e3ce023044da8c11bbe1cf7bc045a0cb17f0c38))
+* replace github link with gitee link in install-*.sh ([2e3ce02](https://github.com/deepmodeling/dflow/commit/2e3ce023044da8c11bbe1cf7bc045a0cb17f0c38))
+* support for pass list of artifacts to input artifact ([b12c62e](https://github.com/deepmodeling/dflow/commit/b12c62e6c5ad16c0b9beec4c3d668e5e2a8d1eb5))
+
 ## [1.6.10](https://github.com/deepmodeling/dflow/compare/v1.6.9...v1.6.10) (2022-11-30)
 
 

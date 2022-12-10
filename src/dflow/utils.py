@@ -114,6 +114,8 @@ def download_artifact(
 def upload_artifact(
         path: Union[os.PathLike, List[os.PathLike], Set[os.PathLike]],
         archive: str = "default",
+        namespace: Optional[str] = None,
+        name: Optional[str] = None,
         **kwargs,
 ) -> S3Artifact:
     """
@@ -182,7 +184,12 @@ def upload_artifact(
             key = upload_s3(path=tmpdir, **kwargs)
 
     logging.debug("upload artifact: finished")
-    return S3Artifact(key=key, path_list=path_list)
+
+    urn = ""
+    if config["lineage"] and namespace is not None and name is not None:
+        urn = config["lineage"].register_artifact(namespace, name, key)
+
+    return S3Artifact(key=key, path_list=path_list, urn=urn)
 
 
 def copy_artifact(src, dst, sort=False) -> S3Artifact:
@@ -591,7 +598,6 @@ class MinioClient(StorageClient):
                  secret_key: Optional[str] = None,
                  secure: Optional[bool] = None,
                  bucket_name: Optional[str] = None,
-                 **kwargs,
                  ) -> None:
         self.client = Minio(
             endpoint=endpoint if endpoint is not None else
