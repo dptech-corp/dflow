@@ -66,10 +66,10 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
     def render_script(self):
         script = "import os, json\n"
         for name in self.sliced_output_artifact:
-            script += "os.makedirs('%s/outputs/artifacts/%s/%s', "\
+            script += "os.makedirs(r'%s/outputs/artifacts/%s/%s', "\
                 "exist_ok=True)\n" % (self.tmp_root, name,
                                       config["catalog_dir_name"])
-            script += "with open('%s/outputs/artifacts/%s/%s/init',"\
+            script += "with open(r'%s/outputs/artifacts/%s/%s/init',"\
                 " 'w') as f:\n" % (self.tmp_root, name,
                                    config["catalog_dir_name"])
             script += "    json.dump({'path_list': []}, f)\n"
@@ -77,7 +77,7 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
         if self.sliced_input_artifact:
             for i, name in enumerate(self.sliced_input_artifact):
                 script += "path_list_%s = []\n" % i
-                script += "path = '%s/inputs/artifacts/%s'\n" % \
+                script += "path = r'%s/inputs/artifacts/%s'\n" % \
                     (self.tmp_root, name)
                 script += "if os.path.exists(path):\n"
                 script += "    for f in os.listdir(path):\n"
@@ -100,9 +100,9 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
                 script += "    item['%s'] = path_list_%s[i]"\
                     "['dflow_list_item']\n" % (name, i)
             script += "    slices_path.append(item)\n"
-            script += "os.makedirs('%s/outputs/parameters', exist_ok=True)\n"\
+            script += "os.makedirs(r'%s/outputs/parameters', exist_ok=True)\n"\
                 % self.tmp_root
-            script += "with open('%s/outputs/parameters/dflow_slices_path',"\
+            script += "with open(r'%s/outputs/parameters/dflow_slices_path',"\
                 " 'w') as f:\n" % self.tmp_root
             script += "    json.dump(slices_path, f)\n"
 
@@ -116,8 +116,8 @@ if "dflow_list_item" in value:
     var = list(map(lambda x: x['dflow_list_item'], dflow_list))
 else:
     var = json.loads(value)
-os.makedirs('%s/outputs/parameters', exist_ok=True)
-with open('%s/outputs/parameters/sum_%s', 'w') as f:
+os.makedirs(r'%s/outputs/parameters', exist_ok=True)
+with open(r'%s/outputs/parameters/sum_%s', 'w') as f:
     f.write(str(sum(map(int, var))))\n""" % (
                 name, self.tmp_root, self.tmp_root, name)
 
@@ -135,8 +135,8 @@ else:
             var += json.loads(item)
         else:
             var += item
-os.makedirs('%s/outputs/parameters', exist_ok=True)
-with open('%s/outputs/parameters/concat_%s', 'w') as f:
+os.makedirs(r'%s/outputs/parameters', exist_ok=True)
+with open(r'%s/outputs/parameters/concat_%s', 'w') as f:
     f.write(json.dumps(var))\n""" % (
                 name, self.tmp_root, self.tmp_root, name)
 
