@@ -367,7 +367,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script = ""
         if self.python_packages:
             script += "import os, sys, json\n"
-            script += "package_root = '%s/inputs/artifacts/"\
+            script += "package_root = r'%s/inputs/artifacts/"\
                 "dflow_python_packages'\n" % self.tmp_root
             script += "catalog_dir = os.path.join(package_root, "\
                 "'%s')\n" % config['catalog_dir_name']
@@ -442,12 +442,12 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 if self.slices is not None and self.slices.sub_path and \
                         name in self.slices.input_artifact:
                     script += "    input['%s'] = handle_input_artifact('%s', "\
-                        "input_sign['%s'], %s, '%s', '{{inputs.parameters."\
+                        "input_sign['%s'], %s, r'%s', '{{inputs.parameters."\
                         "dflow_%s_sub_path}}', None)\n" % (
                             name, name, name, slices, self.tmp_root, name)
                 else:
                     script += "    input['%s'] = handle_input_artifact('%s', "\
-                        "input_sign['%s'], %s, '%s', None, %s)\n" \
+                        "input_sign['%s'], %s, r'%s', None, %s)\n" \
                         % (name, name, name, slices, self.tmp_root,
                            self.n_parts.get(name, None))
             else:
@@ -455,13 +455,13 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 if isinstance(sign, BigParameter) and \
                         config["mode"] != "debug":
                     script += "    input['%s'] = handle_input_parameter('%s',"\
-                        " '', input_sign['%s'], %s, '%s')\n" \
+                        " '', input_sign['%s'], %s, r'%s')\n" \
                         % (name, name, name, slices, self.tmp_root)
                 else:
                     script += "    input['%s'] = handle_input_parameter('%s',"\
                         " r'''{{inputs.parameters.%s}}''', input_sign['%s'], "\
-                        "%s, '%s')\n" % (name, name, name, name, slices,
-                                         self.tmp_root)
+                        "%s, r'%s')\n" % (name, name, name, name, slices,
+                                          self.tmp_root)
 
         script += "    try:\n"
         if self.slices is not None and self.slices.pool_size is not None:
@@ -516,21 +516,21 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "        traceback.print_exc()\n"
         script += "        sys.exit(2)\n"
 
-        script += "    os.makedirs('%s/outputs/parameters', exist_ok=True)\n" \
+        script += "    os.makedirs(r'%s/outputs/parameters', exist_ok=True)\n"\
             % self.tmp_root
-        script += "    os.makedirs('%s/outputs/artifacts', exist_ok=True)\n" \
+        script += "    os.makedirs(r'%s/outputs/artifacts', exist_ok=True)\n" \
             % self.tmp_root
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(output_artifact_slices, name)
                 script += "    handle_output_artifact('%s', output['%s'], "\
-                    "output_sign['%s'], %s, '%s')\n" % (name, name, name,
-                                                        slices, self.tmp_root)
+                    "output_sign['%s'], %s, r'%s')\n" % (name, name, name,
+                                                         slices, self.tmp_root)
             else:
                 slices = self.get_slices(output_parameter_slices, name)
                 script += "    handle_output_parameter('%s', output['%s'], "\
-                    "output_sign['%s'], %s, '%s')\n" % (name, name, name,
-                                                        slices, self.tmp_root)
+                    "output_sign['%s'], %s, r'%s')\n" % (name, name, name,
+                                                         slices, self.tmp_root)
         if config["lineage"]:
             if self.slices is not None and self.slices.register_first_only:
                 if "{{item}}" in self.dflow_vars:
@@ -554,7 +554,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                         "parameters.dflow_%s_urn}}'\n" % (name, name)
             script += "        handle_lineage('{{workflow.name}}', "\
                 "'{{pod.name}}', op_obj, input_urns, '{{workflow.parameters."\
-                "dflow_workflow_urn}}', '%s')\n" % self.tmp_root
+                "dflow_workflow_urn}}', r'%s')\n" % self.tmp_root
 
         self.script = script
 
