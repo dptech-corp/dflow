@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.15](https://github.com/deepmodeling/dflow/compare/v1.6.14...v1.6.15) (2022-12-14)
+
+
+### Bug Fixes
+
+* **path on windows:** use raw string to make the cross-platform path behaviors right. ([0b28521](https://github.com/deepmodeling/dflow/commit/0b2852181567e787b2d0b5fe197e521b9485c988))
+
 ## [1.6.14](https://github.com/deepmodeling/dflow/compare/v1.6.13...v1.6.14) (2022-12-09)
 
 
