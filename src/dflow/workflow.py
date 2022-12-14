@@ -374,8 +374,11 @@ class Workflow:
                     data=data, metadata=kubernetes.client.V1ObjectMeta(
                         name="dflow-%s-%s" % (self.id, step.key)))
                 core_v1_api = self.get_k8s_core_v1_api()
-                core_v1_api.create_namespaced_config_map(
-                    namespace=self.namespace, body=config_map)
+                core_v1_api.api_client.call_api(
+                    '/api/v1/namespaces/%s/configmaps' % self.namespace,
+                    'POST', body=config_map, response_type='V1ConfigMap',
+                    header_params=config["http_headers"],
+                    _return_http_data_only=True)
             self.handle_template(
                 self.entrypoint, memoize_prefix=self.id,
                 memoize_configmap="dflow")
