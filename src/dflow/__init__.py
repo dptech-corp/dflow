@@ -1,3 +1,6 @@
+import os
+from importlib import import_module
+
 from .common import LineageClient, LocalArtifact, S3Artifact
 from .config import config, s3_config, set_config, set_s3_config
 from .context import Context
@@ -30,3 +33,20 @@ __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "Context", "randstr", "LocalArtifact", "set_config",
            "set_s3_config", "DockerSecret", "argo_sum", "argo_concat",
            "LineageClient", "Secret"]
+
+
+def import_func(s):
+    fields = s.split(".")
+    if fields[0] == __name__ or fields[0] == "":
+        fields[0] = ""
+        mod = import_module(".".join(fields[:-1]), package=__name__)
+    else:
+        mod = import_module(".".join(fields[:-1]))
+    return getattr(mod, fields[-1])
+
+
+if os.environ.get("DFLOW_LINEAGE"):
+    config["lineage"] = import_func(os.environ.get("DFLOW_LINEAGE"))()
+if os.environ.get("DFLOW_S3_STORAGE_CLIENT"):
+    s3_config["storage_client"] = import_func(os.environ.get(
+        "DFLOW_S3_STORAGE_CLIENT"))()
