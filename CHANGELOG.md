@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.17](https://github.com/deepmodeling/dflow/compare/v1.6.16...v1.6.17) (2022-12-15)
+
+
+### Bug Fixes
+
+* dispatcher bohrium use bohrium.config ([3f3062b](https://github.com/deepmodeling/dflow/commit/3f3062b038715fe026e0cf67d168ce6e02f4bf30))
+* executor used for context ([3f3062b](https://github.com/deepmodeling/dflow/commit/3f3062b038715fe026e0cf67d168ce6e02f4bf30))
+
 ## [1.6.16](https://github.com/deepmodeling/dflow/compare/v1.6.15...v1.6.16) (2022-12-15)
 
 
