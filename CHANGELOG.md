@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.16](https://github.com/deepmodeling/dflow/compare/v1.6.15...v1.6.16) (2022-12-15)
+
+
+### Bug Fixes
+
+* support for config from env var ([1fff9f2](https://github.com/deepmodeling/dflow/commit/1fff9f2b5f238f3d4161ce0676960b40a820596e))
+
 ## [1.6.15](https://github.com/deepmodeling/dflow/compare/v1.6.14...v1.6.15) (2022-12-14)
 
 
