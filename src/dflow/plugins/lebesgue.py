@@ -30,9 +30,6 @@ class LebesgueExecutor(Executor):
         self.extra = extra
 
     def render(self, template):
-        assert "workflow.dp.tech/executor" in template.annotations, \
-            "lebesgue context not detected, lebesgue executor will "\
-            "not take effect"
         new_template = deepcopy(template)
         new_template.name += "-" + randstr()
         if self.executor is not None:
@@ -41,8 +38,7 @@ class LebesgueExecutor(Executor):
         if self.extra is not None:
             new_template.annotations["task.dp.tech/extra"] = json.dumps(
                 self.extra) if isinstance(self.extra, dict) else self.extra
-        if self.executor == "lebesgue_v2" and template.annotations[
-                "workflow.dp.tech/executor"] != "lebesgue_v2":
+        if self.executor == "lebesgue_v2":
             new_template.script = render_script_with_tmp_root(template,
                                                               "$(pwd)/tmp")
             if isinstance(template, ShellOPTemplate):

@@ -10,6 +10,7 @@ from .config import config, s3_config
 from .context import Context
 from .context_syntax import GLOBAL_CONTEXT
 from .dag import DAG
+from .executor import Executor
 from .op_template import get_k8s_core_v1_api
 from .step import Step
 from .steps import Steps
@@ -96,7 +97,7 @@ class Workflow:
             token: Optional[str] = None,
             k8s_config_file: Optional[os.PathLike] = None,
             k8s_api_server: Optional[str] = None,
-            context: Optional[Context] = None,
+            context: Optional[Union[Context, Executor]] = None,
             annotations: Dict[str, str] = None,
             parallelism: Optional[int] = None,
             pod_gc_strategy: Optional[str] = None,
@@ -317,7 +318,7 @@ class Workflow:
 
     def convert_to_argo(self, reuse_step=None):
         if self.context is not None:
-            assert isinstance(self.context, Context)
+            assert isinstance(self.context, (Context, Executor))
             self = self.context.render(self)
 
         status = None
