@@ -1,23 +1,60 @@
+import os
+
+
+def boolize(s):
+    if isinstance(s, str):
+        if s.lower() in ["", "false", "0"]:
+            return False
+        else:
+            return True
+    return s
+
+
+def nullable(s):
+    if isinstance(s, str) and s.lower() == "none":
+        return None
+    return s
+
+
+def split_headers(s):
+    if isinstance(s, str):
+        headers = {}
+        for h in s.split(";"):
+            fields = h.split(":")
+            if len(fields) == 2:
+                headers[fields[0]] = fields[1]
+        return headers
+    return s
+
+
 config = {
-    "host": "https://127.0.0.1:2746",
-    "namespace": "argo",
-    "token": None,
-    "k8s_config_file": None,
-    "k8s_api_server": None,
-    "private_key_host_path": "/home/docker/.ssh",
-    "save_path_as_parameter": False,
-    "catalog_dir_name": ".dflow",
-    "archive_mode": "tar",
-    "util_image": "python:3.8",
-    "util_image_pull_policy": None,
-    "extender_image": "dptechnology/dflow-extender",
-    "extender_image_pull_policy": None,
-    "dispatcher_image": "dptechnology/dpdispatcher",
-    "dispatcher_image_pull_policy": None,
-    "save_keys_in_global_outputs": True,
-    "mode": "default",
+    "host": os.environ.get("DFLOW_HOST", "https://127.0.0.1:2746"),
+    "namespace": os.environ.get("DFLOW_NAMESPACE", "argo"),
+    "token": os.environ.get("DFLOW_TOKEN", None),
+    "k8s_config_file": os.environ.get("DFLOW_K8S_CONFIG_FILE", None),
+    "k8s_api_server": os.environ.get("DFLOW_K8S_API_SERVER", None),
+    "private_key_host_path": os.environ.get("DFLOW_PRIVATE_KEY_HOST_PATH",
+                                            "/home/docker/.ssh"),
+    "save_path_as_parameter": boolize(os.environ.get(
+        "DFLOW_SAVE_PATH_AS_PARAMETER", False)),
+    "catalog_dir_name": os.environ.get("DFLOW_CATALOG_DIR_NAME", ".dflow"),
+    "archive_mode": nullable(os.environ.get("DFLOW_ARCHIVE_MODE", "tar")),
+    "util_image": os.environ.get("DFLOW_UTIL_IMAGE", "python:3.8"),
+    "util_image_pull_policy": os.environ.get("DFLOW_UTIL_IMAGE_PULL_POLICY",
+                                             None),
+    "extender_image": os.environ.get("DFLOW_EXTENDER_IMAGE",
+                                     "dptechnology/dflow-extender"),
+    "extender_image_pull_policy": os.environ.get(
+        "DFLOW_EXTENDER_IMAGE_PULL_POLICY", None),
+    "dispatcher_image": os.environ.get("DFLOW_DISPATCHER_IMAGE",
+                                       "dptechnology/dpdispatcher"),
+    "dispatcher_image_pull_policy": os.environ.get(
+        "DFLOW_DISPATCHER_IMAGE_PULL_POLICY", None),
+    "save_keys_in_global_outputs": boolize(os.environ.get(
+        "DFLOW_SAVE_KEYS_IN_GLOBAL_OUTPUTS", True)),
+    "mode": os.environ.get("DFLOW_MODE", "default"),
     "lineage": None,
-    "http_headers": {},
+    "http_headers": split_headers(os.environ.get("DFLOW_HTTP_HEADERS", {})),
 }
 
 
@@ -54,19 +91,20 @@ def set_config(
 
 
 s3_config = {
-    "endpoint": "127.0.0.1:9000",
-    "console": "http://127.0.0.1:9001",
-    "access_key": "admin",
-    "secret_key": "password",
-    "secure": False,
-    "bucket_name": "my-bucket",
-    "repo_key": None,
-    "repo": None,
-    "repo_type": "s3",
-    "repo_prefix": "",
-    "prefix": "",
+    "endpoint": os.environ.get("DFLOW_S3_ENDPOINT", "127.0.0.1:9000"),
+    "console": os.environ.get("DFLOW_S3_CONSOLE", "http://127.0.0.1:9001"),
+    "access_key": os.environ.get("DFLOW_S3_ACCESS_KEY", "admin"),
+    "secret_key": os.environ.get("DFLOW_S3_SECRET_KEY", "password"),
+    "secure": boolize(os.environ.get("DFLOW_S3_SECURE", False)),
+    "bucket_name": os.environ.get("DFLOW_S3_BUCKET_NAME", "my-bucket"),
+    "repo_key": os.environ.get("DFLOW_S3_REPO_KEY", None),
+    "repo": os.environ.get("DFLOW_S3_REPO", None),
+    "repo_type": os.environ.get("DFLOW_S3_REPO_TYPE", "s3"),
+    "repo_prefix": os.environ.get("DFLOW_S3_REPO_PREFIX", ""),
+    "prefix": os.environ.get("DFLOW_S3_PREFIX", ""),
     "storage_client": None,
-    "extra_prefixes": [],
+    "extra_prefixes": os.environ.get("DFLOW_S3_EXTRA_PREFIXES").split(";") if
+    os.environ.get("DFLOW_S3_EXTRA_PREFIXES") else [],
 }
 
 

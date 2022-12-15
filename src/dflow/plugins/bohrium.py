@@ -5,20 +5,23 @@ from getpass import getpass
 from typing import Optional
 
 from ..config import config as dflow_config
+from ..config import s3_config
 from ..context import Context
 from ..executor import Executor, render_script_with_tmp_root
 from ..op_template import PythonScriptOPTemplate, ShellOPTemplate
-from ..utils import randstr, s3_config
+from ..utils import randstr
 from ..workflow import Workflow
 
 succ_code = [0, "0000"]
 config = {
-    "bohrium_url": "https://bohrium.dp.tech",
-    "username": None,
-    "password": None,
-    "authorization": None,
-    "project_id": None,
-    "tiefblue_url": "https://tiefblue.dp.tech",
+    "bohrium_url": os.environ.get("BOHRIUM_BOHRIUM_URL",
+                                  "https://bohrium.dp.tech"),
+    "username": os.environ.get("BOHRIUM_USERNAME", None),
+    "password": os.environ.get("BOHRIUM_PASSWORD", None),
+    "authorization": os.environ.get("BOHRIUM_AUTHORIZATION", None),
+    "project_id": os.environ.get("BOHRIUM_PROJECT_ID", None),
+    "tiefblue_url": os.environ.get("BOHRIUM_TIEFBLUE_URL",
+                                   "https://tiefblue.dp.tech"),
 }
 
 
