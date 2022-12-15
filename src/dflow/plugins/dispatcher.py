@@ -1,13 +1,15 @@
 import json
 import os
 from copy import deepcopy
-from typing import Optional, List, Union
+from typing import List, Optional, Union
 
 from ..common import S3Artifact
 from ..config import config
 from ..executor import Executor, render_script_with_tmp_root, run_script
 from ..io import InputArtifact
+from ..op_template import ScriptOPTemplate
 from ..utils import randstr, upload_s3
+from . import bohrium
 
 try:
     from argo.workflows.client import (V1HostPathVolumeSource, V1Volume,
@@ -137,10 +139,18 @@ class DispatcherExecutor(Executor):
         if self.machine_dict["context_type"] == "Bohrium":
             if "batch_type" not in self.machine_dict:
                 self.machine_dict["batch_type"] = "Bohrium"
-            if "email" not in self.machine_dict["remote_profile"]:
-                self.machine_dict["remote_profile"]["email"] = username
-            if "password" not in self.machine_dict["remote_profile"]:
-                self.machine_dict["remote_profile"]["password"] = password
+            if "email" not in self.machine_dict["remote_profile"] and \
+                    bohrium.config["username"] is not None:
+                self.machine_dict["remote_profile"]["email"] = \
+                    bohrium.config["username"]
+            if "password" not in self.machine_dict["remote_profile"] and \
+                    bohrium.config["password"] is not None:
+                self.machine_dict["remote_profile"]["password"] = \
+                    bohrium.config["password"]
+            if "program_id" not in self.machine_dict["remote_profile"] and \
+                    bohrium.config["project_id"] is not None:
+                self.machine_dict["remote_profile"]["program_id"] = int(
+                    bohrium.config["project_id"])
             if "input_data" not in self.machine_dict["remote_profile"]:
                 self.machine_dict["remote_profile"]["input_data"] = {}
             input_data = self.machine_dict["remote_profile"]["input_data"]
@@ -179,6 +189,9 @@ class DispatcherExecutor(Executor):
             update_dict(self.task_dict, task_dict)
 
     def render(self, template):
+        if not isinstance(template, ScriptOPTemplate):
+            return template
+
         new_template = deepcopy(template)
         new_template.name += "-" + randstr()
         new_template.image = self.image

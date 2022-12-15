@@ -90,9 +90,6 @@ class BohriumExecutor(Executor):
         self.extra = extra
 
     def render(self, template):
-        assert "workflow.dp.tech/executor" in template.annotations, \
-            "bohrium context not detected, bohrium executor will "\
-            "not take effect"
         new_template = deepcopy(template)
         new_template.name += "-" + randstr()
         if self.executor is not None:
@@ -101,8 +98,7 @@ class BohriumExecutor(Executor):
         if self.extra is not None:
             new_template.annotations["task.dp.tech/extra"] = json.dumps(
                 self.extra) if isinstance(self.extra, dict) else self.extra
-        if self.executor == "bohrium_v2" and template.annotations[
-                "workflow.dp.tech/executor"] != "bohrium_v2":
+        if self.executor == "bohrium_v2":
             new_template.script = render_script_with_tmp_root(template,
                                                               "$(pwd)/tmp")
             if isinstance(template, ShellOPTemplate):

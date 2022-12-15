@@ -1103,12 +1103,11 @@ class Step:
     **%s)\n""" % (k, k, v)
                 new_template.script += "ds.insert()\n"
 
-        if context is not None:
-            self.template = context.render(self.template)
-
         if self.executor is not None:
             assert isinstance(self.executor, Executor)
             self.template = self.executor.render(self.template)
+        elif context is not None:
+            self.template = context.render(self.template)
 
         if self.use_resource is not None:
             self.template.resource = V1alpha1ResourceTemplate(
