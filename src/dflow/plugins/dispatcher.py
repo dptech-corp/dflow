@@ -219,7 +219,8 @@ class DispatcherExecutor(Executor):
             self.task_dict["backward_files"].append("./" + art.path)
         for par in template.outputs.parameters.values():
             if par.save_as_artifact:
-                self.task_dict["backward_files"].append("./" + par.path)
+                self.task_dict["backward_files"].append(
+                    "./" + par.value_from_path)
             elif par.value_from_path is not None:
                 self.task_dict["backward_files"].append(
                     "./" + par.value_from_path)
