@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.18](https://github.com/deepmodeling/dflow/compare/v1.6.17...v1.6.18) (2022-12-20)
+
+
+### Bug Fixes
+
+* output parameter has no attribute path ([95920d3](https://github.com/deepmodeling/dflow/commit/95920d3b6c33921548affa3f308e4189eb4bf89e))
+
 ## [1.6.17](https://github.com/deepmodeling/dflow/compare/v1.6.16...v1.6.17) (2022-12-15)
 
 
