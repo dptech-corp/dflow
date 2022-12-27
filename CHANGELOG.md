@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.20](https://github.com/deepmodeling/dflow/compare/v1.6.19...v1.6.20) (2022-12-27)
+
+
+### Bug Fixes
+
+* enhance query_step efficiency ([3c5bd34](https://github.com/deepmodeling/dflow/commit/3c5bd348f5e51544701e69f3a1743f4704767985))
+
 ## [1.6.19](https://github.com/deepmodeling/dflow/compare/v1.6.18...v1.6.19) (2022-12-27)
 
 
