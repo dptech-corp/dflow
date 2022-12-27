@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.19](https://github.com/deepmodeling/dflow/compare/v1.6.18...v1.6.19) (2022-12-27)
+
+
+### Bug Fixes
+
+* refresh token in tiefblue client ([ca81d25](https://github.com/deepmodeling/dflow/commit/ca81d2598d57cf152e11f1d2610e0748e9d03237))
+* remove empty step group ([ca81d25](https://github.com/deepmodeling/dflow/commit/ca81d2598d57cf152e11f1d2610e0748e9d03237))
+
 ## [1.6.18](https://github.com/deepmodeling/dflow/compare/v1.6.17...v1.6.18) (2022-12-20)
 
 
