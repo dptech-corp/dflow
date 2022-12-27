@@ -70,7 +70,7 @@ class LebesgueContext(Context):
             self,
             username: Optional[str] = None,
             password: Optional[str] = None,
-            bohrium_url: str = "https://bohrium.dp.tech",
+            bohrium_url: str = "https://lbg-api.dp.tech",
             login_url: str = "https://workflow.dp.tech/account_gw/login",
             app_name: Optional[str] = None,
             org_id: Optional[str] = None,

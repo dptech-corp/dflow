@@ -62,15 +62,19 @@ class Steps(OPTemplate):
             if step.prepare_step is not None:
                 self.steps.append(step.prepare_step)
         elif isinstance(step, list):
-            self.steps.append([ps.prepare_step for ps in step
-                               if ps.prepare_step is not None])
+            prepare_steps = [ps.prepare_step for ps in step
+                             if ps.prepare_step is not None]
+            if prepare_steps:
+                self.steps.append(prepare_steps)
         self.steps.append(step)
         if isinstance(step, Step):
             if step.check_step is not None:
                 self.steps.append(step.check_step)
         elif isinstance(step, list):
-            self.steps.append([ps.check_step for ps in step
-                               if ps.check_step is not None])
+            check_steps = [ps.check_step for ps in step
+                           if ps.check_step is not None]
+            if check_steps:
+                self.steps.append(check_steps)
 
     def convert_to_argo(self, memoize_prefix=None,
                         memoize_configmap="dflow", context=None):

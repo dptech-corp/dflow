@@ -257,13 +257,31 @@ class TiefblueClient:
     def upload(self, key, path):
         import tiefblue
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
-        client.upload_from_file(key, path)
+        try:
+            client.upload_from_file(key, path)
+        except tiefblue.client.TiefblueException as e:
+            if e.code == 190001:
+                self.get_token()
+                client = tiefblue.Client(base_url=self.tiefblue_url,
+                                         token=self.token)
+                client.upload_from_file(key, path)
+            else:
+                raise e
 
     def download(self, key, path):
         import tiefblue
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        client.download_from_file(key, path)
+        try:
+            client.download_from_file(key, path)
+        except tiefblue.client.TiefblueException as e:
+            if e.code == 190001:
+                self.get_token()
+                client = tiefblue.Client(base_url=self.tiefblue_url,
+                                         token=self.token)
+                client.download_from_file(key, path)
+            else:
+                raise e
 
     def list(self, prefix, recursive=False):
         import tiefblue
@@ -271,8 +289,18 @@ class TiefblueClient:
         keys = []
         next_token = ""
         while True:
-            res = client.list(prefix=prefix, recursive=recursive,
-                              next_token=next_token)
+            try:
+                res = client.list(prefix=prefix, recursive=recursive,
+                                  next_token=next_token)
+            except tiefblue.client.TiefblueException as e:
+                if e.code == 190001:
+                    self.get_token()
+                    client = tiefblue.Client(base_url=self.tiefblue_url,
+                                             token=self.token)
+                    res = client.list(prefix=prefix, recursive=recursive,
+                                      next_token=next_token)
+                else:
+                    raise e
             for obj in res["objects"]:
                 if recursive and obj["path"][-1:] == "/":
                     continue
@@ -285,10 +313,28 @@ class TiefblueClient:
     def copy(self, src, dst):
         import tiefblue
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
-        client.copy(src, dst)
+        try:
+            client.copy(src, dst)
+        except tiefblue.client.TiefblueException as e:
+            if e.code == 190001:
+                self.get_token()
+                client = tiefblue.Client(base_url=self.tiefblue_url,
+                                         token=self.token)
+                client.copy(src, dst)
+            else:
+                raise e
 
     def get_md5(self, key):
         import tiefblue
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
-        meta = client.meta(key)
+        try:
+            meta = client.meta(key)
+        except tiefblue.client.TiefblueException as e:
+            if e.code == 190001:
+                self.get_token()
+                client = tiefblue.Client(base_url=self.tiefblue_url,
+                                         token=self.token)
+                meta = client.meta(key)
+            else:
+                raise e
         return meta["entityTag"] if "entityTag" in meta else ""
