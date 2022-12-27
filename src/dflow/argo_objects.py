@@ -275,19 +275,25 @@ class ArgoWorkflow(ArgoObjectDict):
             for step in self.status.nodes.values():
                 if step["startedAt"] is None:
                     continue
+                if name is not None and not match(step["displayName"], name):
+                    continue
+                if key is not None:
+                    step_key = None
+                    if "inputs" in step and "parameters" in step["inputs"]:
+                        for par in step["inputs"]["parameters"]:
+                            if par["name"] == "dflow_key":
+                                step_key = par["value"]
+                    if step_key not in key:
+                        continue
+                if phase is not None and not ("phase" in step and
+                                              step["phase"] in phase):
+                    continue
+                if type is not None and not ("type" in step and
+                                             step["type"] in type):
+                    continue
+                if id is not None and step["id"] not in id:
+                    continue
                 step = ArgoStep(step)
-                if name is not None and not match(step.displayName, name):
-                    continue
-                if key is not None and step.key not in key:
-                    continue
-                if phase is not None and not (hasattr(step, "phase") and
-                                              step.phase in phase):
-                    continue
-                if type is not None and not (hasattr(step, "type") and
-                                             step.type in type):
-                    continue
-                if id is not None and step.id not in id:
-                    continue
                 step_list.append(step)
         step_list.sort(key=lambda x: x["startedAt"])
         return step_list
