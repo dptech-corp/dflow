@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.23](https://github.com/deepmodeling/dflow/compare/v1.6.22...v1.6.23) (2022-12-28)
+
+
+### Bug Fixes
+
+* ArgoStep deepcopy input dict ([47ca63d](https://github.com/deepmodeling/dflow/commit/47ca63dfc7cceb75a206892fa158fd7391e99370))
+
 ## [1.6.22](https://github.com/deepmodeling/dflow/compare/v1.6.21...v1.6.22) (2022-12-28)
 
 
