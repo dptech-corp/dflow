@@ -279,8 +279,8 @@ class ArgoWorkflow(ArgoObjectDict):
                     continue
                 if key is not None:
                     step_key = None
-                    if "key" in step:
-                        step_key = step["key"]
+                    if hasattr(step, "key"):
+                        step_key = step.key
                     elif "inputs" in step and "parameters" in step["inputs"]:
                         for par in step["inputs"]["parameters"]:
                             if par["name"] == "dflow_key":
