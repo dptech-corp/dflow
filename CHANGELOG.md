@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.22](https://github.com/deepmodeling/dflow/compare/v1.6.21...v1.6.22) (2022-12-28)
+
+
+### Bug Fixes
+
+* ArgoStep not idempotent ([ac255bb](https://github.com/deepmodeling/dflow/commit/ac255bb317c935bbc8cf4838841db784cd16fa76))
+
 ## [1.6.21](https://github.com/deepmodeling/dflow/compare/v1.6.20...v1.6.21) (2022-12-28)
 
 
