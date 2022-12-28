@@ -1,6 +1,7 @@
 import os
 import tempfile
 from collections import UserDict, UserList
+from copy import deepcopy
 from typing import Any, List, Union
 
 import jsonpickle
@@ -64,7 +65,7 @@ class ArgoObjectList(UserList):
 
 class ArgoStep(ArgoObjectDict):
     def __init__(self, step):
-        super().__init__(step)
+        super().__init__(deepcopy(step))
         self.key = None
         if hasattr(self, "inputs"):
             self.handle_io(self.inputs)
@@ -279,9 +280,7 @@ class ArgoWorkflow(ArgoObjectDict):
                     continue
                 if key is not None:
                     step_key = None
-                    if hasattr(step, "key"):
-                        step_key = step.key
-                    elif "inputs" in step and "parameters" in step["inputs"]:
+                    if "inputs" in step and "parameters" in step["inputs"]:
                         for par in step["inputs"]["parameters"]:
                             if par["name"] == "dflow_key":
                                 step_key = par["value"]
