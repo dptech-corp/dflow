@@ -1537,19 +1537,19 @@ class Step:
 
         import subprocess
         args = self.template.command + [script_path]
-        p = subprocess.Popen(
+        with subprocess.Popen(
             args=args,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-        )
-        with open("%s/log.txt" % stepdir, "w") as f:
-            line = p.stdout.readline().decode(sys.stdin.encoding)
-            while line:
-                sys.stdout.write(line)
-                f.write(line)
+        ) as p:
+            with open("%s/log.txt" % stepdir, "w") as f:
                 line = p.stdout.readline().decode(sys.stdin.encoding)
-        p.wait()
-        ret_code = p.poll()
+                while line:
+                    sys.stdout.write(line)
+                    f.write(line)
+                    line = p.stdout.readline().decode(sys.stdin.encoding)
+            p.wait()
+            ret_code = p.poll()
         if ret_code != 0:
             raise RuntimeError("Run %s failed" % args)
 
