@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.24](https://github.com/deepmodeling/dflow/compare/v1.6.23...v1.6.24) (2022-12-30)
+
+
+### Bug Fixes
+
+* unclosed file ResourceWarning ([2e61ef1](https://github.com/deepmodeling/dflow/commit/2e61ef167a824785ee65572e1e5b67b4e89686c5))
+
 ## [1.6.23](https://github.com/deepmodeling/dflow/compare/v1.6.22...v1.6.23) (2022-12-28)
 
 
