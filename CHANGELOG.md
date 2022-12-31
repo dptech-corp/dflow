@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.25](https://github.com/deepmodeling/dflow/compare/v1.6.24...v1.6.25) (2022-12-31)
+
+
+### Bug Fixes
+
+* no share path for non-dp user ([ad71a77](https://github.com/deepmodeling/dflow/commit/ad71a7764156f4211b0d7640768caafdaef9e294))
+
 ## [1.6.24](https://github.com/deepmodeling/dflow/compare/v1.6.23...v1.6.24) (2022-12-30)
 
 
