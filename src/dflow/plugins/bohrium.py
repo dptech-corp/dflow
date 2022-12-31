@@ -219,8 +219,10 @@ class TiefblueClient:
             self.get_token()
         s3_config["repo_type"] = "oss"
         s3_config["prefix"] = self.prefix
-        s3_config["extra_prefixes"].append(self.sharePath)
-        s3_config["extra_prefixes"].append(self.userSharePath)
+        if self.sharePath:
+            s3_config["extra_prefixes"].append(self.sharePath)
+        if self.userSharePath:
+            s3_config["extra_prefixes"].append(self.userSharePath)
 
     def to_dict(self):
         retained_keys = ["bohrium_url",
