@@ -63,6 +63,41 @@ class ArgoObjectList(UserList):
                 else value for value in self.data]
 
 
+class ArgoParameter(ArgoObjectDict):
+    def __init__(self, par):
+        super().__init__(par)
+
+    def __getattr__(self, key):
+        if ((key == "value" and "value" not in self.data) or
+            (key == "type" and "type" not in self.data)) and \
+                hasattr(self, "save_as_artifact"):
+            with tempfile.TemporaryDirectory() as tmpdir:
+                try:
+                    download_artifact(self, path=tmpdir)
+                    fs = os.listdir(tmpdir)
+                    assert len(fs) == 1
+                    with open(os.path.join(tmpdir, fs[0]), "r") as f:
+                        content = jsonpickle.loads(f.read())
+                        if "type" in content:
+                            self.type = content["type"]
+                        if "type" in content and \
+                                content["type"] != str(str):
+                            self.value = jsonpickle.loads(content["value"])
+                        else:
+                            self.value = content["value"]
+                except Exception:
+                    pass
+        if key == "value" and hasattr(self, "description") and \
+                self.description is not None:
+            desc = jsonpickle.loads(self.description)
+            if desc["type"] != str(str):
+                try:
+                    return jsonpickle.loads(super().__getattr__("value"))
+                except Exception:
+                    pass
+        return super().__getattr__(key)
+
+
 class ArgoStep(ArgoObjectDict):
     def __init__(self, step):
         super().__init__(deepcopy(step))
@@ -80,19 +115,8 @@ class ArgoStep(ArgoObjectDict):
     def handle_io(self, io):
         if hasattr(io, "parameters") and \
                 isinstance(io.parameters, ArgoObjectList):
-            parameters = {}
-            for par in io.parameters:
-                parameters[par.name] = par
-                if hasattr(par, "value") and hasattr(par, "description") \
-                        and par.description is not None:
-                    desc = jsonpickle.loads(par.description)
-                    if desc["type"] != str(str):
-                        try:
-                            parameters[par.name].value = jsonpickle.loads(
-                                par.value)
-                        except Exception:
-                            pass
-            io.parameters = parameters
+            io.parameters = {par.name: ArgoParameter(par)
+                             for par in io.parameters}
 
         if hasattr(io, "artifacts") and \
                 isinstance(io.artifacts, ArgoObjectList):
@@ -106,29 +130,11 @@ class ArgoStep(ArgoObjectDict):
                 if name[:13] == "dflow_bigpar_":
                     if not hasattr(io, "parameters"):
                         io.parameters = {}
-                    if name[13:] in io.parameters:
-                        continue
-                    with tempfile.TemporaryDirectory() as tmpdir:
-                        try:
-                            download_artifact(art, path=tmpdir)
-                            fs = os.listdir(tmpdir)
-                            assert len(fs) == 1
-                            with open(os.path.join(tmpdir, fs[0]), "r") as f:
-                                content = jsonpickle.loads(f.read())
-                                param = {"name": name[13:],
-                                         "save_as_artifact": True}
-                                if "type" in content:
-                                    param["type"] = content["type"]
-                                if "type" in content and content["type"] != \
-                                        str(str):
-                                    param["value"] = jsonpickle.loads(
-                                        content["value"])
-                                else:
-                                    param["value"] = content["value"]
-                                io.parameters[name[13:]
-                                              ] = ArgoObjectDict(param)
-                        except Exception:
-                            pass
+                    if name[13:] not in io.parameters:
+                        par = art.copy()
+                        par["name"] = name[13:]
+                        par["save_as_artifact"] = True
+                        io.parameters[name[13:]] = ArgoParameter(par)
 
     def modify_output_parameter(
             self,
