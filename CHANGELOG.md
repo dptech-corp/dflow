@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.26](https://github.com/deepmodeling/dflow/compare/v1.6.25...v1.6.26) (2023-01-03)
+
+
+### Bug Fixes
+
+* duplicate template name when multiple continue_on_success_ratio used ([3187ac6](https://github.com/deepmodeling/dflow/commit/3187ac6a20a09ffe6b142867be278d55c037b2a8))
+* enhance performance of querying and reusing ([3187ac6](https://github.com/deepmodeling/dflow/commit/3187ac6a20a09ffe6b142867be278d55c037b2a8))
+
 ## [1.6.25](https://github.com/deepmodeling/dflow/compare/v1.6.24...v1.6.25) (2022-12-31)
 
 
