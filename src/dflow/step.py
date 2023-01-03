@@ -784,6 +784,7 @@ class Step:
             self.check_step = self.__class__(
                 name="%s-check-num-success" % self.name,
                 template=CheckNumSuccess(
+                    name="%s-check-num-success" % self.template.name,
                     image=self.util_image,
                     image_pull_policy=self.util_image_pull_policy),
                 parameters={
@@ -817,6 +818,7 @@ class Step:
             self.check_step = self.__class__(
                 name="%s-check-success-ratio" % self.name,
                 template=CheckSuccessRatio(
+                    name="%s-check-success-ratio" % self.template.name,
                     image=self.util_image,
                     image_pull_policy=self.util_image_pull_policy),
                 parameters={

@@ -38,6 +38,8 @@ try:
 except Exception:
     pass
 
+logger = logging.getLogger(__name__)
+
 
 class DockerSecret:
     def __init__(self, registry, username, password, name=None):
@@ -301,7 +303,7 @@ class Workflow:
         assert self.id is None, "Do not submit a workflow repeatedly"
         manifest = self.convert_to_argo(reuse_step=reuse_step)
 
-        logging.debug("submit manifest:\n%s" % manifest)
+        logger.debug("submit manifest:\n%s" % manifest)
         response = self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s' % self.namespace, 'POST',
             body=V1alpha1WorkflowCreateRequest(workflow=manifest),
@@ -336,18 +338,11 @@ class Workflow:
                     if hasattr(step.outputs, "exitCode"):
                         outputs["exitCode"] = step.outputs.exitCode
                     if hasattr(step.outputs, "parameters"):
-                        for name in list(step.outputs.parameters):
-                            if hasattr(step.outputs.parameters[name],
-                                       "save_as_artifact"):
-                                del step.outputs.parameters[name]
-                            elif not isinstance(
-                                    step.outputs.parameters[name].value, str):
-                                step.outputs.parameters[name].value = \
-                                    jsonpickle.dumps(
-                                        step.outputs.parameters[name].value)
-                        outputs["parameters"] = [
-                            par.recover()
-                            for par in step.outputs.parameters.values()]
+                        outputs["parameters"] = []
+                        for name, par in step.outputs.parameters.items():
+                            if not hasattr(step.outputs.parameters[name],
+                                           "save_as_artifact"):
+                                outputs["parameters"].append(par.recover())
                     if hasattr(step.outputs, "artifacts"):
                         for name, art in step.outputs.artifacts.items():
                             if hasattr(step, "inputs") and \
@@ -360,6 +355,8 @@ class Workflow:
                                         s3_config["prefix"], self.id,
                                         step.inputs.parameters[
                                             "dflow_group_key"].value, name)
+                                    logger.debug("copying artifact: %s -> %s"
+                                                 % (old_key, key))
                                     copy_s3(old_key, key)
                                     copied_keys.append(old_key)
                         outputs["artifacts"] = [
@@ -375,6 +372,8 @@ class Workflow:
                     data=data, metadata=kubernetes.client.V1ObjectMeta(
                         name="dflow-%s-%s" % (self.id, step.key)))
                 core_v1_api = self.get_k8s_core_v1_api()
+                logger.debug("creating configmap: dflow-%s-%s" %
+                             (self.id, step.key))
                 core_v1_api.api_client.call_api(
                     '/api/v1/namespaces/%s/configmaps' % self.namespace,
                     'POST', body=config_map, response_type='V1ConfigMap',
@@ -463,7 +462,7 @@ class Workflow:
             assert template == self.templates[template.name], \
                 "Duplication of template name: %s" % template.name
         else:
-            logging.debug("handle template %s" % template.name)
+            logger.debug("handle template %s" % template.name)
             self.templates[template.name] = template
             # if the template is steps or dag, handle involved templates
             if isinstance(template, (Steps, DAG)):

@@ -38,7 +38,7 @@ class DispatcherExecutor(Executor):
         password: password
         private_key_file: private key file for SSH
         image: image for dispatcher
-        imagePullPolicy: image pull policy for dispatcher
+        image_pull_policy: image pull policy for dispatcher
         command: command for dispatcher
         remote_command: command for running the script remotely
         map_tmp_dir: map /tmp to ./tmp
