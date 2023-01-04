@@ -280,7 +280,6 @@ class Step:
             util_command: Union[str, List[str]] = None,
             parallelism: Optional[int] = None,
             slices: Optional[Slices] = None,
-            register_output_artifacts: Dict[str, dict] = None,
     ) -> None:
         self.name = name
         self.id = self.name
@@ -317,7 +316,6 @@ class Step:
             util_command = [util_command]
         self.util_command = util_command
         self.parallelism = parallelism
-        self.register_output_artifacts = register_output_artifacts
 
         if hasattr(self.template, "python_packages") and \
                 self.template.python_packages:
@@ -735,8 +733,6 @@ class Step:
                 self.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",
                                     default="0")
-                new_template.script += "\n"
-                new_template.script += "echo 1 > /tmp/success_tag\n"
             elif (isinstance(new_template, PythonScriptOPTemplate)):
                 new_template.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",
@@ -744,9 +740,6 @@ class Step:
                 self.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",
                                     default="0")
-                new_template.script += "\n"
-                new_template.script += "with open('/tmp/success_tag', 'w')"\
-                    " as f:\n    f.write('1')\n"
             elif isinstance(new_template, Steps):
                 last_step = new_template.steps[-1]
                 last_templ = last_step.template
@@ -1091,25 +1084,19 @@ class Step:
                                                             str):
             self.with_param = jsonpickle.dumps(list(self.with_param))
 
-        if self.register_output_artifacts is not None:
-            assert hasattr(self.template, "op"), "Only Python OP is supported"\
-                " for registering output artifacts"
-            new_template = deepcopy(self.template)
-            new_template.script += "from registry import Dataset\n"
-            new_template.script += "from dflow import S3Artifact\n"
-            for k, v in self.register_output_artifacts.items():
-                new_template.script += """ds = Dataset(
-    namespace='{{workflow.name}}/{{pod.name}}',
-    name='%s',
-    location=S3Artifact(key=op_obj.get_output_artifact_storage_key('%s')),
-    **%s)\n""" % (k, k, v)
-                new_template.script += "ds.insert()\n"
-
         if self.executor is not None:
             assert isinstance(self.executor, Executor)
             self.template = self.executor.render(self.template)
         elif context is not None:
             self.template = context.render(self.template)
+
+        if self.continue_on_num_success or self.continue_on_success_ratio is \
+                not None:
+            if (isinstance(self.template, ShellOPTemplate)):
+                self.template.script += "\necho 1 > /tmp/success_tag\n"
+            elif (isinstance(self.template, PythonScriptOPTemplate)):
+                self.template.script += "\nwith open('/tmp/success_tag', 'w')"\
+                    " as f:\n    f.write('1')\n"
 
         if self.use_resource is not None:
             self.template.resource = V1alpha1ResourceTemplate(
