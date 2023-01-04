@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.27](https://github.com/deepmodeling/dflow/compare/v1.6.26...v1.6.27) (2023-01-04)
+
+
+### Bug Fixes
+
+* continue_on_success_ratio used with executor ([e1f61ae](https://github.com/deepmodeling/dflow/commit/e1f61ae754fceb62ee3c284bcdf861dfb76f9a4b))
+
 ## [1.6.26](https://github.com/deepmodeling/dflow/compare/v1.6.25...v1.6.26) (2023-01-03)
 
 
