@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.28](https://github.com/deepmodeling/dflow/compare/v1.6.27...v1.6.28) (2023-01-07)
+
+
+### Bug Fixes
+
+* add log to Bohrium dispatcher executor ([14e5c58](https://github.com/deepmodeling/dflow/commit/14e5c5850a76f9ef22ba96b1b440107eea588b8b))
+* add retry to dispatcher executor ([14e5c58](https://github.com/deepmodeling/dflow/commit/14e5c5850a76f9ef22ba96b1b440107eea588b8b))
+
 ## [1.6.27](https://github.com/deepmodeling/dflow/compare/v1.6.26...v1.6.27) (2023-01-04)
 
 
