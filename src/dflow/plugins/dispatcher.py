@@ -72,6 +72,7 @@ class DispatcherExecutor(Executor):
                  singularity_executable: Optional[str] = None,
                  podman_executable: Optional[str] = None,
                  remote_root: Optional[str] = None,
+                 retry_on_submission_error: Optional[int] = None,
                  ) -> None:
         self.host = host
         self.queue_name = queue_name
@@ -104,6 +105,7 @@ class DispatcherExecutor(Executor):
         else:
             self.work_root = "/"
         self.remote_root = remote_root
+        self.retry_on_submission_error = retry_on_submission_error
 
         conf = {}
         if json_file is not None:
@@ -162,6 +164,8 @@ class DispatcherExecutor(Executor):
                 input_data["scass_type"] = "c4_m8_cpu"
             if "job_name" not in input_data:
                 input_data["job_name"] = "{{pod.name}}"
+            if "output_log" not in input_data:
+                input_data["output_log"] = True
 
         # set env to prevent dispatcher from considering different tasks as one
         self.resources_dict = {
@@ -258,7 +262,20 @@ class DispatcherExecutor(Executor):
             "exist_ok=True)\n"
         new_template.script += "submission = Submission(work_base='.', "\
             "machine=machine, resources=resources, task_list=[task])\n"
-        new_template.script += "submission.run_submission()\n"
+        if self.retry_on_submission_error:
+            new_template.script += "for retry in range(%s):\n" % \
+                    self.retry_on_submission_error
+            new_template.script += "    try:\n"
+            new_template.script += "        print('retry ' + str(retry))\n"
+            new_template.script += "        submission.run_submission()\n"
+            new_template.script += "        break\n"
+            new_template.script += "    except Exception:\n"
+            new_template.script += "        import traceback\n"
+            new_template.script += "        traceback.print_exc()\n"
+            new_template.script += "        import time\n"
+            new_template.script += "        time.sleep(2**retry)\n"
+        else:
+            new_template.script += "submission.run_submission()\n"
 
         if self.private_key_file is not None:
             key = upload_s3(self.private_key_file)
