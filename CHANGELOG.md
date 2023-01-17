@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.30](https://github.com/deepmodeling/dflow/compare/v1.6.29...v1.6.30) (2023-01-17)
+
+
+### Bug Fixes
+
+* continue on number/ratio skip errors ([4b18efa](https://github.com/deepmodeling/dflow/commit/4b18efa1d42fdb7a78c3ff7e29aeebc0295bd998))
+
 ## [1.6.29](https://github.com/deepmodeling/dflow/compare/v1.6.28...v1.6.29) (2023-01-17)
 
 
