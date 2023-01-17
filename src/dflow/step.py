@@ -243,6 +243,7 @@ class Step:
         with_param: generate parallel steps with respect to a list as a
             parameter
         continue_on_failed: continue if the step fails
+        continue_on_error: continue if the step meets error
         continue_on_num_success: continue if the success number of the
             generated parallel steps greater than certain number
         continue_on_success_ratio: continue if the success ratio of the
@@ -269,6 +270,7 @@ class Step:
             with_param: Union[str, list,
                               InputParameter, OutputParameter] = None,
             continue_on_failed: bool = False,
+            continue_on_error: bool = False,
             continue_on_num_success: Optional[int] = None,
             continue_on_success_ratio: Optional[float] = None,
             with_sequence: Optional[V1alpha1Sequence] = None,
@@ -289,6 +291,7 @@ class Step:
         self.inputs.set_step(self)
         self.outputs.set_step(self)
         self.continue_on_failed = continue_on_failed
+        self.continue_on_error = continue_on_error
         self.continue_on_num_success = continue_on_num_success
         self.continue_on_success_ratio = continue_on_success_ratio
         self.check_step = None
@@ -722,6 +725,7 @@ class Step:
         if self.continue_on_num_success or self.continue_on_success_ratio is \
                 not None:
             self.continue_on_failed = True
+            self.continue_on_error = True
             if new_template is None:
                 new_template = deepcopy(self.template)
                 new_template.name = self.template.name + "-" + randstr()
@@ -1117,7 +1121,8 @@ class Step:
             ), when=self.when, with_param=self.with_param,
             with_sequence=None if self.with_sequence is None else
             self.with_sequence.convert_to_argo(),
-            continue_on=V1alpha1ContinueOn(failed=self.continue_on_failed)
+            continue_on=V1alpha1ContinueOn(failed=self.continue_on_failed,
+                                           error=self.continue_on_error)
         )
 
     def run(self, context):
