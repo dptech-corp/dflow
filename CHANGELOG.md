@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.29](https://github.com/deepmodeling/dflow/compare/v1.6.28...v1.6.29) (2023-01-17)
+
+
+### Bug Fixes
+
+* add try_bash to run_command ([ae1b77c](https://github.com/deepmodeling/dflow/commit/ae1b77c2c7c6ef622a3661c8f95e4fbde8190ca1))
+
 ## [1.6.28](https://github.com/deepmodeling/dflow/compare/v1.6.27...v1.6.28) (2023-01-07)
 
 
