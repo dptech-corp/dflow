@@ -5,6 +5,7 @@ import logging
 import os
 import pkgutil
 import random
+import shlex
 import shutil
 import string
 import subprocess
@@ -477,6 +478,7 @@ def run_command(
     cmd: Union[List[str], str],
     raise_error: bool = True,
     input: Optional[str] = None,
+    try_bash: bool = False,
     **kwargs,
 ) -> Tuple[int, str, str]:
     """
@@ -490,6 +492,8 @@ def run_command(
         Wheter to raise an error if the command failed
     input: str, optional
         Input string for the command
+    try_bash: bool
+        Try to use bash if bash exists, otherwise use sh
     **kwargs:
         Arguments in subprocess.Popen
 
@@ -511,6 +515,12 @@ def run_command(
         cmd = cmd.split()
     elif isinstance(cmd, list):
         cmd = [str(x) for x in cmd]
+
+    if try_bash:
+        script = "if command -v bash 2>&1 >/dev/null; then bash -lc " + \
+            shlex.quote(" ".join(cmd)) + "; else " + " ".join(cmd) + "; fi"
+        cmd = [script]
+        kwargs["shell"] = True
 
     sub = subprocess.Popen(
         args=cmd,
