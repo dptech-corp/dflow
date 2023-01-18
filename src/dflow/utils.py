@@ -517,7 +517,7 @@ def run_command(
         cmd = [str(x) for x in cmd]
 
     if try_bash:
-        script = "if command -v bash 2>&1 >/dev/null; then bash -lc " + \
+        script = "if command -v bash 2>&1 >/dev/null; then bash -ic " + \
             shlex.quote(" ".join(cmd)) + "; else " + " ".join(cmd) + "; fi"
         cmd = [script]
         kwargs["shell"] = True
