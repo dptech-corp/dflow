@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.31](https://github.com/deepmodeling/dflow/compare/v1.6.30...v1.6.31) (2023-01-18)
+
+
+### Bug Fixes
+
+* use bash -ic instead of bash -lc ([280b7b1](https://github.com/deepmodeling/dflow/commit/280b7b13b024f8c0104fc185d6038d555bcfeac6))
+
 ## [1.6.30](https://github.com/deepmodeling/dflow/compare/v1.6.29...v1.6.30) (2023-01-17)
 
 
