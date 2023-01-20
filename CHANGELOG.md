@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.32](https://github.com/deepmodeling/dflow/compare/v1.6.31...v1.6.32) (2023-01-20)
+
+
+### Bug Fixes
+
+* sys.stdin.encoding -&gt; sys.stdout.encoding ([f531786](https://github.com/deepmodeling/dflow/commit/f531786ce0ebdabd7ceebf2766821587d0e932c1))
+* workaround for unavailable exit code of Bohrium job; ([f531786](https://github.com/deepmodeling/dflow/commit/f531786ce0ebdabd7ceebf2766821587d0e932c1))
+
 ## [1.6.31](https://github.com/deepmodeling/dflow/compare/v1.6.30...v1.6.31) (2023-01-18)
 
 
