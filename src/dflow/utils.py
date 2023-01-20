@@ -530,11 +530,11 @@ def run_command(
         **kwargs
     )
     if input is not None:
-        sub.stdin.write(bytes(input, encoding=sys.stdin.encoding))
+        sub.stdin.write(bytes(input, encoding=sys.stdout.encoding))
     out, err = sub.communicate()
     return_code = sub.poll()
-    out = out.decode(sys.stdin.encoding)
-    err = err.decode(sys.stdin.encoding)
+    out = out.decode(sys.stdout.encoding)
+    err = err.decode(sys.stdout.encoding)
     if raise_error:
         assert return_code == 0, "Command %s failed: \n%s" % (cmd, err)
     return return_code, out, err

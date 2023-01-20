@@ -725,7 +725,6 @@ class Step:
         if self.continue_on_num_success or self.continue_on_success_ratio is \
                 not None:
             self.continue_on_failed = True
-            self.continue_on_error = True
             if new_template is None:
                 new_template = deepcopy(self.template)
                 new_template.name = self.template.name + "-" + randstr()
@@ -1537,11 +1536,11 @@ class Step:
             stderr=subprocess.STDOUT,
         ) as p:
             with open("%s/log.txt" % stepdir, "w") as f:
-                line = p.stdout.readline().decode(sys.stdin.encoding)
+                line = p.stdout.readline().decode(sys.stdout.encoding)
                 while line:
                     sys.stdout.write(line)
                     f.write(line)
-                    line = p.stdout.readline().decode(sys.stdin.encoding)
+                    line = p.stdout.readline().decode(sys.stdout.encoding)
             p.wait()
             ret_code = p.poll()
         if ret_code != 0:

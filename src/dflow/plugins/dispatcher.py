@@ -264,7 +264,7 @@ class DispatcherExecutor(Executor):
             "machine=machine, resources=resources, task_list=[task])\n"
         if self.retry_on_submission_error:
             new_template.script += "for retry in range(%s):\n" % \
-                    self.retry_on_submission_error
+                self.retry_on_submission_error
             new_template.script += "    try:\n"
             new_template.script += "        print('retry ' + str(retry))\n"
             new_template.script += "        submission.run_submission()\n"
@@ -276,6 +276,16 @@ class DispatcherExecutor(Executor):
             new_template.script += "        time.sleep(2**retry)\n"
         else:
             new_template.script += "submission.run_submission()\n"
+
+        # workaround for unavailable exit code of Bohrium job
+        # check output files explicitly
+        for art in template.outputs.artifacts.values():
+            new_template.script += "assert os.path.exists('./%s')\n" % art.path
+        for par in template.outputs.parameters.values():
+            if par.save_as_artifact or (par.value_from_path is not None and
+                                        not hasattr(par, "default")):
+                new_template.script += "assert os.path.exists('./%s')\n" % \
+                    par.value_from_path
 
         if self.private_key_file is not None:
             key = upload_s3(self.private_key_file)
