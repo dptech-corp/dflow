@@ -479,6 +479,7 @@ def run_command(
     raise_error: bool = True,
     input: Optional[str] = None,
     try_bash: bool = False,
+    interactive: bool = True,
     **kwargs,
 ) -> Tuple[int, str, str]:
     """
@@ -517,7 +518,8 @@ def run_command(
         cmd = [str(x) for x in cmd]
 
     if try_bash:
-        script = "if command -v bash 2>&1 >/dev/null; then bash -ic " + \
+        arg = "-ic" if interactive else "-c"
+        script = "if command -v bash 2>&1 >/dev/null; then bash %s " % arg + \
             shlex.quote(" ".join(cmd)) + "; else " + " ".join(cmd) + "; fi"
         cmd = [script]
         kwargs["shell"] = True
