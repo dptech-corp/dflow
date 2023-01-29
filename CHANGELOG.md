@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.33](https://github.com/deepmodeling/dflow/compare/v1.6.32...v1.6.33) (2023-01-29)
+
+
+### Bug Fixes
+
+* add argument interactive to run_command ([f7bd903](https://github.com/deepmodeling/dflow/commit/f7bd903f4912f78a503798b4d4f6141bc3f88c85))
+
 ## [1.6.32](https://github.com/deepmodeling/dflow/compare/v1.6.31...v1.6.32) (2023-01-20)
 
 
