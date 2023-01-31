@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.6.34](https://github.com/deepmodeling/dflow/compare/v1.6.33...v1.6.34) (2023-01-31)
+
+
+### Bug Fixes
+
+* add oss storage client ([70c8950](https://github.com/deepmodeling/dflow/commit/70c8950173ae1b519930c3941ca6c93c8f53e126))
+* add warns for handling argo objects ([70c8950](https://github.com/deepmodeling/dflow/commit/70c8950173ae1b519930c3941ca6c93c8f53e126))
+* support dict of path for artifact ([70c8950](https://github.com/deepmodeling/dflow/commit/70c8950173ae1b519930c3941ca6c93c8f53e126))
+
 ## [1.6.33](https://github.com/deepmodeling/dflow/compare/v1.6.32...v1.6.33) (2023-01-29)
 
 
