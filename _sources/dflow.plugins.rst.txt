@@ -36,6 +36,14 @@ dflow.plugins.metadata module
    :undoc-members:
    :show-inheritance:
 
+dflow.plugins.oss module
+------------------------
+
+.. automodule:: dflow.plugins.oss
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dflow.plugins.ray module
 ------------------------
 
