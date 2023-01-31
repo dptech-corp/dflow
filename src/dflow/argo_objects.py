@@ -1,3 +1,4 @@
+import logging
 import os
 import tempfile
 from collections import UserDict, UserList
@@ -10,6 +11,8 @@ from .config import config, s3_config
 from .io import S3Artifact
 from .utils import (download_artifact, download_s3, get_key, upload_artifact,
                     upload_s3)
+
+logger = logging.getLogger(__name__)
 
 
 class ArgoObjectDict(UserDict):
@@ -85,16 +88,17 @@ class ArgoParameter(ArgoObjectDict):
                             self.value = jsonpickle.loads(content["value"])
                         else:
                             self.value = content["value"]
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning("Failed to load parameter value from "
+                                   "artifact: %s" % e)
         if key == "value" and hasattr(self, "description") and \
                 self.description is not None:
             desc = jsonpickle.loads(self.description)
             if desc["type"] != str(str):
                 try:
                     return jsonpickle.loads(super().__getattr__("value"))
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning("Failed to unpickle parameter: %s" % e)
         return super().__getattr__(key)
 
 

@@ -15,7 +15,7 @@ import tempfile
 import uuid
 from functools import partial
 from pathlib import Path
-from typing import List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import jsonpickle
 
@@ -113,7 +113,8 @@ def download_artifact(
 
 
 def upload_artifact(
-        path: Union[os.PathLike, List[os.PathLike], Set[os.PathLike]],
+        path: Union[os.PathLike, List[os.PathLike], Set[os.PathLike],
+                    Dict[str, os.PathLike]],
         archive: str = "default",
         namespace: Optional[str] = None,
         name: Optional[str] = None,
@@ -133,12 +134,16 @@ def upload_artifact(
     """
     if archive == "default":
         archive = config["archive_mode"]
-    if not isinstance(path, (list, set)):
-        path = [path]
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmpdir:
         path_list = []
-        for i, p in enumerate(path):
+        if isinstance(path, dict):
+            pairs = path.items()
+        elif isinstance(path, (list, set)):
+            pairs = enumerate(path)
+        else:
+            pairs = [(0, path)]
+        for i, p in pairs:
             logging.debug("upload artifact: handle path: %s" % p)
             if p is None:
                 continue
@@ -430,6 +435,29 @@ def assemble_path_list(art_path, remove=False):
 def convert_dflow_list(dflow_list):
     dflow_list.sort(key=lambda x: x['order'])
     return list(map(lambda x: x['dflow_list_item'], dflow_list))
+
+
+def assemble_path_dict(art_path, remove=False):
+    path_dict = {}
+    if os.path.isdir(art_path):
+        dflow_list = []
+        catalog_dir = os.path.join(art_path, config["catalog_dir_name"])
+        if os.path.exists(catalog_dir):
+            for f in os.listdir(catalog_dir):
+                with open(os.path.join(catalog_dir, f), 'r') as fd:
+                    for item in jsonpickle.loads(fd.read())['path_list']:
+                        if item not in dflow_list:
+                            dflow_list.append(item)  # remove duplicate
+            if remove:
+                shutil.rmtree(catalog_dir)
+        if len(dflow_list) > 0:
+            for item in dflow_list:
+                if item["dflow_list_item"] is None:
+                    path_dict[item["order"]] = None
+                else:
+                    path_dict[item["order"]] = os.path.join(
+                        art_path, item["dflow_list_item"])
+    return path_dict
 
 
 def remove_empty_dir_tag(path):

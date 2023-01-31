@@ -6,6 +6,8 @@ import json
 import os
 import warnings
 from abc import ABC
+from pathlib import Path
+from typing import Dict
 
 from typeguard import check_type
 
@@ -142,6 +144,8 @@ class OP(ABC):
             ss = sign[ii]
             if isinstance(ss, Artifact):
                 ss = ss.type
+                if ss in [Dict[str, str], Dict[str, Path]]:
+                    ss = dict
             if isinstance(ss, Parameter):
                 ss = ss.type
             # skip type checking if the variable is None
