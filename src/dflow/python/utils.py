@@ -2,18 +2,27 @@ import os
 import shutil
 import uuid
 from pathlib import Path
-from typing import List, Set
+from typing import Dict, List, Set
 
 import jsonpickle
 
 from ..config import config
-from ..utils import (assemble_path_list, convert_dflow_list, copy_file,
-                     remove_empty_dir_tag)
+from ..utils import (assemble_path_dict, assemble_path_list,
+                     convert_dflow_list, copy_file, remove_empty_dir_tag)
 from .opio import Artifact, BigParameter, Parameter
 
 
 def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
                           sub_path=None, n_parts=None):
+    if sign.type in [Dict[str, str], Dict[str, Path]]:
+        art_path = '%s/inputs/artifacts/%s' % (data_root, name)
+        remove_empty_dir_tag(art_path)
+        path_dict = assemble_path_dict(art_path)
+        if sign.type == Dict[str, str]:
+            return path_dict
+        elif sign.type == Dict[str, Path]:
+            return {k: path_or_none(v) for k, v in path_dict.items()}
+
     if n_parts is not None:
         path_list = []
         for i in range(n_parts):
@@ -132,6 +141,11 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
             for s, path in enumerate(value):
                 path_list.append(copy_results_and_return_path_item(
                     path, name, s, data_root))
+    elif sign.type in [Dict[str, str], Dict[str, Path]]:
+        os.makedirs(data_root + '/outputs/artifacts/' + name, exist_ok=True)
+        for s, path in value.items():
+            path_list.append(copy_results_and_return_path_item(
+                path, name, s, data_root))
 
     os.makedirs(data_root + "/outputs/artifacts/%s/%s" % (name, config[
         "catalog_dir_name"]), exist_ok=True)

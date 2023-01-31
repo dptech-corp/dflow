@@ -1,7 +1,7 @@
 import json
 from collections.abc import MutableMapping
 from pathlib import Path
-from typing import Optional, Any, List, Set, Union
+from typing import Any, Dict, List, Optional, Set, Union
 
 import jsonpickle
 
@@ -9,7 +9,8 @@ from ..common import S3Artifact
 from ..config import config
 from ..io import PVC
 
-ArtifactAllowedTypes = [str, Path, Set[str], Set[Path], List[str], List[Path]]
+ArtifactAllowedTypes = [str, Path, Set[str], Set[Path], List[str], List[Path],
+                        Dict[str, str], Dict[str, Path]]
 
 
 def type_to_str(type):
@@ -27,7 +28,8 @@ class Artifact:
     OPIO signature of artifact
 
     Args:
-        type: str, Path, Set[str], Set[Path], List[str] or List[Path]
+        type: str, Path, Set[str], Set[Path], List[str], List[Path],
+            Dict[str, str] or Dict[str, Path]
         archive: compress format of the artifact, None for no compression
         save: place to store the output artifact instead of default storage,
             can be a list
