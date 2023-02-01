@@ -40,8 +40,9 @@ class Slices:
         input_artifact: list of input artifacts to be sliced
         output_parameter: list of output parameters to be stacked
         output_artifact: list of output artifacts to be stacked
-        pool_size: for multi slices per step, use a multiprocessing pool to
-            handle each slice, 1 for serial, -1 for infinity (i.e. equals to
+        group_size: number of slices per task/step
+        pool_size: for multi slices per task/step, use a multiprocessing pool
+            to handle each slice, 1 for serial, -1 for infinity (i.e. equals to
             the number of slices)
         register_first_only: only register first slice when lineage used
     """
@@ -54,6 +55,7 @@ class Slices:
             output_parameter: Optional[List[str]] = None,
             output_artifact: Optional[List[str]] = None,
             sub_path: bool = False,
+            group_size: Optional[int] = None,
             pool_size: Optional[int] = None,
             register_first_only: bool = False,
     ) -> None:
@@ -72,6 +74,7 @@ class Slices:
             self.slices = "{{item.order}}"
         else:
             self.slices = "{{item}}"
+        self.group_size = group_size
         self.pool_size = pool_size
         self.register_first_only = register_first_only
 
