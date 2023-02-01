@@ -465,6 +465,92 @@ class Step:
                 isinstance(self.with_sequence.count.param, ArgoConcat):
             concat_var = self.with_sequence.count.param.param
 
+        if hasattr(self.template, "slices") and self.template.slices is not \
+                None and self.template.slices.group_size is not None:
+            if new_template is None:
+                new_template = deepcopy(self.template)
+                new_template.name = self.template.name + "-" + randstr()
+            group_size = self.template.slices.group_size
+            new_template.inputs.parameters["dflow_nslices"] = InputParameter()
+            if self.with_param is not None:
+                new_template.inputs.parameters["dflow_with_param"] = \
+                    InputParameter()
+                self.inputs.parameters["dflow_with_param"] = \
+                    InputParameter(value=self.with_param)
+                if isinstance(self.with_param, ArgoVar):
+                    nslices = argo_len(self.with_param)
+                else:
+                    nslices = len(self.with_param)
+                old_slices = new_template.slices.slices
+                new_template.slices.slices = \
+                    "[json.loads(r'''{{inputs.parameters.dflow_with_param}}"\
+                    "''')[%s] for i in range({{item}}*%s, min(({{item}}+1)*%s"\
+                    ", {{inputs.parameters.dflow_nslices}}))]" % (
+                        old_slices.replace("{{item}}", "i"), group_size,
+                        group_size)
+                # re-render the script
+                new_template.slices = new_template.slices
+                self.with_param = argo_range(IfExpression(
+                    _if="%s %% %s > 0" % (nslices, group_size),
+                    _then="%s/%s + 1" % (nslices, group_size),
+                    _else="%s/%s" % (nslices, group_size)
+                ))
+            if self.with_sequence is not None:
+                new_template.inputs.parameters["dflow_sequence_start"] = \
+                    InputParameter()
+                new_template.inputs.parameters["dflow_sequence_end"] = \
+                    InputParameter()
+                new_template.inputs.parameters["dflow_sequence_count"] = \
+                    InputParameter()
+                start = self.with_sequence.start
+                if start is None:
+                    start = 0
+                end = self.with_sequence.end
+                count = self.with_sequence.count
+                format = self.with_sequence.format
+                self.inputs.parameters["dflow_sequence_start"] = \
+                    InputParameter(value=start)
+                self.inputs.parameters["dflow_sequence_end"] = \
+                    InputParameter(value=end)
+                self.inputs.parameters["dflow_sequence_count"] = \
+                    InputParameter(value=count)
+                if count is not None:
+                    nslices = count
+                else:
+                    nslices = ArgoVar(
+                        "(%s > %s ? %s + 1 - %s : %s + 1 - %s)" % (
+                            end, start, end, start, start, end))
+                old_slices = new_template.slices.slices
+                new_template.slices.slices = \
+                    "[[%s for j in (range(int('{{inputs.parameters."\
+                    "dflow_sequence_start}}'), int('{{inputs.parameters."\
+                    "dflow_sequence_start}}') + int('{{inputs.parameters."\
+                    "dflow_sequence_count}}') + 1) if '{{inputs.parameters."\
+                    "dflow_sequence_count}}' != 'null' else range(int('{{"\
+                    "inputs.parameters.dflow_sequence_start}}'), int('{{"\
+                    "inputs.parameters.dflow_sequence_end}}') + 1) if int('{{"\
+                    "inputs.parameters.dflow_sequence_end}}') > int('{{"\
+                    "inputs.parameters.dflow_sequence_start}}') else range("\
+                    "int('{{inputs.parameters.dflow_sequence_start}}'), "\
+                    "int('{{inputs.parameters.dflow_sequence_end}}') - 1, -1)"\
+                    ")][i] for i in range(int('{{item}}')*%s, min((int('{{"\
+                    "item}}')+1)*%s, {{inputs.parameters.dflow_nslices}}))]"\
+                    % (old_slices.replace(
+                        "'{{item}}'", "('%s' %% j)" % format)
+                        if format is not None
+                        else old_slices.replace("{{item}}", "j"),
+                        group_size, group_size)
+                # re-render the script
+                new_template.slices = new_template.slices
+                self.with_sequence = argo_sequence(count=IfExpression(
+                    _if="%s %% %s > 0" % (nslices, group_size),
+                    _then="%s/%s + 1" % (nslices, group_size),
+                    _else="%s/%s" % (nslices, group_size)
+                ), format=format)
+
+            self.inputs.parameters["dflow_nslices"] = InputParameter(
+                value=nslices)
+
         sliced_output_artifact = self.template.slices.output_artifact if \
             hasattr(self.template, "slices") and \
             self.template.slices is not None else []
