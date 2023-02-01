@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.35](https://github.com/deepmodeling/dflow/compare/v1.6.34...v1.6.35) (2023-02-01)
+
+
+### Bug Fixes
+
+* add group_size feature for slices ([374e244](https://github.com/deepmodeling/dflow/commit/374e244e1c099d7dac1d6e12301ac5ea08a0b4d9))
+
 ## [1.6.34](https://github.com/deepmodeling/dflow/compare/v1.6.33...v1.6.34) (2023-01-31)
 
 
