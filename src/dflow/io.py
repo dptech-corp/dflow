@@ -427,7 +427,7 @@ class InputArtifact(ArgoVar):
             type: Optional[Any] = None,
             source: Union[str, "InputArtifact",
                           "OutputArtifact", S3Artifact] = None,
-            mode: Optional[int] = None,
+            mode: Optional[int] = 0o755,
             sub_path: Optional[str] = None,
             archive: str = "default",
     ) -> None:
