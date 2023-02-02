@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.37](https://github.com/deepmodeling/dflow/compare/v1.6.36...v1.6.37) (2023-02-02)
+
+
+### Bug Fixes
+
+* set default mode to None for input artifacts ([477f9d6](https://github.com/deepmodeling/dflow/commit/477f9d63868a5822c40a44a954f0aa180b363305))
+
 ## [1.6.36](https://github.com/deepmodeling/dflow/compare/v1.6.35...v1.6.36) (2023-02-02)
 
 
