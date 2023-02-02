@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.36](https://github.com/deepmodeling/dflow/compare/v1.6.35...v1.6.36) (2023-02-02)
+
+
+### Bug Fixes
+
+* set default mode to 755 for input artifacts ([275b03d](https://github.com/deepmodeling/dflow/commit/275b03dda2806fc2bc117eee1f6340351d9fb1f0))
+
 ## [1.6.35](https://github.com/deepmodeling/dflow/compare/v1.6.34...v1.6.35) (2023-02-01)
 
 
