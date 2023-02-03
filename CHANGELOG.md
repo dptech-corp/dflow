@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.39](https://github.com/deepmodeling/dflow/compare/v1.6.38...v1.6.39) (2023-02-03)
+
+
+### Bug Fixes
+
+* support group_size for debug mode ([5adc44c](https://github.com/deepmodeling/dflow/commit/5adc44ce3411951699ae80b4225ec1af5bd3d32d))
+
 ## [1.6.38](https://github.com/deepmodeling/dflow/compare/v1.6.37...v1.6.38) (2023-02-03)
 
 
