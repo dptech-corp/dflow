@@ -1,4 +1,5 @@
 import os
+import json
 
 
 def boolize(s):
@@ -55,6 +56,8 @@ config = {
     "mode": os.environ.get("DFLOW_MODE", "default"),
     "lineage": None,
     "http_headers": split_headers(os.environ.get("DFLOW_HTTP_HEADERS", {})),
+    "workflow_annotations": json.loads(os.environ.get(
+        "DFLOW_WORKFLOW_ANNOTATIONS", "{}")),
 }
 
 

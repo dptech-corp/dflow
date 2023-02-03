@@ -34,7 +34,7 @@ setup(
         "minio",
         "kubernetes",
         "pyyaml",
-        "cloudpickle",
+        "cloudpickle==2.2.0",
         "requests",
     ]
 )
