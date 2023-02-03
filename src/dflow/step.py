@@ -47,12 +47,17 @@ class FutureLen:
     def get(self, context=None):
         if context is not None and isinstance(self.par, InputParameter):
             return len(context.inputs.parameters[self.par.name].value)
+        if isinstance(self.par, FutureRange):
+            return len(self.par.get(context))
         return len(self.par.value)
 
 
 class FutureRange:
     def __init__(self, *args):
         self.args = args
+
+    def __repr__(self):
+        return "range(%s)" % ", ".join(map(str, self.args))
 
     def get(self, context=None):
         args = []
@@ -63,10 +68,12 @@ class FutureRange:
                 args.append(i.value)
             elif isinstance(i, IfExpression):
                 _if = render_expr(i._if, context)
-                if eval_bool_expr(_if):
+                if eval_expr(_if):
                     args.append(int(eval(render_expr(i._then, context))))
                 else:
                     args.append(int(eval(render_expr(i._else, context))))
+            elif isinstance(i, ArgoVar):
+                args.append(int(eval_expr(render_expr(str(i), context))))
             else:
                 args.append(i)
         args = tuple(args)
@@ -477,10 +484,10 @@ class Step:
                     InputParameter()
                 self.inputs.parameters["dflow_with_param"] = \
                     InputParameter(value=self.with_param)
-                if isinstance(self.with_param, ArgoVar):
-                    nslices = argo_len(self.with_param)
-                else:
+                if hasattr(self.with_param, "__len__"):
                     nslices = len(self.with_param)
+                else:
+                    nslices = argo_len(self.with_param)
                 old_slices = new_template.slices.slices
                 new_template.slices.slices = \
                     "[json.loads(r'''{{inputs.parameters.dflow_with_param}}"\
@@ -490,11 +497,10 @@ class Step:
                         group_size)
                 # re-render the script
                 new_template.slices = new_template.slices
-                self.with_param = argo_range(IfExpression(
-                    _if="%s %% %s > 0" % (nslices, group_size),
-                    _then="%s/%s + 1" % (nslices, group_size),
-                    _else="%s/%s" % (nslices, group_size)
-                ))
+                self.with_param = argo_range(ArgoVar(
+                    "%s %% %s > 0 ? %s/%s + 1 : %s/%s" % (
+                        nslices, group_size, nslices, group_size, nslices,
+                        group_size)))
             if self.with_sequence is not None:
                 new_template.inputs.parameters["dflow_sequence_start"] = \
                     InputParameter()
@@ -542,11 +548,10 @@ class Step:
                         group_size, group_size)
                 # re-render the script
                 new_template.slices = new_template.slices
-                self.with_sequence = argo_sequence(count=IfExpression(
-                    _if="%s %% %s > 0" % (nslices, group_size),
-                    _then="%s/%s + 1" % (nslices, group_size),
-                    _else="%s/%s" % (nslices, group_size)
-                ), format=format)
+                self.with_sequence = argo_sequence(
+                    count=ArgoVar("%s %% %s > 0 ? %s/%s + 1 : %s/%s" % (
+                        nslices, group_size, nslices, group_size, nslices,
+                        group_size)), format=format)
 
             self.inputs.parameters["dflow_nslices"] = InputParameter(
                 value=nslices)
@@ -1224,7 +1229,7 @@ class Step:
 
         if self.when is not None:
             expr = render_expr(self.when, context)
-            if not eval_bool_expr(expr):
+            if not eval_expr(expr):
                 self.phase = "Skipped"
                 return
 
@@ -1234,10 +1239,14 @@ class Step:
             value = par.value
             if isinstance(value, FutureLen):
                 par.value = value.get(context)
+            elif isinstance(value, FutureRange):
+                par.value = value.get(context)
             elif isinstance(value, (InputParameter, OutputParameter)):
                 par.value = get_var(value, context).value
+            elif isinstance(value, ArgoVar):
+                par.value = eval_expr(render_expr(str(value), context))
             elif isinstance(value, str):
-                par.value = render_expr(par.value, context)
+                par.value = render_expr(value, context)
 
         # source input artifacts
         for name, art in self.inputs.artifacts.items():
@@ -1305,7 +1314,7 @@ class Step:
                 elif par1.value_from_expression is not None:
                     _if = par1.value_from_expression._if
                     _if = render_expr(_if, steps)
-                    if eval_bool_expr(_if):
+                    if eval_expr(_if):
                         _then = par1.value_from_expression._then
                         par.value = get_var(_then, steps).value
                     else:
@@ -1319,7 +1328,7 @@ class Step:
                 elif art1.from_expression is not None:
                     _if = art1.from_expression._if
                     _if = render_expr(_if, steps)
-                    if eval_bool_expr(_if):
+                    if eval_expr(_if):
                         _then = art1.from_expression._then
                         art.local_path = get_var(_then, steps).local_path
                     else:
@@ -1347,21 +1356,29 @@ class Step:
                     start = self.with_sequence.start
                     if isinstance(start, FutureLen):
                         start = start.get(context)
-                    if isinstance(start, (InputParameter, OutputParameter)):
+                    elif isinstance(start, (InputParameter, OutputParameter)):
                         start = start.value
+                    elif isinstance(start, ArgoVar):
+                        start = int(eval_expr(render_expr(
+                            str(start), context)))
                 if self.with_sequence.count is not None:
                     count = self.with_sequence.count
                     if isinstance(count, FutureLen):
                         count = count.get(context)
-                    if isinstance(count, (InputParameter, OutputParameter)):
+                    elif isinstance(count, (InputParameter, OutputParameter)):
                         count = count.value
+                    elif isinstance(count, ArgoVar):
+                        count = int(eval_expr(render_expr(
+                            str(count), context)))
                     sequence = list(range(start, start + count))
                 if self.with_sequence.end is not None:
                     end = self.with_sequence.end
                     if isinstance(end, FutureLen):
                         end = end.get(context)
-                    if isinstance(end, (InputParameter, OutputParameter)):
+                    elif isinstance(end, (InputParameter, OutputParameter)):
                         end = end.value
+                    elif isinstance(end, ArgoVar):
+                        end = int(eval_expr(render_expr(str(end), context)))
                     if end >= start:
                         sequence = list(range(start, end + 1))
                     else:
@@ -1757,9 +1774,16 @@ def get_var(expr, context):
         raise RuntimeError("Not supported: %s" % expr)
 
 
-def eval_bool_expr(expr):
+def eval_expr(expr):
     # For the original evaluator in argo, please refer to
     # https://github.com/antonmedv/expr
+    if "?" in expr and ":" in expr:
+        i = expr.find("?")
+        j = expr.find(":")
+        _if = expr[:i]
+        _then = expr[i+1:j]
+        _else = expr[j+1:]
+        expr = "%s if %s else %s" % (_then, _if, _else)
     try:
         return eval(expr)
     except Exception:
@@ -1768,7 +1792,7 @@ def eval_bool_expr(expr):
     expr_list = expr.split()
     operator = expr_list[1]
 
-    assert (len(expr_list) == 3)
+    assert (len(expr_list) == 3), "Expression (%s) not supported" % expr
     if operator == "==":
         return expr_list[0] == expr_list[2]
     elif operator == "!=":
