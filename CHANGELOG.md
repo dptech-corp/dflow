@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.38](https://github.com/deepmodeling/dflow/compare/v1.6.37...v1.6.38) (2023-02-03)
+
+
+### Bug Fixes
+
+* add workflow_annotations to global config ([594781f](https://github.com/deepmodeling/dflow/commit/594781fb640d36367914717e4c41408669ab4541))
+* restrict jsonpickle==2.2.0 ([594781f](https://github.com/deepmodeling/dflow/commit/594781fb640d36367914717e4c41408669ab4541))
+
 ## [1.6.37](https://github.com/deepmodeling/dflow/compare/v1.6.36...v1.6.37) (2023-02-02)
 
 
