@@ -116,7 +116,7 @@ class Workflow:
             else config["k8s_api_server"]
         self.context = context
         if annotations is None:
-            annotations = {}
+            annotations = config["workflow_annotations"]
         self.annotations = annotations
         self.parallelism = parallelism
         self.pod_gc_strategy = pod_gc_strategy
