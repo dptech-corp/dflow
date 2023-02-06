@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.41](https://github.com/deepmodeling/dflow/compare/v1.6.40...v1.6.41) (2023-02-06)
+
+
+### Bug Fixes
+
+* add API query_global_outputs ([b96922d](https://github.com/deepmodeling/dflow/commit/b96922dfe4d0d3b77067d35a43e3e739ad8687e7))
+* prepend dflow_bigpar_ to global name of parameter saved as artifact ([b96922d](https://github.com/deepmodeling/dflow/commit/b96922dfe4d0d3b77067d35a43e3e739ad8687e7))
+
 ## [1.6.40](https://github.com/deepmodeling/dflow/compare/v1.6.39...v1.6.40) (2023-02-06)
 
 
