@@ -641,10 +641,55 @@ class Workflow:
                     header_params=config["http_headers"],
                     query_params=[('fields', 'status.outputs')])
             return [par["name"] for par in
-                    response["status"]["outputs"]["parameters"]]
+                    response["status"]["outputs"]["parameters"]
+                    if par["name"] != "dflow_workflow_name"]
         except Exception:
             return [step.key for step in self.query_step()
                     if step.key is not None]
+
+    def query_step_by_key(self, key: Union[str, List[str]]) -> List[ArgoStep]:
+        if isinstance(key, str):
+            key = [key]
+
+        try:
+            response = self.api_instance.api_client.call_api(
+                '/api/v1/workflows/%s/%s' % (self.namespace, self.id),
+                'GET', response_type=object, _return_http_data_only=True,
+                header_params=config["http_headers"],
+                query_params=[('fields', 'status.outputs')])
+        except Exception:
+            response = self.api_instance.api_client.call_api(
+                '/api/v1/archived-workflows/%s' % self.uid,
+                'GET', response_type=object, _return_http_data_only=True,
+                header_params=config["http_headers"],
+                query_params=[('fields', 'status.outputs')])
+        parameters = response["status"]["outputs"]["parameters"]
+        wf_name = next(filter(lambda par: par["name"] == "dflow_workflow_name",
+                              parameters))["value"]
+        key2id = {}
+        for par in response["status"]["outputs"]["parameters"]:
+            if par["name"] == "dflow_workflow_name":
+                continue
+            pod_name = par["value"]
+            key2id[par["name"]] = wf_name + "-" + pod_name.split("-")[-1]
+
+        try:
+            response = self.api_instance.api_client.call_api(
+                '/api/v1/workflows/%s/%s' % (self.namespace, self.id),
+                'GET', response_type=object, _return_http_data_only=True,
+                header_params=config["http_headers"],
+                query_params=[('fields', ",".join(['status.nodes.' + key2id[k]
+                                                   for k in key]))])
+        except Exception:
+            response = self.api_instance.api_client.call_api(
+                '/api/v1/archived-workflows/%s' % self.uid,
+                'GET', response_type=object, _return_http_data_only=True,
+                header_params=config["http_headers"],
+                query_params=[('fields', ",".join(['status.nodes.' + key2id[k]
+                                                   for k in key]))])
+
+        workflow = ArgoWorkflow(response)
+        return workflow.get_step()
 
     def terminate(self) -> None:
         """
