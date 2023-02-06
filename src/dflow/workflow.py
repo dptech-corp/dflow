@@ -644,6 +644,8 @@ class Workflow:
                     response["status"]["outputs"]["parameters"]
                     if par["name"] != "dflow_workflow_name"]
         except Exception:
+            logger.warn("Key-ID map not found in the global outputs, downgrade"
+                        " to full query")
             return [step.key for step in self.query_step()
                     if step.key is not None]
 
@@ -663,9 +665,14 @@ class Workflow:
                 'GET', response_type=object, _return_http_data_only=True,
                 header_params=config["http_headers"],
                 query_params=[('fields', 'status.outputs')])
-        parameters = response["status"]["outputs"]["parameters"]
-        wf_name = next(filter(lambda par: par["name"] == "dflow_workflow_name",
-                              parameters))["value"]
+        try:
+            parameters = response["status"]["outputs"]["parameters"]
+            wf_name = next(filter(lambda par: par["name"] ==
+                                  "dflow_workflow_name", parameters))["value"]
+        except Exception:
+            logger.warn("Key-ID map not found in the global outputs, downgrade"
+                        " to full query")
+            return self.query_step(key=key)
         key2id = {}
         for par in response["status"]["outputs"]["parameters"]:
             if par["name"] == "dflow_workflow_name":
