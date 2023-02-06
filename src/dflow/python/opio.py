@@ -112,11 +112,21 @@ class BigParameter:
     def __init__(
             self,
             type: Any,
+            **kwargs,
     ) -> None:
         self.type = type
+        if "default" in kwargs:
+            self.default = kwargs["default"]
 
     def to_str(self):
-        return "BigParameter(type=%s)" % type_to_str(self.type)
+        default = ""
+        if hasattr(self, "default"):
+            try:
+                default = ", default=%s" % json.dumps(self.default)
+            except Exception:
+                default = ", default=jsonpickle.loads('%s')" % \
+                    jsonpickle.dumps(self.default)
+        return "BigParameter(type=%s%s)" % (type_to_str(self.type), default)
 
 
 class OPIOSign(MutableMapping):

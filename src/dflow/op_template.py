@@ -117,8 +117,12 @@ class OPTemplate:
             if global_config["save_keys_in_global_outputs"]:
                 if hasattr(self, "image"):
                     self.outputs.parameters["dflow_global"] = OutputParameter(
-                        value="{}",
+                        value="{{pod.name}}",
                         global_name="{{inputs.parameters.dflow_key}}",
+                    )
+                    self.outputs.parameters["dflow_wfname"] = OutputParameter(
+                        value="{{workflow.name}}",
+                        global_name="dflow_workflow_name",
                     )
                 else:
                     self.outputs.parameters["dflow_global"] = OutputParameter(
