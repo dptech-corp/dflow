@@ -698,6 +698,26 @@ class Workflow:
         workflow = ArgoWorkflow(response)
         return workflow.get_step()
 
+    def query_global_outputs(self) -> ArgoWorkflow:
+        try:
+            response = self.api_instance.api_client.call_api(
+                '/api/v1/workflows/%s/%s' % (self.namespace, self.id),
+                'GET', response_type=object, _return_http_data_only=True,
+                header_params=config["http_headers"],
+                query_params=[('fields', 'status.outputs')])
+        except Exception:
+            response = self.api_instance.api_client.call_api(
+                '/api/v1/archived-workflows/%s' % self.uid,
+                'GET', response_type=object, _return_http_data_only=True,
+                header_params=config["http_headers"],
+                query_params=[('fields', 'status.outputs')])
+
+        step = ArgoStep(response["status"])
+        if hasattr(step, "outputs"):
+            return step.outputs
+        else:
+            return None
+
     def terminate(self) -> None:
         """
         Terminate the workflow

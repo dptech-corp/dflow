@@ -663,7 +663,8 @@ class OutputParameter(ArgoVar):
             kwargs = {
                 "name": "dflow_bigpar_" + self.name,
                 "archive": V1alpha1ArchiveStrategy(_none={}),
-                "global_name": self.global_name,
+                "global_name": "dflow_bigpar_" + self.global_name if
+                self.global_name is not None else None,
             }
             if self.value_from_path is not None:
                 return V1alpha1Artifact(path=self.value_from_path, **kwargs)
