@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.6.40](https://github.com/deepmodeling/dflow/compare/v1.6.39...v1.6.40) (2023-02-06)
+
+
+### Bug Fixes
+
+* downgrade for query_step_by_key ([8485582](https://github.com/deepmodeling/dflow/commit/8485582756e754af9496bc48362930f467de3db0))
+* save key2id map in global outputs, add query_step_by_key ([af64ea0](https://github.com/deepmodeling/dflow/commit/af64ea06f190de3aa45de4c4483931f42b637622))
+* support default value of big parameter ([af64ea0](https://github.com/deepmodeling/dflow/commit/af64ea06f190de3aa45de4c4483931f42b637622))
+
 ## [1.6.39](https://github.com/deepmodeling/dflow/compare/v1.6.38...v1.6.39) (2023-02-03)
 
 
