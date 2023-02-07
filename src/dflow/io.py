@@ -353,7 +353,11 @@ class InputParameter(ArgoVar):
             description = jsonpickle.dumps({"type": str(self.type)})
 
         if self.save_as_artifact:
-            if hasattr(self, "value"):
+            if isinstance(self.source, (InputParameter, OutputParameter,
+                                        InputArtifact, OutputArtifact)):
+                return V1alpha1Artifact(name="dflow_bigpar_" + self.name,
+                                        path=self.path, _from=str(self.source))
+            elif hasattr(self, "value"):
                 if isinstance(self.value, (InputParameter, OutputParameter,
                                            InputArtifact, OutputArtifact)):
                     return V1alpha1Artifact(name="dflow_bigpar_" + self.name,
@@ -381,10 +385,6 @@ class InputParameter(ArgoVar):
                         return V1alpha1Artifact(
                             name="dflow_bigpar_" + self.name, path=self.path,
                             oss=s3.oss())
-            elif isinstance(self.source, (InputParameter, OutputParameter,
-                                          InputArtifact, OutputArtifact)):
-                return V1alpha1Artifact(name="dflow_bigpar_" + self.name,
-                                        path=self.path, _from=str(self.source))
             else:
                 return V1alpha1Artifact(name="dflow_bigpar_" + self.name,
                                         path=self.path)
