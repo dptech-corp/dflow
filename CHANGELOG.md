@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.42](https://github.com/deepmodeling/dflow/compare/v1.6.41...v1.6.42) (2023-02-07)
+
+
+### Bug Fixes
+
+* let argument override default value of big parameter ([22db61b](https://github.com/deepmodeling/dflow/commit/22db61bf4e6cfa45603044f5f74749916836ddde))
+
 ## [1.6.41](https://github.com/deepmodeling/dflow/compare/v1.6.40...v1.6.41) (2023-02-06)
 
 
