@@ -34,6 +34,8 @@ class OSSClient(StorageClient):
         self.bucket.put_object_from_file(key, path)
 
     def download(self, key, path):
+        if os.path.dirname(path):
+            os.makedirs(os.path.dirname(path), exist_ok=True)
         self.bucket.get_object_to_file(key, path)
 
     def list(self, prefix, recursive=False):
@@ -43,7 +45,8 @@ class OSSClient(StorageClient):
             while True:
                 r = self.bucket.list_objects(prefix, marker=marker)
                 for obj in r.object_list:
-                    keys.append(obj.key)
+                    if not obj.key.endswith("/"):
+                        keys.append(obj.key)
                 if not r.is_truncated:
                     break
                 marker = r.next_marker
