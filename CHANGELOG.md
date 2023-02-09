@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.44](https://github.com/deepmodeling/dflow/compare/v1.6.43...v1.6.44) (2023-02-09)
+
+
+### Bug Fixes
+
+* fix dispatcher bohrium cannot sync log ([119e91c](https://github.com/deepmodeling/dflow/commit/119e91c4ad629cf81457a60ca8fa8424f5301cd5))
+
 ## [1.6.43](https://github.com/deepmodeling/dflow/compare/v1.6.42...v1.6.43) (2023-02-09)
 
 
