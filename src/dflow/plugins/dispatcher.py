@@ -156,6 +156,7 @@ class DispatcherExecutor(Executor):
             if "input_data" not in self.machine_dict["remote_profile"]:
                 self.machine_dict["remote_profile"]["input_data"] = {}
             input_data = self.machine_dict["remote_profile"]["input_data"]
+            input_data["log_file"] = "log"
             if "job_type" not in input_data:
                 input_data["job_type"] = "container"
             if "platform" not in input_data:
@@ -187,7 +188,7 @@ class DispatcherExecutor(Executor):
         self.task_dict = {
             "task_work_path": "./",
             "outlog": "log",
-            "errlog": "err"
+            "errlog": "log"
         }
         if task_dict is not None:
             update_dict(self.task_dict, task_dict)
