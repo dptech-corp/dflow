@@ -1966,11 +1966,16 @@ must be one of the following:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.workflow.Workflow.query">
-<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.argo_objects.ArgoWorkflow" title="dflow.argo_objects.ArgoWorkflow"><span class="pre">ArgoWorkflow</span></a></span></span><a class="headerlink" href="#dflow.workflow.Workflow.query" title="Permalink to this definition">¶</a></dt>
-<dd><p>Query the workflow from Argo</p>
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.argo_objects.ArgoWorkflow" title="dflow.argo_objects.ArgoWorkflow"><span class="pre">ArgoWorkflow</span></a></span></span><a class="headerlink" href="#dflow.workflow.Workflow.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the workflow from Argo
+If fields is not provided, full information of all steps will be
+returned [O(n)]</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>an ArgoWorkflow object</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fields</strong> – fields of the workflow to be returned</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>an ArgoWorkflow object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1978,12 +1983,24 @@ must be one of the following:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.workflow.Workflow.query_global_outputs">
 <span class="sig-name descname"><span class="pre">query_global_outputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.argo_objects.ArgoWorkflow" title="dflow.argo_objects.ArgoWorkflow"><span class="pre">ArgoWorkflow</span></a></span></span><a class="headerlink" href="#dflow.workflow.Workflow.query_global_outputs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Query the global outputs of the workflow from Argo
+The function is O(1)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> – filter by key of step</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a list of steps</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.workflow.Workflow.query_keys_of_steps">
 <span class="sig-name descname"><span class="pre">query_keys_of_steps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dflow.workflow.Workflow.query_keys_of_steps" title="Permalink to this definition">¶</a></dt>
-<dd><p>Query the keys of existing steps of the workflow from Argo</p>
+<dd><p>Query the keys of existing steps of the workflow from Argo
+This function will try to get keys from the global outputs,
+which is O(1). If failed, it will downgrade to query full steps</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>a list of keys</p>
@@ -1994,7 +2011,8 @@ must be one of the following:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.workflow.Workflow.query_status">
 <span class="sig-name descname"><span class="pre">query_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#dflow.workflow.Workflow.query_status" title="Permalink to this definition">¶</a></dt>
-<dd><p>Query the status of the workflow from Argo</p>
+<dd><p>Query the status of the workflow from Argo
+The function is O(1)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Pending, Running, Succeeded, Failed, Error, etc</p>
@@ -2005,7 +2023,14 @@ must be one of the following:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.workflow.Workflow.query_step">
 <span class="sig-name descname"><span class="pre">query_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dflow.argo_objects.ArgoStep" title="dflow.argo_objects.ArgoStep"><span class="pre">ArgoStep</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dflow.workflow.Workflow.query_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Query the existing steps of the workflow from Argo</p>
+<dd><p>Query the existing steps of the workflow from Argo
+This function will query full steps from server [O(n)], then filter
+with conditions given in the arguments
+If you want to call this function multiple times successively,
+it is recommended to call query once and call get_step repeatedly, e.g.
+info = wf.query()
+step1 = info.get_step(key=”step1”)
+step2 = info.get_step(key=”step2”)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -2025,7 +2050,19 @@ must be one of the following:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.workflow.Workflow.query_step_by_key">
 <span class="sig-name descname"><span class="pre">query_step_by_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dflow.argo_objects.ArgoStep" title="dflow.argo_objects.ArgoStep"><span class="pre">ArgoStep</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dflow.workflow.Workflow.query_step_by_key" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Query the existing steps of the workflow from Argo by key
+This function will try to get key-ID map from the global outputs,
+then query step by ID, which is O(m) where m is the number of the
+requested keys. If failed, it will downgrade to query full steps</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> – filter by key of step</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a list of steps</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.workflow.Workflow.resubmit">
@@ -2997,11 +3034,16 @@ must be one of the following:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.Workflow.query">
-<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.argo_objects.ArgoWorkflow" title="dflow.argo_objects.ArgoWorkflow"><span class="pre">ArgoWorkflow</span></a></span></span><a class="headerlink" href="#dflow.Workflow.query" title="Permalink to this definition">¶</a></dt>
-<dd><p>Query the workflow from Argo</p>
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.argo_objects.ArgoWorkflow" title="dflow.argo_objects.ArgoWorkflow"><span class="pre">ArgoWorkflow</span></a></span></span><a class="headerlink" href="#dflow.Workflow.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query the workflow from Argo
+If fields is not provided, full information of all steps will be
+returned [O(n)]</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>an ArgoWorkflow object</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fields</strong> – fields of the workflow to be returned</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>an ArgoWorkflow object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -3009,12 +3051,24 @@ must be one of the following:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.Workflow.query_global_outputs">
 <span class="sig-name descname"><span class="pre">query_global_outputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.argo_objects.ArgoWorkflow" title="dflow.argo_objects.ArgoWorkflow"><span class="pre">ArgoWorkflow</span></a></span></span><a class="headerlink" href="#dflow.Workflow.query_global_outputs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Query the global outputs of the workflow from Argo
+The function is O(1)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> – filter by key of step</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a list of steps</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.Workflow.query_keys_of_steps">
 <span class="sig-name descname"><span class="pre">query_keys_of_steps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dflow.Workflow.query_keys_of_steps" title="Permalink to this definition">¶</a></dt>
-<dd><p>Query the keys of existing steps of the workflow from Argo</p>
+<dd><p>Query the keys of existing steps of the workflow from Argo
+This function will try to get keys from the global outputs,
+which is O(1). If failed, it will downgrade to query full steps</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>a list of keys</p>
@@ -3025,7 +3079,8 @@ must be one of the following:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.Workflow.query_status">
 <span class="sig-name descname"><span class="pre">query_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#dflow.Workflow.query_status" title="Permalink to this definition">¶</a></dt>
-<dd><p>Query the status of the workflow from Argo</p>
+<dd><p>Query the status of the workflow from Argo
+The function is O(1)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Pending, Running, Succeeded, Failed, Error, etc</p>
@@ -3036,7 +3091,14 @@ must be one of the following:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.Workflow.query_step">
 <span class="sig-name descname"><span class="pre">query_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dflow.argo_objects.ArgoStep" title="dflow.argo_objects.ArgoStep"><span class="pre">ArgoStep</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dflow.Workflow.query_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Query the existing steps of the workflow from Argo</p>
+<dd><p>Query the existing steps of the workflow from Argo
+This function will query full steps from server [O(n)], then filter
+with conditions given in the arguments
+If you want to call this function multiple times successively,
+it is recommended to call query once and call get_step repeatedly, e.g.
+info = wf.query()
+step1 = info.get_step(key=”step1”)
+step2 = info.get_step(key=”step2”)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -3056,7 +3118,19 @@ must be one of the following:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.Workflow.query_step_by_key">
 <span class="sig-name descname"><span class="pre">query_step_by_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dflow.argo_objects.ArgoStep" title="dflow.argo_objects.ArgoStep"><span class="pre">ArgoStep</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dflow.Workflow.query_step_by_key" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Query the existing steps of the workflow from Argo by key
+This function will try to get key-ID map from the global outputs,
+then query step by ID, which is O(m) where m is the number of the
+requested keys. If failed, it will downgrade to query full steps</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> – filter by key of step</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a list of steps</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.Workflow.resubmit">
