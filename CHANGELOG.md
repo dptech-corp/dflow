@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.43](https://github.com/deepmodeling/dflow/compare/v1.6.42...v1.6.43) (2023-02-09)
+
+
+### Bug Fixes
+
+* add comments to query functions ([fa92dce](https://github.com/deepmodeling/dflow/commit/fa92dce6d0b46f34601210de173400bed87a97c5))
+* different behaviors of OSS client ([fa92dce](https://github.com/deepmodeling/dflow/commit/fa92dce6d0b46f34601210de173400bed87a97c5))
+
 ## [1.6.42](https://github.com/deepmodeling/dflow/compare/v1.6.41...v1.6.42) (2023-02-07)
 
 
