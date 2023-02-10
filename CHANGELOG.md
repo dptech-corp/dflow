@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.46](https://github.com/deepmodeling/dflow/compare/v1.6.45...v1.6.46) (2023-02-10)
+
+
+### Bug Fixes
+
+* jsonpickle.loads failed in bohrium executor ([24a603e](https://github.com/deepmodeling/dflow/commit/24a603e9ac8b28e15dee27e2e767c3973de8c829))
+
 ## [1.6.45](https://github.com/deepmodeling/dflow/compare/v1.6.44...v1.6.45) (2023-02-10)
 
 
