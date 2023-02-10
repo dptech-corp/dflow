@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from copy import deepcopy
 from typing import Any, Dict, List, Optional, Union
 
 import jsonpickle
@@ -116,7 +117,7 @@ class Workflow:
             else config["k8s_api_server"]
         self.context = context
         if annotations is None:
-            annotations = config["workflow_annotations"]
+            annotations = deepcopy(config["workflow_annotations"])
         self.annotations = annotations
         self.parallelism = parallelism
         self.pod_gc_strategy = pod_gc_strategy
