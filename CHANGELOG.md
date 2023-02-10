@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.45](https://github.com/deepmodeling/dflow/compare/v1.6.44...v1.6.45) (2023-02-10)
+
+
+### Bug Fixes
+
+* save key-id mapping for super OP ([fd18d0e](https://github.com/deepmodeling/dflow/commit/fd18d0efaa0679f9602515247ce4b6ce2173dbab))
+
 ## [1.6.44](https://github.com/deepmodeling/dflow/compare/v1.6.43...v1.6.44) (2023-02-09)
 
 
