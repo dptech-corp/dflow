@@ -127,7 +127,7 @@ class OPTemplate:
                 else:
                     self.outputs.parameters["dflow_global"] = OutputParameter(
                         value_from_parameter="non-exists",
-                        default="{}",
+                        default="{{node.id}}",
                         global_name="{{inputs.parameters.dflow_key}}",
                     )
 
