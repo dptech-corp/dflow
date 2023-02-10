@@ -390,9 +390,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
         script += "import json, jsonpickle\n"
         script += "from dflow import config, s3_config\n"
-        script += "config.update(jsonpickle.loads('%s'))\n" % \
+        script += "config.update(jsonpickle.loads(r'''%s'''))\n" % \
             jsonpickle.dumps(config)
-        script += "s3_config.update(jsonpickle.loads('%s'))\n" % \
+        script += "s3_config.update(jsonpickle.loads(r'''%s'''))\n" % \
             jsonpickle.dumps(s3_config)
         if op_class.__module__ in ["__main__", "__mp_main__"]:
             try:
