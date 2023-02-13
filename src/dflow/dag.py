@@ -1,5 +1,6 @@
 from typing import Optional, Dict, List, Union
 
+from .config import config, s3_config
 from .io import Inputs, Outputs
 from .op_template import OPTemplate
 from .task import Task
@@ -102,7 +103,7 @@ class DAG(OPTemplate):
                 task.phase = "Pending"
                 i = self.tasks.index(task)
                 proc = Process(target=task.run_with_queue,
-                               args=(self, i, self.queue))
+                               args=(self, i, self.queue, config, s3_config))
                 proc.start()
                 self.waiting.remove(task)
                 self.running.append(task)

@@ -8,7 +8,7 @@ from typing import Optional, Any, Dict, List, Union
 import jsonpickle
 
 from .common import LocalArtifact, S3Artifact
-from .config import config
+from .config import config, s3_config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
 from .io import (PVC, ArgoVar, IfExpression, InputArtifact, InputParameter,
@@ -578,7 +578,7 @@ class Step:
                 new_template.inputs.parameters["dflow_group_key"] = \
                     InputParameter(value="")
                 self.inputs.parameters["dflow_group_key"] = InputParameter(
-                    value=re.sub("{{item.*}}", "group", str(self.key)))
+                    value=re.sub("{{=?item.*}}", "group", str(self.key)))
                 # For the case of reusing sliced steps, ensure that the output
                 # artifacts are reused
                 for name in sliced_output_artifact:
@@ -644,7 +644,7 @@ class Step:
                 self.prepare_step = self.__class__(
                     name="%s-init-artifact" % self.name,
                     template=init_template,
-                    parameters={"dflow_group_key": re.sub("{{item.*}}",
+                    parameters={"dflow_group_key": re.sub("{{=?item.*}}",
                                                           "group",
                                                           str(self.key))})
             else:
@@ -1401,7 +1401,8 @@ class Step:
                 ps.phase = "Pending"
                 self.parallel_steps.append(ps)
                 proc = Process(target=ps.exec_with_queue,
-                               args=(context, parameters, i, queue, item))
+                               args=(context, parameters, i, queue, item,
+                                     config, s3_config))
                 proc.start()
                 procs.append(proc)
 
@@ -1443,8 +1444,10 @@ class Step:
                 if not self.continue_on_failed:
                     raise RuntimeError("Step %s failed" % self)
 
-    def run_with_queue(self, context, order, queue):
+    def run_with_queue(self, context, order, queue, conf, s3_conf):
         try:
+            config.update(conf)
+            s3_config.update(s3_conf)
             self.run(context)
             queue.put((order, self))
         except Exception:
@@ -1694,8 +1697,11 @@ class Step:
         with open(os.path.join(stepdir, "phase"), "w") as f:
             f.write("Succeeded")
 
-    def exec_with_queue(self, context, parameters, order, queue, item=None):
+    def exec_with_queue(self, context, parameters, order, queue, item, conf,
+                        s3_conf):
         try:
+            config.update(conf)
+            s3_config.update(s3_conf)
             self.exec(context, parameters, item)
             queue.put((order, self))
         except Exception:
@@ -1705,17 +1711,22 @@ class Step:
 
 
 def render_item(expr, item):
-    i = expr.find("{{item")
+    i = expr.find("{{")
     while i >= 0:
         j = expr.find("}}", i+2)
         var = expr[i+2:j]
         fields = var.split(".")
-        value = item
-        for key in fields[1:]:
-            value = value[key]
-        value = value if isinstance(value, str) else jsonpickle.dumps(value)
-        expr = expr[:i] + value.strip() + expr[j+2:]
-        i = expr.find("{{item", i+1)
+        if expr[i:i+3] == "{{=":
+            value = eval(expr[i+3:j], {"item": item})
+            expr = expr[:i] + value.strip() + expr[j+2:]
+        elif fields[0] == "item":
+            value = item
+            for key in fields[1:]:
+                value = value[key]
+            value = value if isinstance(value, str) else \
+                jsonpickle.dumps(value)
+            expr = expr[:i] + value.strip() + expr[j+2:]
+        i = expr.find("{{", i+1)
     return expr
 
 
@@ -1737,6 +1748,8 @@ def render_expr(expr, context):
 def get_var(expr, context):
     expr = str(expr)
     assert expr[:2] == "{{" and expr[-2:] == "}}", "Parse failed: %s" % expr
+    if expr[:3] == "{{=":
+        return None
     fields = expr[2:-2].split(".")
     if fields[:2] == ["inputs", "parameters"]:
         name = fields[2]
