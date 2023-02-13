@@ -8,7 +8,7 @@ from typing import Optional, Any, Dict, List, Union
 import jsonpickle
 
 from .common import LocalArtifact, S3Artifact
-from .config import config
+from .config import config, s3_config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
 from .io import (PVC, ArgoVar, IfExpression, InputArtifact, InputParameter,
@@ -1401,7 +1401,8 @@ class Step:
                 ps.phase = "Pending"
                 self.parallel_steps.append(ps)
                 proc = Process(target=ps.exec_with_queue,
-                               args=(context, parameters, i, queue, item))
+                               args=(context, parameters, i, queue, item,
+                                     config, s3_config))
                 proc.start()
                 procs.append(proc)
 
@@ -1443,8 +1444,10 @@ class Step:
                 if not self.continue_on_failed:
                     raise RuntimeError("Step %s failed" % self)
 
-    def run_with_queue(self, context, order, queue):
+    def run_with_queue(self, context, order, queue, conf, s3_conf):
         try:
+            config.update(conf)
+            s3_config.update(s3_conf)
             self.run(context)
             queue.put((order, self))
         except Exception:
@@ -1554,7 +1557,6 @@ class Step:
             for name, par in parameters.items():
                 if isinstance(par.value, str):
                     par.value = render_item(par.value, item)
-                    print(name, par.value)
 
         import os
         cwd = os.getcwd()
@@ -1695,8 +1697,11 @@ class Step:
         with open(os.path.join(stepdir, "phase"), "w") as f:
             f.write("Succeeded")
 
-    def exec_with_queue(self, context, parameters, order, queue, item=None):
+    def exec_with_queue(self, context, parameters, order, queue, item, conf,
+                        s3_conf):
         try:
+            config.update(conf)
+            s3_config.update(s3_conf)
             self.exec(context, parameters, item)
             queue.put((order, self))
         except Exception:

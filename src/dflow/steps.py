@@ -1,6 +1,7 @@
 from copy import deepcopy
 from typing import Optional, Dict, List, Union
 
+from .config import config, s3_config
 from .io import Inputs, Outputs
 from .op_template import OPTemplate
 from .step import Step
@@ -115,7 +116,7 @@ class Steps(OPTemplate):
                 for i, ps in enumerate(step):
                     ps.phase = "Pending"
                     proc = Process(target=ps.run_with_queue,
-                                   args=(self, i, queue,))
+                                   args=(self, i, queue, config, s3_config))
                     proc.start()
                     procs.append(proc)
 
