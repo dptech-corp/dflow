@@ -72,6 +72,27 @@ def _login(login_url=None, username=None, password=None):
     return res["data"]["token"]
 
 
+def create_job_group(job_group_name):
+    import requests
+    if config["authorization"] is None:
+        config["authorization"] = _login(
+            config["bohrium_url"] + "/account/login",
+            config["username"], config["password"])
+    data = {
+        "name": job_group_name,
+        "project_id": config["project_id"],
+    }
+    rsp = requests.post(
+        config["bohrium_url"] + "/brm/v1/job_group/add",
+        headers={
+            "Content-type": "application/json",
+            "Authorization": "jwt " + config["authorization"]
+        }, json=data)
+    res = json.loads(rsp.text)
+    _raise_error(res, "get job group id")
+    return res["data"]["groupId"]
+
+
 class BohriumExecutor(Executor):
     """
     Bohrium executor
@@ -98,14 +119,14 @@ class BohriumExecutor(Executor):
         if self.extra is not None:
             new_template.annotations["task.dp.tech/extra"] = json.dumps(
                 self.extra) if isinstance(self.extra, dict) else self.extra
-        if self.executor == "bohrium_v2":
-            new_template.script = render_script_with_tmp_root(template,
-                                                              "$(pwd)/tmp")
-            if isinstance(template, ShellOPTemplate):
-                new_template.script = "mkdir -p tmp\n" + new_template.script
-            if isinstance(template, PythonScriptOPTemplate):
-                new_template.script = "import os\nos.makedirs('tmp', "\
-                    "exist_ok=True)\n" + new_template.script
+
+        new_template.script = render_script_with_tmp_root(template,
+                                                          "$(pwd)/tmp")
+        if isinstance(template, ShellOPTemplate):
+            new_template.script = "mkdir -p tmp\n" + new_template.script
+        if isinstance(template, PythonScriptOPTemplate):
+            new_template.script = "import os\nos.makedirs('tmp', "\
+                "exist_ok=True)\n" + new_template.script
         return new_template
 
 
