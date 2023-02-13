@@ -82,7 +82,7 @@ def handle_input_parameter(name, value, sign, slices=None, data_root="/tmp"):
     elif isinstance(sign, BigParameter) and config["mode"] != "debug":
         with open(data_root + "/inputs/parameters/" + name, "r") as f:
             content = jsonpickle.loads(f.read())
-            if sign.type == str:
+            if sign.type == str and slices is None:
                 obj = content["value"]
             else:
                 obj = jsonpickle.loads(content["value"])
