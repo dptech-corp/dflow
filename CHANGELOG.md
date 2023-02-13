@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.6.47](https://github.com/deepmodeling/dflow/compare/v1.6.46...v1.6.47) (2023-02-13)
+
+
+### Bug Fixes
+
+* add API for creating bohrium job group ID ([772ad4d](https://github.com/deepmodeling/dflow/commit/772ad4ddb0f89e2dde6c0a0a231fa7c944788e6e))
+* process cannot pass dflow configs ([77febb9](https://github.com/deepmodeling/dflow/commit/77febb9c7d618bfd62cac8f8c504e8d707909196))
+* support for expression of loop item ([12c58c9](https://github.com/deepmodeling/dflow/commit/12c58c9e6cc6caff593a3e524f4eb882d492561d))
+* support for slicing big parameter ([772ad4d](https://github.com/deepmodeling/dflow/commit/772ad4ddb0f89e2dde6c0a0a231fa7c944788e6e))
+
 ## [1.6.46](https://github.com/deepmodeling/dflow/compare/v1.6.45...v1.6.46) (2023-02-10)
 
 
