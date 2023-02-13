@@ -578,7 +578,7 @@ class Step:
                 new_template.inputs.parameters["dflow_group_key"] = \
                     InputParameter(value="")
                 self.inputs.parameters["dflow_group_key"] = InputParameter(
-                    value=re.sub("{{item.*}}", "group", str(self.key)))
+                    value=re.sub("{{=?item.*}}", "group", str(self.key)))
                 # For the case of reusing sliced steps, ensure that the output
                 # artifacts are reused
                 for name in sliced_output_artifact:
@@ -644,7 +644,7 @@ class Step:
                 self.prepare_step = self.__class__(
                     name="%s-init-artifact" % self.name,
                     template=init_template,
-                    parameters={"dflow_group_key": re.sub("{{item.*}}",
+                    parameters={"dflow_group_key": re.sub("{{=?item.*}}",
                                                           "group",
                                                           str(self.key))})
             else:
@@ -1554,6 +1554,7 @@ class Step:
             for name, par in parameters.items():
                 if isinstance(par.value, str):
                     par.value = render_item(par.value, item)
+                    print(name, par.value)
 
         import os
         cwd = os.getcwd()
@@ -1705,17 +1706,22 @@ class Step:
 
 
 def render_item(expr, item):
-    i = expr.find("{{item")
+    i = expr.find("{{")
     while i >= 0:
         j = expr.find("}}", i+2)
         var = expr[i+2:j]
         fields = var.split(".")
-        value = item
-        for key in fields[1:]:
-            value = value[key]
-        value = value if isinstance(value, str) else jsonpickle.dumps(value)
-        expr = expr[:i] + value.strip() + expr[j+2:]
-        i = expr.find("{{item", i+1)
+        if expr[i:i+3] == "{{=":
+            value = eval(expr[i+3:j], {"item": item})
+            expr = expr[:i] + value.strip() + expr[j+2:]
+        elif fields[0] == "item":
+            value = item
+            for key in fields[1:]:
+                value = value[key]
+            value = value if isinstance(value, str) else \
+                jsonpickle.dumps(value)
+            expr = expr[:i] + value.strip() + expr[j+2:]
+        i = expr.find("{{", i+1)
     return expr
 
 
@@ -1737,6 +1743,8 @@ def render_expr(expr, context):
 def get_var(expr, context):
     expr = str(expr)
     assert expr[:2] == "{{" and expr[-2:] == "}}", "Parse failed: %s" % expr
+    if expr[:3] == "{{=":
+        return None
     fields = expr[2:-2].split(".")
     if fields[:2] == ["inputs", "parameters"]:
         name = fields[2]
