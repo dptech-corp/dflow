@@ -81,13 +81,17 @@ class ArgoParameter(ArgoObjectDict):
                     assert len(fs) == 1
                     with open(os.path.join(tmpdir, fs[0]), "r") as f:
                         content = jsonpickle.loads(f.read())
-                        if "type" in content:
-                            self.type = content["type"]
-                        if "type" in content and \
-                                content["type"] != str(str):
-                            self.value = jsonpickle.loads(content["value"])
-                        else:
-                            self.value = content["value"]
+                        self.value = content
+                        # For backward compatibility
+                        # TODO: delete me in the future
+                        if isinstance(content, dict) and "value" in content:
+                            if "type" in content:
+                                self.type = content["type"]
+                            if "type" in content and \
+                                    content["type"] != str(str):
+                                self.value = jsonpickle.loads(content["value"])
+                            else:
+                                self.value = content["value"]
                 except Exception as e:
                     logger.warning("Failed to load parameter value from "
                                    "artifact: %s" % e)
@@ -161,10 +165,7 @@ class ArgoStep(ArgoObjectDict):
             with tempfile.TemporaryDirectory() as tmpdir:
                 path = tmpdir + "/" + name
                 with open(path, "w") as f:
-                    content = {"value": self.outputs.parameters[name].value}
-                    if hasattr(self.outputs.parameters[name], "type"):
-                        content["type"] = self.outputs.parameters[name].type
-                    f.write(jsonpickle.dumps(content))
+                    f.write(jsonpickle.dumps(value))
                 key = upload_s3(path)
                 s3 = S3Artifact(key=key)
                 if s3_config["repo_type"] == "s3":

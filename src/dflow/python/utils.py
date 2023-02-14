@@ -82,10 +82,14 @@ def handle_input_parameter(name, value, sign, slices=None, data_root="/tmp"):
     elif isinstance(sign, BigParameter) and config["mode"] != "debug":
         with open(data_root + "/inputs/parameters/" + name, "r") as f:
             content = jsonpickle.loads(f.read())
-            if sign.type == str and slices is None:
-                obj = content["value"]
-            else:
-                obj = jsonpickle.loads(content["value"])
+            obj = content
+            # For backward compatibility
+            # TODO: delete me in the future
+            if isinstance(content, dict) and "value" in content:
+                if sign.type == str and slices is None:
+                    obj = content["value"]
+                else:
+                    obj = jsonpickle.loads(content["value"])
     else:
         if isinstance(sign, Parameter):
             sign = sign.type
@@ -170,13 +174,8 @@ def handle_output_parameter(name, value, sign, slices=None, data_root="/tmp"):
         with open(data_root + '/outputs/parameters/' + name, 'w') as f:
             f.write(jsonpickle.dumps(res))
     elif isinstance(sign, BigParameter) and config["mode"] != "debug":
-        content = {"type": str(sign.type)}
-        if sign.type == str:
-            content["value"] = value
-        else:
-            content["value"] = jsonpickle.dumps(value)
         with open(data_root + "/outputs/parameters/" + name, "w") as f:
-            f.write(jsonpickle.dumps(content))
+            f.write(jsonpickle.dumps(value))
     else:
         if isinstance(sign, Parameter):
             sign = sign.type
@@ -201,8 +200,14 @@ def copy_results(source, name, data_root="/tmp"):
     # if refer to input artifact
     if source.find(data_root + "/inputs/artifacts/") == 0:
         # retain original directory structure
-        rel_path = source[source.find(
-            "/", len(data_root + "/inputs/artifacts/"))+1:]
+        i = source.find("/", len(data_root + "/inputs/artifacts/"))
+        if i == -1:
+            target = data_root + "/outputs/artifacts/%s" % name
+            if os.path.isdir(target):
+                shutil.rmtree(target)
+            copy_file(source, target, shutil.copy)
+            return None
+        rel_path = source[i+1:]
         target = data_root + "/outputs/artifacts/%s/%s" % (name, rel_path)
         copy_file(source, target, shutil.copy)
         if rel_path[:1] == "/":
