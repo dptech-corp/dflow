@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.48](https://github.com/deepmodeling/dflow/compare/v1.6.47...v1.6.48) (2023-02-14)
+
+
+### Bug Fixes
+
+* direct jsonpickle.dumps for big parameter ([7e1a063](https://github.com/deepmodeling/dflow/commit/7e1a063fbcfdd7e4ddbcaff3e0b9f761f1fc720f))
+* support for argo_len of big parameter ([7e1a063](https://github.com/deepmodeling/dflow/commit/7e1a063fbcfdd7e4ddbcaff3e0b9f761f1fc720f))
+
 ## [1.6.47](https://github.com/deepmodeling/dflow/compare/v1.6.46...v1.6.47) (2023-02-13)
 
 
