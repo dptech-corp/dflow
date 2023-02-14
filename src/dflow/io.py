@@ -365,16 +365,9 @@ class InputParameter(ArgoVar):
                                             _from=str(self.value))
                 else:
                     with tempfile.TemporaryDirectory() as tmpdir:
-                        content = {}
-                        if isinstance(self.value, str):
-                            content["value"] = self.value
-                        else:
-                            content["value"] = jsonpickle.dumps(self.value)
-                        if self.type is not None:
-                            content["type"] = str(self.type)
                         path = tmpdir + "/" + self.name
                         with open(path, "w") as f:
-                            f.write(jsonpickle.dumps(content))
+                            f.write(jsonpickle.dumps(self.value))
                         key = upload_s3(path)
                         s3 = S3Artifact(key=key)
                     if s3_config["repo_type"] == "s3":
@@ -551,6 +544,7 @@ class OutputParameter(ArgoVar):
             global_name: Optional[str] = None,
             value_from_expression: Union[str, IfExpression] = None,
             save_as_artifact: bool = False,
+            save_both: bool = False,
             **kwargs,
     ) -> None:
         self.value_from_path = value_from_path
@@ -561,6 +555,7 @@ class OutputParameter(ArgoVar):
         self.global_name = global_name
         self.value_from_expression = value_from_expression
         self.save_as_artifact = save_as_artifact
+        self.save_both = save_both
         if config["mode"] == "debug":
             self.save_as_artifact = False
         if "default" in kwargs:
@@ -569,31 +564,39 @@ class OutputParameter(ArgoVar):
             self.value = kwargs["value"]
         self.value_from_parameter = value_from_parameter
 
-    def __getattr__(self, key):
+    def expr_as_artifact(self):
         from .task import Task
+        if self.name is not None:
+            if self.step is not None:
+                if isinstance(self.step, Task):
+                    return "tasks['%s'].outputs.artifacts"\
+                        "['dflow_bigpar_%s']" % (
+                            self.step.id, self.name)
+                else:
+                    return "steps['%s'].outputs.artifacts"\
+                        "['dflow_bigpar_%s']" % (
+                            self.step.id, self.name)
+            return "outputs.artifacts['dflow_bigpar_%s']" % self.name
+        return ""
+
+    def expr_as_parameter(self):
+        from .task import Task
+        if self.name is not None:
+            if self.step is not None:
+                if isinstance(self.step, Task):
+                    return "tasks['%s'].outputs.parameters['%s']" % \
+                        (self.step.id, self.name)
+                else:
+                    return "steps['%s'].outputs.parameters['%s']" % \
+                        (self.step.id, self.name)
+            return "outputs.parameters['%s']" % self.name
+        return ""
+
+    def __getattr__(self, key):
         if key == "expr":
             if self.save_as_artifact:
-                if self.name is not None:
-                    if self.step is not None:
-                        if isinstance(self.step, Task):
-                            return "tasks['%s'].outputs.artifacts"\
-                                "['dflow_bigpar_%s']" % (
-                                    self.step.id, self.name)
-                        else:
-                            return "steps['%s'].outputs.artifacts"\
-                                "['dflow_bigpar_%s']" % (
-                                    self.step.id, self.name)
-                    return "outputs.artifacts['dflow_bigpar_%s']" % self.name
-            if self.name is not None:
-                if self.step is not None:
-                    if isinstance(self.step, Task):
-                        return "tasks['%s'].outputs.parameters['%s']" % \
-                            (self.step.id, self.name)
-                    else:
-                        return "steps['%s'].outputs.parameters['%s']" % \
-                            (self.step.id, self.name)
-                return "outputs.parameters['%s']" % self.name
-            return ""
+                return self.expr_as_artifact()
+            return self.expr_as_parameter()
         return super().__getattr__(key)
 
     def __setattr__(self, key, value):
@@ -629,20 +632,23 @@ class OutputParameter(ArgoVar):
                 value._else.type = self.type
         return super().__setattr__(key, value)
 
-    def __repr__(self):
+    def repr_as_artifact(self):
         from .task import Task
-        if self.save_as_artifact:
-            if self.name is not None:
-                if self.step is not None:
-                    if isinstance(self.step, Task):
-                        return \
-                            "{{tasks.%s.outputs.artifacts.dflow_bigpar_%s}}" \
-                            % (self.step.id, self.name)
-                    else:
-                        return \
-                            "{{steps.%s.outputs.artifacts.dflow_bigpar_%s}}" \
-                            % (self.step.id, self.name)
-                return "{{outputs.artifacts.dflow_bigpar_%s}}" % self.name
+        if self.name is not None:
+            if self.step is not None:
+                if isinstance(self.step, Task):
+                    return \
+                        "{{tasks.%s.outputs.artifacts.dflow_bigpar_%s}}" \
+                        % (self.step.id, self.name)
+                else:
+                    return \
+                        "{{steps.%s.outputs.artifacts.dflow_bigpar_%s}}" \
+                        % (self.step.id, self.name)
+            return "{{outputs.artifacts.dflow_bigpar_%s}}" % self.name
+        return ""
+
+    def repr_as_parameter(self):
+        from .task import Task
         if self.name is not None:
             if self.step is not None:
                 if isinstance(self.step, Task):
@@ -654,28 +660,33 @@ class OutputParameter(ArgoVar):
             return "{{outputs.parameters.%s}}" % self.name
         return ""
 
-    def convert_to_argo(self):
+    def __repr__(self):
+        if self.save_as_artifact:
+            return self.repr_as_artifact()
+        return self.repr_as_parameter()
+
+    def convert_to_argo_artifact(self):
+        kwargs = {
+            "name": "dflow_bigpar_" + self.name,
+            "archive": V1alpha1ArchiveStrategy(_none={}),
+            "global_name": "dflow_bigpar_" + self.global_name if
+            self.global_name is not None else None,
+        }
+        if self.value_from_path is not None:
+            return V1alpha1Artifact(path=self.value_from_path, **kwargs)
+        elif self.value_from_parameter is not None:
+            return V1alpha1Artifact(
+                _from=str(self.value_from_parameter), **kwargs)
+        elif self.value_from_expression is not None:
+            return V1alpha1Artifact(
+                from_expression=str(self.value_from_expression), **kwargs)
+        else:
+            raise RuntimeError("Not supported.")
+
+    def convert_to_argo_parameter(self):
         description = None
         if self.type is not None:
             description = jsonpickle.dumps({"type": str(self.type)})
-
-        if self.save_as_artifact:
-            kwargs = {
-                "name": "dflow_bigpar_" + self.name,
-                "archive": V1alpha1ArchiveStrategy(_none={}),
-                "global_name": "dflow_bigpar_" + self.global_name if
-                self.global_name is not None else None,
-            }
-            if self.value_from_path is not None:
-                return V1alpha1Artifact(path=self.value_from_path, **kwargs)
-            elif self.value_from_parameter is not None:
-                return V1alpha1Artifact(
-                    _from=str(self.value_from_parameter), **kwargs)
-            elif self.value_from_expression is not None:
-                return V1alpha1Artifact(
-                    from_expression=str(self.value_from_expression), **kwargs)
-            else:
-                raise RuntimeError("Not supported.")
 
         default = None
         if hasattr(self, "default"):
@@ -716,6 +727,16 @@ class OutputParameter(ArgoVar):
                                      description=description)
         else:
             raise RuntimeError("Output parameter %s is not specified" % self)
+
+    def convert_to_argo(self):
+        if self.save_as_artifact:
+            if self.save_both:
+                return self.convert_to_argo_artifact(), \
+                    self.convert_to_argo_parameter()
+            else:
+                return self.convert_to_argo_artifact()
+        else:
+            return self.convert_to_argo_parameter()
 
 
 class OutputArtifact(ArgoVar):
@@ -1022,7 +1043,11 @@ class Outputs:
         parameters = []
         artifacts = []
         for par in self.parameters.values():
-            if par.save_as_artifact:
+            if par.save_as_artifact and par.save_both:
+                art, par = par.convert_to_argo()
+                artifacts.append(art)
+                parameters.append(par)
+            elif par.save_as_artifact:
                 artifacts.append(par.convert_to_argo())
             else:
                 parameters.append(par.convert_to_argo())

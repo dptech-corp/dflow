@@ -184,7 +184,16 @@ class ArgoLen(ArgoVar):
             super().__init__("len(sprig.fromJson(%s))" %
                              param.get_path_list_parameter())
         else:
-            super().__init__("len(sprig.fromJson(%s))" % param.expr)
+            if isinstance(param, OutputParameter) and param.save_as_artifact:
+                step = param.step
+                new_template = deepcopy(step.template)
+                new_template.outputs.parameters[param.name].save_both = True
+                step.template = new_template
+                param.save_both = True
+                super().__init__("len(sprig.fromJson(%s))" %
+                                 param.expr_as_parameter())
+            else:
+                super().__init__("len(sprig.fromJson(%s))" % param.expr)
 
 
 def argo_len(
