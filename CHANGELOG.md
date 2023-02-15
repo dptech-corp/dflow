@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [1.6.50]
+
+### Bug Fixes
+
+* Support BigParameter default value on local machine
+
 ## [1.6.49](https://github.com/deepmodeling/dflow/compare/v1.6.48...v1.6.49) (2023-02-15)
 
 
