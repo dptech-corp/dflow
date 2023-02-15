@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.49](https://github.com/deepmodeling/dflow/compare/v1.6.48...v1.6.49) (2023-02-15)
+
+
+### Bug Fixes
+
+* deprecate lebesgue executor ([0a68cb9](https://github.com/deepmodeling/dflow/commit/0a68cb9663d320744c6d2f8ed435bae8e6a020b3))
+* one task not failing the whole group when pool_size used ([0a68cb9](https://github.com/deepmodeling/dflow/commit/0a68cb9663d320744c6d2f8ed435bae8e6a020b3))
+
 ## [1.6.48](https://github.com/deepmodeling/dflow/compare/v1.6.47...v1.6.48) (2023-02-14)
 
 
