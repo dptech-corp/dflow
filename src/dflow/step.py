@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import sys
+from collections import UserDict
 from copy import deepcopy
 from typing import Optional, Any, Dict, List, Union
 
@@ -32,54 +33,6 @@ except Exception:
 uploaded_python_packages = []
 
 
-class FutureLen:
-    '''
-    To solve the problem of delayed acquisition for length of output
-    parameters in the debug mode
-    '''
-
-    def __init__(self, par):
-        self.par = par
-
-    def __repr__(self):
-        return "len(%s)" % self.par
-
-    def get(self, context=None):
-        if context is not None and isinstance(self.par, InputParameter):
-            return len(context.inputs.parameters[self.par.name].value)
-        if isinstance(self.par, FutureRange):
-            return len(self.par.get(context))
-        return len(self.par.value)
-
-
-class FutureRange:
-    def __init__(self, *args):
-        self.args = args
-
-    def __repr__(self):
-        return "range(%s)" % ", ".join(map(str, self.args))
-
-    def get(self, context=None):
-        args = []
-        for i in self.args:
-            if isinstance(i, FutureLen):
-                args.append(i.get(context))
-            elif isinstance(i, (InputParameter, OutputParameter)):
-                args.append(i.value)
-            elif isinstance(i, IfExpression):
-                _if = render_expr(i._if, context)
-                if eval_expr(_if):
-                    args.append(int(eval(render_expr(i._then, context))))
-                else:
-                    args.append(int(eval(render_expr(i._else, context))))
-            elif isinstance(i, ArgoVar):
-                args.append(int(eval_expr(render_expr(str(i), context))))
-            else:
-                args.append(i)
-        args = tuple(args)
-        return list(range(*args))
-
-
 class ArgoRange(ArgoVar):
     def __init__(self, end, start=0, step=1):
         self.end = end
@@ -95,6 +48,70 @@ class ArgoRange(ArgoVar):
                          (start, end, step))
 
 
+class ObjectDict(UserDict):
+    def __init__(self, d=None):
+        super().__init__(d)
+
+    def __getattr__(self, key):
+        if key == "data":
+            return super().__getattr__(key)
+
+        value = self.data[key]
+        if isinstance(value, dict):
+            return ObjectDict(value)
+        return value
+
+
+class Expression:
+    def __init__(self, expr):
+        self.expr = expr
+
+    def __repr__(self):
+        return self.expr
+
+    def eval(self, context):
+        from .steps import Steps
+        from .dag import DAG
+        inputs = ObjectDict()
+        inputs["parameters"] = {
+            k: v.value for k, v in context.inputs.parameters.items()
+        }
+        inputs["artifacts"] = {
+            k: v for k, v in context.inputs.artifacts.items()
+        }
+        steps = ObjectDict()
+        if isinstance(context, Steps):
+            for step in sum([s if isinstance(s, list) else [s]
+                             for s in context], []):
+                steps[step.name] = {"outputs": {
+                    "parameters": {k: v.value for k, v in
+                                   step.outputs.parameters.items()
+                                   if hasattr(v, "value")},
+                    "artifacts": {k: v.local_path for k, v in
+                                  step.outputs.artifacts.items()
+                                  if hasattr(v, "local_path")},
+                }}
+        tasks = ObjectDict()
+        if isinstance(context, DAG):
+            for task in context:
+                tasks[task.name] = {"outputs": {
+                    "parameters": {k: v.value for k, v in
+                                   task.outputs.parameters.items()
+                                   if hasattr(v, "value")},
+                    "artifacts": {k: v.local_path for k, v in
+                                  step.outputs.artifacts.items()
+                                  if hasattr(v, "local_path")},
+                }}
+        variables = {"inputs": inputs, "steps": steps, "tasks": tasks}
+        return eval(self.expr, variables)
+
+
+def to_expr(var):
+    if isinstance(var, ArgoVar):
+        return var.expr
+    return str(var)
+
+
 def argo_range(
         *args,
 ) -> ArgoVar:
@@ -105,7 +122,7 @@ def argo_range(
     Each argument can be Argo parameter
     """
     if config["mode"] == "debug":
-        return FutureRange(*args)
+        return Expression("list(range(%s))" % ", ".join(map(to_expr, args)))
     start = 0
     step = 1
     if len(args) == 1:
@@ -206,7 +223,7 @@ def argo_len(
         param: the Argo parameter which is a list
     """
     if config["mode"] == "debug":
-        return FutureLen(param)
+        return Expression("len(%s)" % to_expr(param))
     return ArgoLen(param)
 
 
@@ -1246,10 +1263,8 @@ class Step:
         parameters = deepcopy(self.inputs.parameters)
         for name, par in parameters.items():
             value = par.value
-            if isinstance(value, FutureLen):
-                par.value = value.get(context)
-            elif isinstance(value, FutureRange):
-                par.value = value.get(context)
+            if isinstance(value, Expression):
+                par.value = value.eval(context)
             elif isinstance(value, (InputParameter, OutputParameter)):
                 par.value = get_var(value, context).value
             elif isinstance(value, ArgoVar):
@@ -1352,8 +1367,8 @@ class Step:
             return
 
         if self.with_param is not None or self.with_sequence is not None:
-            if isinstance(self.with_param, FutureRange):
-                item_list = self.with_param.get(context)
+            if isinstance(self.with_param, Expression):
+                item_list = self.with_param.eval(context)
             elif isinstance(self.with_param, (InputParameter,
                                               OutputParameter)):
                 item_list = self.with_param.value
@@ -1363,8 +1378,8 @@ class Step:
                 start = 0
                 if self.with_sequence.start is not None:
                     start = self.with_sequence.start
-                    if isinstance(start, FutureLen):
-                        start = start.get(context)
+                    if isinstance(start, Expression):
+                        start = start.eval(context)
                     elif isinstance(start, (InputParameter, OutputParameter)):
                         start = start.value
                     elif isinstance(start, ArgoVar):
@@ -1372,8 +1387,8 @@ class Step:
                             str(start), context)))
                 if self.with_sequence.count is not None:
                     count = self.with_sequence.count
-                    if isinstance(count, FutureLen):
-                        count = count.get(context)
+                    if isinstance(count, Expression):
+                        count = count.eval(context)
                     elif isinstance(count, (InputParameter, OutputParameter)):
                         count = count.value
                     elif isinstance(count, ArgoVar):
@@ -1382,8 +1397,8 @@ class Step:
                     sequence = list(range(start, start + count))
                 if self.with_sequence.end is not None:
                     end = self.with_sequence.end
-                    if isinstance(end, FutureLen):
-                        end = end.get(context)
+                    if isinstance(end, Expression):
+                        end = end.eval(context)
                     elif isinstance(end, (InputParameter, OutputParameter)):
                         end = end.value
                     elif isinstance(end, ArgoVar):
