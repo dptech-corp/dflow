@@ -119,6 +119,8 @@ class OP(ABC):
                 if isinstance(sign[ii], Parameter) and hasattr(sign[ii],
                                                                "default"):
                     opio[ii] = sign[ii].default
+                elif isinstance(sign[ii], BigParameter) and hasattr(sign[ii],"default"):
+                    opio[ii] = sign[ii].default
                 elif isinstance(sign[ii], Artifact) and sign[ii].optional:
                     opio[ii] = None
                 else:
