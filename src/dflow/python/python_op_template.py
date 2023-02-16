@@ -485,8 +485,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "    for i in range(n_slices):\n"
             script += "        input1 = deepcopy(input)\n"
             for name in sliced_inputs:
-                script += "        input1['%s'] = list(input['%s'])[i]\n" \
-                    % (name, name)
+                script += "        input1['%s'] = list(input['%s'])[i]\n" % (
+                    name, name)
             script += "        input_list.append(input1)\n"
             script += "    def try_to_execute(input):\n"
             script += "        try:\n"
