@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.50](https://github.com/deepmodeling/dflow/compare/v1.6.49...v1.6.50) (2023-02-16)
+
+
+### Bug Fixes
+
+* big parameter string null bug ([f9925c2](https://github.com/deepmodeling/dflow/commit/f9925c2c6b8de435e0314b6011a8a24335e492cb))
+
 ## [1.6.50]
 
 ### Bug Fixes
