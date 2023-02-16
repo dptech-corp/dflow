@@ -1094,10 +1094,7 @@ class Step:
                 self.inputs.parameters[k].source = v
                 continue
 
-            if v is None:
-                self.inputs.parameters[k].value = "null"
-            else:
-                self.inputs.parameters[k].value = v
+            self.inputs.parameters[k].value = v
 
     def set_artifacts(self, artifacts):
         for k, v in artifacts.items():
