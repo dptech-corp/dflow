@@ -1161,21 +1161,25 @@ class Step:
                             value=v.template.inputs.parameters[
                                 "dflow_%s_urn" % v.name])
 
-    def prepare_argo_arguments(self, context=None):
-        if isinstance(self.with_param, ArgoVar):
-            self.with_param = "{{=%s}}" % self.with_param.expr
-        elif self.with_param is not None and not isinstance(self.with_param,
-                                                            str):
-            self.with_param = jsonpickle.dumps(list(self.with_param))
-
+    def render_by_executor(self, context=None):
         if self.executor is not None:
             assert isinstance(self.executor, Executor)
             self.template = self.executor.render(self.template)
             if hasattr(self.executor, "merge_sliced_step") and \
                     self.executor.merge_sliced_step:
+                self.inputs.parameters["dflow_with_param"] = \
+                    InputParameter(value="")
+                self.inputs.parameters["dflow_sequence_start"] = \
+                    InputParameter(value=0)
+                self.inputs.parameters["dflow_sequence_end"] = \
+                    InputParameter(value=None)
+                self.inputs.parameters["dflow_sequence_count"] = \
+                    InputParameter(value=None)
+                self.inputs.parameters["dflow_sequence_format"] = \
+                    InputParameter(value="")
                 if self.with_param is not None:
-                    self.inputs.parameters["dflow_with_param"] = \
-                        InputParameter(value=self.with_param)
+                    self.inputs.parameters["dflow_with_param"].value = \
+                        self.with_param
                     self.with_param = None
                 if self.with_sequence is not None:
                     start = self.with_sequence.start
@@ -1184,17 +1188,25 @@ class Step:
                     end = self.with_sequence.end
                     count = self.with_sequence.count
                     format = self.with_sequence.format
-                    self.inputs.parameters["dflow_sequence_start"] = \
-                        InputParameter(value=start)
-                    self.inputs.parameters["dflow_sequence_end"] = \
-                        InputParameter(value=end)
-                    self.inputs.parameters["dflow_sequence_count"] = \
-                        InputParameter(value=count)
-                    self.inputs.parameters["dflow_sequence_format"] = \
-                        InputParameter(value=format)
+                    self.inputs.parameters["dflow_sequence_start"].value = \
+                        start
+                    self.inputs.parameters["dflow_sequence_end"].value = end
+                    self.inputs.parameters["dflow_sequence_count"].value = \
+                        count
+                    self.inputs.parameters["dflow_sequence_format"].value = \
+                        format
                     self.with_sequence = None
         elif context is not None:
             self.template = context.render(self.template)
+
+    def prepare_argo_arguments(self, context=None):
+        if isinstance(self.with_param, ArgoVar):
+            self.with_param = "{{=%s}}" % self.with_param.expr
+        elif self.with_param is not None and not isinstance(self.with_param,
+                                                            str):
+            self.with_param = jsonpickle.dumps(list(self.with_param))
+
+        self.render_by_executor(context)
 
         self.argo_parameters = []
         self.argo_artifacts = []
@@ -1245,9 +1257,7 @@ class Step:
 
     def run(self, context):
         self.phase = "Running"
-        if self.executor is not None:
-            assert isinstance(self.executor, Executor)
-            self.template = self.executor.render(self.template)
+        self.render_by_executor()
 
         import os
         from copy import copy
