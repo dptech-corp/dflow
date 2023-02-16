@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.51](https://github.com/deepmodeling/dflow/compare/v1.6.50...v1.6.51) (2023-02-16)
+
+
+### Bug Fixes
+
+* upgrade ([4ddab4c](https://github.com/deepmodeling/dflow/commit/4ddab4cfe393117c9b84f5b707fac3eefba21e87))
+
 ## [1.6.50](https://github.com/deepmodeling/dflow/compare/v1.6.49...v1.6.50) (2023-02-16)
 
 
