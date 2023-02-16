@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.53](https://github.com/deepmodeling/dflow/compare/v1.6.52...v1.6.53) (2023-02-16)
+
+
+### Bug Fixes
+
+* bug of merge_sliced_step in debug mode ([b364277](https://github.com/deepmodeling/dflow/commit/b364277e17486d2920880689290108247f2e5edd))
+
 ## [1.6.52](https://github.com/deepmodeling/dflow/compare/v1.6.51...v1.6.52) (2023-02-16)
 
 
