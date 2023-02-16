@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.52](https://github.com/deepmodeling/dflow/compare/v1.6.51...v1.6.52) (2023-02-16)
+
+
+### Bug Fixes
+
+* support for handling multi slices in one dispatcher job ([5de1157](https://github.com/deepmodeling/dflow/commit/5de1157b5c15fbc11281889f42024a3543c498d9))
+
 ## [1.6.51](https://github.com/deepmodeling/dflow/compare/v1.6.50...v1.6.51) (2023-02-16)
 
 
