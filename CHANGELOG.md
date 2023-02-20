@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## [1.6.53](https://github.com/deepmodeling/dflow/compare/v1.6.52...v1.6.53) (2023-02-16)
+
+
+### Bug Fixes
+
+* bug of merge_sliced_step in debug mode ([b364277](https://github.com/deepmodeling/dflow/commit/b364277e17486d2920880689290108247f2e5edd))
+
+## [1.6.52](https://github.com/deepmodeling/dflow/compare/v1.6.51...v1.6.52) (2023-02-16)
+
+
+### Bug Fixes
+
+* support for handling multi slices in one dispatcher job ([5de1157](https://github.com/deepmodeling/dflow/commit/5de1157b5c15fbc11281889f42024a3543c498d9))
+
+## [1.6.51](https://github.com/deepmodeling/dflow/compare/v1.6.50...v1.6.51) (2023-02-16)
+
+
+### Bug Fixes
+
+* upgrade ([4ddab4c](https://github.com/deepmodeling/dflow/commit/4ddab4cfe393117c9b84f5b707fac3eefba21e87))
+
 ## [1.6.50](https://github.com/deepmodeling/dflow/compare/v1.6.49...v1.6.50) (2023-02-16)
 
 
