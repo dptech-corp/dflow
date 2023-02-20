@@ -4,7 +4,7 @@ import re
 import sys
 from collections import UserDict
 from copy import deepcopy
-from typing import Optional, Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import jsonpickle
 
@@ -12,8 +12,8 @@ from .common import LocalArtifact, S3Artifact
 from .config import config, s3_config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
-from .io import (PVC, ArgoVar, IfExpression, InputArtifact, InputParameter,
-                 OutputArtifact, OutputParameter)
+from .io import (PVC, ArgoVar, InputArtifact, InputParameter, OutputArtifact,
+                 OutputParameter)
 from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .python import Slices
 from .resource import Resource
@@ -61,6 +61,12 @@ class ObjectDict(UserDict):
             return ObjectDict(value)
         return value
 
+    def __getitem__(self, key):
+        value = self.data[key]
+        if isinstance(value, dict):
+            return ObjectDict(value)
+        return value
+
 
 class Expression:
     def __init__(self, expr):
@@ -70,14 +76,11 @@ class Expression:
         return self.expr
 
     def eval(self, context):
-        from .steps import Steps
         from .dag import DAG
+        from .steps import Steps
         inputs = ObjectDict()
         inputs["parameters"] = {
             k: v.value for k, v in context.inputs.parameters.items()
-        }
-        inputs["artifacts"] = {
-            k: v for k, v in context.inputs.artifacts.items()
         }
         steps = ObjectDict()
         if isinstance(context, Steps):
@@ -87,9 +90,6 @@ class Expression:
                     "parameters": {k: v.value for k, v in
                                    step.outputs.parameters.items()
                                    if hasattr(v, "value")},
-                    "artifacts": {k: v.local_path for k, v in
-                                  step.outputs.artifacts.items()
-                                  if hasattr(v, "local_path")},
                 }}
         tasks = ObjectDict()
         if isinstance(context, DAG):
@@ -98,9 +98,6 @@ class Expression:
                     "parameters": {k: v.value for k, v in
                                    task.outputs.parameters.items()
                                    if hasattr(v, "value")},
-                    "artifacts": {k: v.local_path for k, v in
-                                  step.outputs.artifacts.items()
-                                  if hasattr(v, "local_path")},
                 }}
         variables = {"inputs": inputs, "steps": steps, "tasks": tasks}
         return eval(self.expr, variables)
