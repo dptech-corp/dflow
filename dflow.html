@@ -1275,27 +1275,20 @@ self in this method to make the executor reusable</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="dflow.step.FutureLen">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">FutureLen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">par</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.FutureLen" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dflow.step.Expression">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">Expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Expression" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>To solve the problem of delayed acquisition for length of output
-parameters in the debug mode</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="dflow.step.FutureLen.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.FutureLen.get" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dflow.step.Expression.eval">
+<span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Expression.eval" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="dflow.step.FutureRange">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">FutureRange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.FutureRange" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="dflow.step.FutureRange.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.FutureRange.get" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<dt class="sig sig-object py" id="dflow.step.ObjectDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">ObjectDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.ObjectDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">UserDict</span></code></p>
 </dd></dl>
 
 <dl class="py class">
@@ -1512,6 +1505,11 @@ with count, can be an Argo parameter</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="dflow.step.render_script">
 <span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">render_script</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.render_script" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.step.to_expr">
+<span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">to_expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.to_expr" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
@@ -3716,14 +3714,11 @@ parameters</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#dflow.step.ArgoSum"><code class="docutils literal notranslate"><span class="pre">ArgoSum</span></code></a></li>
-<li><a class="reference internal" href="#dflow.step.FutureLen"><code class="docutils literal notranslate"><span class="pre">FutureLen</span></code></a><ul>
-<li><a class="reference internal" href="#dflow.step.FutureLen.get"><code class="docutils literal notranslate"><span class="pre">FutureLen.get()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Expression"><code class="docutils literal notranslate"><span class="pre">Expression</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.step.Expression.eval"><code class="docutils literal notranslate"><span class="pre">Expression.eval()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#dflow.step.FutureRange"><code class="docutils literal notranslate"><span class="pre">FutureRange</span></code></a><ul>
-<li><a class="reference internal" href="#dflow.step.FutureRange.get"><code class="docutils literal notranslate"><span class="pre">FutureRange.get()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#dflow.step.ObjectDict"><code class="docutils literal notranslate"><span class="pre">ObjectDict</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step"><code class="docutils literal notranslate"><span class="pre">Step</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.step.Step.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Step.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.exec"><code class="docutils literal notranslate"><span class="pre">Step.exec()</span></code></a></li>
@@ -3753,6 +3748,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.step.render_expr"><code class="docutils literal notranslate"><span class="pre">render_expr()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.render_item"><code class="docutils literal notranslate"><span class="pre">render_item()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.render_script"><code class="docutils literal notranslate"><span class="pre">render_script()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.to_expr"><code class="docutils literal notranslate"><span class="pre">to_expr()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-dflow.steps">dflow.steps module</a><ul>
