@@ -472,58 +472,71 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                         "%s, r'%s')\n" % (name, name, name, name, slices,
                                           self.tmp_root)
 
-        script += "    try:\n"
         if self.slices is not None and self.slices.pool_size is not None:
             sliced_inputs = self.slices.input_artifact + \
                 self.slices.input_parameter
             if len(sliced_inputs) > 1:
-                script += "        assert %s\n" % " == ".join(
+                script += "    assert %s\n" % " == ".join(
                     ["len(input['%s'])" % i for i in sliced_inputs])
-            script += "        n_slices = len(input['%s'])\n" % \
+            script += "    n_slices = len(input['%s'])\n" % \
                 sliced_inputs[0]
-            script += "        input_list = []\n"
-            script += "        from copy import deepcopy\n"
-            script += "        for i in range(n_slices):\n"
-            script += "            input1 = deepcopy(input)\n"
+            script += "    input_list = []\n"
+            script += "    from copy import deepcopy\n"
+            script += "    for i in range(n_slices):\n"
+            script += "        input1 = deepcopy(input)\n"
             for name in sliced_inputs:
-                script += "            input1['%s'] = list(input['%s'])[i]\n" \
-                    % (name, name)
-            script += "            input_list.append(input1)\n"
+                script += "        input1['%s'] = list(input['%s'])[i]\n" % (
+                    name, name)
+            script += "        input_list.append(input1)\n"
+            script += "    def try_to_execute(input):\n"
+            script += "        try:\n"
+            script += "            return op_obj.execute(input), None\n"
+            script += "        except Exception as e:\n"
+            script += "            traceback.print_exc()\n"
+            script += "            return None, e\n"
             if self.slices.pool_size == 1:
-                script += "        output_list = []\n"
-                script += "        for input in input_list:\n"
-                script += "            output = op_obj.execute(input)\n"
-                script += "            output_list.append(output)\n"
+                script += "    output_list = []\n"
+                script += "    error_list = []\n"
+                script += "    for input in input_list:\n"
+                script += "        output, error = try_to_execute(input)\n"
+                script += "        output_list.append(output)\n"
+                script += "        error_list.append(error)\n"
             else:
-                script += "        from multiprocessing import Pool\n"
+                script += "    from multiprocessing import Pool\n"
                 if self.slices.pool_size == -1:
-                    script += "        pool = Pool(n_slices)\n"
+                    script += "    pool = Pool(n_slices)\n"
                 else:
-                    script += "        pool = Pool(%s)\n" % \
+                    script += "    pool = Pool(%s)\n" % \
                         self.slices.pool_size
-                script += "        output_list = pool.map(op_obj.execute, "\
+                script += "    oe_list = pool.map(try_to_execute, "\
                     "input_list)\n"
+                script += "    output_list = [oe[0] for oe in oe_list]\n"
+                script += "    error_list = [oe[1] for oe in oe_list]\n"
             sliced_outputs = self.slices.output_artifact + \
                 self.slices.output_parameter
-            script += "        output = deepcopy(output_list[0])\n"
+            script += "    output = OPIO()\n"
+            script += "    for o in output_list:\n"
+            script += "        if o is not None:\n"
+            script += "            output = o\n"
             for name in sliced_outputs:
-                script += "        output['%s'] = [o['%s'] for o in "\
-                    "output_list]\n" % (name, name)
+                script += "    output['%s'] = [o['%s'] if o is not None"\
+                    " else None for o in output_list]\n" % (name, name)
                 if isinstance(output_sign[name], Artifact):
                     if output_sign[name].type == str:
-                        script += "        output_sign['%s'].type = List[str]"\
+                        script += "    output_sign['%s'].type = List[str]"\
                             "\n" % name
                     elif output_sign[name].type == Path:
-                        script += "        output_sign['%s'].type = List[Path"\
+                        script += "    output_sign['%s'].type = List[Path"\
                             "]\n" % name
         else:
+            script += "    try:\n"
             script += "        output = op_obj.execute(input)\n"
-        script += "    except TransientError:\n"
-        script += "        traceback.print_exc()\n"
-        script += "        sys.exit(1)\n"
-        script += "    except FatalError:\n"
-        script += "        traceback.print_exc()\n"
-        script += "        sys.exit(2)\n"
+            script += "    except TransientError:\n"
+            script += "        traceback.print_exc()\n"
+            script += "        sys.exit(1)\n"
+            script += "    except FatalError:\n"
+            script += "        traceback.print_exc()\n"
+            script += "        sys.exit(2)\n"
 
         script += "    os.makedirs(r'%s/outputs/parameters', exist_ok=True)\n"\
             % self.tmp_root
@@ -564,6 +577,16 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "        handle_lineage('{{workflow.name}}', "\
                 "'{{pod.name}}', op_obj, input_urns, '{{workflow.parameters."\
                 "dflow_workflow_urn}}', r'%s')\n" % self.tmp_root
+
+        if self.slices is not None and self.slices.pool_size is not None:
+            script += "    try:\n"
+            script += "        for error in error_list:\n"
+            script += "            if error is not None:\n"
+            script += "                raise error\n"
+            script += "    except TransientError:\n"
+            script += "        sys.exit(1)\n"
+            script += "    except FatalError:\n"
+            script += "        sys.exit(2)\n"
 
         self.script = script
 

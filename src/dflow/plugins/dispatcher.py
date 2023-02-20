@@ -6,7 +6,7 @@ from typing import List, Optional, Union
 from ..common import S3Artifact
 from ..config import config
 from ..executor import Executor, render_script_with_tmp_root, run_script
-from ..io import InputArtifact
+from ..io import InputArtifact, InputParameter
 from ..op_template import ScriptOPTemplate
 from ..utils import randstr, upload_s3
 from . import bohrium
@@ -50,6 +50,8 @@ class DispatcherExecutor(Executor):
         singularity_executable: singularity executable to run remotely
         podman_executable: podman executable to run remotely
         remote_root: remote root path for working
+        retry_on_submission_error: max retries on submission error
+        merge_sliced_step: handle multi slices in one dispatcher job
     """
 
     def __init__(self,
@@ -73,6 +75,7 @@ class DispatcherExecutor(Executor):
                  podman_executable: Optional[str] = None,
                  remote_root: Optional[str] = None,
                  retry_on_submission_error: Optional[int] = None,
+                 merge_sliced_step: bool = False,
                  ) -> None:
         self.host = host
         self.queue_name = queue_name
@@ -106,6 +109,7 @@ class DispatcherExecutor(Executor):
             self.work_root = "/"
         self.remote_root = remote_root
         self.retry_on_submission_error = retry_on_submission_error
+        self.merge_sliced_step = merge_sliced_step
 
         conf = {}
         if json_file is not None:
@@ -261,8 +265,69 @@ class DispatcherExecutor(Executor):
         new_template.script += "for f in task.backward_files:\n"
         new_template.script += "    os.makedirs(os.path.dirname(f), "\
             "exist_ok=True)\n"
-        new_template.script += "submission = Submission(work_base='.', "\
-            "machine=machine, resources=resources, task_list=[task])\n"
+        if self.merge_sliced_step and hasattr(new_template, "slices") and \
+                new_template.slices is not None:
+            new_template.inputs.parameters["dflow_with_param"] = \
+                InputParameter(value="")
+            new_template.inputs.parameters["dflow_sequence_start"] = \
+                InputParameter(value=0)
+            new_template.inputs.parameters["dflow_sequence_end"] = \
+                InputParameter(value=None)
+            new_template.inputs.parameters["dflow_sequence_count"] = \
+                InputParameter(value=None)
+            new_template.inputs.parameters["dflow_sequence_format"] = \
+                InputParameter(value="")
+            new_template.script += "from copy import deepcopy\n"
+            new_template.script += "with open('script', 'r') as f:\n"
+            new_template.script += "    script = f.read()\n"
+            new_template.script += "tasks = []\n"
+            new_template.script += "with_param = r'''{{inputs.parameters."\
+                "dflow_with_param}}'''\n"
+            new_template.script += "if with_param != '':\n"
+            new_template.script += "    item_list = json.loads(with_param)\n"
+            new_template.script += "else:\n"
+            new_template.script += "    start = json.loads('{{inputs."\
+                "parameters.dflow_sequence_start}}')\n"
+            new_template.script += "    count = json.loads('{{inputs."\
+                "parameters.dflow_sequence_count}}')\n"
+            new_template.script += "    end = json.loads('{{inputs."\
+                "parameters.dflow_sequence_end}}')\n"
+            new_template.script += "    format = '{{inputs.parameters."\
+                "dflow_sequence_format}}'\n"
+            new_template.script += "    if count is not None:\n"
+            new_template.script += "        r = range(start, start + count)\n"
+            new_template.script += "    elif end is not None:\n"
+            new_template.script += "        if end > start:\n"
+            new_template.script += "            r = range(start, end + 1)\n"
+            new_template.script += "        else:\n"
+            new_template.script += "            r = range(start, end - 1, -1)"\
+                "\n"
+            new_template.script += "    item_list = [format % i if format != "\
+                "'' else i for i in r]\n"
+            new_template.script += "for i, item in enumerate(item_list):\n"
+            new_template.script += "    new_script = script\n"
+            for k, v in new_template.dflow_vars.items():
+                if "item" in k:
+                    old = "'{{inputs.parameters.%s}}'" % v
+                    new = "item" if k == "{{item}}" else "item[%s]" % k[6:-2]
+                    new_template.script += "    new_script = new_script."\
+                        "replace(%s, %s if isinstance(%s, str) else "\
+                        "json.dumps(%s))\n" % (old, new, new, new)
+            new_template.script += "    with open('script' + str(i), 'w')"\
+                " as f:\n"
+            new_template.script += "        f.write(new_script)\n"
+            new_template.script += "    new_task = deepcopy(task)\n"
+            new_template.script += "    new_task.command = new_task.command."\
+                "replace('script', 'script' + str(i))\n"
+            new_template.script += "    new_task.forward_files[0] = 'script'"\
+                " + str(i)\n"
+            new_template.script += "    tasks.append(new_task)\n"
+            new_template.script += "resources.group_size = 1\n"
+            new_template.script += "submission = Submission(work_base='.', "\
+                "machine=machine, resources=resources, task_list=tasks)\n"
+        else:
+            new_template.script += "submission = Submission(work_base='.', "\
+                "machine=machine, resources=resources, task_list=[task])\n"
         if self.retry_on_submission_error:
             new_template.script += "for retry in range(%s):\n" % \
                 self.retry_on_submission_error

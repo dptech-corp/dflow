@@ -26,6 +26,8 @@ class LebesgueExecutor(Executor):
             executor: Optional[str] = None,
             extra: Optional[dict] = None,
     ) -> None:
+        raise DeprecationWarning("Lebesgue executor is deprecated, please"
+                                 " use bohrium executor instead")
         self.executor = executor
         self.extra = extra
 
@@ -80,6 +82,8 @@ class LebesgueContext(Context):
             extra: Optional[dict] = None,
             authorization: Optional[str] = None,
     ) -> None:
+        raise DeprecationWarning("Lebesgue context is deprecated, please"
+                                 " use bohrium context instead")
         self.bohrium_url = bohrium_url
         self.login_url = login_url
         self.username = username
