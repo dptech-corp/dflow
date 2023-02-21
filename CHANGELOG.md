@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.55](https://github.com/deepmodeling/dflow/compare/v1.6.54...v1.6.55) (2023-02-21)
+
+
+### Bug Fixes
+
+* pass env vars in dispatcher executor ([806c0dd](https://github.com/deepmodeling/dflow/commit/806c0ddb8199a928c28641135c36be2d058eef0a))
+
 ## [1.6.54](https://github.com/deepmodeling/dflow/compare/v1.6.53...v1.6.54) (2023-02-21)
 
 
