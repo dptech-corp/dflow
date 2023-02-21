@@ -258,6 +258,10 @@ class DispatcherExecutor(Executor):
             "'%s'))\n" % json.dumps(self.machine_dict)
         new_template.script += "resources = Resources.load_from_dict(json."\
             "loads('%s'))\n" % json.dumps(self.resources_dict)
+        if new_template.envs is not None:
+            for k in new_template.envs.keys():
+                new_template.script += "resources.envs['%s'] = "\
+                    "os.environ.get('%s')\n" % (k, k)
         new_template.script += "task = Task.load_from_dict(json.loads('%s'))"\
             "\n" % json.dumps(self.task_dict)
         new_template.script += "task.forward_files = list(filter("\
