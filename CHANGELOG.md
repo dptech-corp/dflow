@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.54](https://github.com/deepmodeling/dflow/compare/v1.6.53...v1.6.54) (2023-02-21)
+
+
+### Bug Fixes
+
+* support for artifact with nested dict of path ([da78171](https://github.com/deepmodeling/dflow/commit/da78171e5eddfa855336a8d03fc59d1fd5675c18))
+
 ## [1.6.53](https://github.com/deepmodeling/dflow/compare/v1.6.52...v1.6.53) (2023-02-16)
 
 
