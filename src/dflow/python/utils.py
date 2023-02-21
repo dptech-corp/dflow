@@ -8,8 +8,9 @@ import jsonpickle
 
 from ..config import config
 from ..utils import (assemble_path_dict, assemble_path_list,
-                     convert_dflow_list, copy_file, remove_empty_dir_tag)
-from .opio import Artifact, BigParameter, Parameter
+                     assemble_path_nested_dict, convert_dflow_list, copy_file,
+                     remove_empty_dir_tag)
+from .opio import Artifact, BigParameter, NestedDict, Parameter
 
 
 def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
@@ -22,6 +23,14 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
             return path_dict
         elif sign.type == Dict[str, Path]:
             return {k: path_or_none(v) for k, v in path_dict.items()}
+    elif sign.type in [NestedDict[str], NestedDict[Path]]:
+        art_path = '%s/inputs/artifacts/%s' % (data_root, name)
+        remove_empty_dir_tag(art_path)
+        path_dict = assemble_path_nested_dict(art_path)
+        if sign.type == NestedDict[str]:
+            return path_dict
+        elif sign.type == NestedDict[Path]:
+            return path_or_none(path_dict)
 
     if n_parts is not None:
         path_list = []
@@ -69,6 +78,10 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
 def path_or_none(p):
     if p is None:
         return None
+    elif isinstance(p, list):
+        return [path_or_none(i) for i in p]
+    elif isinstance(p, dict):
+        return {k: path_or_none(v) for k, v in p.items()}
     else:
         return Path(p)
 
@@ -150,6 +163,28 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
         for s, path in value.items():
             path_list.append(copy_results_and_return_path_item(
                 path, name, s, data_root))
+    elif sign.type in [NestedDict[str], NestedDict[Path]]:
+        os.makedirs(data_root + '/outputs/artifacts/' + name, exist_ok=True)
+
+        def handle(obj, prefix):
+            if isinstance(obj, dict):
+                for k, v in obj.items():
+                    key = prefix + "." + k if prefix else k
+                    if isinstance(v, (list, dict)):
+                        handle(v, key)
+                    elif isinstance(v, (str, Path)):
+                        path_list.append(copy_results_and_return_path_item(
+                            v, name, key, data_root))
+            elif isinstance(obj, list):
+                for i, v in enumerate(obj):
+                    key = prefix + "." + str(i) if prefix else str(i)
+                    if isinstance(v, (list, dict)):
+                        handle(v, key)
+                    elif isinstance(v, (str, Path)):
+                        path_list.append(copy_results_and_return_path_item(
+                            v, name, key, data_root))
+
+        handle(value, "")
 
     os.makedirs(data_root + "/outputs/artifacts/%s/%s" % (name, config[
         "catalog_dir_name"]), exist_ok=True)

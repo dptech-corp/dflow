@@ -9,8 +9,25 @@ from ..common import S3Artifact
 from ..config import config
 from ..io import PVC
 
+
+class nested_dict:
+    def __init__(self, type):
+        self.type = type
+
+    def __eq__(self, other):
+        if not isinstance(other, nested_dict):
+            return False
+        return self.type == other.type
+
+
+NestedDict = {
+    str: nested_dict(str),
+    Path: nested_dict(Path),
+}
+
 ArtifactAllowedTypes = [str, Path, Set[str], Set[Path], List[str], List[Path],
-                        Dict[str, str], Dict[str, Path]]
+                        Dict[str, str], Dict[str, Path], NestedDict[str],
+                        NestedDict[Path]]
 
 
 def type_to_str(type):
@@ -29,7 +46,8 @@ class Artifact:
 
     Args:
         type: str, Path, Set[str], Set[Path], List[str], List[Path],
-            Dict[str, str] or Dict[str, Path]
+            Dict[str, str], Dict[str, Path], NestedDict[str] or
+            NestedDict[Path]
         archive: compress format of the artifact, None for no compression
         save: place to store the output artifact instead of default storage,
             can be a list

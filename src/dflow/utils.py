@@ -114,7 +114,7 @@ def download_artifact(
 
 def upload_artifact(
         path: Union[os.PathLike, List[os.PathLike], Set[os.PathLike],
-                    Dict[str, os.PathLike]],
+                    Dict[str, os.PathLike], list, dict],
         archive: str = "default",
         namespace: Optional[str] = None,
         name: Optional[str] = None,
@@ -137,8 +137,26 @@ def upload_artifact(
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmpdir:
         path_list = []
+        pairs = []
+
+        def handle(obj, prefix):
+            if isinstance(obj, dict):
+                for k, v in obj.items():
+                    key = prefix + "." + k if prefix else k
+                    if isinstance(v, (list, dict)):
+                        handle(v, key)
+                    elif isinstance(v, (str, Path)):
+                        pairs.append((key, v))
+            elif isinstance(obj, list):
+                for i, v in enumerate(obj):
+                    key = prefix + "." + str(i) if prefix else str(i)
+                    if isinstance(v, (list, dict)):
+                        handle(v, key)
+                    elif isinstance(v, (str, Path)):
+                        pairs.append((key, v))
+
         if isinstance(path, dict):
-            pairs = path.items()
+            handle(path, "")
         elif isinstance(path, (list, set)):
             pairs = enumerate(path)
         else:
@@ -457,6 +475,54 @@ def assemble_path_dict(art_path, remove=False):
                 else:
                     path_dict[item["order"]] = os.path.join(
                         art_path, item["dflow_list_item"])
+    return path_dict
+
+
+def dict2list(d: dict):
+    for k, v in d.items():
+        if isinstance(v, dict):
+            d[k] = dict2list(v)
+    try:
+        lst = []
+        for k, v in d.items():
+            i = int(k)
+            if i < len(lst):
+                lst[i] = v
+            else:
+                lst += [None] * (i - len(lst)) + [v]
+        return lst
+    except Exception:
+        return d
+
+
+def assemble_path_nested_dict(art_path, remove=False):
+    path_dict = {}
+    if os.path.isdir(art_path):
+        dflow_list = []
+        catalog_dir = os.path.join(art_path, config["catalog_dir_name"])
+        if os.path.exists(catalog_dir):
+            for f in os.listdir(catalog_dir):
+                with open(os.path.join(catalog_dir, f), 'r') as fd:
+                    for item in jsonpickle.loads(fd.read())['path_list']:
+                        if item not in dflow_list:
+                            dflow_list.append(item)  # remove duplicate
+            if remove:
+                shutil.rmtree(catalog_dir)
+        if len(dflow_list) > 0:
+            for item in dflow_list:
+                fields = item["order"].split(".")
+                tmp = path_dict
+                for field in fields[:-1]:
+                    if field not in tmp:
+                        tmp[field] = {}
+                    tmp = tmp[field]
+                field = fields[-1]
+                if item["dflow_list_item"] is None:
+                    tmp[field] = None
+                else:
+                    tmp[field] = os.path.join(
+                        art_path, item["dflow_list_item"])
+            path_dict = dict2list(path_dict)
     return path_dict
 
 
