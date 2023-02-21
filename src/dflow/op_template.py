@@ -41,8 +41,11 @@ class Secret:
             metadata=kubernetes.client.V1ObjectMeta(name=self.secret_name),
             type="Opaque")
         core_v1_api = get_k8s_core_v1_api()
-        core_v1_api.create_namespaced_secret(
-            namespace=global_config["namespace"], body=secret)
+        core_v1_api.api_client.call_api(
+            '/api/v1/namespaces/%s/secrets' % global_config["namespace"],
+            'POST', body=secret, response_type='V1Secret',
+            header_params=global_config["http_headers"],
+            _return_http_data_only=True)
 
 
 def get_k8s_core_v1_api(k8s_api_server=None, token=None, k8s_config_file=None):

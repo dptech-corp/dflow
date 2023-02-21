@@ -418,8 +418,11 @@ class Workflow:
                         metadata=kubernetes.client.V1ObjectMeta(name=s.name),
                         type="kubernetes.io/dockerconfigjson")
                     core_v1_api = self.get_k8s_core_v1_api()
-                    core_v1_api.create_namespaced_secret(
-                        namespace=self.namespace, body=secret)
+                    core_v1_api.api_client.call_api(
+                        '/api/v1/namespaces/%s/secrets' % self.namespace,
+                        'POST', body=secret, response_type='V1Secret',
+                        header_params=config["http_headers"],
+                        _return_http_data_only=True)
                     self.image_pull_secrets[i] = s.name
 
         if config["lineage"] is not None:
