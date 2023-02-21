@@ -140,7 +140,8 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>type</strong> – str, Path, Set[str], Set[Path], List[str], List[Path],
-Dict[str, str] or Dict[str, Path]</p></li>
+Dict[str, str], Dict[str, Path], NestedDict[str] or
+NestedDict[Path]</p></li>
 <li><p><strong>archive</strong> – compress format of the artifact, None for no compression</p></li>
 <li><p><strong>save</strong> – place to store the output artifact instead of default storage,
 can be a list</p></li>
@@ -206,6 +207,12 @@ A signature of OPIO includes the key and its typing</p>
 <span class="sig-name descname"><span class="pre">to_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.opio.Parameter.to_str" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.python.opio.nested_dict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.python.opio.</span></span><span class="sig-name descname"><span class="pre">nested_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.opio.nested_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 </dd></dl>
 
 <dl class="py function">
@@ -388,7 +395,8 @@ the number of slices)</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>type</strong> – str, Path, Set[str], Set[Path], List[str], List[Path],
-Dict[str, str] or Dict[str, Path]</p></li>
+Dict[str, str], Dict[str, Path], NestedDict[str] or
+NestedDict[Path]</p></li>
 <li><p><strong>archive</strong> – compress format of the artifact, None for no compression</p></li>
 <li><p><strong>save</strong> – place to store the output artifact instead of default storage,
 can be a list</p></li>
@@ -695,6 +703,7 @@ the number of slices)</p></li>
 <li><a class="reference internal" href="#dflow.python.opio.Parameter.to_str"><code class="docutils literal notranslate"><span class="pre">Parameter.to_str()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#dflow.python.opio.nested_dict"><code class="docutils literal notranslate"><span class="pre">nested_dict</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.opio.type_to_str"><code class="docutils literal notranslate"><span class="pre">type_to_str()</span></code></a></li>
 </ul>
 </li>
