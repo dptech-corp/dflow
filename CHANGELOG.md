@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.56](https://github.com/deepmodeling/dflow/compare/v1.6.55...v1.6.56) (2023-02-21)
+
+
+### Bug Fixes
+
+* create secert with http headers ([5f384cd](https://github.com/deepmodeling/dflow/commit/5f384cd4a549c277ce5352cb89699bca12ed2056))
+
 ## [1.6.55](https://github.com/deepmodeling/dflow/compare/v1.6.54...v1.6.55) (2023-02-21)
 
 
