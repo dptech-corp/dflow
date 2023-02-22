@@ -158,6 +158,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  envs: Dict[str, str] = None,
                  init_containers: Optional[List[V1alpha1UserContainer]] = None,
                  tmp_root: str = "/tmp",
+                 pre_script: str = "",
+                 post_script: str = "",
                  ) -> None:
         self.n_parts = {}
         self.op_class = op_class
@@ -182,6 +184,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             outputs=Outputs(), volumes=volumes, mounts=mounts,
             requests=requests, limits=limits, envs=envs,
             init_containers=init_containers)
+        self.pre_script = pre_script
+        self.post_script = post_script
         if timeout is not None:
             self.timeout = "%ss" % timeout
         if retry_on_transient_error is not None:
@@ -373,7 +377,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         output_artifact_slices = self.output_artifact_slices
         output_parameter_slices = self.output_parameter_slices
 
-        script = ""
+        script = self.pre_script
         if self.python_packages:
             script += "import os, sys, json\n"
             script += "package_root = r'%s/inputs/artifacts/"\
@@ -588,6 +592,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "    except FatalError:\n"
             script += "        sys.exit(2)\n"
 
+        script += self.post_script
         self.script = script
 
     def get_slices(self, slices_dict, name):
