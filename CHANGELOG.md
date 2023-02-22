@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.57](https://github.com/deepmodeling/dflow/compare/v1.6.56...v1.6.57) (2023-02-22)
+
+
+### Bug Fixes
+
+* add pre_script and post_script ([fa0319d](https://github.com/deepmodeling/dflow/commit/fa0319db9853c9a6e6d259275177cb595a0e810c))
+* dflow_success_tag cannot stat in dispatcher executor ([fa0319d](https://github.com/deepmodeling/dflow/commit/fa0319db9853c9a6e6d259275177cb595a0e810c))
+
 ## [1.6.56](https://github.com/deepmodeling/dflow/compare/v1.6.55...v1.6.56) (2023-02-21)
 
 
