@@ -227,6 +227,8 @@ class DispatcherExecutor(Executor):
         for art in template.outputs.artifacts.values():
             self.task_dict["backward_files"].append("./" + art.path)
         for par in template.outputs.parameters.values():
+            if par.name == "dflow_success_tag":
+                continue
             if par.save_as_artifact:
                 self.task_dict["backward_files"].append(
                     "./" + par.value_from_path)
