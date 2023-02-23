@@ -17,6 +17,7 @@ config = {
     "bohrium_url": os.environ.get("BOHRIUM_BOHRIUM_URL",
                                   "https://bohrium.dp.tech"),
     "username": os.environ.get("BOHRIUM_USERNAME", None),
+    "phone": os.environ.get("BOHRIUM_PHONE", None),
     "password": os.environ.get("BOHRIUM_PASSWORD", None),
     "authorization": os.environ.get("BOHRIUM_AUTHORIZATION", None),
     "project_id": os.environ.get("BOHRIUM_PROJECT_ID", None),
@@ -35,16 +36,18 @@ def _raise_error(res, op):
             raise RuntimeError("%s failed" % op)
 
 
-def login(username=None, password=None, bohrium_url=None):
+def login(username=None, phone=None, password=None, bohrium_url=None):
     if username is None:
         username = config["username"]
+    if phone is None:
+        phone = config["phone"]
     if password is None:
         password = config["password"]
     if bohrium_url is None:
         bohrium_url = config["bohrium_url"]
     if config["authorization"] is None:
         config["authorization"] = _login(
-            bohrium_url + "/account/login", username, password)
+            bohrium_url + "/account/login", username, phone, password)
     headers = dflow_config["http_headers"]
     if "Cookie" not in headers:
         headers["Cookie"] = "brmToken=" + config["authorization"]
@@ -55,14 +58,18 @@ def login(username=None, password=None, bohrium_url=None):
     return config["authorization"]
 
 
-def _login(login_url=None, username=None, password=None):
+def _login(login_url=None, username=None, phone=None, password=None):
     import requests
-    if username is None:
-        username = input("Bohrium username: ")
+    if username is None and phone is None:
+        username = input("Bohrium email: ")
+        if not username:
+            username = None
+            phone = input("Bohrium phone: ")
     if password is None:
         password = getpass("Bohrium password: ")
     data = {
         "username": username,
+        "phone": phone,
         "password": password,
     }
     rsp = requests.post(login_url, headers={
@@ -77,7 +84,7 @@ def create_job_group(job_group_name):
     if config["authorization"] is None:
         config["authorization"] = _login(
             config["bohrium_url"] + "/account/login",
-            config["username"], config["password"])
+            config["username"], config["phone"], config["password"])
     data = {
         "name": job_group_name,
         "project_id": config["project_id"],
@@ -135,7 +142,8 @@ class BohriumContext(Context):
     Bohrium context
 
     Args:
-        username: user name for Bohrium
+        username: email for Bohrium
+        phone: phone number for Bohrium
         password: password for Bohrium
         bohrium_url: url for Bohrium
         executor: executor
@@ -146,6 +154,7 @@ class BohriumContext(Context):
     def __init__(
             self,
             username: Optional[str] = None,
+            phone: Optional[str] = None,
             password: Optional[str] = None,
             bohrium_url: Optional[str] = None,
             executor: Optional[str] = None,
@@ -157,6 +166,8 @@ class BohriumContext(Context):
         self.login_url = self.bohrium_url + "/account/login"
         self.username = username if username is not None else \
             config["username"]
+        self.phone = phone if phone is not None else \
+            config["phone"]
         self.password = password if password is not None else \
             config["password"]
         self.authorization = authorization if authorization is not None else \
@@ -167,8 +178,8 @@ class BohriumContext(Context):
 
     def login(self):
         if self.authorization is None:
-            self.authorization = login(self.username, self.password,
-                                       self.bohrium_url)
+            self.authorization = login(self.username, self.phone,
+                                       self.password, self.bohrium_url)
             config["authorization"] = self.authorization
 
     def render(self, template):
@@ -206,6 +217,7 @@ class TiefblueClient:
             self,
             bohrium_url: Optional[str] = None,
             username: Optional[str] = None,
+            phone: Optional[str] = None,
             password: Optional[str] = None,
             authorization: Optional[str] = None,
             project_id: Optional[str] = None,
@@ -224,6 +236,7 @@ class TiefblueClient:
             config["bohrium_url"]
         self.username = username if username is not None else \
             config["username"]
+        self.phone = phone if phone is not None else config["phone"]
         self.password = password if password is not None else \
             config["password"]
         self.authorization = authorization if authorization is not None else \
@@ -247,7 +260,7 @@ class TiefblueClient:
 
     def to_dict(self):
         retained_keys = ["bohrium_url",
-                         "tiefblue_url", "username", "project_id"]
+                         "tiefblue_url", "username", "phone", "project_id"]
         return {k: self.__dict__[k] for k in retained_keys}
 
     def __getstate__(self):
@@ -262,7 +275,7 @@ class TiefblueClient:
         import requests
         if self.authorization is None:
             self.authorization = login(
-                self.username, self.password, self.bohrium_url)
+                self.username, self.phone, self.password, self.bohrium_url)
             config["authorization"] = self.authorization
         rsp = requests.get(
             self.bohrium_url + "/brm/v1/storage/token",
