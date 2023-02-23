@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.58](https://github.com/deepmodeling/dflow/compare/v1.6.57...v1.6.58) (2023-02-23)
+
+
+### Bug Fixes
+
+* allow None in List[Path] when checking types of artifact ([b5b6033](https://github.com/deepmodeling/dflow/commit/b5b603349a80c62dfa7774f12460a369ae28b053))
+* support for login with phone number for bohrium ([b5b6033](https://github.com/deepmodeling/dflow/commit/b5b603349a80c62dfa7774f12460a369ae28b053))
+
 ## [1.6.57](https://github.com/deepmodeling/dflow/compare/v1.6.56...v1.6.57) (2023-02-22)
 
 
