@@ -7,7 +7,7 @@ import os
 import warnings
 from abc import ABC
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Set, Union
 
 from typeguard import check_type
 
@@ -146,8 +146,18 @@ class OP(ABC):
             ss = sign[ii]
             if isinstance(ss, Artifact):
                 ss = ss.type
-                if ss in [Dict[str, str], Dict[str, Path]]:
-                    ss = dict
+                if ss == Dict[str, str]:
+                    ss = Dict[str, Union[str, None]]
+                elif ss == Dict[str, Path]:
+                    ss = Dict[str, Union[Path, None]]
+                elif ss == List[str]:
+                    ss = List[Union[str, None]]
+                elif ss == List[Path]:
+                    ss = List[Union[Path, None]]
+                elif ss == Set[str]:
+                    ss = Set[Union[str, None]]
+                elif ss == Set[Path]:
+                    ss = Set[Union[Path, None]]
             if isinstance(ss, Parameter):
                 ss = ss.type
             # skip type checking if the variable is None
