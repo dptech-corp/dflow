@@ -319,6 +319,93 @@ class Workflow:
                                                                  self.uid))
         return workflow
 
+    def handle_reused_step(self, step):
+        outputs = {}
+        if hasattr(step, "outputs"):
+            if hasattr(step.outputs, "exitCode"):
+                outputs["exitCode"] = step.outputs.exitCode
+            if hasattr(step.outputs, "parameters"):
+                outputs["parameters"] = []
+                for name, par in step.outputs.parameters.items():
+                    if not hasattr(step.outputs.parameters[name],
+                                   "save_as_artifact"):
+                        outputs["parameters"].append(par.recover())
+            if hasattr(step.outputs, "artifacts"):
+                for name, art in step.outputs.artifacts.items():
+                    if hasattr(step, "inputs") and \
+                        hasattr(step.inputs, "parameters") and \
+                        "dflow_group_key" in step.inputs.parameters \
+                            and name != "main-logs":
+                        if config["overwrite_reused_artifact"]:
+                            self.handle_reused_artifact(step, name, art)
+                        else:
+                            self.handle_reused_artifact_with_copy(
+                                step, name, art)
+
+        outputs["artifacts"] = [
+            art.recover() for art in step.outputs.artifacts.values()]
+        self.memoize_map["%s-%s" % (self.id, step.key)] = {
+            "nodeID": step.id,
+            "outputs": outputs,
+            "creationTimestamp": step.finishedAt,
+            "lastHitTimestamp": step.finishedAt
+        }
+
+    def handle_reused_artifact(self, step, name, art):
+        group_key = step.inputs.parameters["dflow_group_key"].value
+        wf_name = step.outputs.parameters["dflow_wfname"].value
+        memoize_key = "%s-%s-init-artifact" % (self.id, group_key)
+        if memoize_key not in self.memoize_map:
+            self.memoize_map[memoize_key] = {
+                "nodeID": "dflow-%s" % randstr(10),
+                "outputs": {
+                    "parameters": [{
+                        "name": "dflow_artifact_key",
+                        "value": "%s/%s" % (wf_name, group_key),
+                    }],
+                    "artifacts": [],
+                },
+                "creationTimestamp": step.finishedAt,
+                "lastHitTimestamp": step.finishedAt
+            }
+        init_step = self.memoize_map[memoize_key]
+        art_key = get_key(art, raise_error=False)
+        if group_key not in art_key:
+            key = "%s%s/%s/%s" % (s3_config["prefix"], wf_name, group_key,
+                                  name)
+            logger.debug("copying artifact: %s -> %s" % (art_key, key))
+            copy_s3(art_key, key)
+            art_key = key
+
+        init_art = None
+        for art in init_step["outputs"]["artifacts"]:
+            if art["name"] == name:
+                init_art = art
+                break
+        if not init_art:
+            init_art = {"name": name}
+            if s3_config["repo_type"] == "s3":
+                init_art["s3"] = {
+                    "key": art_key,
+                    "archive": {"none": {}},
+                }
+            elif s3_config["repo_type"] == "oss":
+                init_art["oss"] = {
+                    "key": art_key,
+                    "archive": {"none": {}},
+                }
+            init_step["outputs"]["artifacts"].append(init_art)
+
+    def handle_reused_artifact_with_copy(self, step, name, art):
+        old_key = get_key(art, raise_error=False)
+        if old_key and old_key not in self.copied_keys:
+            key = "%s%s/%s/%s" % (
+                s3_config["prefix"], self.id, step.inputs.parameters[
+                    "dflow_group_key"].value, name)
+            logger.debug("copying artifact: %s -> %s" % (old_key, key))
+            copy_s3(old_key, key)
+            self.copied_keys.append(old_key)
+
     def convert_to_argo(self, reuse_step=None):
         if self.context is not None:
             assert isinstance(self.context, (Context, Executor))
@@ -327,64 +414,34 @@ class Workflow:
         status = None
         if reuse_step is not None:
             self.id = self.name + "-" + randstr()
-            copied_keys = []
-            reused_keys = []
+            self.copied_keys = []
+            self.memoize_map = {}
+            key2id = {}
             for step in reuse_step:
                 data = {}
                 if step.key is None:
                     continue
-                reused_keys.append(step.key)
-                outputs = {}
-                if hasattr(step, "outputs"):
-                    if hasattr(step.outputs, "exitCode"):
-                        outputs["exitCode"] = step.outputs.exitCode
-                    if hasattr(step.outputs, "parameters"):
-                        outputs["parameters"] = []
-                        for name, par in step.outputs.parameters.items():
-                            if not hasattr(step.outputs.parameters[name],
-                                           "save_as_artifact"):
-                                outputs["parameters"].append(par.recover())
-                    if hasattr(step.outputs, "artifacts"):
-                        for name, art in step.outputs.artifacts.items():
-                            if hasattr(step, "inputs") and \
-                                hasattr(step.inputs, "parameters") and \
-                                "dflow_group_key" in step.inputs.parameters \
-                                    and name != "main-logs":
-                                old_key = get_key(art, raise_error=False)
-                                if old_key and old_key not in copied_keys:
-                                    key = "%s%s/%s/%s" % (
-                                        s3_config["prefix"], self.id,
-                                        step.inputs.parameters[
-                                            "dflow_group_key"].value, name)
-                                    logger.debug("copying artifact: %s -> %s"
-                                                 % (old_key, key))
-                                    copy_s3(old_key, key)
-                                    copied_keys.append(old_key)
-                        outputs["artifacts"] = [
-                            art.recover()
-                            for art in step.outputs.artifacts.values()]
-                data["%s-%s" % (self.id, step.key)] = json.dumps({
-                    "nodeID": step.id,
-                    "outputs": outputs,
-                    "creationTimestamp": step.finishedAt,
-                    "lastHitTimestamp": step.finishedAt
-                })
+                key2id[step.key] = step.id
+                self.handle_reused_step(step)
+
+            for key, step in self.memoize_map.items():
+                data = {key: json.dumps(step)}
                 config_map = kubernetes.client.V1ConfigMap(
                     data=data, metadata=kubernetes.client.V1ObjectMeta(
-                        name="dflow-%s-%s" % (self.id, step.key)))
+                        name="dflow-%s" % key))
                 core_v1_api = self.get_k8s_core_v1_api()
-                logger.debug("creating configmap: dflow-%s-%s" %
-                             (self.id, step.key))
+                logger.debug("creating configmap: %s" %
+                             config_map.metadata.name)
                 core_v1_api.api_client.call_api(
                     '/api/v1/namespaces/%s/configmaps' % self.namespace,
                     'POST', body=config_map, response_type='V1ConfigMap',
                     header_params=config["http_headers"],
                     _return_http_data_only=True)
-            self.handle_template(
-                self.entrypoint, memoize_prefix=self.id,
-                memoize_configmap="dflow")
-            status = {"outputs": {"parameters": [{"name": key} for key in
-                                                 reused_keys]}}
+
+            self.handle_template(self.entrypoint, memoize_prefix=self.id,
+                                 memoize_configmap="dflow")
+            status = {"outputs": {"parameters": [
+                {"name": key, "value": id} for key, id in key2id.items()]}}
         else:
             self.handle_template(self.entrypoint)
 

@@ -602,12 +602,14 @@ class Step:
                     InputParameter(value="")
                 self.inputs.parameters["dflow_group_key"] = InputParameter(
                     value=re.sub("{{=?item.*}}", "group", str(self.key)))
+                new_template.inputs.parameters["dflow_artifact_key"] = \
+                    InputParameter(value="")
                 # For the case of reusing sliced steps, ensure that the output
                 # artifacts are reused
                 for name in sliced_output_artifact:
                     new_template.outputs.artifacts[name].save.append(
-                        S3Artifact(key="{{workflow.name}}/{{inputs."
-                                   "parameters.dflow_group_key}}/%s" % name))
+                        S3Artifact(key="{{inputs.parameters."
+                                   "dflow_artifact_key}}/%s" % name))
 
                     def merge_output_artifact(art):
                         step = art.step
@@ -617,10 +619,14 @@ class Step:
                         step.inputs.parameters["dflow_group_key"] = \
                             InputParameter(
                                 value="{{inputs.parameters.dflow_group_key}}")
+                        template.inputs.parameters["dflow_artifact_key"] = \
+                            InputParameter()
+                        step.inputs.parameters["dflow_artifact_key"] = \
+                            InputParameter(value="{{inputs.parameters."
+                                           "dflow_artifact_key}}")
                         template.outputs.artifacts[art.name].save.append(
-                            S3Artifact(
-                                key="{{workflow.name}}/{{inputs."
-                                "parameters.dflow_group_key}}/%s" % name))
+                            S3Artifact(key="{{inputs.parameters."
+                                       "dflow_artifact_key}}/%s" % name))
 
                     if new_template.outputs.artifacts[name]._from is not \
                             None:
@@ -664,12 +670,14 @@ class Step:
                             name].from_expression._else)
 
             if self.key is not None:
+                group_key = re.sub("{{=?item.*}}", "group", str(self.key))
                 self.prepare_step = self.__class__(
                     name="%s-init-artifact" % self.name,
                     template=init_template,
-                    parameters={"dflow_group_key": re.sub("{{=?item.*}}",
-                                                          "group",
-                                                          str(self.key))})
+                    parameters={"dflow_group_key": group_key})
+                self.inputs.parameters["dflow_artifact_key"] = InputParameter(
+                    value=self.prepare_step.outputs.parameters[
+                        "dflow_artifact_key"])
             else:
                 self.prepare_step = self.__class__(
                     name="%s-init-artifact" % self.name,
