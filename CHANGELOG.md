@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.59](https://github.com/deepmodeling/dflow/compare/v1.6.58...v1.6.59) (2023-02-24)
+
+
+### Bug Fixes
+
+* do not copy reused artifact for default ([2fa94ed](https://github.com/deepmodeling/dflow/commit/2fa94edbc6bb231d7c15c61970461be04ed42436))
+
 ## [1.6.58](https://github.com/deepmodeling/dflow/compare/v1.6.57...v1.6.58) (2023-02-23)
 
 
