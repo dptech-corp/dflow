@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.60](https://github.com/deepmodeling/dflow/compare/v1.6.59...v1.6.60) (2023-02-24)
+
+
+### Bug Fixes
+
+* support for expressions in values of parameters ([902f4ed](https://github.com/deepmodeling/dflow/commit/902f4ed7185acd6db891cc0f80aba1721fad21ad))
+
 ## [1.6.59](https://github.com/deepmodeling/dflow/compare/v1.6.58...v1.6.59) (2023-02-24)
 
 
