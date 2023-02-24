@@ -1239,6 +1239,9 @@ class Step:
 
         # source input parameters
         parameters = deepcopy(self.inputs.parameters)
+        for k, v in self.template.outputs.parameters.items():
+            if hasattr(v, "value"):
+                self.outputs.parameters[k].value = v.value
         for name, par in parameters.items():
             value = par.value
 
