@@ -692,6 +692,17 @@ self in this method to make the executor reusable</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="dflow.io.Expression">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.io.</span></span><span class="sig-name descname"><span class="pre">Expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.Expression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.io.Expression.eval">
+<span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.Expression.eval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="dflow.io.IfExpression">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.io.</span></span><span class="sig-name descname"><span class="pre">IfExpression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_if</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">_then</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">_else</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.IfExpression" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
@@ -802,6 +813,12 @@ self in this method to make the executor reusable</p>
 <span class="sig-name descname"><span class="pre">set_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.Inputs.set_template" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.io.ObjectDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.io.</span></span><span class="sig-name descname"><span class="pre">ObjectDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.ObjectDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">UserDict</span></code></p>
 </dd></dl>
 
 <dl class="py class">
@@ -969,6 +986,11 @@ can be a list</p></li>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.io.</span></span><span class="sig-name descname"><span class="pre">PVC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subpath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'1Gi'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_modes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.PVC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.io.convert_value_to_str">
+<span class="sig-prename descclassname"><span class="pre">dflow.io.</span></span><span class="sig-name descname"><span class="pre">convert_value_to_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.io.convert_value_to_str" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dflow.io.if_expression">
@@ -1275,23 +1297,6 @@ self in this method to make the executor reusable</p>
 <dt class="sig sig-object py" id="dflow.step.ArgoSum">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">ArgoSum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.ArgoSum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="dflow.step.Expression">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">Expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Expression" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="dflow.step.Expression.eval">
-<span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Expression.eval" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="dflow.step.ObjectDict">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">ObjectDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.ObjectDict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">UserDict</span></code></p>
 </dd></dl>
 
 <dl class="py class">
@@ -3651,6 +3656,10 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.io.AutonamedDict.set_template"><code class="docutils literal notranslate"><span class="pre">AutonamedDict.set_template()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#dflow.io.Expression"><code class="docutils literal notranslate"><span class="pre">Expression</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.io.Expression.eval"><code class="docutils literal notranslate"><span class="pre">Expression.eval()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#dflow.io.IfExpression"><code class="docutils literal notranslate"><span class="pre">IfExpression</span></code></a></li>
 <li><a class="reference internal" href="#dflow.io.InputArtifact"><code class="docutils literal notranslate"><span class="pre">InputArtifact</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.io.InputArtifact.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">InputArtifact.convert_to_argo()</span></code></a></li>
@@ -3674,6 +3683,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.io.Inputs.set_template"><code class="docutils literal notranslate"><span class="pre">Inputs.set_template()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#dflow.io.ObjectDict"><code class="docutils literal notranslate"><span class="pre">ObjectDict</span></code></a></li>
 <li><a class="reference internal" href="#dflow.io.OutputArtifact"><code class="docutils literal notranslate"><span class="pre">OutputArtifact</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.io.OutputArtifact.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">OutputArtifact.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.io.OutputArtifact.get_path_list_parameter"><code class="docutils literal notranslate"><span class="pre">OutputArtifact.get_path_list_parameter()</span></code></a></li>
@@ -3706,6 +3716,7 @@ parameters</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#dflow.io.PVC"><code class="docutils literal notranslate"><span class="pre">PVC</span></code></a></li>
+<li><a class="reference internal" href="#dflow.io.convert_value_to_str"><code class="docutils literal notranslate"><span class="pre">convert_value_to_str()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.io.if_expression"><code class="docutils literal notranslate"><span class="pre">if_expression()</span></code></a></li>
 </ul>
 </li>
@@ -3759,11 +3770,6 @@ parameters</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#dflow.step.ArgoSum"><code class="docutils literal notranslate"><span class="pre">ArgoSum</span></code></a></li>
-<li><a class="reference internal" href="#dflow.step.Expression"><code class="docutils literal notranslate"><span class="pre">Expression</span></code></a><ul>
-<li><a class="reference internal" href="#dflow.step.Expression.eval"><code class="docutils literal notranslate"><span class="pre">Expression.eval()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#dflow.step.ObjectDict"><code class="docutils literal notranslate"><span class="pre">ObjectDict</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step"><code class="docutils literal notranslate"><span class="pre">Step</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.step.Step.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Step.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.exec"><code class="docutils literal notranslate"><span class="pre">Step.exec()</span></code></a></li>
