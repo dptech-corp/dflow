@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.61](https://github.com/deepmodeling/dflow/compare/v1.6.60...v1.6.61) (2023-02-24)
+
+
+### Bug Fixes
+
+* wrong value of output parameter of step ([bbbc6d4](https://github.com/deepmodeling/dflow/commit/bbbc6d4ac9a78d844736997d16e2a5e9a707f980))
+
 ## [1.6.60](https://github.com/deepmodeling/dflow/compare/v1.6.59...v1.6.60) (2023-02-24)
 
 
