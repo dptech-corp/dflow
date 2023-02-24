@@ -133,6 +133,11 @@ class OPTemplate:
                         default="{{node.id}}",
                         global_name="{{inputs.parameters.dflow_key}}",
                     )
+        elif "dflow_group_key" in self.inputs.parameters:
+            if memoize_prefix is not None:
+                self.memoize_key = \
+                    "%s-{{inputs.parameters.dflow_group_key}}-init-artifact" \
+                    % memoize_prefix
 
         if self.memoize_key is not None:
             # Is it a bug of Argo?

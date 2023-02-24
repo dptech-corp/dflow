@@ -28,6 +28,9 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
                     save=S3Artifact(key="{{workflow.name}}/{{inputs."
                                     "parameters.dflow_group_key}}/%s" % name),
                     archive=None)
+            self.outputs.parameters["dflow_artifact_key"] = OutputParameter(
+                value="{{workflow.name}}/"
+                "{{inputs.parameters.dflow_group_key}}")
         else:
             self.outputs.parameters["dflow_artifact_key"] = OutputParameter(
                 value="{{workflow.name}}/{{pod.name}}")

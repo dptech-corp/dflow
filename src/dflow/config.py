@@ -58,6 +58,8 @@ config = {
     "http_headers": split_headers(os.environ.get("DFLOW_HTTP_HEADERS", {})),
     "workflow_annotations": json.loads(os.environ.get(
         "DFLOW_WORKFLOW_ANNOTATIONS", "{}")),
+    "overwrite_reused_artifact": boolize(os.environ.get(
+        "DFLOW_OVERWRITE_REUSED_ARTIFACT", True)),
 }
 
 
@@ -89,6 +91,8 @@ def set_config(
         mode: "default" for normal, "debug" for debugging locally
         lineage: lineage client, None by default
         http_headers: HTTP headers for requesting Argo server
+        workflow_annotations: default annotations for workflows
+        overwrite_reused_artifact: overwrite reused artifact
     """
     config.update(kwargs)
 

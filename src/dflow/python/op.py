@@ -119,7 +119,8 @@ class OP(ABC):
                 if isinstance(sign[ii], Parameter) and hasattr(sign[ii],
                                                                "default"):
                     opio[ii] = sign[ii].default
-                elif isinstance(sign[ii], BigParameter) and hasattr(sign[ii],"default"):
+                elif isinstance(sign[ii], BigParameter) and hasattr(
+                        sign[ii], "default"):
                     opio[ii] = sign[ii].default
                 elif isinstance(sign[ii], Artifact) and sign[ii].optional:
                     opio[ii] = None
@@ -170,7 +171,7 @@ class OP(ABC):
         return_type = signature.get('return', None)
 
         input_sign = OPIOSign(
-                {k: v for k, v in signature.items() if k != 'return'})
+            {k: v for k, v in signature.items() if k != 'return'})
 
         if isinstance(return_type, dict):
             output_sign = OPIOSign({k: v for k, v in return_type.items()})
