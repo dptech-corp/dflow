@@ -1,8 +1,9 @@
+import json
 import os
 import tempfile
 from collections import UserDict
 from copy import deepcopy
-from typing import Optional, Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import jsonpickle
 
@@ -19,6 +20,48 @@ except Exception:
     pass
 
 NotAllowedInputArtifactPath = ["/", "/tmp"]
+
+
+class ObjectDict(UserDict):
+    def __getattr__(self, key):
+        if key == "data":
+            return super().__getattr__(key)
+        return self.data[key]
+
+
+class Expression:
+    def __init__(self, expr):
+        self.expr = expr
+
+    def __repr__(self):
+        return self.expr
+
+    def eval(self, context):
+        from .dag import DAG
+        from .steps import Steps
+        inputs = ObjectDict()
+        inputs["parameters"] = ObjectDict({
+            k: v.value for k, v in context.inputs.parameters.items()
+        })
+        steps = ObjectDict()
+        if isinstance(context, Steps):
+            for step in sum([s if isinstance(s, list) else [s]
+                             for s in context], []):
+                steps[step.name] = ObjectDict({"outputs": ObjectDict({
+                    "parameters": ObjectDict({k: v.value for k, v in
+                                              step.outputs.parameters.items()
+                                              if hasattr(v, "value")}),
+                })})
+        tasks = ObjectDict()
+        if isinstance(context, DAG):
+            for task in context:
+                tasks[task.name] = ObjectDict({"outputs": ObjectDict({
+                    "parameters": ObjectDict({k: v.value for k, v in
+                                              task.outputs.parameters.items()
+                                              if hasattr(v, "value")}),
+                })})
+        variables = {"inputs": inputs, "steps": steps, "tasks": tasks}
+        return eval(self.expr, variables)
 
 
 class AutonamedDict(UserDict):
@@ -135,6 +178,11 @@ class ArgoVar:
         return self.expr
 
     def __getitem__(self, i):
+        if config["mode"] == "debug":
+            if isinstance(i, str):
+                return Expression("%s['%s']" % (self.expr, i))
+            elif isinstance(i, int):
+                return Expression("%s[%s]" % (self.expr, i))
         if isinstance(i, str):
             item = "jsonpath(%s, '$')['%s']" % (self.expr, i)
         else:
@@ -259,6 +307,33 @@ class PVC:
         if access_modes is None:
             access_modes = ["ReadWriteOnce"]
         self.access_modes = access_modes
+
+
+def convert_value_to_str(value):
+    if isinstance(value, str):
+        return value
+
+    s = jsonpickle.dumps(value)
+
+    def handle(obj):
+        nonlocal s
+        if isinstance(obj, dict):
+            if "py/object" in obj and obj["py/object"] == "dflow.io.ArgoVar":
+                s = s.replace(json.dumps(obj), "{{=%s}}" % obj["expr"])
+                return
+            for v in obj.values():
+                if isinstance(v, (dict, list)):
+                    handle(v)
+        elif isinstance(obj, list):
+            for v in obj:
+                if isinstance(v, (dict, list)):
+                    handle(v)
+
+    if "dflow.io.ArgoVar" in s:
+        d = json.loads(s)
+        handle(d)
+
+    return s
 
 
 class InputParameter(ArgoVar):
@@ -388,12 +463,9 @@ class InputParameter(ArgoVar):
             return V1alpha1Parameter(name=self.name,
                                      value="{{=%s}}" % self.value.expr,
                                      description=description)
-        elif isinstance(self.value, str):
-            return V1alpha1Parameter(name=self.name,
-                                     value=self.value, description=description)
         else:
             return V1alpha1Parameter(name=self.name,
-                                     value=jsonpickle.dumps(self.value),
+                                     value=convert_value_to_str(self.value),
                                      description=description)
 
 

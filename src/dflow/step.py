@@ -2,7 +2,6 @@ import logging
 import os
 import re
 import sys
-from collections import UserDict
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Union
 
@@ -12,8 +11,8 @@ from .common import LocalArtifact, S3Artifact
 from .config import config, s3_config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
-from .io import (PVC, ArgoVar, InputArtifact, InputParameter, OutputArtifact,
-                 OutputParameter)
+from .io import (PVC, ArgoVar, Expression, InputArtifact, InputParameter,
+                 OutputArtifact, OutputParameter)
 from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .python import Slices
 from .resource import Resource
@@ -46,61 +45,6 @@ class ArgoRange(ArgoVar):
             end = "sprig.atoi(%s)" % end.expr
         super().__init__("toJson(sprig.untilStep(%s, %s, %s))" %
                          (start, end, step))
-
-
-class ObjectDict(UserDict):
-    def __init__(self, d=None):
-        super().__init__(d)
-
-    def __getattr__(self, key):
-        if key == "data":
-            return super().__getattr__(key)
-
-        value = self.data[key]
-        if isinstance(value, dict):
-            return ObjectDict(value)
-        return value
-
-    def __getitem__(self, key):
-        value = self.data[key]
-        if isinstance(value, dict):
-            return ObjectDict(value)
-        return value
-
-
-class Expression:
-    def __init__(self, expr):
-        self.expr = expr
-
-    def __repr__(self):
-        return self.expr
-
-    def eval(self, context):
-        from .dag import DAG
-        from .steps import Steps
-        inputs = ObjectDict()
-        inputs["parameters"] = {
-            k: v.value for k, v in context.inputs.parameters.items()
-        }
-        steps = ObjectDict()
-        if isinstance(context, Steps):
-            for step in sum([s if isinstance(s, list) else [s]
-                             for s in context], []):
-                steps[step.name] = {"outputs": {
-                    "parameters": {k: v.value for k, v in
-                                   step.outputs.parameters.items()
-                                   if hasattr(v, "value")},
-                }}
-        tasks = ObjectDict()
-        if isinstance(context, DAG):
-            for task in context:
-                tasks[task.name] = {"outputs": {
-                    "parameters": {k: v.value for k, v in
-                                   task.outputs.parameters.items()
-                                   if hasattr(v, "value")},
-                }}
-        variables = {"inputs": inputs, "steps": steps, "tasks": tasks}
-        return eval(self.expr, variables)
 
 
 def to_expr(var):
@@ -1297,6 +1241,27 @@ class Step:
         parameters = deepcopy(self.inputs.parameters)
         for name, par in parameters.items():
             value = par.value
+
+            def handle_expr(val, context):
+                if isinstance(val, dict):
+                    for k, v in val.items():
+                        if isinstance(v, Expression):
+                            val[k] = v.eval(context)
+                        else:
+                            handle_expr(v, context)
+                elif isinstance(val, list):
+                    for i, v in enumerate(val):
+                        if isinstance(v, Expression):
+                            val[i] = v.eval(context)
+                        else:
+                            handle_expr(v, context)
+                elif hasattr(val, "__dict__"):
+                    for k, v in val.__dict__.items():
+                        if isinstance(v, Expression):
+                            val.__dict__[k] = v.eval(context)
+                        else:
+                            handle_expr(v, context)
+
             if isinstance(value, Expression):
                 par.value = value.eval(context)
             elif isinstance(value, (InputParameter, OutputParameter)):
@@ -1305,6 +1270,12 @@ class Step:
                 par.value = eval_expr(render_expr(str(value), context))
             elif isinstance(value, str):
                 par.value = render_expr(value, context)
+            else:
+                try:
+                    handle_expr(par.value, context)
+                except Exception as e:
+                    logging.warn("Failed to handle expressions in parameter"
+                                 " value: ", e)
 
         # source input artifacts
         for name, art in self.inputs.artifacts.items():
