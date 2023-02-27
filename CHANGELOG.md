@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.62](https://github.com/deepmodeling/dflow/compare/v1.6.61...v1.6.62) (2023-02-27)
+
+
+### Bug Fixes
+
+* remove workflow name from global outputs ([93487db](https://github.com/deepmodeling/dflow/commit/93487db1b07232b24f40503a386393da9be65ef9))
+* replay of step ([93487db](https://github.com/deepmodeling/dflow/commit/93487db1b07232b24f40503a386393da9be65ef9))
+
 ## [1.6.61](https://github.com/deepmodeling/dflow/compare/v1.6.60...v1.6.61) (2023-02-24)
 
 
