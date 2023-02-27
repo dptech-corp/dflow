@@ -65,11 +65,7 @@ class OSSClient(StorageClient):
         return keys
 
     def copy(self, src, dst):
-        if src[-1:] == "/":
-            src = src[:-1]
-        for key in self.list(src, recursive=True):
-            self.bucket.copy_object(self.bucket_name, key,
-                                    dst + key[len(src):])
+        self.bucket.copy_object(self.bucket_name, src, dst)
 
     def get_md5(self, key):
         return self.bucket.get_object_meta(key).etag

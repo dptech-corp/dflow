@@ -123,10 +123,6 @@ class OPTemplate:
                         value="{{pod.name}}",
                         global_name="{{inputs.parameters.dflow_key}}",
                     )
-                    self.outputs.parameters["dflow_wfname"] = OutputParameter(
-                        value="{{workflow.name}}",
-                        global_name="dflow_workflow_name",
-                    )
                 else:
                     self.outputs.parameters["dflow_global"] = OutputParameter(
                         value_from_parameter="non-exists",

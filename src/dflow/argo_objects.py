@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import tempfile
@@ -9,6 +10,7 @@ import jsonpickle
 
 from .config import config, s3_config
 from .io import S3Artifact
+from .op_template import get_k8s_core_v1_api
 from .utils import (download_artifact, download_s3, get_key, upload_artifact,
                     upload_s3)
 
@@ -107,8 +109,10 @@ class ArgoParameter(ArgoObjectDict):
 
 
 class ArgoStep(ArgoObjectDict):
-    def __init__(self, step):
+    def __init__(self, step, workflow=None):
         super().__init__(deepcopy(step))
+        self.workflow = workflow
+        self.pod = None
         self.key = None
         if hasattr(self, "inputs"):
             self.handle_io(self.inputs)
@@ -262,6 +266,102 @@ class ArgoStep(ArgoObjectDict):
         s3 = upload_artifact(new_path, archive=None)
         self.modify_output_artifact(name, s3)
 
+    def get_pod(self):
+        assert self.type == "Pod"
+        wf_name = self.workflow
+        node_name = self.name
+        template_name = self.templateName
+        node_id = self.id
+        pod_name = get_pod_name(wf_name, node_name, template_name, node_id)
+        core_v1_api = get_k8s_core_v1_api()
+        self.pod = core_v1_api.api_client.call_api(
+            '/api/v1/namespaces/%s/pods/%s' % (config["namespace"], pod_name),
+            'GET', response_type='V1Pod', header_params=config["http_headers"],
+            _return_http_data_only=True)
+        return self.pod
+
+    def get_script(self):
+        if self.pod is None:
+            self.get_pod()
+        main_container = next(filter(lambda c: c.name == "main",
+                                     self.pod.spec.containers))
+        templ_env = next(filter(lambda e: e.name == "ARGO_TEMPLATE",
+                                main_container.env))
+        templ = json.loads(templ_env.value)
+        return templ["script"]["source"]
+
+    def set_script(self, script):
+        if self.pod is None:
+            self.get_pod()
+        main_container = next(filter(lambda c: c.name == "main",
+                                     self.pod.spec.containers))
+        templ_env = next(filter(lambda e: e.name == "ARGO_TEMPLATE",
+                                main_container.env))
+        templ = json.loads(templ_env.value)
+        templ["script"]["source"] = script
+        templ_env.value = json.dumps(templ)
+        init_container = next(filter(lambda c: c.name == "init",
+                                     self.pod.spec.init_containers))
+        templ_env = next(filter(lambda e: e.name == "ARGO_TEMPLATE",
+                                init_container.env))
+        templ_env.value = json.dumps(templ)
+        wait_container = next(filter(lambda c: c.name == "wait",
+                                     self.pod.spec.containers))
+        templ_env = next(filter(lambda e: e.name == "ARGO_TEMPLATE",
+                                wait_container.env))
+        templ_env.value = json.dumps(templ)
+
+    def replay(self):
+        if self.pod is None:
+            self.get_pod()
+        self.pod.metadata.resource_version = None
+        core_v1_api = get_k8s_core_v1_api()
+        try:
+            core_v1_api.api_client.call_api(
+                '/api/v1/namespaces/%s/pods/%s' % (config["namespace"],
+                                                   self.pod.metadata.name),
+                'DELETE', response_type='V1Pod',
+                header_params=config["http_headers"],
+                _return_http_data_only=True)
+        except Exception as e:
+            logging.warn("Failed to delete pod", e)
+        core_v1_api.api_client.call_api(
+            '/api/v1/namespaces/%s/pods' % config["namespace"],
+            'POST', body=self.pod, response_type='V1Pod',
+            header_params=config["http_headers"], _return_http_data_only=True)
+
+
+max_k8s_resource_name_length = 253
+k8s_naming_hash_length = 10
+
+
+def get_pod_name(wf_name, node_name, template_name, node_id):
+    if wf_name == node_name:
+        return wf_name
+    prefix = "%s-%s" % (wf_name, template_name)
+    max_prefix_length = max_k8s_resource_name_length - k8s_naming_hash_length
+    if len(prefix) > max_prefix_length - 1:
+        prefix = prefix[:max_prefix_length-1]
+    hash_val = fnva(node_name.encode(), FNV1_32_INIT, FNV_32_PRIME, 2**32)
+    return "%s-%s" % (prefix, hash_val)
+
+
+FNV_32_PRIME = 0x01000193
+FNV1_32_INIT = 0x811c9dc5
+
+
+def fnva(data, hval_init, fnv_prime, fnv_size):
+    """
+    Alternative FNV hash algorithm used in FNV-1a.
+    """
+    assert isinstance(data, bytes)
+
+    hval = hval_init
+    for byte in data:
+        hval = hval ^ byte
+        hval = (hval * fnv_prime) % fnv_size
+    return hval
+
 
 class ArgoWorkflow(ArgoObjectDict):
     def get_step(
@@ -305,7 +405,7 @@ class ArgoWorkflow(ArgoObjectDict):
                     continue
                 if id is not None and step["id"] not in id:
                     continue
-                step = ArgoStep(step)
+                step = ArgoStep(step, self.metadata.name)
                 step_list.append(step)
         step_list.sort(key=lambda x: x["startedAt"])
         return step_list

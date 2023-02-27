@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import time
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Union
 
@@ -319,6 +320,10 @@ class Workflow:
                                                                  self.uid))
         return workflow
 
+    def wait(self, interval=1):
+        while self.query_status() in ["Pending", "Running"]:
+            time.sleep(interval)
+
     def handle_reused_step(self, step):
         outputs = {}
         if hasattr(step, "outputs"):
@@ -353,7 +358,7 @@ class Workflow:
 
     def handle_reused_artifact(self, step, name, art):
         group_key = step.inputs.parameters["dflow_group_key"].value
-        wf_name = step.outputs.parameters["dflow_wfname"].value
+        wf_name = step.workflow
         memoize_key = "%s-%s-init-artifact" % (self.id, group_key)
         if memoize_key not in self.memoize_map:
             self.memoize_map[memoize_key] = {
@@ -723,8 +728,7 @@ class Workflow:
                     header_params=config["http_headers"],
                     query_params=[('fields', 'status.outputs')])
             return [par["name"] for par in
-                    response["status"]["outputs"]["parameters"]
-                    if par["name"] != "dflow_workflow_name"]
+                    response["status"]["outputs"]["parameters"]]
         except Exception:
             logger.warn("Key-ID map not found in the global outputs, downgrade"
                         " to full query")
@@ -746,25 +750,22 @@ class Workflow:
         if isinstance(key, str):
             key = [key]
 
-        workflow = self.query(fields=['status.outputs'])
         try:
-            parameters = workflow.status.outputs.parameters
-            wf_name = next(filter(lambda par: par["name"] ==
-                                  "dflow_workflow_name", parameters))["value"]
+            workflow = self.query(fields=['metadata.name', 'status.outputs'])
+            wf_name = workflow.metadata.name
+            key2id = {}
+            for par in workflow.status.outputs.parameters:
+                pod_name = par["value"]
+                key2id[par["name"]] = wf_name + "-" + pod_name.split("-")[-1]
+
+            workflow = self.query(
+                fields=['metadata.name'] + [
+                    'status.nodes.' + key2id[k] for k in key])
+            return workflow.get_step()
         except Exception:
             logger.warn("Key-ID map not found in the global outputs, downgrade"
                         " to full query")
             return self.query_step(key=key)
-        key2id = {}
-        for par in workflow.status.outputs.parameters:
-            if par["name"] == "dflow_workflow_name":
-                continue
-            pod_name = par["value"]
-            key2id[par["name"]] = wf_name + "-" + pod_name.split("-")[-1]
-
-        workflow = self.query(
-            fields=['status.nodes.' + key2id[k] for k in key])
-        return workflow.get_step()
 
     def query_global_outputs(self) -> ArgoWorkflow:
         """
@@ -776,7 +777,7 @@ class Workflow:
         Returns:
             a list of steps
         """
-        workflow = self.query(fields=['status.outputs'])
+        workflow = self.query(fields=['metadata.name', 'status.outputs'])
         step = ArgoStep(workflow.status)
         if hasattr(step, "outputs"):
             return step.outputs

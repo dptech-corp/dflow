@@ -9,7 +9,7 @@ from ..config import s3_config
 from ..context import Context
 from ..executor import Executor, render_script_with_tmp_root
 from ..op_template import PythonScriptOPTemplate, ShellOPTemplate
-from ..utils import randstr
+from ..utils import StorageClient, randstr
 from ..workflow import Workflow
 
 succ_code = [0, "0000"]
@@ -212,7 +212,7 @@ class BohriumContext(Context):
         return template
 
 
-class TiefblueClient:
+class TiefblueClient(StorageClient):
     def __init__(
             self,
             bohrium_url: Optional[str] = None,
