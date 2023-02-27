@@ -89,10 +89,14 @@
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.argo_objects.ArgoParameter"><code class="docutils literal notranslate"><span class="pre">ArgoParameter</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.argo_objects.ArgoStep"><code class="docutils literal notranslate"><span class="pre">ArgoStep</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.argo_objects.ArgoStep.download_sliced_output_artifact"><code class="docutils literal notranslate"><span class="pre">ArgoStep.download_sliced_output_artifact()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.argo_objects.ArgoStep.get_pod"><code class="docutils literal notranslate"><span class="pre">ArgoStep.get_pod()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.argo_objects.ArgoStep.get_script"><code class="docutils literal notranslate"><span class="pre">ArgoStep.get_script()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.argo_objects.ArgoStep.handle_big_parameters"><code class="docutils literal notranslate"><span class="pre">ArgoStep.handle_big_parameters()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.argo_objects.ArgoStep.handle_io"><code class="docutils literal notranslate"><span class="pre">ArgoStep.handle_io()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.argo_objects.ArgoStep.modify_output_artifact"><code class="docutils literal notranslate"><span class="pre">ArgoStep.modify_output_artifact()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.argo_objects.ArgoStep.modify_output_parameter"><code class="docutils literal notranslate"><span class="pre">ArgoStep.modify_output_parameter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.argo_objects.ArgoStep.replay"><code class="docutils literal notranslate"><span class="pre">ArgoStep.replay()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.argo_objects.ArgoStep.set_script"><code class="docutils literal notranslate"><span class="pre">ArgoStep.set_script()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.argo_objects.ArgoStep.upload_and_modify_sliced_output_artifact"><code class="docutils literal notranslate"><span class="pre">ArgoStep.upload_and_modify_sliced_output_artifact()</span></code></a></li>
 </ul>
 </li>
@@ -100,6 +104,8 @@
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.argo_objects.ArgoWorkflow.get_step"><code class="docutils literal notranslate"><span class="pre">ArgoWorkflow.get_step()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.argo_objects.fnva"><code class="docutils literal notranslate"><span class="pre">fnva()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.argo_objects.get_pod_name"><code class="docutils literal notranslate"><span class="pre">get_pod_name()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.argo_objects.match"><code class="docutils literal notranslate"><span class="pre">match()</span></code></a></li>
 </ul>
 </li>
@@ -428,6 +434,7 @@
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.workflow.Workflow.to_dict"><code class="docutils literal notranslate"><span class="pre">Workflow.to_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.workflow.Workflow.to_json"><code class="docutils literal notranslate"><span class="pre">Workflow.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.workflow.Workflow.to_yaml"><code class="docutils literal notranslate"><span class="pre">Workflow.to_yaml()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.workflow.Workflow.wait"><code class="docutils literal notranslate"><span class="pre">Workflow.wait()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -606,6 +613,7 @@
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Workflow.to_dict"><code class="docutils literal notranslate"><span class="pre">Workflow.to_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Workflow.to_json"><code class="docutils literal notranslate"><span class="pre">Workflow.to_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Workflow.to_yaml"><code class="docutils literal notranslate"><span class="pre">Workflow.to_yaml()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Workflow.wait"><code class="docutils literal notranslate"><span class="pre">Workflow.wait()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.argo_concat"><code class="docutils literal notranslate"><span class="pre">argo_concat()</span></code></a></li>
