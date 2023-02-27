@@ -1,3 +1,4 @@
+import abc
 import contextlib
 import hashlib
 import inspect
@@ -13,6 +14,7 @@ import sys
 import tarfile
 import tempfile
 import uuid
+from abc import ABC
 from functools import partial
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple, Union
@@ -680,19 +682,24 @@ def force_link(src, dst, func=os.symlink):
     func(src, dst)
 
 
-class StorageClient:
+class StorageClient(ABC):
+    @abc.abstractmethod
     def upload(self, key: str, path: str) -> None:
         pass
 
+    @abc.abstractmethod
     def download(self, key: str, path: str) -> None:
         pass
 
+    @abc.abstractmethod
     def list(self, prefix: str, recursive: bool = False) -> List[str]:
         pass
 
+    @abc.abstractmethod
     def copy(self, src: str, dst: str) -> None:
         pass
 
+    @abc.abstractmethod
     def get_md5(self, key: str) -> str:
         pass
 
