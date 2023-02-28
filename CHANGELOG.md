@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.6.64](https://github.com/deepmodeling/dflow/compare/v1.6.63...v1.6.64) (2023-02-28)
+
+
+### Bug Fixes
+
+* move debug tests to the directory tests ([c25f984](https://github.com/deepmodeling/dflow/commit/c25f984427bcb7372837cecadbde713e41f44f28))
+* set node to phase running after replay a step ([c25f984](https://github.com/deepmodeling/dflow/commit/c25f984427bcb7372837cecadbde713e41f44f28))
+* step.workflow is None in debug mode ([c25f984](https://github.com/deepmodeling/dflow/commit/c25f984427bcb7372837cecadbde713e41f44f28))
+* use if_expression explicitly to ensure the same behavior in both default and debug modes ([c25f984](https://github.com/deepmodeling/dflow/commit/c25f984427bcb7372837cecadbde713e41f44f28))
+
 ## [1.6.63](https://github.com/deepmodeling/dflow/compare/v1.6.62...v1.6.63) (2023-02-28)
 
 
