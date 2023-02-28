@@ -48,7 +48,7 @@ class Secret:
             _return_http_data_only=True)
 
 
-def get_k8s_core_v1_api(k8s_api_server=None, token=None, k8s_config_file=None):
+def get_k8s_client(k8s_api_server=None, token=None, k8s_config_file=None):
     if k8s_api_server is None:
         k8s_api_server = global_config["k8s_api_server"]
     if token is None:
@@ -65,10 +65,21 @@ def get_k8s_core_v1_api(k8s_api_server=None, token=None, k8s_config_file=None):
             k8s_client = kubernetes.client.ApiClient(
                 k8s_configuration, header_name='Authorization',
                 header_value='Bearer %s' % token)
-        return kubernetes.client.CoreV1Api(k8s_client)
+        return k8s_client
     else:
-        kubernetes.config.load_kube_config(config_file=k8s_config_file)
-        return kubernetes.client.CoreV1Api()
+        return kubernetes.config.new_client_from_config(
+            config_file=k8s_config_file)
+
+
+def get_k8s_core_v1_api(k8s_api_server=None, token=None, k8s_config_file=None):
+    k8s_client = get_k8s_client(k8s_api_server, token, k8s_config_file)
+    return kubernetes.client.CoreV1Api(k8s_client)
+
+
+def get_k8s_dynamic_client(k8s_api_server=None, token=None,
+                           k8s_config_file=None):
+    k8s_client = get_k8s_client(k8s_api_server, token, k8s_config_file)
+    return kubernetes.dynamic.DynamicClient(k8s_client)
 
 
 class OPTemplate:

@@ -29,6 +29,12 @@ class ObjectDict(UserDict):
         return self.data[key]
 
 
+def to_expr(var):
+    if isinstance(var, ArgoVar):
+        return var.expr
+    return str(var)
+
+
 class Expression:
     def __init__(self, expr):
         self.expr = expr
@@ -250,7 +256,7 @@ class ArgoVar:
         return ArgoVar("asFloat(%s) >= %s" % (self.expr, other))
 
 
-class IfExpression:
+class IfExpression(ArgoVar, Expression):
     def __init__(
             self,
             _if: Union[str, ArgoVar],
@@ -265,13 +271,12 @@ class IfExpression:
             self._if = _if
         self._then = _then
         self._else = _else
-
-    def __repr__(self) -> str:
-        _then = self._then.expr if isinstance(
-            self._then, ArgoVar) else self._then
-        _else = self._else.expr if isinstance(
-            self._else, ArgoVar) else self._else
-        return "%s ? %s : %s" % (self._if, _then, _else)
+        if config["mode"] == "debug":
+            return super().__init__("(%s if %s else %s)" % (
+                to_expr(_then), to_expr(_if), to_expr(_else)))
+        else:
+            super().__init__("(%s ? %s : %s)" % (
+                self._if, to_expr(_then), to_expr(_else)))
 
 
 def if_expression(

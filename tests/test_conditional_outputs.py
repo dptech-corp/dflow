@@ -4,8 +4,6 @@ from dflow import (OutputArtifact, OutputParameter, Outputs, Step, Steps,
                    Workflow, if_expression)
 from dflow.python import (OP, OPIO, Artifact, OPIOSign, PythonOPTemplate,
                           upload_packages)
-from dflow import config
-config["mode"] = "debug"
 
 if "__file__" in locals():
     upload_packages.append(__file__)

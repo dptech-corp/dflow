@@ -694,7 +694,7 @@ class Workflow:
                                 "local_path": os.path.abspath(os.path.join(
                                     stepdir, io, "artifacts", a)),
                             })
-                step = ArgoStep(step)
+                step = ArgoStep(step, self.id)
                 step_list.append(step)
             return step_list
 
@@ -778,7 +778,7 @@ class Workflow:
             a list of steps
         """
         workflow = self.query(fields=['metadata.name', 'status.outputs'])
-        step = ArgoStep(workflow.status)
+        step = ArgoStep(workflow.status, workflow.metadata.name)
         if hasattr(step, "outputs"):
             return step.outputs
         else:

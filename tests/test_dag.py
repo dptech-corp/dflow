@@ -4,8 +4,6 @@ from pathlib import Path
 from dflow import DAG, Task, Workflow, download_artifact
 from dflow.python import (OP, OPIO, Artifact, OPIOSign, PythonOPTemplate,
                           upload_packages)
-from dflow import config
-config["mode"] = "debug"
 
 if "__file__" in locals():
     upload_packages.append(__file__)
@@ -93,7 +91,7 @@ def test_dag():
     step = wf.query_step(name="hello1")[0]
     assert(step.phase == "Succeeded")
 
-    assert hello1.outputs.parameters["msg"].value == 2
+    assert step.outputs.parameters["msg"].value == 2
     bar = download_artifact(step.outputs.artifacts["bar"])[0]
     with open(bar, "r") as f:
         content = f.read()

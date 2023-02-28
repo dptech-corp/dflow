@@ -4,11 +4,9 @@ from pathlib import Path
 from typing import List
 
 from dflow import (InputParameter, Inputs, OutputArtifact, Outputs, Step,
-                   Steps, Workflow, argo_range, config, download_artifact)
+                   Steps, Workflow, argo_range, download_artifact)
 from dflow.python import (OP, OPIO, Artifact, OPIOSign, PythonOPTemplate,
                           Slices, upload_packages)
-
-config["mode"] = "debug"
 
 if "__file__" in locals():
     upload_packages.append(__file__)

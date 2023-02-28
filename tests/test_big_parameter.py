@@ -3,8 +3,6 @@ import time
 from dflow import InputParameter, OutputParameter, Step, Steps, Workflow
 from dflow.python import (OP, OPIO, BigParameter, OPIOSign, PythonOPTemplate,
                           upload_packages)
-from dflow import config
-config["mode"] = "debug"
 
 if "__file__" in locals():
     upload_packages.append(__file__)

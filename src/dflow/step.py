@@ -12,7 +12,7 @@ from .config import config, s3_config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
 from .io import (PVC, ArgoVar, Expression, InputArtifact, InputParameter,
-                 OutputArtifact, OutputParameter)
+                 OutputArtifact, OutputParameter, if_expression, to_expr)
 from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
 from .python import Slices
 from .resource import Resource
@@ -47,12 +47,6 @@ class ArgoRange(ArgoVar):
                          (start, end, step))
 
 
-def to_expr(var):
-    if isinstance(var, ArgoVar):
-        return var.expr
-    return str(var)
-
-
 def argo_range(
         *args,
 ) -> ArgoVar:
@@ -63,7 +57,8 @@ def argo_range(
     Each argument can be Argo parameter
     """
     if config["mode"] == "debug":
-        return Expression("list(range(%s))" % ", ".join(map(to_expr, args)))
+        return Expression("list(range(%s))" % ", ".join(
+            map(lambda x: "int(%s)" % to_expr(x), args)))
     start = 0
     step = 1
     if len(args) == 1:
@@ -464,10 +459,10 @@ class Step:
                         group_size)
                 # re-render the script
                 new_template.slices = new_template.slices
-                self.with_param = argo_range(ArgoVar(
-                    "%s %% %s > 0 ? %s/%s + 1 : %s/%s" % (
-                        nslices, group_size, nslices, group_size, nslices,
-                        group_size)))
+                self.with_param = argo_range(if_expression(
+                    "%s %% %s > 0" % (nslices, group_size),
+                    "%s/%s + 1" % (nslices, group_size),
+                    "%s/%s" % (nslices, group_size)))
             if self.with_sequence is not None:
                 new_template.inputs.parameters["dflow_sequence_start"] = \
                     InputParameter()
@@ -490,9 +485,10 @@ class Step:
                 if count is not None:
                     nslices = count
                 else:
-                    nslices = ArgoVar(
-                        "(%s > %s ? %s + 1 - %s : %s + 1 - %s)" % (
-                            end, start, end, start, start, end))
+                    nslices = if_expression(
+                        "%s > %s" % (end, start),
+                        "%s + 1 - %s" % (end, start),
+                        "%s + 1 - %s" % (start, end))
                 old_slices = new_template.slices.slices
                 new_template.slices.slices = \
                     "[[%s for j in (range(int('{{inputs.parameters."\
@@ -516,9 +512,10 @@ class Step:
                 # re-render the script
                 new_template.slices = new_template.slices
                 self.with_sequence = argo_sequence(
-                    count=ArgoVar("%s %% %s > 0 ? %s/%s + 1 : %s/%s" % (
-                        nslices, group_size, nslices, group_size, nslices,
-                        group_size)), format=format)
+                    count=if_expression(
+                        "%s %% %s > 0" % (nslices, group_size),
+                        "%s/%s + 1" % (nslices, group_size),
+                        "%s/%s" % (nslices, group_size)), format=format)
 
             self.inputs.parameters["dflow_nslices"] = InputParameter(
                 value=nslices)
@@ -875,8 +872,10 @@ class Step:
                     end = self.with_sequence.end
                     if isinstance(end, ArgoVar):
                         end = end.expr
-                    total = "%s > %s ? %s + 1 - %s : %s + 1 - %s" \
-                        % (end, start, end, start, start, end)
+                    total = if_expression(
+                        "%s > %s" % (end, start),
+                        "%s + 1 - %s" % (end, start),
+                        "%s + 1 - %s" % (start, end))
             self.check_step = self.__class__(
                 name="%s-check-success-ratio" % self.name,
                 template=CheckSuccessRatio(
@@ -885,7 +884,7 @@ class Step:
                     image_pull_policy=self.util_image_pull_policy),
                 parameters={
                     "success": self.outputs.parameters["dflow_success_tag"],
-                    "total": "{{=%s}}" % total,
+                    "total": total,
                     "threshold": self.continue_on_success_ratio
                 }
             )
@@ -1387,7 +1386,7 @@ class Step:
                 if self.with_sequence.start is not None:
                     start = self.with_sequence.start
                     if isinstance(start, Expression):
-                        start = start.eval(context)
+                        start = int(start.eval(context))
                     elif isinstance(start, (InputParameter, OutputParameter)):
                         start = start.value
                     elif isinstance(start, ArgoVar):
@@ -1396,7 +1395,7 @@ class Step:
                 if self.with_sequence.count is not None:
                     count = self.with_sequence.count
                     if isinstance(count, Expression):
-                        count = count.eval(context)
+                        count = int(count.eval(context))
                     elif isinstance(count, (InputParameter, OutputParameter)):
                         count = count.value
                     elif isinstance(count, ArgoVar):
@@ -1406,7 +1405,7 @@ class Step:
                 if self.with_sequence.end is not None:
                     end = self.with_sequence.end
                     if isinstance(end, Expression):
-                        end = end.eval(context)
+                        end = int(end.eval(context))
                     elif isinstance(end, (InputParameter, OutputParameter)):
                         end = end.value
                     elif isinstance(end, ArgoVar):

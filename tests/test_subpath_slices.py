@@ -1,11 +1,9 @@
 import time
 from typing import List
 
-from dflow import Step, Workflow, config  # , upload_artifact
+from dflow import Step, Workflow  # , upload_artifact
 from dflow.python import (OP, OPIO, Artifact, OPIOSign, PythonOPTemplate,
                           Slices, upload_packages)
-
-config["mode"] = "debug"
 
 if "__file__" in locals():
     upload_packages.append(__file__)

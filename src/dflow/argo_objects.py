@@ -10,7 +10,7 @@ import jsonpickle
 
 from .config import config, s3_config
 from .io import S3Artifact
-from .op_template import get_k8s_core_v1_api
+from .op_template import get_k8s_core_v1_api, get_k8s_dynamic_client
 from .utils import (download_artifact, download_s3, get_key, upload_artifact,
                     upload_s3)
 
@@ -109,7 +109,7 @@ class ArgoParameter(ArgoObjectDict):
 
 
 class ArgoStep(ArgoObjectDict):
-    def __init__(self, step, workflow=None):
+    def __init__(self, step, workflow):
         super().__init__(deepcopy(step))
         self.workflow = workflow
         self.pod = None
@@ -329,6 +329,22 @@ class ArgoStep(ArgoObjectDict):
             '/api/v1/namespaces/%s/pods' % config["namespace"],
             'POST', body=self.pod, response_type='V1Pod',
             header_params=config["http_headers"], _return_http_data_only=True)
+        try:
+            dynamic_client = get_k8s_dynamic_client()
+            dynamic_client.patch(
+                dynamic_client.resources.get(api_version="v1alpha1",
+                                             kind="Workflow"),
+                body={
+                    "metadata": {
+                        "namespace": config["namespace"],
+                        "name": self.workflow,
+                    },
+                    "status": {"nodes": {self.id: {"phase": "Running"}}},
+                },
+                content_type="application/merge-patch+json",
+                header_params=config["http_headers"])
+        except Exception as e:
+            logging.warn("Failed to patch workflow", e)
 
 
 max_k8s_resource_name_length = 253
