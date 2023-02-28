@@ -203,16 +203,17 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     path="%s/inputs/artifacts/" % self.tmp_root + name,
                     optional=sign.optional, type=sign.type,
                     archive=sign.archive)
-            elif isinstance(sign, BigParameter) and config["mode"] != "debug":
+            elif isinstance(sign, BigParameter):
                 if hasattr(sign, "default"):
                     self.inputs.parameters[name] = InputParameter(
-                        save_as_artifact=True, path="%s/inputs/parameters/"
-                        % self.tmp_root + name, type=sign.type,
-                        value=sign.default)
+                        save_as_artifact=config["mode"] != "debug",
+                        path="%s/inputs/parameters/" % self.tmp_root + name,
+                        type=sign.type, value=sign.default)
                 else:
                     self.inputs.parameters[name] = InputParameter(
-                        save_as_artifact=True, path="%s/inputs/parameters/"
-                        % self.tmp_root + name, type=sign.type)
+                        save_as_artifact=config["mode"] != "debug",
+                        path="%s/inputs/parameters/" % self.tmp_root + name,
+                        type=sign.type)
             elif isinstance(sign, Parameter):
                 if hasattr(sign, "default"):
                     self.inputs.parameters[name] = InputParameter(
@@ -239,9 +240,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                         OutputParameter(
                         value_from_path="%s/outputs/parameters/dflow_%s_urn"
                         % (self.tmp_root, name), default="")
-            elif isinstance(sign, BigParameter) and config["mode"] != "debug":
+            elif isinstance(sign, BigParameter):
                 self.outputs.parameters[name] = OutputParameter(
-                    save_as_artifact=True,
+                    save_as_artifact=config["mode"] != "debug",
                     value_from_path="%s/outputs/parameters/" % self.tmp_root
                     + name, type=sign.type)
             elif isinstance(sign, Parameter):
