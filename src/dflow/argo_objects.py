@@ -332,8 +332,9 @@ class ArgoStep(ArgoObjectDict):
         try:
             dynamic_client = get_k8s_dynamic_client()
             dynamic_client.patch(
-                dynamic_client.resources.get(api_version="v1alpha1",
-                                             kind="Workflow"),
+                dynamic_client.resources.get(
+                    group="argoproj.io", api_version="v1alpha1",
+                    kind="Workflow"),
                 body={
                     "metadata": {
                         "namespace": config["namespace"],
