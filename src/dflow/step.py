@@ -853,25 +853,19 @@ class Step:
             )
         elif self.continue_on_success_ratio is not None:
             if self.with_param is not None:
-                if isinstance(self.with_param, ArgoVar):
-                    total = argo_len(self.with_param)
-                else:
+                if hasattr(self.with_param, "__len__"):
                     total = len(self.with_param)
+                else:
+                    total = argo_len(self.with_param)
             elif self.with_sequence is not None:
                 if self.with_sequence.count is not None:
                     count = self.with_sequence.count
-                    if isinstance(count, ArgoVar):
-                        count = count.expr
                     total = count
                 start = 0
                 if self.with_sequence.start is not None:
                     start = self.with_sequence.start
-                    if isinstance(start, ArgoVar):
-                        start = start.expr
                 if self.with_sequence.end is not None:
                     end = self.with_sequence.end
-                    if isinstance(end, ArgoVar):
-                        end = end.expr
                     total = if_expression(
                         "%s > %s" % (end, start),
                         "%s + 1 - %s" % (end, start),
@@ -1220,9 +1214,9 @@ class Step:
                                            error=self.continue_on_error)
         )
 
-    def run(self, context):
+    def run(self, scope, context=None):
         self.phase = "Running"
-        self.render_by_executor()
+        self.render_by_executor(context)
 
         import os
         from copy import copy
@@ -1231,7 +1225,7 @@ class Step:
         from .steps import Steps
 
         if self.when is not None:
-            expr = render_expr(self.when, context)
+            expr = render_expr(self.when, scope)
             if not eval_expr(expr):
                 self.phase = "Skipped"
                 return
@@ -1244,37 +1238,37 @@ class Step:
         for name, par in parameters.items():
             value = par.value
 
-            def handle_expr(val, context):
+            def handle_expr(val, scope):
                 if isinstance(val, dict):
                     for k, v in val.items():
                         if isinstance(v, Expression):
-                            val[k] = v.eval(context)
+                            val[k] = v.eval(scope)
                         else:
-                            handle_expr(v, context)
+                            handle_expr(v, scope)
                 elif isinstance(val, list):
                     for i, v in enumerate(val):
                         if isinstance(v, Expression):
-                            val[i] = v.eval(context)
+                            val[i] = v.eval(scope)
                         else:
-                            handle_expr(v, context)
+                            handle_expr(v, scope)
                 elif hasattr(val, "__dict__"):
                     for k, v in val.__dict__.items():
                         if isinstance(v, Expression):
-                            val.__dict__[k] = v.eval(context)
+                            val.__dict__[k] = v.eval(scope)
                         else:
-                            handle_expr(v, context)
+                            handle_expr(v, scope)
 
             if isinstance(value, Expression):
-                par.value = value.eval(context)
+                par.value = value.eval(scope)
             elif isinstance(value, (InputParameter, OutputParameter)):
-                par.value = get_var(value, context).value
+                par.value = get_var(value, scope).value
             elif isinstance(value, ArgoVar):
-                par.value = eval_expr(render_expr(str(value), context))
+                par.value = eval_expr(render_expr(str(value), scope))
             elif isinstance(value, str):
-                par.value = render_expr(value, context)
+                par.value = render_expr(value, scope)
             else:
                 try:
-                    handle_expr(par.value, context)
+                    handle_expr(par.value, scope)
                 except Exception as e:
                     logging.warn("Failed to handle expressions in parameter"
                                  " value: ", e)
@@ -1282,7 +1276,7 @@ class Step:
         # source input artifacts
         for name, art in self.inputs.artifacts.items():
             if isinstance(art.source, (InputArtifact, OutputArtifact)):
-                art.source = get_var(art.source, context)
+                art.source = get_var(art.source, scope)
 
         if isinstance(self.template, (Steps, DAG)):
             # shallow copy to avoid changing each step
@@ -1331,7 +1325,7 @@ class Step:
                                         True)
 
             try:
-                steps.run(context.workflow_id)
+                steps.run(scope.workflow_id)
             except Exception:
                 self.phase = "Failed"
                 with open(os.path.join(stepdir, "phase"), "w") as f:
@@ -1375,7 +1369,7 @@ class Step:
 
         if self.with_param is not None or self.with_sequence is not None:
             if isinstance(self.with_param, Expression):
-                item_list = self.with_param.eval(context)
+                item_list = self.with_param.eval(scope)
             elif isinstance(self.with_param, (InputParameter,
                                               OutputParameter)):
                 item_list = self.with_param.value
@@ -1386,30 +1380,30 @@ class Step:
                 if self.with_sequence.start is not None:
                     start = self.with_sequence.start
                     if isinstance(start, Expression):
-                        start = int(start.eval(context))
+                        start = int(start.eval(scope))
                     elif isinstance(start, (InputParameter, OutputParameter)):
                         start = start.value
                     elif isinstance(start, ArgoVar):
                         start = int(eval_expr(render_expr(
-                            str(start), context)))
+                            str(start), scope)))
                 if self.with_sequence.count is not None:
                     count = self.with_sequence.count
                     if isinstance(count, Expression):
-                        count = int(count.eval(context))
+                        count = int(count.eval(scope))
                     elif isinstance(count, (InputParameter, OutputParameter)):
                         count = count.value
                     elif isinstance(count, ArgoVar):
                         count = int(eval_expr(render_expr(
-                            str(count), context)))
+                            str(count), scope)))
                     sequence = list(range(start, start + count))
                 if self.with_sequence.end is not None:
                     end = self.with_sequence.end
                     if isinstance(end, Expression):
-                        end = int(end.eval(context))
+                        end = int(end.eval(scope))
                     elif isinstance(end, (InputParameter, OutputParameter)):
                         end = end.value
                     elif isinstance(end, ArgoVar):
-                        end = int(eval_expr(render_expr(str(end), context)))
+                        end = int(eval_expr(render_expr(str(end), scope)))
                     if end >= start:
                         sequence = list(range(start, end + 1))
                     else:
@@ -1432,7 +1426,7 @@ class Step:
                 ps.phase = "Pending"
                 self.parallel_steps.append(ps)
                 proc = Process(target=ps.exec_with_queue,
-                               args=(context, parameters, i, queue, item,
+                               args=(scope, parameters, i, queue, item,
                                      config, s3_config))
                 proc.start()
                 procs.append(proc)
@@ -1452,7 +1446,11 @@ class Step:
             for name, par in self.outputs.parameters.items():
                 par.value = []
                 for ps in self.parallel_steps:
-                    value = ps.outputs.parameters[name].value
+                    if not hasattr(ps.outputs.parameters[name], "value") and \
+                            hasattr(ps.outputs.parameters[name], "default"):
+                        value = ps.outputs.parameters[name].default
+                    else:
+                        value = ps.outputs.parameters[name].value
                     if isinstance(value, str):
                         par.value.append(value)
                     else:
@@ -1461,13 +1459,13 @@ class Step:
                 for save in self.template.outputs.artifacts[name].save:
                     if isinstance(save, S3Artifact):
                         key = render_script(save.key, parameters,
-                                            context.workflow_id)
+                                            scope.workflow_id)
                         art.local_path = os.path.abspath(os.path.join("..",
                                                                       key))
             self.phase = "Succeeded"
         else:
             try:
-                self.exec(context, parameters)
+                self.exec(scope, parameters)
             except Exception:
                 self.phase = "Failed"
                 with open(os.path.join(self.stepdir, "phase"), "w") as f:
@@ -1475,11 +1473,11 @@ class Step:
                 if not self.continue_on_failed:
                     raise RuntimeError("Step %s failed" % self)
 
-    def run_with_queue(self, context, order, queue, conf, s3_conf):
+    def run_with_queue(self, scope, context, order, queue, conf, s3_conf):
         try:
             config.update(conf)
             s3_config.update(s3_conf)
-            self.run(context)
+            self.run(scope, context)
             queue.put((order, self))
         except Exception:
             import traceback
@@ -1568,7 +1566,7 @@ class Step:
                                     "outputs/artifacts/%s" % name)
             art.local_path = art_path
 
-    def exec(self, context, parameters, item=None):
+    def exec(self, scope, parameters, item=None):
         """
         directory structure:
         step-xxxxx
@@ -1633,7 +1631,7 @@ class Step:
             if hasattr(self.template, "tmp_root"):
                 path = "%s/%s" % (workdir, path)
             path = render_script(path, parameters,
-                                 context.workflow_id, step_id)
+                                 scope.workflow_id, step_id)
             os.makedirs(os.path.dirname(
                 os.path.abspath(path)), exist_ok=True)
             backup(path)
@@ -1659,8 +1657,14 @@ class Step:
             template.tmp_root = "%s%s" % (workdir, template.tmp_root)
             template.render_script()
             script = template.script
-        script = render_script(script, parameters,
-                               context.workflow_id, step_id)
+        if self.continue_on_num_success or self.continue_on_success_ratio is \
+                not None:
+            if (isinstance(template, ShellOPTemplate)):
+                script += "\necho 1 > %s/tmp/success_tag\n" % workdir
+            elif (isinstance(template, PythonScriptOPTemplate)):
+                script += "\nwith open('%s/tmp/success_tag', 'w')"\
+                    " as f:\n    f.write('1')\n" % workdir
+        script = render_script(script, parameters, scope.workflow_id, step_id)
         script_path = os.path.join(stepdir, "script")
         with open(script_path, "w") as f:
             f.write(script)
@@ -1697,7 +1701,7 @@ class Step:
             elif hasattr(par, "value"):
                 if isinstance(par.value, str):
                     par.value = render_script(
-                        par.value, parameters, context.workflow_id,
+                        par.value, parameters, scope.workflow_id,
                         step_id)
         self.record_output_parameters(stepdir, self.outputs.parameters)
 
@@ -1710,7 +1714,7 @@ class Step:
             for save in self.template.outputs.artifacts[name].save:
                 if isinstance(save, S3Artifact):
                     key = render_script(save.key, parameters,
-                                        context.workflow_id, step_id)
+                                        scope.workflow_id, step_id)
                     save_path = os.path.join(cwd, "..", key)
                     os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
@@ -1728,12 +1732,12 @@ class Step:
         with open(os.path.join(stepdir, "phase"), "w") as f:
             f.write("Succeeded")
 
-    def exec_with_queue(self, context, parameters, order, queue, item, conf,
+    def exec_with_queue(self, scope, parameters, order, queue, item, conf,
                         s3_conf):
         try:
             config.update(conf)
             s3_config.update(s3_conf)
-            self.exec(context, parameters, item)
+            self.exec(scope, parameters, item)
             queue.put((order, self))
         except Exception:
             import traceback
@@ -1761,12 +1765,12 @@ def render_item(expr, item):
     return expr
 
 
-def render_expr(expr, context):
+def render_expr(expr, scope):
     # render variables
     i = expr.find("{{")
     while i >= 0:
         j = expr.find("}}", i+2)
-        var = get_var(expr[i:j+2], context)
+        var = get_var(expr[i:j+2], scope)
         if var:
             value = var.value
             value = value if isinstance(value, str) else \
@@ -1776,7 +1780,7 @@ def render_expr(expr, context):
     return expr
 
 
-def get_var(expr, context):
+def get_var(expr, scope):
     expr = str(expr)
     assert expr[:2] == "{{" and expr[-2:] == "}}", "Parse failed: %s" % expr
     if expr[:3] == "{{=":
@@ -1784,15 +1788,15 @@ def get_var(expr, context):
     fields = expr[2:-2].split(".")
     if fields[:2] == ["inputs", "parameters"]:
         name = fields[2]
-        return context.inputs.parameters[name]
+        return scope.inputs.parameters[name]
     elif fields[:2] == ["inputs", "artifacts"]:
         name = fields[2]
-        return context.inputs.artifacts[name]
+        return scope.inputs.artifacts[name]
     elif fields[0] in ["steps", "tasks"] and \
             fields[2:4] == ["outputs", "parameters"]:
         step_name = fields[1]
         name = fields[4]
-        for step in context:
+        for step in scope:
             if isinstance(step, list):
                 for ps in step:
                     if ps.name == step_name:
@@ -1804,7 +1808,7 @@ def get_var(expr, context):
             fields[2:4] == ["outputs", "artifacts"]:
         step_name = fields[1]
         name = fields[4]
-        for step in context:
+        for step in scope:
             if isinstance(step, list):
                 for ps in step:
                     if ps.name == step_name:

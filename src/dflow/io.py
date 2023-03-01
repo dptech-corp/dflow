@@ -42,25 +42,25 @@ class Expression:
     def __repr__(self):
         return self.expr
 
-    def eval(self, context):
+    def eval(self, scope):
         from .dag import DAG
         from .steps import Steps
         inputs = ObjectDict()
         inputs["parameters"] = ObjectDict({
-            k: v.value for k, v in context.inputs.parameters.items()
+            k: v.value for k, v in scope.inputs.parameters.items()
         })
         steps = ObjectDict()
-        if isinstance(context, Steps):
+        if isinstance(scope, Steps):
             for step in sum([s if isinstance(s, list) else [s]
-                             for s in context], []):
+                             for s in scope], []):
                 steps[step.name] = ObjectDict({"outputs": ObjectDict({
                     "parameters": ObjectDict({k: v.value for k, v in
                                               step.outputs.parameters.items()
                                               if hasattr(v, "value")}),
                 })})
         tasks = ObjectDict()
-        if isinstance(context, DAG):
-            for task in context:
+        if isinstance(scope, DAG):
+            for task in scope:
                 tasks[task.name] = ObjectDict({"outputs": ObjectDict({
                     "parameters": ObjectDict({k: v.value for k, v in
                                               task.outputs.parameters.items()

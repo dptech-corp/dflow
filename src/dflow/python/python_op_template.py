@@ -428,14 +428,20 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "from dflow.python.utils import handle_output_artifact," \
                   " handle_output_parameter, handle_lineage\n"
         script += f"from {op_class.__module__} import {class_name}\n\n"
-        script += "if __name__ == '__main__':\n"
         if hasattr(op_class, "func"):
-            script += "    op_obj = %s\n" % class_name
+            script += "op_obj = %s\n" % class_name
         elif op is None:
-            script += "    op_obj = %s()\n" % class_name
+            script += "op_obj = %s()\n" % class_name
         else:
-            script += "    op_obj = jsonpickle.loads(r'''%s''')\n" % \
+            script += "op_obj = jsonpickle.loads(r'''%s''')\n" % \
                 jsonpickle.dumps(op)
+        script += "def try_to_execute(input):\n"
+        script += "    try:\n"
+        script += "        return op_obj.execute(input), None\n"
+        script += "    except Exception as e:\n"
+        script += "        traceback.print_exc()\n"
+        script += "        return None, e\n\n"
+        script += "if __name__ == '__main__':\n"
         script += "    input = OPIO()\n"
         script += "    input_sign = %s.get_input_sign()\n" % class_name
         script += "    output_sign = %s.get_output_sign()\n" % class_name
@@ -493,12 +499,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 script += "        input1['%s'] = list(input['%s'])[i]\n" % (
                     name, name)
             script += "        input_list.append(input1)\n"
-            script += "    def try_to_execute(input):\n"
-            script += "        try:\n"
-            script += "            return op_obj.execute(input), None\n"
-            script += "        except Exception as e:\n"
-            script += "            traceback.print_exc()\n"
-            script += "            return None, e\n"
             if self.slices.pool_size == 1:
                 script += "    output_list = []\n"
                 script += "    error_list = []\n"
