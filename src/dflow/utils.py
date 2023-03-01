@@ -50,6 +50,17 @@ def get_key(artifact, raise_error=True):
             return None
 
 
+def set_key(artifact, key):
+    if hasattr(artifact, "s3") and hasattr(artifact.s3, "key"):
+        artifact.s3.key = key
+    elif hasattr(artifact, "oss") and hasattr(artifact.oss, "key"):
+        if not key.startswith(s3_config["repo_prefix"]):
+            key = s3_config["repo_prefix"] + key
+        artifact.oss.key = key
+    elif hasattr(artifact, "key"):
+        artifact.key = key
+
+
 def download_artifact(
         artifact,
         extract: bool = True,

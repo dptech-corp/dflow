@@ -195,6 +195,7 @@ class ArgoStep(ArgoObjectDict):
             self.outputs.artifacts[name].local_path = s3.local_path
             return
         assert isinstance(s3, S3Artifact), "must provide a S3Artifact object"
+        old_key = get_key(self.outputs.artifacts[name], raise_error=False)
         if s3_config["repo_type"] == "s3":
             self.outputs.artifacts[name].s3 = ArgoObjectDict(s3.to_dict())
         elif s3_config["repo_type"] == "oss":
@@ -206,6 +207,7 @@ class ArgoStep(ArgoObjectDict):
         elif s3.key[-4:] != ".tgz" and not hasattr(self.outputs.artifacts[
                 name], "archive"):
             self.outputs.artifacts[name]["archive"] = {"none": {}}
+        self.outputs.artifacts[name].modified = {"old_key": old_key}
 
     def download_sliced_output_artifact(
             self,
