@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.65](https://github.com/deepmodeling/dflow/compare/v1.6.64...v1.6.65) (2023-03-01)
+
+
+### Bug Fixes
+
+* add group to dynamic resource ([4b6ce4a](https://github.com/deepmodeling/dflow/commit/4b6ce4a492813156fb51ed06c21d108d71febafe))
+
 ## [1.6.64](https://github.com/deepmodeling/dflow/compare/v1.6.63...v1.6.64) (2023-02-28)
 
 
