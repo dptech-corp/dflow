@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.6.66](https://github.com/deepmodeling/dflow/compare/v1.6.65...v1.6.66) (2023-03-01)
+
+
+### Bug Fixes
+
+* Can't get attribute 'try_to_execute' on Mac ([74d6841](https://github.com/deepmodeling/dflow/commit/74d6841b2c85aca57dd6b1dd5093e57d8df5c63c))
+* context in debug mode ([74d6841](https://github.com/deepmodeling/dflow/commit/74d6841b2c85aca57dd6b1dd5093e57d8df5c63c))
+* continue_on_success_ratio and continue_on_num_success in debug mode ([74d6841](https://github.com/deepmodeling/dflow/commit/74d6841b2c85aca57dd6b1dd5093e57d8df5c63c))
+
 ## [1.6.65](https://github.com/deepmodeling/dflow/compare/v1.6.64...v1.6.65) (2023-03-01)
 
 
