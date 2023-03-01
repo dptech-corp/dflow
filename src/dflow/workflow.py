@@ -216,6 +216,10 @@ class Workflow:
             reuse_step: a list of steps to be reused in the workflow
         """
         if config["mode"] == "debug":
+            if self.context is not None:
+                assert isinstance(self.context, (Context, Executor))
+                self = self.context.render(self)
+
             if self.id is None:
                 while True:
                     self.id = self.name + "-" + randstr()
@@ -291,7 +295,7 @@ class Workflow:
             with open(os.path.join(wfdir, "status"), "w") as f:
                 f.write("Running")
             try:
-                self.entrypoint.run(self.id)
+                self.entrypoint.run(self.id, self.context)
                 with open(os.path.join(wfdir, "status"), "w") as f:
                     f.write("Succeeded")
             except Exception:

@@ -102,14 +102,15 @@ class DAG(OPTemplate):
             if ready:
                 task.phase = "Pending"
                 i = self.tasks.index(task)
-                proc = Process(target=task.run_with_queue,
-                               args=(self, i, self.queue, config, s3_config))
+                proc = Process(target=task.run_with_queue, args=(
+                    self, self.context, i, self.queue, config, s3_config))
                 proc.start()
                 self.waiting.remove(task)
                 self.running.append(task)
 
-    def run(self, workflow_id=None):
+    def run(self, workflow_id=None, context=None):
         self.workflow_id = workflow_id
+        self.context = context
         from copy import deepcopy
         from multiprocessing import Queue
         self.queue = Queue()

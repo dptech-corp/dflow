@@ -106,7 +106,7 @@ class Steps(OPTemplate):
                              parallelism=self.parallelism)
         return argo_template, templates
 
-    def run(self, workflow_id=None):
+    def run(self, workflow_id=None, context=None):
         self.workflow_id = workflow_id
         for step in self:
             if isinstance(step, list):
@@ -115,8 +115,9 @@ class Steps(OPTemplate):
                 procs = []
                 for i, ps in enumerate(step):
                     ps.phase = "Pending"
-                    proc = Process(target=ps.run_with_queue,
-                                   args=(self, i, queue, config, s3_config))
+                    proc = Process(
+                        target=ps.run_with_queue,
+                        args=(self, context, i, queue, config, s3_config))
                     proc.start()
                     procs.append(proc)
 
@@ -131,4 +132,4 @@ class Steps(OPTemplate):
                     else:
                         step[j].outputs = deepcopy(ps.outputs)
             else:
-                step.run(self)
+                step.run(self, context)
