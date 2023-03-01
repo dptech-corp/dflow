@@ -17,7 +17,7 @@ from .op_template import get_k8s_core_v1_api
 from .step import Step
 from .steps import Steps
 from .task import Task
-from .utils import copy_s3, get_key, linktree, randstr
+from .utils import copy_s3, get_key, linktree, randstr, set_key
 
 try:
     import urllib3
@@ -361,8 +361,21 @@ class Workflow:
         }
 
     def handle_reused_artifact(self, step, name, art):
+        art_key = get_key(art, raise_error=False)
+        if hasattr(art, "modified"):
+            key = art.modified["old_key"]
+            logger.debug("copying artifact: %s -> %s" % (art_key, key))
+            copy_s3(art_key, key)
+            set_key(art, key)
+            art_key = key
+
+        art_key_prefix = art_key
+        if art_key_prefix.startswith(s3_config["prefix"]):
+            art_key_prefix = art_key_prefix[len(s3_config["prefix"]):]
+        if art_key_prefix.endswith(name):
+            art_key_prefix = art_key_prefix[:-len(name)-1]
+
         group_key = step.inputs.parameters["dflow_group_key"].value
-        wf_name = step.workflow
         memoize_key = "%s-%s-init-artifact" % (self.id, group_key)
         if memoize_key not in self.memoize_map:
             self.memoize_map[memoize_key] = {
@@ -370,21 +383,14 @@ class Workflow:
                 "outputs": {
                     "parameters": [{
                         "name": "dflow_artifact_key",
-                        "value": "%s/%s" % (wf_name, group_key),
+                        "value": art_key_prefix,
                     }],
                     "artifacts": [],
                 },
                 "creationTimestamp": step.finishedAt,
-                "lastHitTimestamp": step.finishedAt
+                "lastHitTimestamp": step.finishedAt,
             }
         init_step = self.memoize_map[memoize_key]
-        art_key = get_key(art, raise_error=False)
-        if group_key not in art_key:
-            key = "%s%s/%s/%s" % (s3_config["prefix"], wf_name, group_key,
-                                  name)
-            logger.debug("copying artifact: %s -> %s" % (art_key, key))
-            copy_s3(art_key, key)
-            art_key = key
 
         init_art = None
         for art in init_step["outputs"]["artifacts"]:
@@ -392,17 +398,11 @@ class Workflow:
                 init_art = art
                 break
         if not init_art:
-            init_art = {"name": name}
+            init_art = {"name": name, "archive": {"none": {}}}
             if s3_config["repo_type"] == "s3":
-                init_art["s3"] = {
-                    "key": art_key,
-                    "archive": {"none": {}},
-                }
+                init_art["s3"] = {"key": art_key}
             elif s3_config["repo_type"] == "oss":
-                init_art["oss"] = {
-                    "key": art_key,
-                    "archive": {"none": {}},
-                }
+                init_art["oss"] = {"key": s3_config["repo_prefix"] + art_key}
             init_step["outputs"]["artifacts"].append(init_art)
 
     def handle_reused_artifact_with_copy(self, step, name, art):
@@ -413,6 +413,7 @@ class Workflow:
                     "dflow_group_key"].value, name)
             logger.debug("copying artifact: %s -> %s" % (old_key, key))
             copy_s3(old_key, key)
+            set_key(art, key)
             self.copied_keys.append(old_key)
 
     def convert_to_argo(self, reuse_step=None):
