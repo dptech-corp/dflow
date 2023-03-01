@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.67](https://github.com/deepmodeling/dflow/compare/v1.6.66...v1.6.67) (2023-03-01)
+
+
+### Bug Fixes
+
+* reusing sliced steps followed by reusing sliced step in the same group ([a5cdb3a](https://github.com/deepmodeling/dflow/commit/a5cdb3a9c1ec8d9b00eaac30004a8ab9f6a250c6))
+
 ## [1.6.66](https://github.com/deepmodeling/dflow/compare/v1.6.65...v1.6.66) (2023-03-01)
 
 
