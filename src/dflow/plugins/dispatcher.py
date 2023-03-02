@@ -247,10 +247,13 @@ class DispatcherExecutor(Executor):
             new_template.script += template.script
         new_template.script += "\"\"\")\n"
 
-        if self.machine_dict["context_type"] == "Bohrium" and "image_name" \
-                not in self.machine_dict["remote_profile"]["input_data"]:
-            self.machine_dict["remote_profile"]["input_data"]["image_name"] = \
-                template.image
+        if self.machine_dict["context_type"] == "Bohrium":
+            self.machine_dict["remote_profile"]["input_data"][
+                "backward_files"] = self.task_dict["backward_files"]
+            if "image_name" not in self.machine_dict["remote_profile"][
+                    "input_data"]:
+                self.machine_dict["remote_profile"]["input_data"][
+                    "image_name"] = template.image
 
         self.machine_dict["local_root"] = self.work_root
         new_template.script += "import json\n"
