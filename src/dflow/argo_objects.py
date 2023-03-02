@@ -11,8 +11,8 @@ import jsonpickle
 from .config import config, s3_config
 from .io import S3Artifact
 from .op_template import get_k8s_client
-from .utils import (download_artifact, download_s3, get_key, upload_artifact,
-                    upload_s3)
+from .utils import download_artifact, get_key, upload_s3
+
 try:
     import kubernetes
 except Exception:
@@ -88,16 +88,6 @@ class ArgoParameter(ArgoObjectDict):
                     with open(os.path.join(tmpdir, fs[0]), "r") as f:
                         content = jsonpickle.loads(f.read())
                         self.value = content
-                        # For backward compatibility
-                        # TODO: delete me in the future
-                        if isinstance(content, dict) and "value" in content:
-                            if "type" in content:
-                                self.type = content["type"]
-                            if "type" in content and \
-                                    content["type"] != str(str):
-                                self.value = jsonpickle.loads(content["value"])
-                            else:
-                                self.value = content["value"]
                 except Exception as e:
                     logger.warning("Failed to load parameter value from "
                                    "artifact: %s" % e)
@@ -212,65 +202,6 @@ class ArgoStep(ArgoObjectDict):
                 name], "archive"):
             self.outputs.artifacts[name]["archive"] = {"none": {}}
         self.outputs.artifacts[name].modified = {"old_key": old_key}
-
-    def download_sliced_output_artifact(
-            self,
-            name: str,
-            path: os.PathLike = ".",
-    ) -> None:
-        """
-        Download output artifact of a sliced step
-
-        Args:
-            name: artifact name
-            path: local path
-        """
-        assert (hasattr(self, "outputs") and
-                hasattr(self.outputs, "parameters") and
-                "dflow_%s_path_list" % name in self.outputs.parameters), \
-            "%s is not sliced output artifact" % name
-        path_list = jsonpickle.loads(
-            self.outputs.parameters["dflow_%s_path_list" % name].value)
-        for item in path_list:
-            sub_path = item["dflow_list_item"]
-            if config["mode"] == "debug":
-                os.makedirs(os.path.dirname(os.path.join(path, sub_path)),
-                            exist_ok=True)
-                os.symlink(
-                    os.path.join(self.outputs.artifacts[name].local_path,
-                                 sub_path), os.path.join(path, sub_path))
-            else:
-                download_s3(get_key(self.outputs.artifacts[name]) + "/" +
-                            sub_path, path=os.path.join(path, sub_path))
-
-    def upload_and_modify_sliced_output_artifact(
-            self,
-            name: str,
-            path: Union[os.PathLike, List[os.PathLike]],
-    ) -> None:
-        """
-        Upload and modify output artifact of a sliced step
-
-        Args:
-            name: artifact name
-            path: local path to be uploaded
-        """
-        assert (hasattr(self, "outputs") and
-                hasattr(self.outputs, "parameters") and
-                "dflow_%s_path_list" % name in self.outputs.parameters), \
-            "%s is not sliced output artifact" % name
-        path_list = jsonpickle.loads(
-            self.outputs.parameters["dflow_%s_path_list" % name].value)
-        if not isinstance(path, list):
-            path = [path]
-        assert len(path_list) == len(path), "Require %s paths, %s paths"\
-            " provided" % (len(path_list), len(path))
-        path_list.sort(key=lambda x: x['order'])
-        new_path = [None] * (path_list[-1]['order'] + 1)
-        for local_path, item in zip(path, path_list):
-            new_path[item["order"]] = local_path
-        s3 = upload_artifact(new_path, archive=None)
-        self.modify_output_artifact(name, s3)
 
     def get_pod(self):
         assert self.type == "Pod"

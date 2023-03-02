@@ -96,13 +96,6 @@ def handle_input_parameter(name, value, sign, slices=None, data_root="/tmp"):
         with open(data_root + "/inputs/parameters/" + name, "r") as f:
             content = jsonpickle.loads(f.read())
             obj = content
-            # For backward compatibility
-            # TODO: delete me in the future
-            if isinstance(content, dict) and "value" in content:
-                if sign.type == str and slices is None:
-                    obj = content["value"]
-                else:
-                    obj = jsonpickle.loads(content["value"])
     else:
         if isinstance(sign, Parameter):
             sign = sign.type
@@ -192,7 +185,7 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
             "catalog_dir_name"], uuid.uuid4()), "w") as f:
         f.write(jsonpickle.dumps({"path_list": path_list}))
     handle_empty_dir(data_root + "/outputs/artifacts/%s" % name)
-    if config["save_path_as_parameter"] or slices is not None:
+    if config["save_path_as_parameter"]:
         with open(data_root + '/outputs/parameters/dflow_%s_path_list'
                   % name, 'w') as f:
             f.write(jsonpickle.dumps(path_list))

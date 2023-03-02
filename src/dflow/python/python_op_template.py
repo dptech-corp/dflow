@@ -360,13 +360,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                         "dflow_%s_sub_path}}" % (self.tmp_root, name, name),
                         optional=sign.optional, type=sign.type)
 
-            for name in self.output_artifact_slices.keys():
-                self.outputs.parameters["dflow_%s_path_list" %
-                                        name] = OutputParameter(
-                    value_from_path="%s/outputs/parameters/"
-                    "dflow_%s_path_list" % (self.tmp_root, name),
-                    default=[])
-
     def render_script(self):
         op_class = self.op_class
         class_name = op_class.__name__
