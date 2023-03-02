@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.6.68](https://github.com/deepmodeling/dflow/compare/v1.6.67...v1.6.68) (2023-03-02)
+
+
+### Bug Fixes
+
+* behavior of directories when downloading sliced artifact ([f0ec731](https://github.com/deepmodeling/dflow/commit/f0ec731a55792513b8e6587ebab9778aa5978811))
+* dynamically render if expression ([f0ec731](https://github.com/deepmodeling/dflow/commit/f0ec731a55792513b8e6587ebab9778aa5978811))
+* warnings of unclosed socket ([f0ec731](https://github.com/deepmodeling/dflow/commit/f0ec731a55792513b8e6587ebab9778aa5978811))
+
 ## [1.6.67](https://github.com/deepmodeling/dflow/compare/v1.6.66...v1.6.67) (2023-03-01)
 
 
