@@ -10,9 +10,13 @@ import jsonpickle
 
 from .config import config, s3_config
 from .io import S3Artifact
-from .op_template import get_k8s_core_v1_api, get_k8s_dynamic_client
+from .op_template import get_k8s_client
 from .utils import (download_artifact, download_s3, get_key, upload_artifact,
                     upload_s3)
+try:
+    import kubernetes
+except Exception:
+    pass
 
 logger = logging.getLogger(__name__)
 
@@ -275,11 +279,14 @@ class ArgoStep(ArgoObjectDict):
         template_name = self.templateName
         node_id = self.id
         pod_name = get_pod_name(wf_name, node_name, template_name, node_id)
-        core_v1_api = get_k8s_core_v1_api()
-        self.pod = core_v1_api.api_client.call_api(
-            '/api/v1/namespaces/%s/pods/%s' % (config["namespace"], pod_name),
-            'GET', response_type='V1Pod', header_params=config["http_headers"],
-            _return_http_data_only=True)
+        with get_k8s_client() as k8s_client:
+            core_v1_api = kubernetes.client.CoreV1Api(k8s_client)
+            self.pod = core_v1_api.api_client.call_api(
+                '/api/v1/namespaces/%s/pods/%s' % (config["namespace"],
+                                                   pod_name),
+                'GET', response_type='V1Pod',
+                header_params=config["http_headers"],
+                _return_http_data_only=True)
         return self.pod
 
     def get_script(self):
@@ -317,37 +324,39 @@ class ArgoStep(ArgoObjectDict):
         if self.pod is None:
             self.get_pod()
         self.pod.metadata.resource_version = None
-        core_v1_api = get_k8s_core_v1_api()
-        try:
+        with get_k8s_client() as k8s_client:
+            core_v1_api = kubernetes.client.CoreV1Api(k8s_client)
+            try:
+                core_v1_api.api_client.call_api(
+                    '/api/v1/namespaces/%s/pods/%s' % (config["namespace"],
+                                                       self.pod.metadata.name),
+                    'DELETE', response_type='V1Pod',
+                    header_params=config["http_headers"],
+                    _return_http_data_only=True)
+            except Exception as e:
+                logging.warn("Failed to delete pod", e)
             core_v1_api.api_client.call_api(
-                '/api/v1/namespaces/%s/pods/%s' % (config["namespace"],
-                                                   self.pod.metadata.name),
-                'DELETE', response_type='V1Pod',
+                '/api/v1/namespaces/%s/pods' % config["namespace"],
+                'POST', body=self.pod, response_type='V1Pod',
                 header_params=config["http_headers"],
                 _return_http_data_only=True)
-        except Exception as e:
-            logging.warn("Failed to delete pod", e)
-        core_v1_api.api_client.call_api(
-            '/api/v1/namespaces/%s/pods' % config["namespace"],
-            'POST', body=self.pod, response_type='V1Pod',
-            header_params=config["http_headers"], _return_http_data_only=True)
-        try:
-            dynamic_client = get_k8s_dynamic_client()
-            dynamic_client.patch(
-                dynamic_client.resources.get(
-                    group="argoproj.io", api_version="v1alpha1",
-                    kind="Workflow"),
-                body={
-                    "metadata": {
-                        "namespace": config["namespace"],
-                        "name": self.workflow,
+            try:
+                dynamic_client = kubernetes.dynamic.DynamicClient(k8s_client)
+                dynamic_client.patch(
+                    dynamic_client.resources.get(
+                        group="argoproj.io", api_version="v1alpha1",
+                        kind="Workflow"),
+                    body={
+                        "metadata": {
+                            "namespace": config["namespace"],
+                            "name": self.workflow,
+                        },
+                        "status": {"nodes": {self.id: {"phase": "Running"}}},
                     },
-                    "status": {"nodes": {self.id: {"phase": "Running"}}},
-                },
-                content_type="application/merge-patch+json",
-                header_params=config["http_headers"])
-        except Exception as e:
-            logging.warn("Failed to patch workflow", e)
+                    content_type="application/merge-patch+json",
+                    header_params=config["http_headers"])
+            except Exception as e:
+                logging.warn("Failed to patch workflow", e)
 
 
 max_k8s_resource_name_length = 253
