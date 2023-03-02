@@ -66,6 +66,7 @@ def download_artifact(
         extract: bool = True,
         sub_path: Optional[str] = None,
         slice: Optional[int] = None,
+        path: os.PathLike = ".",
         **kwargs,
 ) -> List[str]:
     """
@@ -85,7 +86,6 @@ def download_artifact(
         skip_exists: skip files with the same MD5
     """
     if config["mode"] == "debug":
-        path = kwargs["path"] if "path" in kwargs else "."
         linktree(artifact.local_path, path)
         return assemble_path_list(path, remove=True)
 
@@ -93,16 +93,14 @@ def download_artifact(
 
     if slice is not None:
         sub_path = path_list_of_artifact(artifact)[slice]
-
-    if sub_path is not None:
         key = key + "/" + sub_path
-        if "path" in kwargs:
-            kwargs["path"] = os.path.join(kwargs["path"],
-                                          os.path.dirname(sub_path))
-        else:
-            kwargs["path"] = os.path.join(".", os.path.dirname(sub_path))
+        path = os.path.join(path, os.path.dirname(sub_path))
+        download_s3(key=key, recursive=True, path=path, keep_dir=True,
+                    **kwargs)
+        remove_empty_dir_tag(path)
+        return path
 
-    path = download_s3(key=key, recursive=True, **kwargs)
+    path = download_s3(key=key, recursive=True, path=path, **kwargs)
     if key[-4:] == ".tgz" and extract:
         path = os.path.join(path, os.path.basename(key))
         tf = tarfile.open(path, "r:gz")
@@ -273,13 +271,12 @@ def get_md5(f):
 
 def download_s3(
         key: str,
-        path: Optional[os.PathLike] = None,
+        path: os.PathLike = ".",
         recursive: bool = True,
         skip_exists: bool = False,
+        keep_dir: bool = False,
         **kwargs,
 ) -> str:
-    if path is None:
-        path = "."
     if s3_config["storage_client"] is not None:
         client = s3_config["storage_client"]
     else:
@@ -291,6 +288,8 @@ def download_s3(
                 rel_path = rel_path[1:]
             if rel_path == "":
                 file_path = os.path.join(path, os.path.basename(key))
+            elif keep_dir:
+                file_path = os.path.join(path, os.path.basename(key), rel_path)
             else:
                 file_path = os.path.join(path, rel_path)
 

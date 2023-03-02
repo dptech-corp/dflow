@@ -271,12 +271,17 @@ class IfExpression(ArgoVar, Expression):
             self._if = _if
         self._then = _then
         self._else = _else
-        if config["mode"] == "debug":
-            return super().__init__("(%s if %s else %s)" % (
-                to_expr(_then), to_expr(_if), to_expr(_else)))
-        else:
-            super().__init__("(%s ? %s : %s)" % (
-                self._if, to_expr(_then), to_expr(_else)))
+
+    def __getattr__(self, key):
+        # generate attribute expr dynamically because it may change
+        if key == "expr":
+            if config["mode"] == "debug":
+                return "(%s if %s else %s)" % (
+                    to_expr(self._then), self._if, to_expr(self._else))
+            else:
+                return "(%s ? %s : %s)" % (
+                    self._if, to_expr(self._then), to_expr(self._else))
+        return super().__getattr__(key)
 
 
 def if_expression(

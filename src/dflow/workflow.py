@@ -13,7 +13,7 @@ from .context import Context
 from .context_syntax import GLOBAL_CONTEXT
 from .dag import DAG
 from .executor import Executor
-from .op_template import get_k8s_core_v1_api
+from .op_template import get_k8s_client
 from .step import Step
 from .steps import Steps
 from .task import Task
@@ -162,6 +162,7 @@ class Workflow:
         if parameters is None:
             parameters = {}
         self.parameters = parameters
+        self.k8s_client = None
 
         if self.artifact_repo_key is not None:
             core_v1_api = self.get_k8s_core_v1_api()
@@ -181,8 +182,10 @@ class Workflow:
                     s3_config["repo_prefix"] = s3["keyFormat"][:-len(t)]
 
     def get_k8s_core_v1_api(self):
-        return get_k8s_core_v1_api(self.k8s_api_server, self.token,
-                                   self.k8s_config_file)
+        if self.k8s_client is None:
+            self.k8s_client = get_k8s_client(self.k8s_api_server, self.token,
+                                             self.k8s_config_file)
+        return kubernetes.client.CoreV1Api(self.k8s_client)
 
     def __enter__(self) -> 'Workflow':
         GLOBAL_CONTEXT.in_context = True
