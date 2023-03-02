@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.69](https://github.com/deepmodeling/dflow/compare/v1.6.68...v1.6.69) (2023-03-02)
+
+
+### Bug Fixes
+
+* clean up useless codes ([b908314](https://github.com/deepmodeling/dflow/commit/b908314e0226bfdcc6f483ef32ea1cb69230e836))
+
 ## [1.6.68](https://github.com/deepmodeling/dflow/compare/v1.6.67...v1.6.68) (2023-03-02)
 
 
