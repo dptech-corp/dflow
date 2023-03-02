@@ -268,20 +268,6 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.argo_objects.</span></span><span class="sig-name descname"><span class="pre">ArgoStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoStep" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dflow.argo_objects.ArgoObjectDict" title="dflow.argo_objects.ArgoObjectDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArgoObjectDict</span></code></a></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="dflow.argo_objects.ArgoStep.download_sliced_output_artifact">
-<span class="sig-name descname"><span class="pre">download_sliced_output_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dflow.argo_objects.ArgoStep.download_sliced_output_artifact" title="Permalink to this definition">¶</a></dt>
-<dd><p>Download output artifact of a sliced step</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – artifact name</p></li>
-<li><p><strong>path</strong> – local path</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="dflow.argo_objects.ArgoStep.get_pod">
 <span class="sig-name descname"><span class="pre">get_pod</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoStep.get_pod" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -338,20 +324,6 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 <dt class="sig sig-object py" id="dflow.argo_objects.ArgoStep.set_script">
 <span class="sig-name descname"><span class="pre">set_script</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.argo_objects.ArgoStep.set_script" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="dflow.argo_objects.ArgoStep.upload_and_modify_sliced_output_artifact">
-<span class="sig-name descname"><span class="pre">upload_and_modify_sliced_output_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dflow.argo_objects.ArgoStep.upload_and_modify_sliced_output_artifact" title="Permalink to this definition">¶</a></dt>
-<dd><p>Upload and modify output artifact of a sliced step</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> – artifact name</p></li>
-<li><p><strong>path</strong> – local path to be uploaded</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
 
 </dd></dl>
 
@@ -3607,7 +3579,6 @@ parameters</p></li>
 </li>
 <li><a class="reference internal" href="#dflow.argo_objects.ArgoParameter"><code class="docutils literal notranslate"><span class="pre">ArgoParameter</span></code></a></li>
 <li><a class="reference internal" href="#dflow.argo_objects.ArgoStep"><code class="docutils literal notranslate"><span class="pre">ArgoStep</span></code></a><ul>
-<li><a class="reference internal" href="#dflow.argo_objects.ArgoStep.download_sliced_output_artifact"><code class="docutils literal notranslate"><span class="pre">ArgoStep.download_sliced_output_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.argo_objects.ArgoStep.get_pod"><code class="docutils literal notranslate"><span class="pre">ArgoStep.get_pod()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.argo_objects.ArgoStep.get_script"><code class="docutils literal notranslate"><span class="pre">ArgoStep.get_script()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.argo_objects.ArgoStep.handle_big_parameters"><code class="docutils literal notranslate"><span class="pre">ArgoStep.handle_big_parameters()</span></code></a></li>
@@ -3616,7 +3587,6 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.argo_objects.ArgoStep.modify_output_parameter"><code class="docutils literal notranslate"><span class="pre">ArgoStep.modify_output_parameter()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.argo_objects.ArgoStep.replay"><code class="docutils literal notranslate"><span class="pre">ArgoStep.replay()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.argo_objects.ArgoStep.set_script"><code class="docutils literal notranslate"><span class="pre">ArgoStep.set_script()</span></code></a></li>
-<li><a class="reference internal" href="#dflow.argo_objects.ArgoStep.upload_and_modify_sliced_output_artifact"><code class="docutils literal notranslate"><span class="pre">ArgoStep.upload_and_modify_sliced_output_artifact()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#dflow.argo_objects.ArgoWorkflow"><code class="docutils literal notranslate"><span class="pre">ArgoWorkflow</span></code></a><ul>
