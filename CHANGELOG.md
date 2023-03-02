@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.70](https://github.com/deepmodeling/dflow/compare/v1.6.69...v1.6.70) (2023-03-02)
+
+
+### Bug Fixes
+
+* pass backward_files to dispatcher Bohrium input_data ([e31e749](https://github.com/deepmodeling/dflow/commit/e31e749d58a104caf90993931524674bb6db54b4))
+
 ## [1.6.69](https://github.com/deepmodeling/dflow/compare/v1.6.68...v1.6.69) (2023-03-02)
 
 
