@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.71](https://github.com/deepmodeling/dflow/compare/v1.6.70...v1.6.71) (2023-03-07)
+
+
+### Bug Fixes
+
+* remove node name before replay a step ([5c53812](https://github.com/deepmodeling/dflow/commit/5c53812a48069823cddb155e9e922f85e691ed0d))
+
 ## [1.6.70](https://github.com/deepmodeling/dflow/compare/v1.6.69...v1.6.70) (2023-03-02)
 
 
