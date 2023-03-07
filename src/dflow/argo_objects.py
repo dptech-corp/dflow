@@ -255,6 +255,7 @@ class ArgoStep(ArgoObjectDict):
         if self.pod is None:
             self.get_pod()
         self.pod.metadata.resource_version = None
+        self.pod.spec.node_name = None
         with get_k8s_client() as k8s_client:
             core_v1_api = kubernetes.client.CoreV1Api(k8s_client)
             try:
@@ -271,23 +272,6 @@ class ArgoStep(ArgoObjectDict):
                 'POST', body=self.pod, response_type='V1Pod',
                 header_params=config["http_headers"],
                 _return_http_data_only=True)
-            try:
-                dynamic_client = kubernetes.dynamic.DynamicClient(k8s_client)
-                dynamic_client.patch(
-                    dynamic_client.resources.get(
-                        group="argoproj.io", api_version="v1alpha1",
-                        kind="Workflow"),
-                    body={
-                        "metadata": {
-                            "namespace": config["namespace"],
-                            "name": self.workflow,
-                        },
-                        "status": {"nodes": {self.id: {"phase": "Running"}}},
-                    },
-                    content_type="application/merge-patch+json",
-                    header_params=config["http_headers"])
-            except Exception as e:
-                logging.warn("Failed to patch workflow", e)
 
 
 max_k8s_resource_name_length = 253
