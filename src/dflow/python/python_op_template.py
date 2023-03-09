@@ -596,8 +596,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         return slices
 
     def render_slices(self, slices=None):
-        if slices is None:
-            return None
+        if not isinstance(slices, str):
+            return slices
 
         i = slices.find("{{item")
         while i >= 0:

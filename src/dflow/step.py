@@ -1062,6 +1062,7 @@ class Step:
                 self.template.inputs.artifacts[k].optional = True
             elif isinstance(v, (list, tuple)):
                 self.template = deepcopy(self.template)
+                slices = []
                 for i, a in enumerate(v):
                     vn = "dflow_%s_%s" % (k, i)
                     self.template.inputs.artifacts[vn] = deepcopy(
@@ -1071,12 +1072,23 @@ class Step:
                     self.inputs.artifacts[vn] = deepcopy(
                         self.template.inputs.artifacts[vn])
                     self.inputs.artifacts[vn].source = a
+                    if hasattr(a, "slice") and a.slice is not None:
+                        slices.append(a.slice)
+                    else:
+                        slices.append(None)
+                if any(map(lambda x: x is not None, slices)):
+                    self.template.input_artifact_slices[k] = slices
+                    self.template.render_script()
                 del self.template.inputs.artifacts[k]
                 del self.inputs.artifacts[k]
                 self.template.n_parts[k] = len(v)
                 self.template.render_script()
             else:
                 self.inputs.artifacts[k].source = v
+                if hasattr(v, "slice") and v.slice is not None:
+                    self.template.input_artifact_slices[k] = v.slice if \
+                        isinstance(v.slice, int) else "'%s'" % v.slice
+                    self.template.render_script()
                 if config["save_path_as_parameter"]:
                     if isinstance(v, S3Artifact) and v.path_list is not None:
                         try:
