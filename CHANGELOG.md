@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.72](https://github.com/deepmodeling/dflow/compare/v1.6.71...v1.6.72) (2023-03-09)
+
+
+### Bug Fixes
+
+* support for pass items of artifact as arguments ([da9b75a](https://github.com/deepmodeling/dflow/commit/da9b75a96f4fd91f067c00b1089ba4450bc140e0))
+
 ## [1.6.71](https://github.com/deepmodeling/dflow/compare/v1.6.70...v1.6.71) (2023-03-07)
 
 
