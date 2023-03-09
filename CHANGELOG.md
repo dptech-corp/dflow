@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.73](https://github.com/deepmodeling/dflow/compare/v1.6.72...v1.6.73) (2023-03-09)
+
+
+### Bug Fixes
+
+* avoid repeated deepcopy ([4b651fe](https://github.com/deepmodeling/dflow/commit/4b651fe5eff9896fef9ca72bb212dd49922b3eae))
+
 ## [1.6.72](https://github.com/deepmodeling/dflow/compare/v1.6.71...v1.6.72) (2023-03-09)
 
 
