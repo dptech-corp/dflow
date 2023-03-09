@@ -1,12 +1,11 @@
 import os
-from copy import deepcopy
 from typing import Optional, List, Union
 
 from .common import S3Artifact
 from .config import config
 from .io import InputArtifact
 from .op_template import OPTemplate
-from .utils import randstr, upload_s3
+from .utils import upload_s3
 
 try:
     from argo.workflows.client import (V1HostPathVolumeSource, V1Volume,
@@ -50,7 +49,7 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None):
 
 def render_script_with_tmp_root(template, tmp_root):
     if hasattr(template, "render_script"):
-        tmp_template = deepcopy(template)
+        tmp_template = template.copy()
         tmp_template.tmp_root = tmp_root
         tmp_template.render_script()
         return tmp_template.script
@@ -204,8 +203,7 @@ download() {
         return script
 
     def render(self, template):
-        new_template = deepcopy(template)
-        new_template.name += "-" + randstr()
+        new_template = template.copy()
         new_template.image = self.image
         new_template.image_pull_policy = self.image_pull_policy
         new_template.command = self.command

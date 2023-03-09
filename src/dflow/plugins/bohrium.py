@@ -1,6 +1,5 @@
 import json
 import os
-from copy import deepcopy
 from getpass import getpass
 from typing import Optional
 
@@ -9,7 +8,7 @@ from ..config import s3_config
 from ..context import Context
 from ..executor import Executor, render_script_with_tmp_root
 from ..op_template import PythonScriptOPTemplate, ShellOPTemplate
-from ..utils import StorageClient, randstr
+from ..utils import StorageClient
 from ..workflow import Workflow
 
 succ_code = [0, "0000"]
@@ -118,8 +117,7 @@ class BohriumExecutor(Executor):
         self.extra = extra
 
     def render(self, template):
-        new_template = deepcopy(template)
-        new_template.name += "-" + randstr()
+        new_template = template.copy()
         if self.executor is not None:
             new_template.annotations["workflow.dp.tech/executor"] = \
                 self.executor
@@ -194,8 +192,7 @@ class BohriumContext(Context):
             return template
 
         if isinstance(template, (ShellOPTemplate, PythonScriptOPTemplate)):
-            new_template = deepcopy(template)
-            new_template.name += "-" + randstr()
+            new_template = template.copy()
             new_template.annotations["workflow.dp.tech/executor"] = \
                 self.executor
             if self.executor == "bohrium_v2":

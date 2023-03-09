@@ -1,12 +1,10 @@
 import json
-from copy import deepcopy
 from getpass import getpass
 from typing import Optional
 
 from ..context import Context
 from ..executor import Executor, render_script_with_tmp_root
 from ..op_template import PythonScriptOPTemplate, ShellOPTemplate
-from ..utils import randstr
 from ..workflow import Workflow
 
 succ_code = [0, "0000"]
@@ -32,8 +30,7 @@ class LebesgueExecutor(Executor):
         self.extra = extra
 
     def render(self, template):
-        new_template = deepcopy(template)
-        new_template.name += "-" + randstr()
+        new_template = template.copy()
         if self.executor is not None:
             new_template.annotations["workflow.dp.tech/executor"] = \
                 self.executor
@@ -137,8 +134,7 @@ class LebesgueContext(Context):
             return template
 
         if isinstance(template, (ShellOPTemplate, PythonScriptOPTemplate)):
-            new_template = deepcopy(template)
-            new_template.name += "-" + randstr()
+            new_template = template.copy()
             new_template.annotations["workflow.dp.tech/executor"] = \
                 self.executor
             if self.executor == "lebesgue_v2":

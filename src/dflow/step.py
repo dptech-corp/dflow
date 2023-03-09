@@ -139,9 +139,8 @@ class ArgoLen(ArgoVar):
         else:
             if isinstance(param, OutputParameter) and param.save_as_artifact:
                 step = param.step
-                new_template = deepcopy(step.template)
-                new_template.outputs.parameters[param.name].save_both = True
-                step.template = new_template
+                step.template = step.template.copy()
+                step.template.outputs.parameters[param.name].save_both = True
                 param.save_both = True
                 super().__init__("len(sprig.fromJson(%s))" %
                                  param.expr_as_parameter())
@@ -307,26 +306,23 @@ class Step:
             self.inputs.parameters["dflow_key"] = InputParameter(
                 value=str(self.key))
 
-        new_template = None
-
         if slices is not None:
-            new_template = deepcopy(self.template)
-            new_template.name = self.template.name + "-" + randstr()
-            new_template.slices = slices
-            for name, par in new_template.inputs.parameters.items():
+            self.template = self.template.copy()
+            self.template.slices = slices
+            for name, par in self.template.inputs.parameters.items():
                 if name not in self.inputs.parameters:
                     self.inputs.parameters[name] = deepcopy(par)
 
-            new_template.inputs.parameters["dflow_slice"] = InputParameter(
+            self.template.inputs.parameters["dflow_slice"] = InputParameter(
                 value=slices.slices)
             self.inputs.parameters["dflow_slice"] = InputParameter(
                 value=slices.slices)
             for name in slices.input_parameter:
-                for step in (new_template if hasattr(new_template, "__iter__")
-                             else []):
+                for step in (self.template if hasattr(
+                        self.template, "__iter__") else []):
                     for par in list(step.inputs.parameters.values()):
                         # input parameter referring to sliced input parameter
-                        if par.value is new_template.inputs.parameters[name]:
+                        if par.value is self.template.inputs.parameters[name]:
                             step.template.inputs.parameters["dflow_slice"] = \
                                 InputParameter()
                             step.template.add_slices(Slices(
@@ -340,11 +336,11 @@ class Step:
                                     value="{{inputs.parameters.dflow_slice}}")
 
             for name in slices.input_artifact:
-                for step in (new_template if hasattr(new_template, "__iter__")
-                             else []):
+                for step in (self.template if hasattr(
+                        self.template, "__iter__") else []):
                     for art in list(step.inputs.artifacts.values()):
                         # input artifact referring to sliced input artifact
-                        if art.source is new_template.inputs.artifacts[name]:
+                        if art.source is self.template.inputs.artifacts[name]:
                             step.template.inputs.parameters["dflow_slice"] = \
                                 InputParameter()
                             step.template.add_slices(Slices(
@@ -374,15 +370,15 @@ class Step:
 
             for name in slices.output_parameter:
                 # sliced output parameter from
-                if new_template.outputs.parameters[name].value_from_parameter\
+                if self.template.outputs.parameters[name].value_from_parameter\
                         is not None:
-                    stack_output_parameter(new_template.outputs.parameters[
+                    stack_output_parameter(self.template.outputs.parameters[
                         name].value_from_parameter)
-                elif new_template.outputs.parameters[name].\
+                elif self.template.outputs.parameters[name].\
                         value_from_expression is not None:
-                    stack_output_parameter(new_template.outputs.parameters[
+                    stack_output_parameter(self.template.outputs.parameters[
                         name].value_from_expression._then)
-                    stack_output_parameter(new_template.outputs.parameters[
+                    stack_output_parameter(self.template.outputs.parameters[
                         name].value_from_expression._else)
 
             def stack_output_artifact(art):
@@ -402,17 +398,15 @@ class Step:
 
             for name in slices.output_artifact:
                 # sliced output artifact from
-                if new_template.outputs.artifacts[name]._from is not None:
+                if self.template.outputs.artifacts[name]._from is not None:
                     stack_output_artifact(
-                        new_template.outputs.artifacts[name]._from)
-                elif new_template.outputs.artifacts[name].from_expression is \
+                        self.template.outputs.artifacts[name]._from)
+                elif self.template.outputs.artifacts[name].from_expression is \
                         not None:
-                    stack_output_artifact(new_template.outputs.artifacts[name].
-                                          from_expression._then)
-                    stack_output_artifact(new_template.outputs.artifacts[name].
-                                          from_expression._else)
-
-            self.template = new_template
+                    stack_output_artifact(self.template.outputs.artifacts[
+                        name].from_expression._then)
+                    stack_output_artifact(self.template.outputs.artifacts[
+                        name].from_expression._else)
 
         sum_var = None
         if isinstance(self.with_param, ArgoRange) and \
@@ -436,13 +430,11 @@ class Step:
 
         if hasattr(self.template, "slices") and self.template.slices is not \
                 None and self.template.slices.group_size is not None:
-            if new_template is None:
-                new_template = deepcopy(self.template)
-                new_template.name = self.template.name + "-" + randstr()
+            self.template = self.template.copy()
             group_size = self.template.slices.group_size
-            new_template.inputs.parameters["dflow_nslices"] = InputParameter()
+            self.template.inputs.parameters["dflow_nslices"] = InputParameter()
             if self.with_param is not None:
-                new_template.inputs.parameters["dflow_with_param"] = \
+                self.template.inputs.parameters["dflow_with_param"] = \
                     InputParameter()
                 self.inputs.parameters["dflow_with_param"] = \
                     InputParameter(value=self.with_param)
@@ -450,25 +442,25 @@ class Step:
                     nslices = len(self.with_param)
                 else:
                     nslices = argo_len(self.with_param)
-                old_slices = new_template.slices.slices
-                new_template.slices.slices = \
+                old_slices = self.template.slices.slices
+                self.template.slices.slices = \
                     "[json.loads(r'''{{inputs.parameters.dflow_with_param}}"\
                     "''')[%s] for i in range({{item}}*%s, min(({{item}}+1)*%s"\
                     ", {{inputs.parameters.dflow_nslices}}))]" % (
                         old_slices.replace("{{item}}", "i"), group_size,
                         group_size)
                 # re-render the script
-                new_template.slices = new_template.slices
+                self.template.slices = self.template.slices
                 self.with_param = argo_range(if_expression(
                     "%s %% %s > 0" % (nslices, group_size),
                     "%s/%s + 1" % (nslices, group_size),
                     "%s/%s" % (nslices, group_size)))
             if self.with_sequence is not None:
-                new_template.inputs.parameters["dflow_sequence_start"] = \
+                self.template.inputs.parameters["dflow_sequence_start"] = \
                     InputParameter()
-                new_template.inputs.parameters["dflow_sequence_end"] = \
+                self.template.inputs.parameters["dflow_sequence_end"] = \
                     InputParameter()
-                new_template.inputs.parameters["dflow_sequence_count"] = \
+                self.template.inputs.parameters["dflow_sequence_count"] = \
                     InputParameter()
                 start = self.with_sequence.start
                 if start is None:
@@ -489,8 +481,8 @@ class Step:
                         "%s > %s" % (end, start),
                         "%s + 1 - %s" % (end, start),
                         "%s + 1 - %s" % (start, end))
-                old_slices = new_template.slices.slices
-                new_template.slices.slices = \
+                old_slices = self.template.slices.slices
+                self.template.slices.slices = \
                     "[[%s for j in (range(int('{{inputs.parameters."\
                     "dflow_sequence_start}}'), int('{{inputs.parameters."\
                     "dflow_sequence_start}}') + int('{{inputs.parameters."\
@@ -510,7 +502,7 @@ class Step:
                         else old_slices.replace("{{item}}", "j"),
                         group_size, group_size)
                 # re-render the script
-                new_template.slices = new_template.slices
+                self.template.slices = self.template.slices
                 self.with_sequence = argo_sequence(
                     count=if_expression(
                         "%s %% %s > 0" % (nslices, group_size),
@@ -531,24 +523,22 @@ class Step:
 
         if sliced_output_artifact or sliced_input_artifact or \
                 sum_var is not None or concat_var is not None:
-            if new_template is None:
-                new_template = deepcopy(self.template)
-                new_template.name = self.template.name + "-" + randstr()
+            self.template = self.template.copy()
             init_template = InitArtifactForSlices(
-                new_template.name, self.util_image, self.util_command,
+                self.template.name, self.util_image, self.util_command,
                 self.util_image_pull_policy, self.key, sliced_output_artifact,
                 sliced_input_artifact, sum_var, concat_var)
             if self.key is not None:
-                new_template.inputs.parameters["dflow_group_key"] = \
+                self.template.inputs.parameters["dflow_group_key"] = \
                     InputParameter(value="")
                 self.inputs.parameters["dflow_group_key"] = InputParameter(
                     value=re.sub("{{=?item.*}}", "group", str(self.key)))
-                new_template.inputs.parameters["dflow_artifact_key"] = \
+                self.template.inputs.parameters["dflow_artifact_key"] = \
                     InputParameter(value="")
                 # For the case of reusing sliced steps, ensure that the output
                 # artifacts are reused
                 for name in sliced_output_artifact:
-                    new_template.outputs.artifacts[name].save.append(
+                    self.template.outputs.artifacts[name].save.append(
                         S3Artifact(key="{{inputs.parameters."
                                    "dflow_artifact_key}}/%s" % name))
 
@@ -569,21 +559,21 @@ class Step:
                             S3Artifact(key="{{inputs.parameters."
                                        "dflow_artifact_key}}/%s" % name))
 
-                    if new_template.outputs.artifacts[name]._from is not \
+                    if self.template.outputs.artifacts[name]._from is not \
                             None:
                         merge_output_artifact(
-                            new_template.outputs.artifacts[name]._from)
-                    elif new_template.outputs.artifacts[name].\
+                            self.template.outputs.artifacts[name]._from)
+                    elif self.template.outputs.artifacts[name].\
                             from_expression is not None:
-                        merge_output_artifact(new_template.outputs.artifacts[
+                        merge_output_artifact(self.template.outputs.artifacts[
                             name].from_expression._then)
-                        merge_output_artifact(new_template.outputs.artifacts[
+                        merge_output_artifact(self.template.outputs.artifacts[
                             name].from_expression._else)
             else:
-                new_template.inputs.parameters["dflow_artifact_key"] = \
+                self.template.inputs.parameters["dflow_artifact_key"] = \
                     InputParameter(value="")
                 for name in sliced_output_artifact:
-                    new_template.outputs.artifacts[name].save.append(
+                    self.template.outputs.artifacts[name].save.append(
                         S3Artifact(key="{{inputs.parameters."
                                    "dflow_artifact_key}}/%s" % name))
 
@@ -599,15 +589,15 @@ class Step:
                             S3Artifact(key="{{inputs.parameters."
                                        "dflow_artifact_key}}/%s" % name))
 
-                    if new_template.outputs.artifacts[name]._from is not \
+                    if self.template.outputs.artifacts[name]._from is not \
                             None:
                         merge_output_artifact(
-                            new_template.outputs.artifacts[name]._from)
-                    elif new_template.outputs.artifacts[name].\
+                            self.template.outputs.artifacts[name]._from)
+                    elif self.template.outputs.artifacts[name].\
                             from_expression is not None:
-                        merge_output_artifact(new_template.outputs.artifacts[
+                        merge_output_artifact(self.template.outputs.artifacts[
                             name].from_expression._then)
-                        merge_output_artifact(new_template.outputs.artifacts[
+                        merge_output_artifact(self.template.outputs.artifacts[
                             name].from_expression._else)
 
             if self.key is not None:
@@ -699,9 +689,7 @@ class Step:
         if config["lineage"] and hasattr(self.template, "slices") and \
                 self.template.slices and \
                 self.template.slices.register_first_only:
-            if new_template is None:
-                new_template = deepcopy(self.template)
-                new_template.name = self.template.name + "-" + randstr()
+            self.template = self.template.copy()
             if self.with_param is not None:
                 if isinstance(self.with_param, ArgoVar):
                     par = self.with_param.expr
@@ -719,9 +707,9 @@ class Step:
                 self.inputs.parameters["dflow_first"] = InputParameter(
                     value=first)
                 if self.with_sequence.format is not None:
-                    new_template.first_var = "'" + self.with_sequence.format \
+                    self.template.first_var = "'" + self.with_sequence.format \
                         + "' % {{inputs.parameters.dflow_first}}"
-                    new_template.render_script()
+                    self.template.render_script()
 
         pvc_arts = []
         for art in self.inputs.artifacts.values():
@@ -729,27 +717,25 @@ class Step:
                 pvc_arts.append((art.source, art))
 
         if len(pvc_arts) > 0:
-            if new_template is None:
-                new_template = deepcopy(self.template)
-                new_template.name = self.template.name + "-" + randstr()
-            if (isinstance(new_template, ShellOPTemplate)):
+            self.template = self.template.copy()
+            if (isinstance(self.template, ShellOPTemplate)):
                 for pvc, art in pvc_arts:
-                    del new_template.inputs.artifacts[art.name]
-                    new_template.script = "ln -s /tmp/mnt/%s %s\n" % (
-                        pvc.subpath, art.path) + new_template.script
-                    new_template.mounts.append(V1VolumeMount(
+                    del self.template.inputs.artifacts[art.name]
+                    self.template.script = "ln -s /tmp/mnt/%s %s\n" % (
+                        pvc.subpath, art.path) + self.template.script
+                    self.template.mounts.append(V1VolumeMount(
                         name=pvc.name, mount_path="/tmp/mnt"))
-                    new_template.pvcs.append(pvc)
-            elif (isinstance(new_template, PythonScriptOPTemplate)):
+                    self.template.pvcs.append(pvc)
+            elif (isinstance(self.template, PythonScriptOPTemplate)):
                 for pvc, art in pvc_arts:
-                    del new_template.inputs.artifacts[art.name]
-                    new_template.script = \
+                    del self.template.inputs.artifacts[art.name]
+                    self.template.script = \
                         "os.system('ln -s /tmp/mnt/%s %s')\n" % (
-                            pvc.subpath, art.path) + new_template.script
-                    new_template.mounts.append(V1VolumeMount(
+                            pvc.subpath, art.path) + self.template.script
+                    self.template.mounts.append(V1VolumeMount(
                         name=pvc.name, mount_path="/tmp/mnt"))
-                    new_template.pvcs.append(pvc)
-                new_template.script = "import os\n" + new_template.script
+                    self.template.pvcs.append(pvc)
+                self.template.script = "import os\n" + self.template.script
             else:
                 raise RuntimeError(
                     "Unsupported type of OPTemplate to mount PVC")
@@ -761,26 +747,24 @@ class Step:
                     pvc_arts.append((save, art))
 
         if len(pvc_arts) > 0:
-            if new_template is None:
-                new_template = deepcopy(self.template)
-                new_template.name = self.template.name + "-" + randstr()
-            if (isinstance(new_template, ShellOPTemplate)):
-                new_template.script += "\n"
+            self.template = self.template.copy()
+            if (isinstance(self.template, ShellOPTemplate)):
+                self.template.script += "\n"
                 for pvc, art in pvc_arts:
-                    new_template.mounts.append(V1VolumeMount(
+                    self.template.mounts.append(V1VolumeMount(
                         name=pvc.name, mount_path="/tmp/mnt"))
-                    new_template.script += "cp -r %s /tmp/mnt/%s\n" % (
+                    self.template.script += "cp -r %s /tmp/mnt/%s\n" % (
                         art.path, pvc.subpath)
-                    new_template.pvcs.append(pvc)
-            elif (isinstance(new_template, PythonScriptOPTemplate)):
-                new_template.script += "\nimport os\n"
+                    self.template.pvcs.append(pvc)
+            elif (isinstance(self.template, PythonScriptOPTemplate)):
+                self.template.script += "\nimport os\n"
                 for pvc, art in pvc_arts:
-                    new_template.mounts.append(V1VolumeMount(
+                    self.template.mounts.append(V1VolumeMount(
                         name=pvc.name, mount_path="/tmp/mnt"))
-                    new_template.script += \
+                    self.template.script += \
                         "os.system('cp -r %s /tmp/mnt/%s')\n" % (
                             art.path, pvc.subpath)
-                    new_template.pvcs.append(pvc)
+                    self.template.pvcs.append(pvc)
             else:
                 raise RuntimeError(
                     "Unsupported type of OPTemplate to mount PVC")
@@ -788,26 +772,24 @@ class Step:
         if self.continue_on_num_success or self.continue_on_success_ratio is \
                 not None:
             self.continue_on_failed = True
-            if new_template is None:
-                new_template = deepcopy(self.template)
-                new_template.name = self.template.name + "-" + randstr()
+            self.template = self.template.copy()
             from .steps import Steps
-            if (isinstance(new_template, ShellOPTemplate)):
-                new_template.outputs.parameters["dflow_success_tag"] = \
+            if (isinstance(self.template, ShellOPTemplate)):
+                self.template.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",
                                     default="0")
                 self.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",
                                     default="0")
-            elif (isinstance(new_template, PythonScriptOPTemplate)):
-                new_template.outputs.parameters["dflow_success_tag"] = \
+            elif (isinstance(self.template, PythonScriptOPTemplate)):
+                self.template.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",
                                     default="0")
                 self.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",
                                     default="0")
-            elif isinstance(new_template, Steps):
-                last_step = new_template.steps[-1]
+            elif isinstance(self.template, Steps):
+                last_step = self.template.steps[-1]
                 last_templ = last_step.template
                 last_templ.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",
@@ -826,7 +808,7 @@ class Step:
                     raise RuntimeError(
                         "Unsupported type of OPTemplate for "
                         "continue_on_num_success or continue_on_success_ratio")
-                new_template.outputs.parameters["dflow_success_tag"] = \
+                self.template.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_parameter=last_step.outputs.
                                     parameters["dflow_success_tag"],
                                     default="0")
@@ -882,9 +864,6 @@ class Step:
                     "threshold": self.continue_on_success_ratio
                 }
             )
-
-        if new_template is not None:
-            self.template = new_template
 
         if self.parallelism is not None:
             assert self.with_param is not None or self.with_sequence is not \
@@ -1061,7 +1040,7 @@ class Step:
                 del self.inputs.artifacts[k]
                 self.template.inputs.artifacts[k].optional = True
             elif isinstance(v, (list, tuple)):
-                self.template = deepcopy(self.template)
+                self.template = self.template.copy()
                 slices = []
                 for i, a in enumerate(v):
                     vn = "dflow_%s_%s" % (k, i)
@@ -1086,6 +1065,7 @@ class Step:
             else:
                 self.inputs.artifacts[k].source = v
                 if hasattr(v, "slice") and v.slice is not None:
+                    self.template = self.template.copy()
                     self.template.input_artifact_slices[k] = v.slice if \
                         isinstance(v.slice, int) else "'%s'" % v.slice
                     self.template.render_script()

@@ -1,7 +1,5 @@
 import inspect
 import os
-import random
-import string
 from pathlib import Path
 from typing import Optional, Any, Dict, List, Union
 
@@ -14,7 +12,7 @@ from ..config import config
 from ..io import (PVC, InputArtifact, InputParameter, Inputs, OutputArtifact,
                   OutputParameter, Outputs)
 from ..op_template import PythonScriptOPTemplate
-from ..utils import s3_config
+from ..utils import s3_config, randstr
 from .op import OP
 from .opio import Artifact, BigParameter, Parameter
 
@@ -179,8 +177,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         if output_artifact_global_name is not None:
             for name, global_name in output_artifact_global_name.items():
                 output_sign[name].global_name = global_name
-        super().__init__(name="%s-%s" % (class_name, "".join(random.sample(
-            string.digits + string.ascii_lowercase, 5))), inputs=Inputs(),
+        super().__init__(
+            name="%s-%s" % (class_name, randstr()), inputs=Inputs(),
             outputs=Outputs(), volumes=volumes, mounts=mounts,
             requests=requests, limits=limits, envs=envs,
             init_containers=init_containers)
