@@ -7,37 +7,56 @@ from typing import Dict, List, Set
 import jsonpickle
 
 from ..config import config
-from ..utils import (assemble_path_dict, assemble_path_list,
-                     assemble_path_nested_dict, convert_dflow_list, copy_file,
-                     remove_empty_dir_tag)
+from ..utils import (assemble_path_list, assemble_path_nested_dict,
+                     convert_dflow_list, copy_file, remove_empty_dir_tag)
 from .opio import Artifact, BigParameter, NestedDict, Parameter
+
+
+def get_slices(path_list, path_dict, slices):
+    if slices is not None:
+        slices = slices if isinstance(slices, list) else [slices]
+        new_path_list = []
+        for i in slices:
+            if isinstance(i, int):
+                new_path_list.append(path_list[i])
+            elif isinstance(i, str):
+                tmp = path_dict
+                for f in i.split("."):
+                    if isinstance(tmp, dict):
+                        tmp = tmp[f]
+                    elif isinstance(tmp, list):
+                        tmp = tmp[int(f)]
+                new_path_list.append(tmp)
+        if len(new_path_list) == 1:
+            if isinstance(new_path_list[0], list):
+                path_list = new_path_list[0]
+            else:
+                path_list = new_path_list
+            path_dict = new_path_list[0]
+        else:
+            path_list = new_path_list
+            path_dict = path_list
+    return path_list, path_dict
 
 
 def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
                           sub_path=None, n_parts=None):
-    if sign.type in [Dict[str, str], Dict[str, Path]]:
-        art_path = '%s/inputs/artifacts/%s' % (data_root, name)
-        remove_empty_dir_tag(art_path)
-        path_dict = assemble_path_dict(art_path)
-        if sign.type == Dict[str, str]:
-            return path_dict
-        elif sign.type == Dict[str, Path]:
-            return {k: path_or_none(v) for k, v in path_dict.items()}
-    elif sign.type in [NestedDict[str], NestedDict[Path]]:
-        art_path = '%s/inputs/artifacts/%s' % (data_root, name)
-        remove_empty_dir_tag(art_path)
-        path_dict = assemble_path_nested_dict(art_path)
-        if sign.type == NestedDict[str]:
-            return path_dict
-        elif sign.type == NestedDict[Path]:
-            return path_or_none(path_dict)
+    require_dict = sign.type in [
+        Dict[str, str], Dict[str, Path], NestedDict[str], NestedDict[Path]] \
+        or slices is not None
 
     if n_parts is not None:
         path_list = []
+        path_dict = []
         for i in range(n_parts):
             art_path = '%s/inputs/artifacts/dflow_%s_%s' % (data_root, name, i)
             remove_empty_dir_tag(art_path)
             pl = assemble_path_list(art_path)
+            if require_dict:
+                pd = assemble_path_nested_dict(art_path)
+                if slices is not None:
+                    pl, pd = get_slices(pl, pd, slices[i])
+                path_dict.append(pd)
             if pl:
                 path_list += pl
             else:
@@ -52,9 +71,10 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
             return None
         remove_empty_dir_tag(art_path)
         path_list = assemble_path_list(art_path)
-    if slices is not None:
-        slices = slices if isinstance(slices, list) else [slices]
-        path_list = [path_list[i] for i in slices]
+        if require_dict:
+            path_dict = assemble_path_nested_dict(art_path)
+            path_list, path_dict = get_slices(path_list, path_dict, slices)
+
     if sign.type == str:
         if len(path_list) == 1 and sign.sub_path:
             return path_list[0]
@@ -67,12 +87,20 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
             return path_or_none(art_path)
     elif sign.type == List[str]:
         return path_list
+    elif sign.type == List[Path]:
+        return path_or_none(path_list)
     elif sign.type == Set[str]:
         return set(path_list)
-    elif sign.type == List[Path]:
-        return list(map(path_or_none, path_list))
     elif sign.type == Set[Path]:
-        return set(map(path_or_none, path_list))
+        return set(path_or_none(path_list))
+    elif sign.type == Dict[str, str]:
+        return path_dict
+    elif sign.type == Dict[str, Path]:
+        return path_or_none(path_dict)
+    elif sign.type == NestedDict[str]:
+        return path_dict
+    elif sign.type == NestedDict[Path]:
+        return path_or_none(path_dict)
 
 
 def path_or_none(p):

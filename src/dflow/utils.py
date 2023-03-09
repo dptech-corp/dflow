@@ -522,18 +522,21 @@ def assemble_path_nested_dict(art_path, remove=False):
                 shutil.rmtree(catalog_dir)
         if len(dflow_list) > 0:
             for item in dflow_list:
-                fields = item["order"].split(".")
-                tmp = path_dict
-                for field in fields[:-1]:
-                    if field not in tmp:
-                        tmp[field] = {}
-                    tmp = tmp[field]
-                field = fields[-1]
-                if item["dflow_list_item"] is None:
-                    tmp[field] = None
-                else:
-                    tmp[field] = os.path.join(
-                        art_path, item["dflow_list_item"])
+                if isinstance(item["order"], int):
+                    path_dict[item["order"]] = item["dflow_list_item"]
+                elif isinstance(item["order"], str):
+                    fields = item["order"].split(".")
+                    tmp = path_dict
+                    for field in fields[:-1]:
+                        if field not in tmp:
+                            tmp[field] = {}
+                        tmp = tmp[field]
+                    field = fields[-1]
+                    if item["dflow_list_item"] is None:
+                        tmp[field] = None
+                    else:
+                        tmp[field] = os.path.join(
+                            art_path, item["dflow_list_item"])
             path_dict = dict2list(path_dict)
     return path_dict
 

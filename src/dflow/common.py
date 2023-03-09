@@ -1,6 +1,6 @@
 import abc
 from abc import ABC
-from copy import deepcopy
+from copy import copy, deepcopy
 from typing import Any, Dict, List, Union
 
 from .config import s3_config
@@ -38,6 +38,12 @@ class S3Artifact(V1alpha1S3Artifact):
             path_list = []
         self.path_list = path_list
         self.urn = urn
+        self.slice = None
+
+    def __getitem__(self, key):
+        art = copy(self)
+        art.slice = key
+        return art
 
     def to_dict(self):
         d = {"key": self.key, "urn": self.urn}

@@ -2,7 +2,7 @@ import json
 import os
 import tempfile
 from collections import UserDict
-from copy import deepcopy
+from copy import copy, deepcopy
 from typing import Any, Dict, List, Optional, Union
 
 import jsonpickle
@@ -517,6 +517,15 @@ class InputArtifact(ArgoVar):
         self.mode = mode
         self.sub_path = sub_path
         self.archive = archive
+        self.slice = None
+
+    def __getitem__(self, key):
+        art = copy(self)
+        if art.slice is None:
+            art.slice = key
+        else:
+            art.slice = "%s.%s" % (art.slice, key)
+        return art
 
     def __getattr__(self, key):
         from .task import Task
@@ -868,6 +877,15 @@ class OutputArtifact(ArgoVar):
         self.from_expression = from_expression
         self.redirect = None
         self._from = _from
+        self.slice = None
+
+    def __getitem__(self, key):
+        art = copy(self)
+        if art.slice is None:
+            art.slice = key
+        else:
+            art.slice = "%s.%s" % (art.slice, key)
+        return art
 
     def sub_path(self, path):
         artifact = deepcopy(self)
