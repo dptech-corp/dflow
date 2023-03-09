@@ -1,9 +1,7 @@
-from copy import deepcopy
 from typing import Union, List, Optional, Any
 
 from dflow.executor import Executor
 from dflow.op_template import ScriptOPTemplate
-from dflow.utils import randstr
 
 try:
     from argo.workflows.client import (V1Volume, V1VolumeMount,
@@ -74,8 +72,7 @@ class RayClusterExecutor(Executor):
         self.ray_dependencies = ray_dependencies
 
     def render(self, template: ScriptOPTemplate):
-        new_template = deepcopy(template)
-        new_template.name += '-' + randstr()
+        new_template = template.copy()
         if new_template.init_containers is None:
             new_template.init_containers = [
                 _ray_init_container(template.image, self.ray_install_mirror,

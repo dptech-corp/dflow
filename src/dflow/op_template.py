@@ -102,6 +102,7 @@ class OPTemplate:
         if annotations is None:
             annotations = {}
         self.annotations = annotations
+        self.modified = False
 
     def __setattr__(self, key, value):
         super().__setattr__(key, value)
@@ -151,6 +152,14 @@ class OPTemplate:
                     config_map=V1ConfigMapKeySelector(
                         name="%s-%s" % (memoize_configmap, self.memoize_key),
                         local_vars_configuration=config)))
+
+    def copy(self):
+        if self.modified:
+            return self
+        new_template = deepcopy(self)
+        new_template.name += "-" + randstr()
+        new_template.modified = True
+        return new_template
 
 
 class ScriptOPTemplate(OPTemplate):
