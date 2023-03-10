@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.74](https://github.com/deepmodeling/dflow/compare/v1.6.73...v1.6.74) (2023-03-10)
+
+
+### Bug Fixes
+
+* get item of artifact in debug mode ([48706b0](https://github.com/deepmodeling/dflow/commit/48706b0c521c733456683d390deb590425648de5))
+
 ## [1.6.73](https://github.com/deepmodeling/dflow/compare/v1.6.72...v1.6.73) (2023-03-09)
 
 
