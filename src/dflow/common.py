@@ -42,7 +42,10 @@ class S3Artifact(V1alpha1S3Artifact):
 
     def __getitem__(self, key):
         art = copy(self)
-        art.slice = key
+        if art.slice is None:
+            art.slice = key
+        else:
+            art.slice = "%s.%s" % (art.slice, key)
         return art
 
     def to_dict(self):
@@ -81,6 +84,15 @@ class S3Artifact(V1alpha1S3Artifact):
 class LocalArtifact:
     def __init__(self, local_path):
         self.local_path = local_path
+        self.slice = None
+
+    def __getitem__(self, key):
+        art = copy(self)
+        if art.slice is None:
+            art.slice = key
+        else:
+            art.slice = "%s.%s" % (art.slice, key)
+        return art
 
 
 class LineageClient(ABC):
