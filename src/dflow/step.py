@@ -1066,6 +1066,13 @@ class Step:
                 self.inputs.artifacts[k].source = v
                 if hasattr(v, "slice") and v.slice is not None:
                     self.template = self.template.copy()
+                    if isinstance(v.slice, (InputParameter, OutputParameter)):
+                        self.template.inputs.parameters[
+                            "dflow_%s" % v.slice.name] = InputParameter()
+                        self.inputs.parameters["dflow_%s" % v.slice.name] = \
+                            InputParameter(value=v.slice)
+                        v.slice = "{{inputs.parameters.dflow_%s}}" % \
+                            v.slice.name
                     self.template.input_artifact_slices[k] = v.slice if \
                         isinstance(v.slice, int) else "'%s'" % v.slice
                     self.template.render_script()
@@ -1194,6 +1201,8 @@ class Step:
     def convert_to_argo(self, context=None):
         logging.debug("handle step %s" % self.name)
         self.prepare_argo_arguments(context)
+        if isinstance(self.when, ArgoVar):
+            self.when = "{{=%s}}" % self.when.expr
         return V1alpha1WorkflowStep(
             name=self.name, template=self.template.name,
             arguments=V1alpha1Arguments(
@@ -1217,8 +1226,15 @@ class Step:
         from .steps import Steps
 
         if self.when is not None:
-            expr = render_expr(self.when, scope)
-            if not eval_expr(expr):
+            if isinstance(self.when, Expression):
+                value = self.when.eval(scope)
+            elif isinstance(self.when, (InputParameter, OutputParameter)):
+                value = get_var(self.when, scope).value
+            elif isinstance(self.when, ArgoVar):
+                value = eval_expr(render_expr(str(self.when), scope))
+            elif isinstance(self.when, str):
+                value = eval_expr(render_expr(self.when, scope))
+            if not value:
                 self.phase = "Skipped"
                 return
 
