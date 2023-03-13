@@ -255,6 +255,13 @@ class ArgoVar:
             other = "asFloat(%s)" % other.expr
         return ArgoVar("asFloat(%s) >= %s" % (self.expr, other))
 
+    def __add__(self, other):
+        if config["mode"] == "debug":
+            return ArgoVar("%s + %s" % (self, other))
+        if isinstance(other, ArgoVar):
+            other = "asFloat(%s)" % other.expr
+        return ArgoVar("asFloat(%s) + %s" % (self.expr, other))
+
 
 class IfExpression(ArgoVar, Expression):
     def __init__(
