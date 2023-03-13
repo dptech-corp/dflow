@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.6.75](https://github.com/deepmodeling/dflow/compare/v1.6.74...v1.6.75) (2023-03-13)
+
+
+### Bug Fixes
+
+* a bug in assemble_path_nested_dict ([d56cef6](https://github.com/deepmodeling/dflow/commit/d56cef63b9090f44147d76bfc96f5c3446d0c9e4))
+* add __add__ to ArgoVar ([d56cef6](https://github.com/deepmodeling/dflow/commit/d56cef63b9090f44147d76bfc96f5c3446d0c9e4))
+* get item which is a parameter of artifact ([d56cef6](https://github.com/deepmodeling/dflow/commit/d56cef63b9090f44147d76bfc96f5c3446d0c9e4))
+* pass ArgoVar to when ([d56cef6](https://github.com/deepmodeling/dflow/commit/d56cef63b9090f44147d76bfc96f5c3446d0c9e4))
+
 ## [1.6.74](https://github.com/deepmodeling/dflow/compare/v1.6.73...v1.6.74) (2023-03-10)
 
 
