@@ -426,6 +426,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         else:
             script += "op_obj = jsonpickle.loads(r'''%s''')\n" % \
                 jsonpickle.dumps(op)
+        script += "op_obj.key = '{{=inputs.parameters.dflow_key}}'\n"
+        script += "if op_obj.key.startswith('{'): op_obj.key = None\n"
+        script += "op_obj.workflow_name = '{{workflow.name}}'\n"
         script += "def try_to_execute(input):\n"
         script += "    try:\n"
         script += "        return op_obj.execute(input), None\n"

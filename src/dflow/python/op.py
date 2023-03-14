@@ -27,6 +27,8 @@ class OP(ABC):
     """
     progress_total = 1
     progress_current = 0
+    key = None
+    workflow_name = None
 
     def __init__(
             self,
