@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.76](https://github.com/deepmodeling/dflow/compare/v1.6.75...v1.6.76) (2023-03-14)
+
+
+### Bug Fixes
+
+* get step key or workflow name in OP ([c37c6e7](https://github.com/deepmodeling/dflow/commit/c37c6e7ee2ead36b7159620d7e7129627f4e4f94))
+
 ## [1.6.75](https://github.com/deepmodeling/dflow/compare/v1.6.74...v1.6.75) (2023-03-13)
 
 
