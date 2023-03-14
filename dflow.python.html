@@ -117,6 +117,11 @@
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="dflow.python.op.OP.key">
+<span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dflow.python.op.OP.key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="dflow.python.op.OP.progress_current">
 <span class="sig-name descname"><span class="pre">progress_current</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dflow.python.op.OP.progress_current" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -124,6 +129,11 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dflow.python.op.OP.progress_total">
 <span class="sig-name descname"><span class="pre">progress_total</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dflow.python.op.OP.progress_total" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dflow.python.op.OP.workflow_name">
+<span class="sig-name descname"><span class="pre">workflow_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dflow.python.op.OP.workflow_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -512,6 +522,11 @@ can be a list</p></li>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="dflow.python.OP.key">
+<span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dflow.python.OP.key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="dflow.python.OP.progress_current">
 <span class="sig-name descname"><span class="pre">progress_current</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#dflow.python.OP.progress_current" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -519,6 +534,11 @@ can be a list</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dflow.python.OP.progress_total">
 <span class="sig-name descname"><span class="pre">progress_total</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#dflow.python.OP.progress_total" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dflow.python.OP.workflow_name">
+<span class="sig-name descname"><span class="pre">workflow_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dflow.python.OP.workflow_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -687,8 +707,10 @@ the number of slices)</p></li>
 <li><a class="reference internal" href="#dflow.python.op.OP.get_output_artifact_link"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_link()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.op.OP.get_output_artifact_storage_key"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_storage_key()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.op.OP.get_output_sign"><code class="docutils literal notranslate"><span class="pre">OP.get_output_sign()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.op.OP.key"><code class="docutils literal notranslate"><span class="pre">OP.key</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.op.OP.progress_current"><code class="docutils literal notranslate"><span class="pre">OP.progress_current</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.op.OP.progress_total"><code class="docutils literal notranslate"><span class="pre">OP.progress_total</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.op.OP.workflow_name"><code class="docutils literal notranslate"><span class="pre">OP.workflow_name</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -762,8 +784,10 @@ the number of slices)</p></li>
 <li><a class="reference internal" href="#dflow.python.OP.get_output_artifact_link"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_link()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.OP.get_output_artifact_storage_key"><code class="docutils literal notranslate"><span class="pre">OP.get_output_artifact_storage_key()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.OP.get_output_sign"><code class="docutils literal notranslate"><span class="pre">OP.get_output_sign()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP.key"><code class="docutils literal notranslate"><span class="pre">OP.key</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.OP.progress_current"><code class="docutils literal notranslate"><span class="pre">OP.progress_current</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.OP.progress_total"><code class="docutils literal notranslate"><span class="pre">OP.progress_total</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP.workflow_name"><code class="docutils literal notranslate"><span class="pre">OP.workflow_name</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#dflow.python.OPIO"><code class="docutils literal notranslate"><span class="pre">OPIO</span></code></a></li>
