@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.77](https://github.com/deepmodeling/dflow/compare/v1.6.76...v1.6.77) (2023-03-15)
+
+
+### Bug Fixes
+
+* copy bug in dispatcher executor ([9258223](https://github.com/deepmodeling/dflow/commit/9258223b120800edb4aa18b5a50b0c7d90e1d6d2))
+
 ## [1.6.76](https://github.com/deepmodeling/dflow/compare/v1.6.75...v1.6.76) (2023-03-14)
 
 
