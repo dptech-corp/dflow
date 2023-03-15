@@ -103,6 +103,7 @@ class Workflow:
             k8s_api_server: Optional[str] = None,
             context: Optional[Union[Context, Executor]] = None,
             annotations: Dict[str, str] = None,
+            labels: Dict[str, str] = None,
             parallelism: Optional[int] = None,
             pod_gc_strategy: Optional[str] = None,
             image_pull_secrets: Union[str, DockerSecret,
@@ -120,6 +121,7 @@ class Workflow:
         if annotations is None:
             annotations = deepcopy(config["workflow_annotations"])
         self.annotations = annotations
+        self.labels = labels
         self.parallelism = parallelism
         self.pod_gc_strategy = pod_gc_strategy
         if image_pull_secrets is not None and not isinstance(
@@ -129,15 +131,7 @@ class Workflow:
         self.artifact_repo_key = artifact_repo_key if artifact_repo_key is \
             not None else s3_config["repo_key"]
 
-        configuration = Configuration(host=self.host)
-        configuration.verify_ssl = False
-        if self.token is None:
-            api_client = ApiClient(configuration)
-        else:
-            api_client = ApiClient(
-                configuration, header_name='Authorization',
-                header_value='Bearer %s' % self.token)
-
+        api_client = get_argo_api_client(self.host, self.token)
         self.api_instance = WorkflowServiceApi(api_client)
 
         self.namespace = namespace if namespace is not None else \
@@ -472,10 +466,12 @@ class Workflow:
             ))
 
         if self.id is not None:
-            metadata = V1ObjectMeta(name=self.id, annotations=self.annotations)
+            metadata = V1ObjectMeta(
+                name=self.id, annotations=self.annotations, labels=self.labels)
         else:
             metadata = V1ObjectMeta(
-                generate_name=self.name + '-', annotations=self.annotations)
+                generate_name=self.name + '-', annotations=self.annotations,
+                labels=self.labels)
 
         if self.image_pull_secrets is not None:
             for i, s in enumerate(self.image_pull_secrets):
@@ -861,3 +857,64 @@ class Workflow:
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/suspend' % (self.namespace, self.id),
             'PUT', header_params=config["http_headers"])
+
+
+def get_argo_api_client(host=None, token=None):
+    if host is None:
+        host = config["host"]
+    if token is None:
+        token = config["token"]
+    configuration = Configuration(host=host)
+    configuration.verify_ssl = False
+    if token is None:
+        api_client = ApiClient(configuration)
+    else:
+        api_client = ApiClient(
+            configuration, header_name='Authorization',
+            header_value='Bearer %s' % token)
+    return api_client
+
+
+def query_workflows(labels: Optional[Dict[str, str]] = None,
+                    fields: Optional[List[str]] = None) -> List[ArgoWorkflow]:
+    if fields is None:
+        fields = [
+            'metadata', 'items.metadata.uid', 'items.metadata.name',
+            'items.metadata.namespace', 'items.metadata.creationTimestamp',
+            'items.metadata.labels', 'items.metadata.annotations',
+            'items.status.phase', 'items.status.message',
+            'items.status.finishedAt', 'items.status.startedAt',
+            'items.status.estimatedDuration', 'items.status.progress',
+            'items.spec.suspend',
+        ]
+    query_params = [('fields', ",".join(fields))]
+    if labels is not None:
+        query_params.append((
+            'listOptions.labelSelector',
+            ",".join(["%s=%s" % (k, v) for k, v in labels.items()])))
+    with get_argo_api_client() as api_client:
+        res = api_client.call_api(
+            '/api/v1/workflows/%s' % config["namespace"],
+            'GET', response_type='object',
+            header_params=config["http_headers"],
+            query_params=query_params,
+            _return_http_data_only=True)
+    return [ArgoWorkflow(w) for w in res["items"]] if res["items"] else []
+
+
+def query_archived_workflows(
+        labels: Optional[Dict[str, str]] = None) -> List[ArgoWorkflow]:
+    query_params = [('listOptions.fieldSelector',
+                     "metadata.namespace=%s" % config["namespace"])]
+    if labels is not None:
+        query_params.append((
+            'listOptions.labelSelector',
+            ",".join(["%s=%s" % (k, v) for k, v in labels.items()])))
+    with get_argo_api_client() as api_client:
+        res = api_client.call_api(
+            '/api/v1/archived-workflows',
+            'GET', response_type='object',
+            header_params=config["http_headers"],
+            query_params=query_params,
+            _return_http_data_only=True)
+    return [ArgoWorkflow(w) for w in res["items"]] if res["items"] else []

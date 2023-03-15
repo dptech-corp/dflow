@@ -19,7 +19,8 @@ from .steps import Steps
 from .task import Task
 from .utils import (copy_artifact, copy_s3, download_artifact, download_s3,
                     path_list_of_artifact, randstr, upload_artifact, upload_s3)
-from .workflow import DockerSecret, Workflow
+from .workflow import (DockerSecret, Workflow, query_archived_workflows,
+                       query_workflows)
 
 __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "IfExpression", "InputArtifact", "InputParameter", "Inputs",
@@ -32,7 +33,8 @@ __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "s3_config", "upload_artifact", "upload_s3", "Workflow", "config",
            "Context", "randstr", "LocalArtifact", "set_config",
            "set_s3_config", "DockerSecret", "argo_sum", "argo_concat",
-           "LineageClient", "Secret"]
+           "LineageClient", "Secret", "query_workflows",
+           "query_archived_workflows"]
 
 
 def import_func(s):
