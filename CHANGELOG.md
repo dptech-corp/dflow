@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.81](https://github.com/deepmodeling/dflow/compare/v1.6.80...v1.6.81) (2023-03-15)
+
+
+### Bug Fixes
+
+* add query_workflows and query_archived_workflows ([adf5d65](https://github.com/deepmodeling/dflow/commit/adf5d651a0040fa55456a67247b4d1d8a2e53932))
+* submit a workflow with labels ([adf5d65](https://github.com/deepmodeling/dflow/commit/adf5d651a0040fa55456a67247b4d1d8a2e53932))
+
 ## [1.6.80](https://github.com/deepmodeling/dflow/compare/v1.6.79...v1.6.80) (2023-03-15)
 
 
