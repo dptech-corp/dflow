@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.79](https://github.com/deepmodeling/dflow/compare/v1.6.78...v1.6.79) (2023-03-15)
+
+
+### Bug Fixes
+
+* restrict version of typeguard&lt;3 ([dba9359](https://github.com/deepmodeling/dflow/commit/dba9359b04aa3ca30bad2bed2033390fb120ac91))
+
 ## [1.6.78](https://github.com/deepmodeling/dflow/compare/v1.6.77...v1.6.78) (2023-03-15)
 
 
