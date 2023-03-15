@@ -1,5 +1,6 @@
 import json
 import os
+from copy import deepcopy
 from typing import List, Optional, Union
 
 from ..common import S3Artifact
@@ -200,7 +201,7 @@ class DispatcherExecutor(Executor):
         if not isinstance(template, ScriptOPTemplate):
             return template
 
-        new_template = template.copy()
+        new_template = deepcopy(template)
         new_template.image = self.image
         new_template.image_pull_policy = self.image_pull_policy
         new_template.command = self.command
