@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.78](https://github.com/deepmodeling/dflow/compare/v1.6.77...v1.6.78) (2023-03-15)
+
+
+### Bug Fixes
+
+* support get key in OP in debug mode ([1d3d4db](https://github.com/deepmodeling/dflow/commit/1d3d4db57a312bc90c7b5dcf3006756f28ae1d1e))
+* support path slice for Steps/DAG ([1d3d4db](https://github.com/deepmodeling/dflow/commit/1d3d4db57a312bc90c7b5dcf3006756f28ae1d1e))
+
 ## [1.6.77](https://github.com/deepmodeling/dflow/compare/v1.6.76...v1.6.77) (2023-03-15)
 
 
