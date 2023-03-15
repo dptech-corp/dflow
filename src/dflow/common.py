@@ -39,9 +39,11 @@ class S3Artifact(V1alpha1S3Artifact):
         self.path_list = path_list
         self.urn = urn
         self.slice = None
+        self.parent = None
 
     def __getitem__(self, key):
         art = copy(self)
+        art.parent = self
         if art.slice is None:
             art.slice = key
         else:
@@ -85,9 +87,11 @@ class LocalArtifact:
     def __init__(self, local_path):
         self.local_path = local_path
         self.slice = None
+        self.parent = None
 
     def __getitem__(self, key):
         art = copy(self)
+        art.parent = self
         if art.slice is None:
             art.slice = key
         else:

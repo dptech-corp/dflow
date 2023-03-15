@@ -1046,8 +1046,6 @@ class Step:
                     vn = "dflow_%s_%s" % (k, i)
                     self.template.inputs.artifacts[vn] = deepcopy(
                         self.template.inputs.artifacts[k])
-                    self.template.inputs.artifacts[vn].path = \
-                        "%s/inputs/artifacts/%s" % (self.template.tmp_root, vn)
                     self.inputs.artifacts[vn] = deepcopy(
                         self.template.inputs.artifacts[vn])
                     self.inputs.artifacts[vn].source = a
@@ -1055,13 +1053,31 @@ class Step:
                         slices.append(a.slice)
                     else:
                         slices.append(None)
-                if any(map(lambda x: x is not None, slices)):
-                    self.template.input_artifact_slices[k] = slices
+                from .steps import Steps
+                from .dag import DAG
+                if isinstance(self.template, (Steps, DAG)):
+                    for step in self.template:
+                        for name, art in list(step.inputs.artifacts.items()):
+                            if art.source is self.template.inputs.artifacts[k]:
+                                step.set_artifacts({name: [
+                                    self.template.inputs.artifacts[
+                                        "dflow_%s_%s" % (k, i)]
+                                    if slice is None else
+                                    self.template.inputs.artifacts[
+                                        "dflow_%s_%s" % (k, i)][slice]
+                                    for i, slice in enumerate(slices)]})
+                else:
+                    for i, a in enumerate(v):
+                        vn = "dflow_%s_%s" % (k, i)
+                        self.template.inputs.artifacts[vn].path = \
+                            "%s/inputs/artifacts/%s" % (self.template.tmp_root,
+                                                        vn)
+                    if any(map(lambda x: x is not None, slices)):
+                        self.template.input_artifact_slices[k] = slices
+                    self.template.n_parts[k] = len(v)
                     self.template.render_script()
                 del self.template.inputs.artifacts[k]
                 del self.inputs.artifacts[k]
-                self.template.n_parts[k] = len(v)
-                self.template.render_script()
             else:
                 self.inputs.artifacts[k].source = v
                 if hasattr(v, "slice") and v.slice is not None:
@@ -1073,9 +1089,29 @@ class Step:
                             InputParameter(value=v.slice)
                         v.slice = "{{inputs.parameters.dflow_%s}}" % \
                             v.slice.name
-                    self.template.input_artifact_slices[k] = v.slice if \
-                        isinstance(v.slice, int) else "'%s'" % v.slice
-                    self.template.render_script()
+                    from .steps import Steps
+                    from .dag import DAG
+                    if isinstance(self.template, (Steps, DAG)):
+                        for step in self.template:
+                            for name, art in step.inputs.artifacts.items():
+                                if art.source is \
+                                        self.template.inputs.artifacts[k] or \
+                                        hasattr(art.source, "parent") and \
+                                        art.source.parent is \
+                                        self.template.inputs.artifacts[k]:
+                                    if hasattr(art.source, "slice") and \
+                                            art.source.slice is not None:
+                                        slice = "%s.%s" % (v.slice,
+                                                           art.source.slice)
+                                    else:
+                                        slice = v.slice
+                                    step.set_artifacts({
+                                        name: self.template.inputs.artifacts[
+                                            k][slice]})
+                    else:
+                        self.template.input_artifact_slices[k] = v.slice if \
+                            isinstance(v.slice, int) else "'%s'" % v.slice
+                        self.template.render_script()
                 if config["save_path_as_parameter"]:
                     if isinstance(v, S3Artifact) and v.path_list is not None:
                         try:
@@ -1875,12 +1911,15 @@ def render_script(script, parameters, workflow_id=None, step_id=None):
     while i >= 0:
         j = script.find("}}", i+2)
         var = script[i+2:j]
+        if var[:1] == "=":
+            var = var[1:]
         fields = var.split(".")
         if fields[0] == "inputs" and fields[1] == "parameters":
             par = fields[2]
-            value = parameters[par].value
-            script = script[:i] + (value if isinstance(value, str)
-                                   else jsonpickle.dumps(value)) + script[j+2:]
+            if par in parameters:
+                value = parameters[par].value
+                script = script[:i] + (value if isinstance(value, str) else
+                                       jsonpickle.dumps(value)) + script[j+2:]
         else:
             raise RuntimeError("Not supported: %s" % var)
         i = script.find("{{", i+1)

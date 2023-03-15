@@ -525,9 +525,11 @@ class InputArtifact(ArgoVar):
         self.sub_path = sub_path
         self.archive = archive
         self.slice = None
+        self.parent = None
 
     def __getitem__(self, key):
         art = copy(self)
+        art.parent = self
         if art.slice is None:
             art.slice = key
         else:
@@ -885,9 +887,11 @@ class OutputArtifact(ArgoVar):
         self.redirect = None
         self._from = _from
         self.slice = None
+        self.parent = None
 
     def __getitem__(self, key):
         art = copy(self)
+        art.parent = self
         if art.slice is None:
             art.slice = key
         else:
