@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.80](https://github.com/deepmodeling/dflow/compare/v1.6.79...v1.6.80) (2023-03-15)
+
+
+### Bug Fixes
+
+* support get item of artifact combined with Slices ([7455632](https://github.com/deepmodeling/dflow/commit/74556328bc15d9434f1e58be204062cd5130a9d8))
+
 ## [1.6.79](https://github.com/deepmodeling/dflow/compare/v1.6.78...v1.6.79) (2023-03-15)
 
 
