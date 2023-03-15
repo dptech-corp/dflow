@@ -8,7 +8,7 @@ from ..config import config
 from ..executor import Executor, render_script_with_tmp_root, run_script
 from ..io import InputArtifact, InputParameter
 from ..op_template import ScriptOPTemplate
-from ..utils import upload_s3
+from ..utils import randstr, upload_s3
 from . import bohrium
 
 try:
@@ -202,6 +202,7 @@ class DispatcherExecutor(Executor):
             return template
 
         new_template = deepcopy(template)
+        new_template.name += "-" + randstr()
         new_template.image = self.image
         new_template.image_pull_policy = self.image_pull_policy
         new_template.command = self.command

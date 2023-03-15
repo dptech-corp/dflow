@@ -307,6 +307,15 @@ def fnva(data, hval_init, fnv_prime, fnv_size):
 
 
 class ArgoWorkflow(ArgoObjectDict):
+    def __init__(self, d):
+        super().__init__(d)
+        self.id = None
+        self.uid = None
+        if hasattr(self, "metadata") and hasattr(self.metadata, "name"):
+            self.id = self.metadata.name
+        if hasattr(self, "metadata") and hasattr(self.metadata, "uid"):
+            self.uid = self.metadata.uid
+
     def get_step(
             self,
             name: Union[str, List[str]] = None,
