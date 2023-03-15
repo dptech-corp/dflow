@@ -32,6 +32,12 @@ except Exception:
 uploaded_python_packages = []
 
 
+def add_prefix_to_slices(prefix, slices):
+    return "(lambda x: ['%s.' + str(i) for i in x] "\
+        "if isinstance(x, list) else '%s.' + str(x))(%s)" % (
+            prefix, prefix, slices)
+
+
 class ArgoRange(ArgoVar):
     def __init__(self, end, start=0, step=1):
         self.end = end
@@ -264,6 +270,7 @@ class Step:
         self.continue_on_success_ratio = continue_on_success_ratio
         self.check_step = None
         self.prepare_step = None
+        self.input_artifact_slices = {}
 
         if parameters is not None:
             self.set_parameters(parameters)
@@ -341,10 +348,17 @@ class Step:
                     for art in list(step.inputs.artifacts.values()):
                         # input artifact referring to sliced input artifact
                         if art.source is self.template.inputs.artifacts[name]:
+                            if name in self.template.input_artifact_slices:
+                                slice = self.template.input_artifact_slices[
+                                    name]
+                                pattern = add_prefix_to_slices(
+                                    slice, "{{inputs.parameters.dflow_slice}}")
+                            else:
+                                pattern = "{{inputs.parameters.dflow_slice}}"
                             step.template.inputs.parameters["dflow_slice"] = \
                                 InputParameter()
                             step.template.add_slices(Slices(
-                                "{{inputs.parameters.dflow_slice}}",
+                                pattern,
                                 input_artifact=[art.name],
                                 sub_path=slices.sub_path,
                                 pool_size=slices.pool_size))
@@ -451,6 +465,12 @@ class Step:
                         group_size)
                 # re-render the script
                 self.template.slices = self.template.slices
+                for k, slice in self.input_artifact_slices.items():
+                    if k in self.template.input_artifact_slices:
+                        old = self.template.input_artifact_slices[k]
+                        self.template.input_artifact_slices[k] = \
+                            add_prefix_to_slices(slice, old)
+                        self.template.render_script()
                 self.with_param = argo_range(if_expression(
                     "%s %% %s > 0" % (nslices, group_size),
                     "%s/%s + 1" % (nslices, group_size),
@@ -503,6 +523,12 @@ class Step:
                         group_size, group_size)
                 # re-render the script
                 self.template.slices = self.template.slices
+                for k, slice in self.input_artifact_slices.items():
+                    if k in self.template.input_artifact_slices:
+                        old = self.template.input_artifact_slices[k]
+                        self.template.input_artifact_slices[k] = \
+                            add_prefix_to_slices(slice, old)
+                        self.template.render_script()
                 self.with_sequence = argo_sequence(
                     count=if_expression(
                         "%s %% %s > 0" % (nslices, group_size),
@@ -1081,6 +1107,7 @@ class Step:
             else:
                 self.inputs.artifacts[k].source = v
                 if hasattr(v, "slice") and v.slice is not None:
+                    self.input_artifact_slices[k] = v.slice
                     self.template = self.template.copy()
                     if isinstance(v.slice, (InputParameter, OutputParameter)):
                         self.template.inputs.parameters[
@@ -1109,8 +1136,14 @@ class Step:
                                         name: self.template.inputs.artifacts[
                                             k][slice]})
                     else:
-                        self.template.input_artifact_slices[k] = v.slice if \
-                            isinstance(v.slice, int) else "'%s'" % v.slice
+                        if k in self.template.input_artifact_slices:
+                            old = self.template.input_artifact_slices[k]
+                            self.template.input_artifact_slices[k] = \
+                                add_prefix_to_slices(v.slice, old)
+                        else:
+                            self.template.input_artifact_slices[k] = v.slice \
+                                if isinstance(v.slice, int) \
+                                else "'%s'" % v.slice
                         self.template.render_script()
                 if config["save_path_as_parameter"]:
                     if isinstance(v, S3Artifact) and v.path_list is not None:
