@@ -28,7 +28,7 @@ setup(
         "python-dateutil",
         "urllib3",
         "certifi",
-        "typeguard",
+        "typeguard<3",
         "argo-workflows==5.0.0",
         "jsonpickle",
         "minio",
