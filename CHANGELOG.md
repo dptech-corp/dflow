@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.83](https://github.com/deepmodeling/dflow/compare/v1.6.82...v1.6.83) (2023-03-16)
+
+
+### Bug Fixes
+
+* add get_artifact_metadata to MetadataClient, init S3Artifact with urn ([32fa20d](https://github.com/deepmodeling/dflow/commit/32fa20d4fa99b31a00fe1c2a5850c9153cb1574e))
+* dispatcher executor pass env var ARGO_TEMPLATE from local to remote ([32fa20d](https://github.com/deepmodeling/dflow/commit/32fa20d4fa99b31a00fe1c2a5850c9153cb1574e))
+
 ## [1.6.82](https://github.com/deepmodeling/dflow/compare/v1.6.81...v1.6.82) (2023-03-16)
 
 
