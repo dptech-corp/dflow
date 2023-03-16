@@ -369,6 +369,11 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.common.</span></span><span class="sig-name descname"><span class="pre">LineageClient</span></span><a class="headerlink" href="#dflow.common.LineageClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <dl class="py method">
+<dt class="sig sig-object py" id="dflow.common.LineageClient.get_artifact_metadata">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_artifact_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">urn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">object</span></span></span><a class="headerlink" href="#dflow.common.LineageClient.get_artifact_metadata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dflow.common.LineageClient.register_artifact">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">register_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#dflow.common.LineageClient.register_artifact" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -2436,6 +2441,11 @@ self in this method to make the executor reusable</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">LineageClient</span></span><a class="headerlink" href="#dflow.LineageClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <dl class="py method">
+<dt class="sig sig-object py" id="dflow.LineageClient.get_artifact_metadata">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_artifact_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">urn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">object</span></span></span><a class="headerlink" href="#dflow.LineageClient.get_artifact_metadata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dflow.LineageClient.register_artifact">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">register_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">namespace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#dflow.LineageClient.register_artifact" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -3647,6 +3657,7 @@ parameters</p></li>
 </li>
 <li><a class="reference internal" href="#module-dflow.common">dflow.common module</a><ul>
 <li><a class="reference internal" href="#dflow.common.LineageClient"><code class="docutils literal notranslate"><span class="pre">LineageClient</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.common.LineageClient.get_artifact_metadata"><code class="docutils literal notranslate"><span class="pre">LineageClient.get_artifact_metadata()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.common.LineageClient.register_artifact"><code class="docutils literal notranslate"><span class="pre">LineageClient.register_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.common.LineageClient.register_task"><code class="docutils literal notranslate"><span class="pre">LineageClient.register_task()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.common.LineageClient.register_workflow"><code class="docutils literal notranslate"><span class="pre">LineageClient.register_workflow()</span></code></a></li>
@@ -4022,6 +4033,7 @@ parameters</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#dflow.LineageClient"><code class="docutils literal notranslate"><span class="pre">LineageClient</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.LineageClient.get_artifact_metadata"><code class="docutils literal notranslate"><span class="pre">LineageClient.get_artifact_metadata()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.LineageClient.register_artifact"><code class="docutils literal notranslate"><span class="pre">LineageClient.register_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.LineageClient.register_task"><code class="docutils literal notranslate"><span class="pre">LineageClient.register_task()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.LineageClient.register_workflow"><code class="docutils literal notranslate"><span class="pre">LineageClient.register_workflow()</span></code></a></li>
