@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.82](https://github.com/deepmodeling/dflow/compare/v1.6.81...v1.6.82) (2023-03-16)
+
+
+### Bug Fixes
+
+* add register_output_artifact for OP ([ce27d37](https://github.com/deepmodeling/dflow/commit/ce27d3741f655dab7c848908a9a31796d42a7839))
+* update metadata client ([ce27d37](https://github.com/deepmodeling/dflow/commit/ce27d3741f655dab7c848908a9a31796d42a7839))
+
 ## [1.6.81](https://github.com/deepmodeling/dflow/compare/v1.6.80...v1.6.81) (2023-03-15)
 
 
