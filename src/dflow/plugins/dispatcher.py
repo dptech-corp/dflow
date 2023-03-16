@@ -256,7 +256,7 @@ class DispatcherExecutor(Executor):
                     "image_name"] = template.image
 
         self.machine_dict["local_root"] = self.work_root
-        new_template.script += "import json\n"
+        new_template.script += "import json, shlex\n"
         new_template.script += "from dpdispatcher import Machine, Resources,"\
             " Task, Submission\n"
         new_template.script += "machine = Machine.load_from_dict(json.loads("\
@@ -267,6 +267,8 @@ class DispatcherExecutor(Executor):
             for k in new_template.envs.keys():
                 new_template.script += "resources.envs['%s'] = "\
                     "os.environ.get('%s')\n" % (k, k)
+        new_template.script += "resources.envs['ARGO_TEMPLATE'] = "\
+            "shlex.quote(os.environ.get('ARGO_TEMPLATE'))\n"
         new_template.script += "task = Task.load_from_dict(json.loads('%s'))"\
             "\n" % json.dumps(self.task_dict)
         new_template.script += "task.forward_files = list(filter("\
