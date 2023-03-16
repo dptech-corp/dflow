@@ -75,3 +75,10 @@ class MetadataClient(LineageClient):
                 output_urns[name] = urn
             client.end_job(run, outputs=list(output_urns.values()))
         return output_urns
+
+    def get_artifact_metadata(self, urn: str) -> object:
+        with MetadataContext(project=self.project, endpoint=self.gms_endpoint,
+                             token=self.token) as context:
+            client = context.client
+            ds = client.get_dataset(urn)
+        return ds

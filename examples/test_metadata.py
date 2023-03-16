@@ -1,7 +1,7 @@
 import datetime
 from pathlib import Path
 
-from dflow import Step, Workflow, config, upload_artifact
+from dflow import Step, Workflow, config, upload_artifact  # , S3Artifact
 from dflow.plugins.metadata import MetadataClient
 from dflow.python import OP, OPIO, Artifact, OPIOSign, PythonOPTemplate
 
@@ -55,6 +55,7 @@ if __name__ == "__main__":
     with open("foo.txt", "w") as f:
         f.write("Hi")
 
+    # artifact0 = S3Artifact(urn="<urn>")
     artifact0 = upload_artifact(
         "foo.txt",
         namespace="tiefblue",

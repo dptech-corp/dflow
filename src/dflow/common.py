@@ -1,8 +1,10 @@
 import abc
+import logging
 from abc import ABC
 from copy import copy, deepcopy
 from typing import Any, Dict, List, Union
 
+from .config import config as global_config
 from .config import s3_config
 
 try:
@@ -30,6 +32,12 @@ class S3Artifact(V1alpha1S3Artifact):
         config = Configuration()
         config.client_side_validation = False
         super().__init__(local_vars_configuration=config, *args, **kwargs)
+        if urn:
+            if global_config["lineage"]:
+                meta = global_config["lineage"].get_artifact_metadata(urn)
+                self.key = meta.uri
+            else:
+                logging.warn("Lineage client not provided")
         assert isinstance(self.key, str)
         if not self.key.startswith(s3_config["prefix"]) and not any(
                 [self.key.startswith(p) for p in s3_config["extra_prefixes"]]):
@@ -122,4 +130,8 @@ class LineageClient(ABC):
             input_urns: Dict[str, Union[str, List[str]]],
             output_uris: Dict[str, str],
             workflow_urn: str) -> Dict[str, str]:
+        pass
+
+    @abc.abstractmethod
+    def get_artifact_metadata(self, urn: str) -> object:
         pass
