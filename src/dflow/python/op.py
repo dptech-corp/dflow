@@ -3,8 +3,8 @@ import base64
 import functools
 import inspect
 import json
+import logging
 import os
-import warnings
 from abc import ABC
 from pathlib import Path
 from typing import Dict, List, Set, Union
@@ -12,6 +12,7 @@ from typing import Dict, List, Set, Union
 from typeguard import check_type
 
 from ..argo_objects import ArgoObjectDict
+from ..config import config
 from ..utils import get_key, s3_config
 from .opio import (OPIO, Artifact, BigParameter, OPIOSign, Parameter,
                    type_to_str)
@@ -90,6 +91,15 @@ class OP(ABC):
     def get_output_artifact_link(self, name: str) -> str:
         key = self.get_output_artifact_storage_key(name)
         return self._get_s3_link(key)
+
+    def register_output_artifact(self, name, namespace, dataset_name,
+                                 **kwargs):
+        if config["lineage"]:
+            uri = self.get_output_artifact_storage_key(name)
+            config["lineage"].register_artifact(
+                namespace=namespace, name=dataset_name, uri=uri, **kwargs)
+        else:
+            logging.warn("Lineage client not provided")
 
     @abc.abstractmethod
     def execute(
@@ -181,7 +191,7 @@ class OP(ABC):
             output_sign = OPIOSign(
                 {k: v for k, v in return_type.__annotations__.items()})
         elif not return_type:
-            warnings.warn(
+            logging.warn(
                 'We recommended using return type signature like:'
                 '\n'
                 "def func()->TypedDict('op', {'x': int, 'y': str})")

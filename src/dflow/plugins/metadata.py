@@ -1,22 +1,24 @@
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
-from metadata import Dataset, MetadataContext
-from metadata.entity.task import Task
-from metadata.entity.workflow import WorkFlow
+from dp.metadata import Dataset, MetadataContext
+from dp.metadata.entity.task import Task
+from dp.metadata.entity.workflow import WorkFlow
 
 from .. import LineageClient
 
 
 class MetadataClient(LineageClient):
-    def __init__(self, gms_endpoint="https://datahub-gms.dp.tech", token=None):
+    def __init__(self, gms_endpoint="https://datahub-gms.dp.tech",
+                 project=None, token=None):
         self.gms_endpoint = gms_endpoint
+        self.project = project
         self.token = token
 
     def register_workflow(
             self,
             workflow_name: str) -> str:
-        with MetadataContext(endpoint=self.gms_endpoint, token=self.token) \
-                as context:
+        with MetadataContext(project=self.project, endpoint=self.gms_endpoint,
+                             token=self.token) as context:
             client = context.client
             workflow = WorkFlow(workflow_name)
             job = client.prepare_workflow(workflow)
@@ -27,12 +29,22 @@ class MetadataClient(LineageClient):
             self,
             namespace: str,
             name: str,
-            uri: str) -> str:
-        with MetadataContext(endpoint=self.gms_endpoint, token=self.token) \
-                as context:
+            uri: str,
+            description: str = "",
+            tags: Optional[List[str]] = None,
+            properties: Optional[Dict[str, str]] = None,
+            **kwargs) -> str:
+        if tags is None:
+            tags = []
+        if properties is None:
+            properties = {}
+        with MetadataContext(project=self.project, endpoint=self.gms_endpoint,
+                             token=self.token) as context:
             client = context.client
             urn = Dataset.gen_urn(context, namespace, name)
-            ds = Dataset(urn=urn, display_name=name, uri=uri)
+            ds = Dataset(urn=urn, display_name=name, uri=uri,
+                         description=description, tags=tags,
+                         properties=properties)
             client.update_dataset(ds)
         return urn
 
@@ -42,8 +54,8 @@ class MetadataClient(LineageClient):
             input_urns: Dict[str, Union[str, List[str]]],
             output_uris: Dict[str, str],
             workflow_urn: str) -> Dict[str, str]:
-        with MetadataContext(endpoint=self.gms_endpoint, token=self.token) \
-                as context:
+        with MetadataContext(project=self.project, endpoint=self.gms_endpoint,
+                             token=self.token) as context:
             client = context.client
             task = Task(task_name, workflow_urn)
             job = client.prepare_job(task)

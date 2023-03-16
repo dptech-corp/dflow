@@ -712,7 +712,7 @@ class Step:
                     self.with_sequence.start, self.with_sequence.end,
                     self.with_sequence.format)
 
-        if config["lineage"] and hasattr(self.template, "slices") and \
+        if config["register_tasks"] and hasattr(self.template, "slices") and \
                 self.template.slices and \
                 self.template.slices.register_first_only:
             self.template = self.template.copy()
@@ -1169,7 +1169,7 @@ class Step:
                             InputParameter(
                             value=v.template.inputs.parameters[
                                 "dflow_%s_path_list" % v.name])
-                if config["lineage"] and k[:6] != "dflow_":
+                if config["register_tasks"] and k[:6] != "dflow_":
                     if isinstance(v, S3Artifact):
                         self.inputs.parameters["dflow_%s_urn" % k] = \
                             InputParameter(value=v.urn)

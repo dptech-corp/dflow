@@ -128,7 +128,7 @@ def upload_artifact(
                     Dict[str, os.PathLike], list, dict],
         archive: str = "default",
         namespace: Optional[str] = None,
-        name: Optional[str] = None,
+        dataset_name: Optional[str] = None,
         **kwargs,
 ) -> S3Artifact:
     """
@@ -221,8 +221,12 @@ def upload_artifact(
     logging.debug("upload artifact: finished")
 
     urn = ""
-    if config["lineage"] and namespace is not None and name is not None:
-        urn = config["lineage"].register_artifact(namespace, name, key)
+    if namespace is not None and dataset_name is not None:
+        if config["lineage"]:
+            urn = config["lineage"].register_artifact(
+                namespace, dataset_name, key, **kwargs)
+        else:
+            logging.warn("Lineage client not provided")
 
     return S3Artifact(key=key, path_list=path_list, urn=urn)
 
@@ -721,6 +725,7 @@ class MinioClient(StorageClient):
                  secret_key: Optional[str] = None,
                  secure: Optional[bool] = None,
                  bucket_name: Optional[str] = None,
+                 **kwargs,
                  ) -> None:
         self.client = Minio(
             endpoint=endpoint if endpoint is not None else
