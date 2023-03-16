@@ -55,6 +55,7 @@ config = {
         "DFLOW_SAVE_KEYS_IN_GLOBAL_OUTPUTS", True)),
     "mode": os.environ.get("DFLOW_MODE", "default"),
     "lineage": None,
+    "register_tasks": boolize(os.environ.get("DFLOW_REGISTER_TASKS", False)),
     "http_headers": split_headers(os.environ.get("DFLOW_HTTP_HEADERS", {})),
     "workflow_annotations": json.loads(os.environ.get(
         "DFLOW_WORKFLOW_ANNOTATIONS", "{}")),

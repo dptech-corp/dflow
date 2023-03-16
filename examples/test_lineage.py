@@ -16,9 +16,10 @@ def duplicate(foo: Artifact(Path)) -> {'bar': Artifact(Path)}:
 
 if __name__ == "__main__":
     config["lineage"] = MetadataClient(
-        gms_endpoint="https://datahub-test-gms.codespace.dp.tech",
+        project="<project>",
         token="<token>",
     )
+    config["register_tasks"] = True
 
     wf = Workflow(name="lineage")
 
@@ -28,16 +29,16 @@ if __name__ == "__main__":
     art = upload_artifact("foo.txt", namespace="lineage-test", name="foo")
     step1 = Step(
         name="step1",
-        template=PythonOPTemplate(duplicate,
-                                  image="dptechnology/datahub-metadata-sdk"),
+        template=PythonOPTemplate(
+            duplicate, image="registry.dp.tech/dptech/dp-metadata-sdk:latest"),
         artifacts={"foo": art},
     )
     wf.add(step1)
 
     step2 = Step(
         name="step2",
-        template=PythonOPTemplate(duplicate,
-                                  image="dptechnology/datahub-metadata-sdk"),
+        template=PythonOPTemplate(
+            duplicate, image="registry.dp.tech/dptech/dp-metadata-sdk:latest"),
         artifacts={"foo": step1.outputs.artifacts["bar"]},
     )
     wf.add(step2)

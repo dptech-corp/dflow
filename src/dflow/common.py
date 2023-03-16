@@ -111,7 +111,8 @@ class LineageClient(ABC):
             self,
             namespace: str,
             name: str,
-            uri: str) -> str:
+            uri: str,
+            **kwargs) -> str:
         pass
 
     @abc.abstractmethod

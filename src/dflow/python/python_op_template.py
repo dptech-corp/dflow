@@ -233,7 +233,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                         value_from_path="%s/outputs/parameters/"
                         "dflow_%s_path_list" % (self.tmp_root, name),
                         default=[])
-                if config["lineage"]:
+                if config["register_tasks"]:
                     self.outputs.parameters["dflow_%s_urn" % name] = \
                         OutputParameter(
                         value_from_path="%s/outputs/parameters/dflow_%s_urn"
@@ -552,7 +552,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 script += "    handle_output_parameter('%s', output['%s'], "\
                     "output_sign['%s'], %s, r'%s')\n" % (name, name, name,
                                                          slices, self.tmp_root)
-        if config["lineage"]:
+        if config["register_tasks"]:
             if self.slices is not None and self.slices.register_first_only:
                 if "{{item}}" in self.dflow_vars:
                     var_name = self.dflow_vars["{{item}}"]

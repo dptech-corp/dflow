@@ -491,7 +491,7 @@ class Workflow:
                         _return_http_data_only=True)
                     self.image_pull_secrets[i] = s.name
 
-        if config["lineage"] is not None:
+        if config["register_tasks"] is not None:
             workflow_urn = config["lineage"].register_workflow(self.name)
             self.parameters["dflow_workflow_urn"] = workflow_urn
 

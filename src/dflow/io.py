@@ -110,7 +110,7 @@ class InputArtifacts(AutonamedDict):
             else:
                 self.template.inputs.parameters["dflow_%s_path_list" % key] = \
                     InputParameter(value=[])
-        if config["lineage"] and self.template is not None and \
+        if config["register_tasks"] and self.template is not None and \
                 key[:6] != "dflow_":
             if isinstance(value.source, S3Artifact):
                 self.template.inputs.parameters["dflow_%s_urn" % key] = \
@@ -131,7 +131,7 @@ class InputArtifacts(AutonamedDict):
                     self.template.inputs.parameters["dflow_%s_path_list"
                                                     % name] = InputParameter(
                         value=[])
-        if config["lineage"]:
+        if config["register_tasks"]:
             for name, art in self.items():
                 if name[:6] == "dflow_":
                     continue
@@ -157,7 +157,7 @@ class OutputArtifacts(AutonamedDict):
             self.template.outputs.parameters["dflow_%s_path_list" % key] = \
                 OutputParameter(value=[])
             value.handle_path_list()
-        if config["lineage"] and self.template is not None:
+        if config["register_tasks"] and self.template is not None:
             self.template.outputs.parameters["dflow_%s_urn" % key] = \
                 OutputParameter(value="")
             value.handle_urn()
@@ -169,7 +169,7 @@ class OutputArtifacts(AutonamedDict):
                 self.template.outputs.parameters["dflow_%s_path_list" % name]\
                     = OutputParameter(value=[])
                 art.handle_path_list()
-        if config["lineage"]:
+        if config["register_tasks"]:
             for name, art in self.items():
                 self.template.outputs.parameters["dflow_%s_urn" % name]\
                     = OutputParameter(value="")
@@ -927,7 +927,7 @@ class OutputArtifact(ArgoVar):
         if config["save_path_as_parameter"] and key in ["_from",
                                                         "from_expression"]:
             self.handle_path_list()
-        if config["lineage"] and key in ["_from", "from_expression"]:
+        if config["register_tasks"] and key in ["_from", "from_expression"]:
             self.handle_urn()
 
     def handle_path_list(self):
