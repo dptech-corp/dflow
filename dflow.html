@@ -1029,6 +1029,41 @@ parameters</p></li>
 <dd></dd></dl>
 
 </section>
+<section id="module-dflow.main">
+<span id="dflow-main-module"></span><h2>dflow.main module<a class="headerlink" href="#module-dflow.main" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.main.format_print_table">
+<span class="sig-prename descclassname"><span class="pre">dflow.main.</span></span><span class="sig-name descname"><span class="pre">format_print_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.main.format_print_table" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.main.format_time_delta">
+<span class="sig-prename descclassname"><span class="pre">dflow.main.</span></span><span class="sig-name descname"><span class="pre">format_time_delta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#dflow.main.format_time_delta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.main.main">
+<span class="sig-prename descclassname"><span class="pre">dflow.main.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.main.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.main.main_parser">
+<span class="sig-prename descclassname"><span class="pre">dflow.main.</span></span><span class="sig-name descname"><span class="pre">main_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.main.main_parser" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.main.parse_args">
+<span class="sig-prename descclassname"><span class="pre">dflow.main.</span></span><span class="sig-name descname"><span class="pre">parse_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.main.parse_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commandline options argument parsing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of command line arguments, main purpose is testing default option
+None takes arguments from sys.argv</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-dflow.op_template">
 <span id="dflow-op-template-module"></span><h2>dflow.op_template module<a class="headerlink" href="#module-dflow.op_template" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
@@ -3799,6 +3834,14 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.io.convert_value_to_str"><code class="docutils literal notranslate"><span class="pre">convert_value_to_str()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.io.if_expression"><code class="docutils literal notranslate"><span class="pre">if_expression()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.io.to_expr"><code class="docutils literal notranslate"><span class="pre">to_expr()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dflow.main">dflow.main module</a><ul>
+<li><a class="reference internal" href="#dflow.main.format_print_table"><code class="docutils literal notranslate"><span class="pre">format_print_table()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.main.format_time_delta"><code class="docutils literal notranslate"><span class="pre">format_time_delta()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.main.main_parser"><code class="docutils literal notranslate"><span class="pre">main_parser()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.main.parse_args"><code class="docutils literal notranslate"><span class="pre">parse_args()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-dflow.op_template">dflow.op_template module</a><ul>
