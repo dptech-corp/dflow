@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.85](https://github.com/deepmodeling/dflow/compare/v1.6.84...v1.6.85) (2023-03-17)
+
+
+### Bug Fixes
+
+* bug in slice super OP ([44b5be2](https://github.com/deepmodeling/dflow/commit/44b5be25f108e719a37ce17a6703d6fefbee737d))
+
 ## [1.6.84](https://github.com/deepmodeling/dflow/compare/v1.6.83...v1.6.84) (2023-03-17)
 
 
