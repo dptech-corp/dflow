@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.84](https://github.com/deepmodeling/dflow/compare/v1.6.83...v1.6.84) (2023-03-17)
+
+
+### Bug Fixes
+
+* 'NoneType' object has no attribute 'register_workflow' ([e8a15a7](https://github.com/deepmodeling/dflow/commit/e8a15a75699ce51a4df1f8d110c27fecc1087ec5))
+
 ## [1.6.83](https://github.com/deepmodeling/dflow/compare/v1.6.82...v1.6.83) (2023-03-16)
 
 
