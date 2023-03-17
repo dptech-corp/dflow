@@ -348,9 +348,8 @@ class Step:
                     for art in list(step.inputs.artifacts.values()):
                         # input artifact referring to sliced input artifact
                         if art.source is self.template.inputs.artifacts[name]:
-                            if name in self.template.input_artifact_slices:
-                                slice = self.template.input_artifact_slices[
-                                    name]
+                            if name in self.input_artifact_slices:
+                                slice = self.input_artifact_slices[name]
                                 pattern = add_prefix_to_slices(
                                     slice, "{{inputs.parameters.dflow_slice}}")
                             else:
