@@ -739,7 +739,14 @@ class Workflow:
             return [step.key for step in self.query_step()
                     if step.key is not None]
 
-    def query_step_by_key(self, key: Union[str, List[str]]) -> List[ArgoStep]:
+    def query_step_by_key(
+            self,
+            key: Union[str, List[str]],
+            name: Union[str, List[str]] = None,
+            phase: Union[str, List[str]] = None,
+            id: Union[str, List[str]] = None,
+            type: Union[str, List[str]] = None,
+    ) -> List[ArgoStep]:
         """
         Query the existing steps of the workflow from Argo by key
         This function will try to get key-ID map from the global outputs,
@@ -765,11 +772,12 @@ class Workflow:
             workflow = self.query(
                 fields=['metadata.name'] + [
                     'status.nodes.' + key2id[k] for k in key])
-            return workflow.get_step()
+            return workflow.get_step(name=name, phase=phase, id=id, type=type)
         except Exception:
             logger.warn("Key-ID map not found in the global outputs, downgrade"
                         " to full query")
-            return self.query_step(key=key)
+            return self.query_step(key=key, name=name, phase=phase, id=id,
+                                   type=type)
 
     def query_global_outputs(self) -> ArgoWorkflow:
         """

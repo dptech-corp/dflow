@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import os
@@ -273,6 +274,9 @@ class ArgoStep(ArgoObjectDict):
                 header_params=config["http_headers"],
                 _return_http_data_only=True)
 
+    def get_duration(self) -> datetime.timedelta:
+        return get_duration(self)
+
 
 max_k8s_resource_name_length = 253
 k8s_naming_hash_length = 10
@@ -361,6 +365,23 @@ class ArgoWorkflow(ArgoObjectDict):
                 step_list.append(step)
         step_list.sort(key=lambda x: x["startedAt"])
         return step_list
+
+    def get_duration(self) -> datetime.timedelta:
+        return get_duration(self.status)
+
+
+def get_duration(status) -> datetime.timedelta:
+    if status.startedAt is None:
+        return datetime.timedelta()
+    else:
+        ts = datetime.datetime.strptime(status.startedAt,
+                                        "%Y-%m-%dT%H:%M:%SZ")
+        if status.finishedAt is None:
+            tf = datetime.datetime.now()
+        else:
+            tf = datetime.datetime.strptime(status.finishedAt,
+                                            "%Y-%m-%dT%H:%M:%SZ")
+        return tf - ts
 
 
 def match(n, names):
