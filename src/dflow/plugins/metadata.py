@@ -1,3 +1,4 @@
+import os
 from typing import Dict, List, Optional, Union
 
 from dp.metadata import Dataset, MetadataContext
@@ -6,10 +7,22 @@ from dp.metadata.entity.workflow import WorkFlow
 
 from .. import LineageClient
 
+config = {
+    "gms_endpoint": os.environ.get("METADATA_GMS_ENDPOINT",
+                                   "https://datahub-gms.dp.tech"),
+    "project": os.environ.get("METADATA_PROJECT", None),
+    "token": os.environ.get("METADATA_TOKEN", None),
+}
+
 
 class MetadataClient(LineageClient):
-    def __init__(self, gms_endpoint="https://datahub-gms.dp.tech",
-                 project=None, token=None):
+    def __init__(self, gms_endpoint=None, project=None, token=None):
+        if gms_endpoint is None:
+            gms_endpoint = config["gms_endpoint"]
+        if project is None:
+            project = config["project"]
+        if token is None:
+            token = config["token"]
         self.gms_endpoint = gms_endpoint
         self.project = project
         self.token = token

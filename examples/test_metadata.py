@@ -64,6 +64,7 @@ if __name__ == "__main__":
         description="Uploaded artifact",
         tags=["test"],
         properties={"length": "2"})
+    print(artifact0.urn)
     step = Step(
         name="step",
         template=PythonOPTemplate(
