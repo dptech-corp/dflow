@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.86](https://github.com/deepmodeling/dflow/compare/v1.6.85...v1.6.86) (2023-03-19)
+
+
+### Bug Fixes
+
+* add command line tools ([0cf8155](https://github.com/deepmodeling/dflow/commit/0cf81552bccacf7fe97c7169c6d2fe5bcd3d061a))
+
 ## [1.6.85](https://github.com/deepmodeling/dflow/compare/v1.6.84...v1.6.85) (2023-03-17)
 
 
