@@ -315,6 +315,11 @@ class DispatcherExecutor(Executor):
                 "\n"
             new_template.script += "    item_list = [format % i if format != "\
                 "'' else i for i in r]\n"
+            if new_template.slices.output_parameter:
+                new_template.script += "machine.input_data['backward_files']"\
+                    " = ['./tmp/outputs']\n"
+                new_template.script += "task.backward_files = ["\
+                    "'./tmp/outputs']\n"
             new_template.script += "for i, item in enumerate(item_list):\n"
             new_template.script += "    new_script = script\n"
             for k, v in new_template.dflow_vars.items():
@@ -324,6 +329,11 @@ class DispatcherExecutor(Executor):
                     new_template.script += "    new_script = new_script."\
                         "replace(%s, %s if isinstance(%s, str) else "\
                         "json.dumps(%s))\n" % (old, new, new, new)
+            for name in new_template.slices.output_parameter:
+                new_template.script += "    new_script = new_script.replace("\
+                    "\"handle_output_parameter('%s'\", "\
+                    "\"handle_output_parameter('%s_\" + str(i) + \"'\")\n" % (
+                        name, name)
             new_template.script += "    with open('script' + str(i), 'w')"\
                 " as f:\n"
             new_template.script += "        f.write(new_script)\n"
@@ -353,6 +363,19 @@ class DispatcherExecutor(Executor):
             new_template.script += "        time.sleep(2**retry)\n"
         else:
             new_template.script += "submission.run_submission()\n"
+        if self.merge_sliced_step and hasattr(new_template, "slices") and \
+                new_template.slices is not None:
+            for name in new_template.slices.output_parameter:
+                new_template.script += "res = []\n"
+                new_template.script += "for i in range(len(item_list)):\n"
+                new_template.script += "    fname = '%s/outputs/parameters/"\
+                    "%s_' + str(i)\n" % (new_template.tmp_root, name)
+                new_template.script += "    if os.path.isfile(fname):\n"
+                new_template.script += "        with open(fname, 'r') as f:\n"
+                new_template.script += "            res.append(f.read())\n"
+                new_template.script += "with open('%s/outputs/parameters/"\
+                    "%s', 'w') as f:\n" % (new_template.tmp_root, name)
+                new_template.script += "    f.write(json.dumps(res))\n"
 
         # workaround for unavailable exit code of Bohrium job
         # check output files explicitly

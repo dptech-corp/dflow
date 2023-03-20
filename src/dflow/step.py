@@ -1222,6 +1222,9 @@ class Step:
                     self.inputs.parameters["dflow_sequence_format"].value = \
                         format
                     self.with_sequence = None
+                if self.key is not None:
+                    self.inputs.parameters["dflow_key"] = InputParameter(
+                        value=str(self.key).replace("{{item}}", "group"))
         elif context is not None:
             self.template = context.render(self.template)
 
