@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.87](https://github.com/deepmodeling/dflow/compare/v1.6.86...v1.6.87) (2023-03-20)
+
+
+### Bug Fixes
+
+* {{item}} in key when merge sliced step ([c7b3cb6](https://github.com/deepmodeling/dflow/commit/c7b3cb6e927f260522a4e0960285b21d4c73a9a6))
+* overwrite sliced output parameter when merge sliced step ([c7b3cb6](https://github.com/deepmodeling/dflow/commit/c7b3cb6e927f260522a4e0960285b21d4c73a9a6))
+
 ## [1.6.86](https://github.com/deepmodeling/dflow/compare/v1.6.85...v1.6.86) (2023-03-19)
 
 
