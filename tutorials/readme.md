@@ -3,15 +3,15 @@
 There are several topics we intend to cover in this series:
 - Installation and setup 
 - Using dflow to write a simple workflow 
-    - [dflow-helloworld.ipynb](https://github.com/deepmodeling/dflow/blob/master/tutorials/dflow-helloworld.ipynb)
     - [dflow-python.ipynb](https://github.com/deepmodeling/dflow/blob/master/tutorials/dflow-python.ipynb)
-- Using dflow with to submit job on cluster
-    - [dflow-slurm.ipynb](https://github.com/deepmodeling/dflow/blob/master/tutorials/dflow-slurm.ipynb)
+    - [dflow-function.ipynb](https://github.com/deepmodeling/dflow/blob/master/tutorials/dflow-function.ipynb)
 - Advanced functionality of dflow
     - running jobs in parallel: [dflow-slices.ipynb](https://github.com/deepmodeling/dflow/blob/master/tutorials/dflow-slices.ipynb)
     - writing while loop in dflow: [dflow-recurse.ipynb](https://github.com/deepmodeling/dflow/blob/master/tutorials/dflow-recurse.ipynb)
     - reusing operated nodes: [dflow-reuse.ipynb](https://github.com/deepmodeling/dflow/blob/master/tutorials/dflow-reuse.ipynb)
     - complex condition: [dflow-conditional.ipynb](https://github.com/deepmodeling/dflow/blob/master/tutorials/dflow-conditional.ipynb)
+- Using dflow to submit job to slurm cluster
+    - [dflow-slurm.ipynb](https://github.com/deepmodeling/dflow/blob/master/tutorials/dflow-slurm.ipynb)
 
 # Installation and setup
 **!!!Install and setup the dflow environment on your PC!!!**
