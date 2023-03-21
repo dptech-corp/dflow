@@ -223,18 +223,25 @@ class DispatcherExecutor(Executor):
         for par in template.inputs.parameters.values():
             if par.save_as_artifact:
                 self.task_dict["forward_files"].append("./" + par.path)
+        merge = self.merge_sliced_step and hasattr(template, "slices") and\
+            template.slices is not None
+        sliced_output_parameters = template.slices.output_parameter.copy()
+        if "dflow_success_tag" in template.outputs.parameters:
+            sliced_output_parameters.append("dflow_success_tag")
         self.task_dict["backward_files"] = []
         for art in template.outputs.artifacts.values():
             self.task_dict["backward_files"].append("./" + art.path)
-        for par in template.outputs.parameters.values():
-            if par.name == "dflow_success_tag":
-                continue
+        for name, par in template.outputs.parameters.items():
             if par.save_as_artifact:
                 self.task_dict["backward_files"].append(
                     "./" + par.value_from_path)
             elif par.value_from_path is not None:
-                self.task_dict["backward_files"].append(
-                    "./" + par.value_from_path)
+                if merge and name in sliced_output_parameters:
+                    self.task_dict["backward_files"].append(
+                        "./" + par.value_from_path + "*")
+                else:
+                    self.task_dict["backward_files"].append(
+                        "./" + par.value_from_path)
 
         new_template.script = "import os\n"
         new_template.script += "os.chdir('%s')\n" % self.work_root
@@ -276,8 +283,7 @@ class DispatcherExecutor(Executor):
         new_template.script += "for f in task.backward_files:\n"
         new_template.script += "    os.makedirs(os.path.dirname(f), "\
             "exist_ok=True)\n"
-        if self.merge_sliced_step and hasattr(new_template, "slices") and \
-                new_template.slices is not None:
+        if merge:
             new_template.inputs.parameters["dflow_with_param"] = \
                 InputParameter(value="")
             new_template.inputs.parameters["dflow_sequence_start"] = \
@@ -315,11 +321,6 @@ class DispatcherExecutor(Executor):
                 "\n"
             new_template.script += "    item_list = [format % i if format != "\
                 "'' else i for i in r]\n"
-            if new_template.slices.output_parameter:
-                new_template.script += "machine.input_data['backward_files']"\
-                    " = ['./tmp/outputs']\n"
-                new_template.script += "task.backward_files = ["\
-                    "'./tmp/outputs']\n"
             new_template.script += "for i, item in enumerate(item_list):\n"
             new_template.script += "    new_script = script\n"
             for k, v in new_template.dflow_vars.items():
@@ -329,11 +330,14 @@ class DispatcherExecutor(Executor):
                     new_template.script += "    new_script = new_script."\
                         "replace(%s, %s if isinstance(%s, str) else "\
                         "json.dumps(%s))\n" % (old, new, new, new)
-            for name in new_template.slices.output_parameter:
+            for name in template.slices.output_parameter:
                 new_template.script += "    new_script = new_script.replace("\
                     "\"handle_output_parameter('%s'\", "\
                     "\"handle_output_parameter('%s_\" + str(i) + \"'\")\n" % (
                         name, name)
+            if "dflow_success_tag" in template.outputs.parameters:
+                new_template.script += "    new_script = new_script.replace("\
+                    "'success_tag', 'success_tag_' + str(i))\n"
             new_template.script += "    with open('script' + str(i), 'w')"\
                 " as f:\n"
             new_template.script += "        f.write(new_script)\n"
@@ -363,18 +367,16 @@ class DispatcherExecutor(Executor):
             new_template.script += "        time.sleep(2**retry)\n"
         else:
             new_template.script += "submission.run_submission()\n"
-        if self.merge_sliced_step and hasattr(new_template, "slices") and \
-                new_template.slices is not None:
-            for name in new_template.slices.output_parameter:
+        if merge:
+            for name in sliced_output_parameters:
+                path = template.outputs.parameters[name].value_from_path
                 new_template.script += "res = []\n"
                 new_template.script += "for i in range(len(item_list)):\n"
-                new_template.script += "    fname = '%s/outputs/parameters/"\
-                    "%s_' + str(i)\n" % (new_template.tmp_root, name)
+                new_template.script += "    fname = './%s_' + str(i)\n" % path
                 new_template.script += "    if os.path.isfile(fname):\n"
                 new_template.script += "        with open(fname, 'r') as f:\n"
                 new_template.script += "            res.append(f.read())\n"
-                new_template.script += "with open('%s/outputs/parameters/"\
-                    "%s', 'w') as f:\n" % (new_template.tmp_root, name)
+                new_template.script += "with open('./%s', 'w') as f:\n" % path
                 new_template.script += "    f.write(json.dumps(res))\n"
 
         # workaround for unavailable exit code of Bohrium job

@@ -369,7 +369,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         output_artifact_slices = self.output_artifact_slices
         output_parameter_slices = self.output_parameter_slices
 
-        script = self.pre_script
+        script = self.pre_script.format(**{"tmp_root": self.tmp_root})
         if self.python_packages:
             script += "import os, sys, json\n"
             script += "package_root = r'%s/inputs/artifacts/"\
@@ -587,7 +587,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "    except FatalError:\n"
             script += "        sys.exit(2)\n"
 
-        script += self.post_script
+        script += self.post_script.format(**{"tmp_root": self.tmp_root})
         self.script = script
 
     def get_slices(self, slices_dict, name):
