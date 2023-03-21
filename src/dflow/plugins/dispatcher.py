@@ -225,9 +225,10 @@ class DispatcherExecutor(Executor):
                 self.task_dict["forward_files"].append("./" + par.path)
         merge = self.merge_sliced_step and hasattr(template, "slices") and\
             template.slices is not None
-        sliced_output_parameters = template.slices.output_parameter.copy()
-        if "dflow_success_tag" in template.outputs.parameters:
-            sliced_output_parameters.append("dflow_success_tag")
+        if merge:
+            sliced_output_parameters = template.slices.output_parameter.copy()
+            if "dflow_success_tag" in template.outputs.parameters:
+                sliced_output_parameters.append("dflow_success_tag")
         self.task_dict["backward_files"] = []
         for art in template.outputs.artifacts.values():
             self.task_dict["backward_files"].append("./" + art.path)
