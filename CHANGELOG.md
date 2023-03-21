@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.89](https://github.com/deepmodeling/dflow/compare/v1.6.88...v1.6.89) (2023-03-21)
+
+
+### Bug Fixes
+
+* key of merged sliced step conflicted with key of artifact in debug mode ([80589c9](https://github.com/deepmodeling/dflow/commit/80589c93deabd0d33be642add6adf91e2a4dc7d8))
+* update tutorials ([a200bba](https://github.com/deepmodeling/dflow/commit/a200bbac76abc06d34e3f4be46c1fbfe65ea2b40))
+
 ## [1.6.88](https://github.com/deepmodeling/dflow/compare/v1.6.87...v1.6.88) (2023-03-21)
 
 
