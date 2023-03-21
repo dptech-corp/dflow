@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.90](https://github.com/deepmodeling/dflow/compare/v1.6.89...v1.6.90) (2023-03-21)
+
+
+### Bug Fixes
+
+* NoneType has no attribute output_parameter ([0243155](https://github.com/deepmodeling/dflow/commit/02431558bee0a44b10c8b2077d7d4a2b7ad5315c))
+
 ## [1.6.89](https://github.com/deepmodeling/dflow/compare/v1.6.88...v1.6.89) (2023-03-21)
 
 
