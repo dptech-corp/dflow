@@ -1231,7 +1231,7 @@ class Step:
                     self.with_sequence = None
                 if self.key is not None:
                     self.inputs.parameters["dflow_key"] = InputParameter(
-                        value=str(self.key).replace("{{item}}", "group"))
+                        value=str(self.key).replace("{{item}}", "merged"))
         elif context is not None:
             self.template = context.render(self.template)
 
@@ -1546,8 +1546,6 @@ class Step:
                 self.exec(scope, parameters)
             except Exception:
                 self.phase = "Failed"
-                with open(os.path.join(self.stepdir, "phase"), "w") as f:
-                    f.write("Failed")
                 if not self.continue_on_failed:
                     raise RuntimeError("Step %s failed" % self)
 
