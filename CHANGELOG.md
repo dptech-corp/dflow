@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.88](https://github.com/deepmodeling/dflow/compare/v1.6.87...v1.6.88) (2023-03-21)
+
+
+### Bug Fixes
+
+* success_ratio with merge_sliced_step ([14d8860](https://github.com/deepmodeling/dflow/commit/14d8860370e3e839ab9af28322635d5c48456191))
+
 ## [1.6.87](https://github.com/deepmodeling/dflow/compare/v1.6.86...v1.6.87) (2023-03-20)
 
 
