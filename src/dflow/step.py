@@ -13,7 +13,8 @@ from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
 from .io import (PVC, ArgoVar, Expression, InputArtifact, InputParameter,
                  OutputArtifact, OutputParameter, if_expression, to_expr)
-from .op_template import OPTemplate, PythonScriptOPTemplate, ShellOPTemplate
+from .op_template import (OPTemplate, PythonScriptOPTemplate, ScriptOPTemplate,
+                          ShellOPTemplate)
 from .python import Slices
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
@@ -799,20 +800,23 @@ class Step:
             self.continue_on_failed = True
             self.template = self.template.copy()
             from .steps import Steps
-            if (isinstance(self.template, ShellOPTemplate)):
+            if isinstance(self.template, ScriptOPTemplate):
                 self.template.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",
                                     default="0")
                 self.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",
                                     default="0")
-            elif (isinstance(self.template, PythonScriptOPTemplate)):
-                self.template.outputs.parameters["dflow_success_tag"] = \
-                    OutputParameter(value_from_path="/tmp/success_tag",
-                                    default="0")
-                self.outputs.parameters["dflow_success_tag"] = \
-                    OutputParameter(value_from_path="/tmp/success_tag",
-                                    default="0")
+                from .python import PythonOPTemplate
+                if isinstance(self.template, PythonOPTemplate):
+                    self.template.post_script += "\nwith open('{tmp_root}"\
+                        "/success_tag', 'w') as f:\n    f.write('1')\n"
+                    self.template.render_script()
+                elif isinstance(self.template, ShellOPTemplate):
+                    self.template.script += "\necho 1 > /tmp/success_tag\n"
+                elif isinstance(self.template, PythonScriptOPTemplate):
+                    self.template.script += "\nwith open('/tmp/success_tag', "\
+                        "'w') as f:\n    f.write('1')\n"
             elif isinstance(self.template, Steps):
                 last_step = self.template.steps[-1]
                 last_templ = last_step.template
@@ -822,13 +826,16 @@ class Step:
                 last_step.outputs.parameters["dflow_success_tag"] = \
                     OutputParameter(value_from_path="/tmp/success_tag",
                                     default="0")
-                if isinstance(last_templ, ShellOPTemplate):
-                    last_templ.script += "\n"
-                    last_templ.script += "echo 1 > /tmp/success_tag\n"
+                from .python import PythonOPTemplate
+                if isinstance(last_templ, PythonOPTemplate):
+                    last_templ.post_script += "\nwith open('{tmp_root}"\
+                        "/success_tag', 'w') as f:\n    f.write('1')\n"
+                    last_templ.render_script()
+                elif isinstance(last_templ, ShellOPTemplate):
+                    last_templ.script += "\necho 1 > /tmp/success_tag\n"
                 elif isinstance(last_templ, PythonScriptOPTemplate):
-                    last_templ.script += "\n"
-                    last_templ.script += "with open('/tmp/success_tag', 'w')"\
-                        " as f:\n    f.write('1')\n"
+                    last_templ.script += "\nwith open('/tmp/success_tag', "\
+                        "'w') as f:\n    f.write('1')\n"
                 else:
                     raise RuntimeError(
                         "Unsupported type of OPTemplate for "
@@ -1252,14 +1259,6 @@ class Step:
                 pass
             else:
                 self.argo_artifacts.append(art.convert_to_argo())
-
-        if self.continue_on_num_success or self.continue_on_success_ratio is \
-                not None:
-            if (isinstance(self.template, ShellOPTemplate)):
-                self.template.script += "\necho 1 > /tmp/success_tag\n"
-            elif (isinstance(self.template, PythonScriptOPTemplate)):
-                self.template.script += "\nwith open('/tmp/success_tag', 'w')"\
-                    " as f:\n    f.write('1')\n"
 
         if self.use_resource is not None:
             self.template.resource = V1alpha1ResourceTemplate(
@@ -1736,13 +1735,6 @@ class Step:
             template.tmp_root = "%s%s" % (workdir, template.tmp_root)
             template.render_script()
             script = template.script
-        if self.continue_on_num_success or self.continue_on_success_ratio is \
-                not None:
-            if (isinstance(template, ShellOPTemplate)):
-                script += "\necho 1 > %s/tmp/success_tag\n" % workdir
-            elif (isinstance(template, PythonScriptOPTemplate)):
-                script += "\nwith open('%s/tmp/success_tag', 'w')"\
-                    " as f:\n    f.write('1')\n" % workdir
         script = render_script(script, parameters, scope.workflow_id, step_id)
         script_path = os.path.join(stepdir, "script")
         with open(script_path, "w") as f:
