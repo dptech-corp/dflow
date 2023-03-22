@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.91](https://github.com/deepmodeling/dflow/compare/v1.6.90...v1.6.91) (2023-03-22)
+
+
+### Bug Fixes
+
+* local context of dispatcher does not support wildcard in backward files ([5a4566d](https://github.com/deepmodeling/dflow/commit/5a4566da63f5b8cc477453424dcada52f892d5b3))
+
 ## [1.6.90](https://github.com/deepmodeling/dflow/compare/v1.6.89...v1.6.90) (2023-03-21)
 
 
