@@ -237,12 +237,10 @@ class DispatcherExecutor(Executor):
                 self.task_dict["backward_files"].append(
                     "./" + par.value_from_path)
             elif par.value_from_path is not None:
-                if merge and name in sliced_output_parameters:
-                    self.task_dict["backward_files"].append(
-                        "./" + par.value_from_path + "*")
-                else:
-                    self.task_dict["backward_files"].append(
-                        "./" + par.value_from_path)
+                self.task_dict["backward_files"].append(
+                    "./" + par.value_from_path)
+        if merge and len(sliced_output_parameters) > 0:
+            self.task_dict["backward_files"] = ["./tmp/outputs"]
 
         new_template.script = "import os\n"
         new_template.script += "os.chdir('%s')\n" % self.work_root

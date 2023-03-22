@@ -802,40 +802,42 @@ class Step:
             from .steps import Steps
             if isinstance(self.template, ScriptOPTemplate):
                 self.template.outputs.parameters["dflow_success_tag"] = \
-                    OutputParameter(value_from_path="/tmp/success_tag",
+                    OutputParameter(value_from_path="/tmp/outputs/success_tag",
                                     default="0")
                 self.outputs.parameters["dflow_success_tag"] = \
-                    OutputParameter(value_from_path="/tmp/success_tag",
+                    OutputParameter(value_from_path="/tmp/outputs/success_tag",
                                     default="0")
                 from .python import PythonOPTemplate
                 if isinstance(self.template, PythonOPTemplate):
                     self.template.post_script += "\nwith open('{tmp_root}"\
-                        "/success_tag', 'w') as f:\n    f.write('1')\n"
+                        "/outputs/success_tag', 'w') as f:\n    f.write('1')\n"
                     self.template.render_script()
                 elif isinstance(self.template, ShellOPTemplate):
-                    self.template.script += "\necho 1 > /tmp/success_tag\n"
+                    self.template.script += "\necho 1 > /tmp/outputs"\
+                        "/success_tag\n"
                 elif isinstance(self.template, PythonScriptOPTemplate):
-                    self.template.script += "\nwith open('/tmp/success_tag', "\
-                        "'w') as f:\n    f.write('1')\n"
+                    self.template.script += "\nwith open('/tmp/outputs"\
+                        "/success_tag', 'w') as f:\n    f.write('1')\n"
             elif isinstance(self.template, Steps):
                 last_step = self.template.steps[-1]
                 last_templ = last_step.template
                 last_templ.outputs.parameters["dflow_success_tag"] = \
-                    OutputParameter(value_from_path="/tmp/success_tag",
+                    OutputParameter(value_from_path="/tmp/outputs/success_tag",
                                     default="0")
                 last_step.outputs.parameters["dflow_success_tag"] = \
-                    OutputParameter(value_from_path="/tmp/success_tag",
+                    OutputParameter(value_from_path="/tmp/outputs/success_tag",
                                     default="0")
                 from .python import PythonOPTemplate
                 if isinstance(last_templ, PythonOPTemplate):
                     last_templ.post_script += "\nwith open('{tmp_root}"\
-                        "/success_tag', 'w') as f:\n    f.write('1')\n"
+                        "/outputs/success_tag', 'w') as f:\n    f.write('1')\n"
                     last_templ.render_script()
                 elif isinstance(last_templ, ShellOPTemplate):
-                    last_templ.script += "\necho 1 > /tmp/success_tag\n"
+                    last_templ.script += "\necho 1 > /tmp/outputs"\
+                        "/success_tag\n"
                 elif isinstance(last_templ, PythonScriptOPTemplate):
-                    last_templ.script += "\nwith open('/tmp/success_tag', "\
-                        "'w') as f:\n    f.write('1')\n"
+                    last_templ.script += "\nwith open('/tmp/outputs"\
+                        "/success_tag', 'w') as f:\n    f.write('1')\n"
                 else:
                     raise RuntimeError(
                         "Unsupported type of OPTemplate for "
