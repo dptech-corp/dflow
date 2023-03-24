@@ -13,7 +13,7 @@ from .context import Context
 from .context_syntax import GLOBAL_CONTEXT
 from .dag import DAG
 from .executor import Executor
-from .op_template import get_k8s_client
+from .op_template import OPTemplate, ScriptOPTemplate, get_k8s_client
 from .step import Step
 from .steps import Steps
 from .task import Task
@@ -525,6 +525,65 @@ class Workflow:
 
     def to_yaml(self, **kwargs):
         return yaml.dump(self.to_dict(), **kwargs)
+
+    @classmethod
+    def from_json(cls, s):
+        return cls.from_dict(json.loads(s))
+
+    @classmethod
+    def from_yaml(cls, s):
+        return cls.from_dict(yaml.full_load(s))
+
+    @classmethod
+    def from_dict(cls, d):
+        kwargs = {
+            "name": d.get("metadata", {}).get(
+                "generateName", "workflow").strip("-"),
+            "namespace": d.get("metadata", {}).get("namespace", None),
+            "id": d.get("metadata", {}).get("name", None),
+            "annotations": d.get("metadata", {}).get("annotations", None),
+            "labels": d.get("metadata", {}).get("labels", None),
+            "parallelism": d.get("spec", {}).get("parallelism", None),
+            "pod_gc_strategy": d.get("spec", {}).get("podGC", {}).get(
+                "strategy", None),
+            "artifact_repo_key": d.get("spec", {}).get(
+                "artifact_repository_ref", {}).get("key", None),
+            "image_pull_secrets": d.get("spec", {}).get("imagePullSecrets",
+                                                        None),
+            "parameters": {par["name"]: par["value"] for par in d.get(
+                "spec", {}).get("arguments", {}).get("parameters", [])}
+        }
+        templates = {}
+        for template in d["spec"]["templates"]:
+            name = template["name"]
+            if "script" in template:
+                templates[name] = ScriptOPTemplate()
+            elif "steps" in template:
+                templates[name] = Steps()
+            elif "dag" in template:
+                templates[name] = DAG()
+            templates[name].__dict__.update(
+                OPTemplate.from_dict(template).__dict__)
+        for template in d["spec"]["templates"]:
+            name = template["name"]
+            if "script" in template:
+                templates[name].__dict__.update(
+                    ScriptOPTemplate.from_dict(template).__dict__)
+            elif "steps" in template:
+                templates[name].__dict__.update(
+                    Steps.from_dict(template, templates).__dict__)
+            elif "dag" in template:
+                templates[name].__dict__.update(
+                    DAG.from_dict(template, templates).__dict__)
+        entrypoint = templates[d["spec"]["entrypoint"]]
+        if isinstance(entrypoint, ScriptOPTemplate):
+            kwargs["steps"] = Steps()
+            kwargs["steps"].append(Step("main", entrypoint))
+        elif isinstance(entrypoint, Steps):
+            kwargs["steps"] = entrypoint
+        elif isinstance(entrypoint, DAG):
+            kwargs["dag"] = entrypoint
+        return cls(**kwargs)
 
     def handle_template(self, template, memoize_prefix=None,
                         memoize_configmap="dflow"):

@@ -54,6 +54,12 @@ class Task(Step):
         if self.check_step is not None:
             self.check_step.dependencies.append(self)
 
+    @classmethod
+    def from_dict(cls, d, templates):
+        task = super().from_dict(d, templates)
+        task.dependencies = d.get("dependencies", [])
+        return task
+
     def set_parameters(self, parameters):
         super().set_parameters(parameters)
         for v in parameters.values():

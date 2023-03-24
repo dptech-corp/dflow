@@ -57,6 +57,9 @@ class Expression:
                     "parameters": ObjectDict({k: v.value for k, v in
                                               step.outputs.parameters.items()
                                               if hasattr(v, "value")}),
+                    "artifacts": ObjectDict({k: v.local_path for k, v in
+                                             step.outputs.artifacts.items()
+                                             if hasattr(v, "local_path")}),
                 })})
         tasks = ObjectDict()
         if isinstance(scope, DAG):
@@ -65,9 +68,16 @@ class Expression:
                     "parameters": ObjectDict({k: v.value for k, v in
                                               task.outputs.parameters.items()
                                               if hasattr(v, "value")}),
+                    "artifacts": ObjectDict({k: v.local_path for k, v in
+                                             task.outputs.artifacts.items()
+                                             if hasattr(v, "local_path")}),
                 })})
         variables = {"inputs": inputs, "steps": steps, "tasks": tasks}
-        return eval(self.expr, variables)
+        try:
+            res = eval(self.expr, variables)
+        except Exception:
+            raise RuntimeError("Failed to evaluate expression %s", self.expr)
+        return res
 
 
 class AutonamedDict(UserDict):
@@ -201,10 +211,10 @@ class ArgoVar:
 
     def __eq__(self, other):
         if config["mode"] == "debug":
-            if isinstance(other, ArgoVar) or isinstance(other, str):
-                return ArgoVar("%s == %s" % (self, other))
+            if isinstance(other, str):
+                return ArgoVar("%s == '%s'" % (self.expr, other))
             else:
-                return ArgoVar("%s == %s" % (self, jsonpickle.dumps(other)))
+                return ArgoVar("%s == %s" % (self.expr, to_expr(other)))
         if isinstance(other, ArgoVar):
             other = other.expr
         elif isinstance(other, str):
@@ -215,10 +225,10 @@ class ArgoVar:
 
     def __ne__(self, other):
         if config["mode"] == "debug":
-            if isinstance(other, ArgoVar) or isinstance(other, str):
-                return ArgoVar("%s != %s" % (self, other))
+            if isinstance(other, str):
+                return ArgoVar("%s != '%s'" % (self.expr, other))
             else:
-                return ArgoVar("%s != %s" % (self, jsonpickle.dumps(other)))
+                return ArgoVar("%s != %s" % (self.expr, to_expr(other)))
         if isinstance(other, ArgoVar):
             other = other.expr
         elif isinstance(other, str):
@@ -229,35 +239,35 @@ class ArgoVar:
 
     def __lt__(self, other):
         if config["mode"] == "debug":
-            return ArgoVar("%s < %s" % (self, other))
+            return ArgoVar("%s < %s" % (self.expr, to_expr(other)))
         if isinstance(other, ArgoVar):
             other = "asFloat(%s)" % other.expr
         return ArgoVar("asFloat(%s) < %s" % (self.expr, other))
 
     def __le__(self, other):
         if config["mode"] == "debug":
-            return ArgoVar("%s <= %s" % (self, other))
+            return ArgoVar("%s <= %s" % (self.expr, to_expr(other)))
         if isinstance(other, ArgoVar):
             other = "asFloat(%s)" % other.expr
         return ArgoVar("asFloat(%s) <= %s" % (self.expr, other))
 
     def __gt__(self, other):
         if config["mode"] == "debug":
-            return ArgoVar("%s > %s" % (self, other))
+            return ArgoVar("%s > %s" % (self.expr, to_expr(other)))
         if isinstance(other, ArgoVar):
             other = "asFloat(%s)" % other.expr
         return ArgoVar("asFloat(%s) > %s" % (self.expr, other))
 
     def __ge__(self, other):
         if config["mode"] == "debug":
-            return ArgoVar("%s >= %s" % (self, other))
+            return ArgoVar("%s >= %s" % (self.expr, to_expr(other)))
         if isinstance(other, ArgoVar):
             other = "asFloat(%s)" % other.expr
         return ArgoVar("asFloat(%s) >= %s" % (self.expr, other))
 
     def __add__(self, other):
         if config["mode"] == "debug":
-            return ArgoVar("%s + %s" % (self, other))
+            return ArgoVar("%s + %s" % (self.expr, to_expr(other)))
         if isinstance(other, ArgoVar):
             other = "asFloat(%s)" % other.expr
         return ArgoVar("asFloat(%s) + %s" % (self.expr, other))
@@ -386,6 +396,17 @@ class InputParameter(ArgoVar):
             self.save_as_artifact = False
         self.path = path
         self.source = source
+
+    @classmethod
+    def from_dict(cls, d):
+        kwargs = {
+            "name": d.get("name", None),
+            "type": str if json.loads(d.get("description", "{}")).get(
+                "type", str(str)) == str(str) else None,
+        }
+        if "value" in d:
+            kwargs["value"] = d["value"]
+        return cls(**kwargs)
 
     def __getattr__(self, key):
         from .task import Task
@@ -527,6 +548,22 @@ class InputArtifact(ArgoVar):
         self.slice = None
         self.parent = None
 
+    @classmethod
+    def from_dict(cls, d):
+        kwargs = {
+            "name": d.get("name", None),
+            "path": d.get("path", None),
+            "optional": d.get("optional", None),
+            "mode": d.get("mode", None),
+            "sub_path": d.get("subPath", None),
+            "archive": None if "none" in d.get("archive", {}) else "tar",
+        }
+        if "s3" in d:
+            kwargs["source"] = S3Artifact(key=d["s3"]["key"])
+        if "oss" in d:
+            kwargs["source"] = S3Artifact(key=d["oss"]["key"]).oss()
+        return cls(**kwargs)
+
     def __getitem__(self, key):
         art = copy(self)
         art.parent = self
@@ -663,6 +700,25 @@ class OutputParameter(ArgoVar):
         if "value" in kwargs:
             self.value = kwargs["value"]
         self.value_from_parameter = value_from_parameter
+
+    @classmethod
+    def from_dict(cls, d):
+        kwargs = {
+            "name": d.get("name", None),
+            "value_from_path": d.get("valueFrom", {}).get("path", None),
+            "type": str if json.loads(d.get("description", "{}")).get(
+                "type", str(str)) == str(str) else None,
+            "global_name": d.get("globalName", None),
+            "value_from_expression": d.get("valueFrom", {}).get("expression",
+                                                                None),
+            "value_from_parameter": d.get("valueFrom", {}).get("parameters",
+                                                               None),
+        }
+        if "valueFrom" in d and "default" in d["valueFrom"]:
+            kwargs["default"] = d["valueFrom"]["default"]
+        if "value" in d:
+            kwargs["value"] = d["value"]
+        return cls(**kwargs)
 
     def expr_as_artifact(self):
         from .task import Task
@@ -889,6 +945,22 @@ class OutputArtifact(ArgoVar):
         self.slice = None
         self.parent = None
 
+    @classmethod
+    def from_dict(cls, d):
+        kwargs = {
+            "name": d.get("name", None),
+            "path": d.get("path", None),
+            "archive": None if "none" in d.get("archive", {}) else "tar",
+            "global_name": d.get("globalName", None),
+            "from_expression": d.get("fromExpression", None),
+            "_from": d.get("from", None),
+        }
+        if "s3" in d:
+            kwargs["save"] = [S3Artifact(key=d["s3"]["key"])]
+        if "oss" in d:
+            kwargs["save"] = [S3Artifact(key=d["oss"]["key"]).oss()]
+        return cls(**kwargs)
+
     def __getitem__(self, key):
         art = copy(self)
         art.parent = self
@@ -1063,6 +1135,16 @@ class Inputs:
             self.artifacts = InputArtifacts(
                 step=self.step, template=self.template)
 
+    @classmethod
+    def from_dict(cls, d):
+        kwargs = {
+            "parameters": {par["name"]: InputParameter.from_dict(par)
+                           for par in d.get("parameters", [])},
+            "artifacts": {art["name"]: InputArtifact.from_dict(art)
+                          for art in d.get("artifacts", [])},
+        }
+        return cls(**kwargs)
+
     def __setattr__(self, key, value):
         if key == "parameters":
             assert isinstance(value, (dict, UserDict))
@@ -1127,6 +1209,16 @@ class Outputs:
         else:
             self.artifacts = OutputArtifacts(
                 step=self.step, template=self.template)
+
+    @classmethod
+    def from_dict(cls, d):
+        kwargs = {
+            "parameters": {par["name"]: OutputParameter.from_dict(par)
+                           for par in d.get("parameters", [])},
+            "artifacts": {art["name"]: OutputArtifact.from_dict(art)
+                          for art in d.get("artifacts", [])},
+        }
+        return cls(**kwargs)
 
     def __setattr__(self, key, value):
         if key == "parameters":

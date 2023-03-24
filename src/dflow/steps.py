@@ -44,6 +44,20 @@ class Steps(OPTemplate):
             for step in steps:
                 self.add(step)
 
+    @classmethod
+    def from_dict(cls, d, templates):
+        kwargs = {
+            "name": d.get("name", None),
+            "inputs": Inputs.from_dict(d.get("inputs", {})),
+            "outputs": Outputs.from_dict(d.get("outputs", {})),
+            "memoize_key": d.get("memoize", {}).get("key", None),
+            "annotations": d.get("metadata", {}).get("annotations", None),
+            "parallelism": d.get("parallelism", None),
+        }
+        kwargs["steps"] = [[Step.from_dict(ps, templates) for ps in step]
+                           for step in d.get("steps", [[]])]
+        return cls(**kwargs)
+
     def __iter__(self):
         return iter(self.steps)
 
