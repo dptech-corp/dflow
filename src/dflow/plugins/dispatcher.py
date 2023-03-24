@@ -333,6 +333,8 @@ class DispatcherExecutor(Executor):
                     "\"handle_output_parameter('%s_\" + str(i) + \"'\")\n" % (
                         name, name)
                 path = template.outputs.parameters[name].value_from_path
+                new_template.script += "    os.makedirs(os.path.dirname("\
+                    "'./%s'), exist_ok=True)\n" % path
                 new_template.script += "    new_task.backward_files.append("\
                     "'./%s_' + str(i))\n" % path
             if "dflow_success_tag" in template.outputs.parameters:
@@ -340,6 +342,8 @@ class DispatcherExecutor(Executor):
                     "'success_tag', 'success_tag_' + str(i))\n"
                 path = template.outputs.parameters[
                     "dflow_success_tag"].value_from_path
+                new_template.script += "    os.makedirs(os.path.dirname("\
+                    "'./%s'), exist_ok=True)\n" % path
                 new_template.script += "    new_task.backward_files.append("\
                     "'./%s_' + str(i))\n" % path
             new_template.script += "    with open('script' + str(i), 'w')"\

@@ -6,6 +6,7 @@ import logging
 import os
 import pkgutil
 import random
+import selectors
 import shlex
 import shutil
 import string
@@ -592,6 +593,7 @@ def run_command(
     input: Optional[str] = None,
     try_bash: bool = False,
     interactive: bool = True,
+    print_oe: bool = False,
     **kwargs,
 ) -> Tuple[int, str, str]:
     """
@@ -636,19 +638,39 @@ def run_command(
         cmd = [script]
         kwargs["shell"] = True
 
-    sub = subprocess.Popen(
+    with subprocess.Popen(
         args=cmd,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        **kwargs
-    )
-    if input is not None:
-        sub.stdin.write(bytes(input, encoding=sys.stdout.encoding))
-    out, err = sub.communicate()
-    return_code = sub.poll()
-    out = out.decode(sys.stdout.encoding)
-    err = err.decode(sys.stdout.encoding)
+    ) as sub:
+        if input is not None:
+            sub.stdin.write(bytes(input, encoding=sys.stdout.encoding))
+        if print_oe:
+            out = ""
+            err = ""
+            sel = selectors.DefaultSelector()
+            sel.register(sub.stdout, selectors.EVENT_READ)
+            sel.register(sub.stderr, selectors.EVENT_READ)
+            ok = True
+            while ok:
+                for key, _ in sel.select():
+                    line = key.fileobj.readline().decode(sys.stdout.encoding)
+                    if not line:
+                        ok = False
+                        break
+                    if key.fileobj is sub.stdout:
+                        sys.stdout.write(line)
+                        out += line
+                    else:
+                        sys.stderr.write(line)
+                        err += line
+            sub.wait()
+        else:
+            out, err = sub.communicate()
+            out = out.decode(sys.stdout.encoding)
+            err = err.decode(sys.stdout.encoding)
+        return_code = sub.poll()
     if raise_error:
         assert return_code == 0, "Command %s failed: \n%s" % (cmd, err)
     return return_code, out, err
