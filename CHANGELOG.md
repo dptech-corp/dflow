@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.6.92](https://github.com/deepmodeling/dflow/compare/v1.6.91...v1.6.92) (2023-03-24)
+
+
+### Bug Fixes
+
+* add dflow submit ([f9b1569](https://github.com/deepmodeling/dflow/commit/f9b156986373f1f00d24e9a145fe704200766d89))
+* parse Workflow from yaml ([f9b1569](https://github.com/deepmodeling/dflow/commit/f9b156986373f1f00d24e9a145fe704200766d89))
+* skip existed dir when downloading in local context ([18ab3bc](https://github.com/deepmodeling/dflow/commit/18ab3bcad7426a3222896c5837c43aed7e2d8e21))
+
 ## [1.6.91](https://github.com/deepmodeling/dflow/compare/v1.6.90...v1.6.91) (2023-03-22)
 
 
