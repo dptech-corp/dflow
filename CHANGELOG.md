@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.94](https://github.com/deepmodeling/dflow/compare/v1.6.93...v1.6.94) (2023-03-24)
+
+
+### Bug Fixes
+
+* add print_oe to run_command ([f2099db](https://github.com/deepmodeling/dflow/commit/f2099dbc26e471207ef61625f476d5d9f475aebf))
+* dir not exist when merge_sliced_step ([f2099db](https://github.com/deepmodeling/dflow/commit/f2099dbc26e471207ef61625f476d5d9f475aebf))
+
 ## [1.6.93](https://github.com/deepmodeling/dflow/compare/v1.6.92...v1.6.93) (2023-03-24)
 
 
