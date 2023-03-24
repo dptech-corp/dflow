@@ -239,8 +239,6 @@ class DispatcherExecutor(Executor):
             elif par.value_from_path is not None:
                 self.task_dict["backward_files"].append(
                     "./" + par.value_from_path)
-        if merge and len(sliced_output_parameters) > 0:
-            self.task_dict["backward_files"] = ["./tmp/outputs"]
 
         new_template.script = "import os\n"
         new_template.script += "os.chdir('%s')\n" % self.work_root
@@ -254,8 +252,6 @@ class DispatcherExecutor(Executor):
         new_template.script += "\"\"\")\n"
 
         if self.machine_dict["context_type"] == "Bohrium":
-            self.machine_dict["remote_profile"]["input_data"][
-                "backward_files"] = self.task_dict["backward_files"]
             if "image_name" not in self.machine_dict["remote_profile"][
                     "input_data"]:
                 self.machine_dict["remote_profile"]["input_data"][
@@ -321,6 +317,7 @@ class DispatcherExecutor(Executor):
             new_template.script += "    item_list = [format % i if format != "\
                 "'' else i for i in r]\n"
             new_template.script += "for i, item in enumerate(item_list):\n"
+            new_template.script += "    new_task = deepcopy(task)\n"
             new_template.script += "    new_script = script\n"
             for k, v in new_template.dflow_vars.items():
                 if "item" in k:
@@ -334,13 +331,19 @@ class DispatcherExecutor(Executor):
                     "\"handle_output_parameter('%s'\", "\
                     "\"handle_output_parameter('%s_\" + str(i) + \"'\")\n" % (
                         name, name)
+                path = template.outputs.parameters[name].value_from_path
+                new_template.script += "    new_task.backward_files.append("\
+                    "'./%s_' + str(i))\n" % path
             if "dflow_success_tag" in template.outputs.parameters:
                 new_template.script += "    new_script = new_script.replace("\
                     "'success_tag', 'success_tag_' + str(i))\n"
+                path = template.outputs.parameters[
+                    "dflow_success_tag"].value_from_path
+                new_template.script += "    new_task.backward_files.append("\
+                    "'./%s_' + str(i))\n" % path
             new_template.script += "    with open('script' + str(i), 'w')"\
                 " as f:\n"
             new_template.script += "        f.write(new_script)\n"
-            new_template.script += "    new_task = deepcopy(task)\n"
             new_template.script += "    new_task.command = new_task.command."\
                 "replace('script', 'script' + str(i))\n"
             new_template.script += "    new_task.forward_files[0] = 'script'"\
