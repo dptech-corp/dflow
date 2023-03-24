@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.93](https://github.com/deepmodeling/dflow/compare/v1.6.92...v1.6.93) (2023-03-24)
+
+
+### Bug Fixes
+
+* do not find download file in local context ([566fff9](https://github.com/deepmodeling/dflow/commit/566fff954cc907a9f5ecda804544b36014a8d4c7))
+* support for container template in dflow submit ([566fff9](https://github.com/deepmodeling/dflow/commit/566fff954cc907a9f5ecda804544b36014a8d4c7))
+
 ## [1.6.92](https://github.com/deepmodeling/dflow/compare/v1.6.91...v1.6.92) (2023-03-24)
 
 
