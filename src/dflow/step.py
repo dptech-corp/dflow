@@ -89,6 +89,18 @@ class ArgoSequence:
         self.end = end
         self.format = format
 
+    @classmethod
+    def from_dict(cls, d):
+        if d is None:
+            return None
+        kwargs = {
+            "count": d.get("count", None),
+            "start": d.get("start", None),
+            "end": d.get("end", None),
+            "format": d.get("format", None),
+        }
+        return cls(**kwargs)
+
     def convert_to_argo(self):
         count = self.count
         start = self.start
@@ -1030,6 +1042,42 @@ class Step:
                     raise ValueError(
                         "Please don't name step as '***init-artifact'")
 
+    @classmethod
+    def from_dict(cls, d, templates):
+        kwargs = {
+            "name": d["name"],
+            "template": templates[d["template"]],
+            "parameters": {par["name"]: par["value"] for par in
+                           d.get("arguments", {}).get("parameters", [])},
+            "artifacts": {},
+            "when": d.get("when", None),
+            "with_param": d.get("withParam", None),
+            "continue_on_failed": d.get("continueOn", {}).get("failed", False),
+            "continue_on_error": d.get("continueOn", {}).get("error", False),
+            "with_sequence": ArgoSequence.from_dict(d.get("withSequence",
+                                                          None)),
+            "key": d.get("arguments", {}).get("parameters", {})
+        }
+        for art in d.get("arguments", {}).get("artifacts", {}):
+            name = art["name"]
+            if "from" in art:
+                kwargs["artifacts"][name] = art["from"]
+                if "subPath" in art:
+                    kwargs["artifacts"][name] += "/" + art["subPath"]
+            elif "s3" in art:
+                kwargs["artifacts"][name] = S3Artifact(key=art["s3"]["key"])
+                if "subPath" in art:
+                    kwargs["artifacts"][name] = kwargs["artifacts"][
+                        name].sub_path(art["subPath"])
+            elif "oss" in art:
+                kwargs["artifacts"][name] = S3Artifact(
+                    key=art["oss"]["key"]).oss()
+                if "subPath" in art:
+                    kwargs["artifacts"][name] = kwargs["artifacts"][
+                        name].sub_path(art["subPath"])
+        kwargs["key"] = kwargs["parameters"].get("dflow_key", None)
+        return cls(**kwargs)
+
     def __repr__(self):
         return self.id
 
@@ -1303,7 +1351,7 @@ class Step:
             elif isinstance(self.when, (InputParameter, OutputParameter)):
                 value = get_var(self.when, scope).value
             elif isinstance(self.when, ArgoVar):
-                value = eval_expr(render_expr(str(self.when), scope))
+                value = Expression(self.when.expr).eval(scope)
             elif isinstance(self.when, str):
                 value = eval_expr(render_expr(self.when, scope))
             if not value:
@@ -1343,7 +1391,7 @@ class Step:
             elif isinstance(value, (InputParameter, OutputParameter)):
                 par.value = get_var(value, scope).value
             elif isinstance(value, ArgoVar):
-                par.value = eval_expr(render_expr(str(value), scope))
+                par.value = Expression(value.expr).eval(scope)
             elif isinstance(value, str):
                 par.value = render_expr(value, scope)
             else:
@@ -1368,6 +1416,18 @@ class Step:
                 steps.inputs.parameters[name].value = par.value
 
             for name, art in self.inputs.artifacts.items():
+                if isinstance(art.source, S3Artifact) and not hasattr(
+                        art.source, "local_path"):
+                    path = os.path.abspath("download/%s" % randstr())
+                    art.source.download(path=path, debug_download=True,
+                                        remove_catalog=False)
+                    fs = os.listdir(path)
+                    if len(fs) == 1 and os.path.isfile(os.path.join(path,
+                                                                    fs[0])):
+                        os.rename(os.path.join(path, fs[0]), path + ".bk")
+                        os.rmdir(path)
+                        os.rename(path + ".bk", path)
+                    art.source.local_path = path
                 if not hasattr(art.source, "local_path") and art.optional:
                     continue
                 steps.inputs.artifacts[name].local_path = art.source.local_path
@@ -1402,7 +1462,7 @@ class Step:
                 f.write("Running")
             self.record_input_parameters(stepdir, steps.inputs.parameters)
             self.record_input_artifacts(stepdir, steps.inputs.artifacts, None,
-                                        True)
+                                        scope, True)
 
             try:
                 steps.run(scope.workflow_id)
@@ -1417,28 +1477,20 @@ class Step:
                 if par1.value_from_parameter is not None:
                     par.value = get_var(par1.value_from_parameter, steps).value
                 elif par1.value_from_expression is not None:
-                    _if = par1.value_from_expression._if
-                    _if = render_expr(_if, steps)
-                    if eval_expr(_if):
-                        _then = par1.value_from_expression._then
-                        par.value = get_var(_then, steps).value
-                    else:
-                        _else = par1.value_from_expression._else
-                        par.value = get_var(_else, steps).value
+                    if isinstance(par1.value_from_expression, str):
+                        expr = replace_argo_func(par1.value_from_expression)
+                        par1.value_from_expression = Expression(expr)
+                    par.value = par1.value_from_expression.eval(steps)
 
             for name, art in self.outputs.artifacts.items():
                 art1 = self.template.outputs.artifacts[name]
                 if art1._from is not None:
                     art.local_path = get_var(art1._from, steps).local_path
                 elif art1.from_expression is not None:
-                    _if = art1.from_expression._if
-                    _if = render_expr(_if, steps)
-                    if eval_expr(_if):
-                        _then = art1.from_expression._then
-                        art.local_path = get_var(_then, steps).local_path
-                    else:
-                        _else = art1.from_expression._else
-                        art.local_path = get_var(_else, steps).local_path
+                    if isinstance(art1.from_expression, str):
+                        expr = replace_argo_func(art1.from_expression)
+                        art1.from_expression = Expression(expr)
+                    art.local_path = art1.from_expression.eval(steps)
 
             self.record_output_parameters(stepdir, self.outputs.parameters)
             self.record_output_artifacts(stepdir, self.outputs.artifacts)
@@ -1464,8 +1516,7 @@ class Step:
                     elif isinstance(start, (InputParameter, OutputParameter)):
                         start = start.value
                     elif isinstance(start, ArgoVar):
-                        start = int(eval_expr(render_expr(
-                            str(start), scope)))
+                        start = int(Expression(start.expr).eval(scope))
                 if self.with_sequence.count is not None:
                     count = self.with_sequence.count
                     if isinstance(count, Expression):
@@ -1473,8 +1524,7 @@ class Step:
                     elif isinstance(count, (InputParameter, OutputParameter)):
                         count = count.value
                     elif isinstance(count, ArgoVar):
-                        count = int(eval_expr(render_expr(
-                            str(count), scope)))
+                        count = int(Expression(count.expr).eval(scope))
                     sequence = list(range(start, start + count))
                 if self.with_sequence.end is not None:
                     end = self.with_sequence.end
@@ -1483,7 +1533,7 @@ class Step:
                     elif isinstance(end, (InputParameter, OutputParameter)):
                         end = end.value
                     elif isinstance(end, ArgoVar):
-                        end = int(eval_expr(render_expr(str(end), scope)))
+                        end = int(Expression(end.expr).eval(scope))
                     if end >= start:
                         sequence = list(range(start, end + 1))
                     else:
@@ -1493,6 +1543,9 @@ class Step:
                                  for i in sequence]
                 else:
                     item_list = sequence
+            elif isinstance(self.with_param, str):
+                self.with_param = render_expr(self.with_param, scope)
+                item_list = eval(self.with_param)
             else:
                 raise RuntimeError("Not supported")
 
@@ -1577,13 +1630,31 @@ class Step:
                         "w") as f:
                     f.write(jsonpickle.dumps({"type": str(par.type)}))
 
-    def record_input_artifacts(self, stepdir, artifacts, item,
+    def record_input_artifacts(self, stepdir, artifacts, item, scope,
                                ignore_nonexist=False):
         os.makedirs(os.path.join(stepdir, "inputs/artifacts"), exist_ok=True)
         for name, art in artifacts.items():
             art_path = os.path.join(stepdir, "inputs/artifacts/%s" % name)
+            if isinstance(art.source, str) and art.source.startswith("{{"):
+                if "/" in art.source:
+                    i = art.source.find("}}")
+                    art.sub_path = art.source[i+3:]
+                    art.source = art.source[:i+2]
+                art.source = get_var(art.source, scope)
+            if isinstance(art.source, S3Artifact) and not hasattr(
+                    art.source, "local_path"):
+                path = os.path.abspath("download/%s" % randstr())
+                art.source.download(path=path, debug_download=True,
+                                    remove_catalog=False)
+                fs = os.listdir(path)
+                if len(fs) == 1 and os.path.isfile(os.path.join(path,
+                                                                fs[0])):
+                    os.rename(os.path.join(path, fs[0]), path + ".bk")
+                    os.rmdir(path)
+                    os.rename(path + ".bk", path)
+                art.source.local_path = path
             if isinstance(art.source, (InputArtifact, OutputArtifact,
-                                       LocalArtifact)):
+                                       LocalArtifact, S3Artifact)):
                 if art.sub_path is not None:
                     sub_path = art.sub_path
                     if item is not None:
@@ -1621,12 +1692,28 @@ class Step:
                         stepdir, "outputs/parameters/.dflow/%s" % name),
                         "w") as f:
                     f.write(jsonpickle.dumps({"type": str(par.type)}))
+            if par.global_name is not None:
+                os.makedirs(os.path.join(stepdir, "../outputs/parameters"),
+                            exist_ok=True)
+                global_par_path = os.path.join(
+                    stepdir, "../outputs/parameters/%s" % par.global_name)
+                if os.path.exists(global_par_path):
+                    os.remove(global_par_path)
+                os.symlink(par_path, global_par_path)
 
     def record_output_artifacts(self, stepdir, artifacts):
         os.makedirs(os.path.join(stepdir, "outputs/artifacts"), exist_ok=True)
         for name, art in artifacts.items():
             art_path = os.path.join(stepdir, "outputs/artifacts/%s" % name)
             os.symlink(art.local_path, art_path)
+            if art.global_name is not None:
+                os.makedirs(os.path.join(stepdir, "../outputs/artifacts"),
+                            exist_ok=True)
+                global_art_path = os.path.join(
+                    stepdir, "../outputs/artifacts/%s" % art.global_name)
+                if os.path.exists(global_art_path):
+                    os.remove(global_art_path)
+                os.symlink(art_path, global_art_path)
 
     def load_output_parameters(self, stepdir, parameters):
         for name, par in parameters.items():
@@ -1700,14 +1787,14 @@ class Step:
 
         self.record_input_parameters(stepdir, parameters)
 
-        self.record_input_artifacts(stepdir, self.inputs.artifacts, item)
+        self.record_input_artifacts(stepdir, self.inputs.artifacts, item,
+                                    scope)
 
         # prepare inputs artifacts
         for name, art in self.inputs.artifacts.items():
             art_path = os.path.join(stepdir, "inputs/artifacts/%s" % name)
             path = self.template.inputs.artifacts[name].path
-            if hasattr(self.template, "tmp_root"):
-                path = "%s/%s" % (workdir, path)
+            path = "%s/%s" % (workdir, path)
             path = render_script(path, parameters,
                                  scope.workflow_id, step_id)
             os.makedirs(os.path.dirname(
@@ -1723,18 +1810,20 @@ class Step:
         # clean output path
         for art in self.outputs.artifacts.values():
             path = art.path
-            if hasattr(self.template, "tmp_root"):
-                path = "%s/%s" % (workdir, path)
+            path = "%s/%s" % (workdir, path)
             backup(path)
 
         # render variables in the script
         script = self.template.script
-        if hasattr(self.template, "tmp_root") and self.executor is None:
-            # do not modify self.template
-            template = deepcopy(self.template)
-            template.tmp_root = "%s%s" % (workdir, template.tmp_root)
-            template.render_script()
-            script = template.script
+        if self.executor is None:
+            if hasattr(self.template, "tmp_root"):
+                # do not modify self.template
+                template = deepcopy(self.template)
+                template.tmp_root = "%s%s" % (workdir, template.tmp_root)
+                template.render_script()
+                script = template.script
+            else:
+                script = script.replace("/tmp", "%s/tmp" % workdir)
         script = render_script(script, parameters, scope.workflow_id, step_id)
         script_path = os.path.join(stepdir, "script")
         with open(script_path, "w") as f:
@@ -1762,8 +1851,7 @@ class Step:
         for name, par in self.outputs.parameters.items():
             path = par.value_from_path
             if path is not None:
-                if hasattr(self.template, "tmp_root"):
-                    path = "%s/%s" % (workdir, path)
+                path = "%s/%s" % (workdir, path)
                 with open(path, "r") as f:
                     if par.type is None or par.type == str:
                         par.value = f.read()
@@ -1779,8 +1867,7 @@ class Step:
         # save artifacts
         for name, art in self.outputs.artifacts.items():
             path = art.path
-            if hasattr(self.template, "tmp_root"):
-                path = "%s/%s" % (workdir, path)
+            path = "%s/%s" % (workdir, path)
             art.local_path = path
             for save in self.template.outputs.artifacts[name].save:
                 if isinstance(save, S3Artifact):
@@ -1841,12 +1928,18 @@ def render_expr(expr, scope):
     i = expr.find("{{")
     while i >= 0:
         j = expr.find("}}", i+2)
-        var = get_var(expr[i:j+2], scope)
-        if var:
-            value = var.value
+        if expr[:3] == "{{=":
+            value = Expression(replace_argo_func(expr[3:-2])).eval(scope)
             value = value if isinstance(value, str) else \
                 jsonpickle.dumps(value)
             expr = expr[:i] + value.strip() + expr[j+2:]
+        else:
+            var = get_var(expr[i:j+2], scope)
+            if var:
+                value = var.value
+                value = value if isinstance(value, str) else \
+                    jsonpickle.dumps(value)
+                expr = expr[:i] + value.strip() + expr[j+2:]
         i = expr.find("{{", i+1)
     return expr
 
@@ -1854,8 +1947,6 @@ def render_expr(expr, scope):
 def get_var(expr, scope):
     expr = str(expr)
     assert expr[:2] == "{{" and expr[-2:] == "}}", "Parse failed: %s" % expr
-    if expr[:3] == "{{=":
-        return None
     fields = expr[2:-2].split(".")
     if fields[:2] == ["inputs", "parameters"]:
         name = fields[2]
@@ -1894,20 +1985,6 @@ def get_var(expr, scope):
 
 
 def eval_expr(expr):
-    # For the original evaluator in argo, please refer to
-    # https://github.com/antonmedv/expr
-    if "?" in expr and ":" in expr:
-        i = expr.find("?")
-        j = expr.find(":")
-        _if = expr[:i]
-        _then = expr[i+1:j]
-        _else = expr[j+1:]
-        expr = "%s if %s else %s" % (_then, _if, _else)
-    try:
-        return eval(expr)
-    except Exception:
-        pass
-
     expr_list = expr.split()
     operator = expr_list[1]
 
@@ -1963,3 +2040,14 @@ def backup(path):
         bk = path + ".bk%s" % cnt
     if bk != path:
         shutil.move(path, bk)
+
+
+def replace_argo_func(expr):
+    expr = expr.replace("toJson", "str")
+    expr = expr.replace("sprig.fromJson", "eval")
+    expr = expr.replace("sprig.untilStep",
+                        "(lambda *x: list(range(*list(map(int, x)))))")
+    expr = expr.replace("sprig.atoi", "int")
+    expr = expr.replace(" ? ", " and ")
+    expr = expr.replace(" : ", " or ")
+    return expr

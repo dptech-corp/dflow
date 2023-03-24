@@ -104,6 +104,17 @@ class OPTemplate:
         self.annotations = annotations
         self.modified = False
 
+    @classmethod
+    def from_dict(cls, d):
+        kwargs = {
+            "name": d.get("name", None),
+            "inputs": Inputs.from_dict(d.get("inputs", {})),
+            "outputs": Outputs.from_dict(d.get("outputs", {})),
+            "memoize_key": d.get("memoize", {}).get("key", None),
+            "annotations": d.get("metadata", {}).get("annotations", None),
+        }
+        return cls(**kwargs)
+
     def __setattr__(self, key, value):
         super().__setattr__(key, value)
         if key == "inputs":
@@ -233,6 +244,36 @@ class ScriptOPTemplate(OPTemplate):
         self.limits = limits
         self.envs = envs
         self.init_containers = init_containers
+
+    @classmethod
+    def from_dict(cls, d):
+        kwargs = {
+            "name": d.get("name", None),
+            "inputs": Inputs.from_dict(d.get("inputs", {})),
+            "outputs": Outputs.from_dict(d.get("outputs", {})),
+            "memoize_key": d.get("memoize", {}).get("key", None),
+            "annotations": d.get("metadata", {}).get("annotations", None),
+            "image": d.get("script", {}).get("image", None),
+            "command": d.get("script", {}).get("command", None),
+            "script": d.get("script", {}).get("source", None),
+            "volumes": d.get("volumes", None),
+            "mounts": d.get("script", {}).get("volumeMounts", None),
+            "init_progress": d.get("metadata", {}).get("annotations", {}).get(
+                "workflows.argoproj.io/progress", "0/1"),
+            "timeout": d.get("timeout", None),
+            "retry_strategy": d.get("retryStrategy", None),
+            "resource": d.get("resource", None),
+            "image_pull_policy": d.get("script", {}).get("imagePullPolicy",
+                                                         None),
+            "requests": d.get("script", {}).get("resources", {}).get(
+                "requests", None),
+            "limits": d.get("script", {}).get("resources", {}).get(
+                "limits", None),
+            "envs": {env.name: env.value for env in d.get("script", {}).get(
+                "env", [])},
+            "init_containers": d.get("initContainers", None),
+        }
+        return cls(**kwargs)
 
     def convert_to_argo(self, memoize_prefix=None,
                         memoize_configmap="dflow"):

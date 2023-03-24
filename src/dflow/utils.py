@@ -67,6 +67,8 @@ def download_artifact(
         sub_path: Optional[str] = None,
         slice: Optional[int] = None,
         path: os.PathLike = ".",
+        debug_download: bool = False,
+        remove_catalog: bool = True,
         **kwargs,
 ) -> List[str]:
     """
@@ -85,9 +87,9 @@ def download_artifact(
         bucket_name: bucket name for Minio
         skip_exists: skip files with the same MD5
     """
-    if config["mode"] == "debug":
+    if config["mode"] == "debug" and not debug_download:
         linktree(artifact.local_path, path)
-        return assemble_path_list(path, remove=True)
+        return assemble_path_list(path, remove=remove_catalog)
 
     key = get_key(artifact)
 
@@ -120,7 +122,7 @@ def download_artifact(
                 merge_dir(tmpdir, path)
 
     remove_empty_dir_tag(path)
-    return assemble_path_list(path, remove=True)
+    return assemble_path_list(path, remove=remove_catalog)
 
 
 def upload_artifact(

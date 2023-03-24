@@ -221,6 +221,13 @@ def main_parser():
         default=None,
         help="properties for registering dataset",
     )
+
+    parser_submit = subparsers.add_parser(
+        "submit",
+        help="Submit a workflow from a YAML file",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser_submit.add_argument("FILE", help="the YAML file")
     return parser
 
 
@@ -427,6 +434,10 @@ def main():
         print("Storage key: %s" % art.key)
         if art.urn:
             print("Dataset URN: %s" % art.urn)
+    elif args.command == "submit":
+        with open(args.FILE, "r") as f:
+            wf = Workflow.from_yaml(f.read())
+        wf.submit()
 
 
 if __name__ == "__main__":

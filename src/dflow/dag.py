@@ -44,6 +44,23 @@ class DAG(OPTemplate):
             for task in tasks:
                 self.add(task)
 
+    @classmethod
+    def from_dict(cls, d, templates):
+        kwargs = {
+            "name": d.get("name", None),
+            "inputs": Inputs.from_dict(d.get("inputs", {})),
+            "outputs": Outputs.from_dict(d.get("outputs", {})),
+            "memoize_key": d.get("memoize", {}).get("key", None),
+            "annotations": d.get("metadata", {}).get("annotations", None),
+            "parallelism": d.get("parallelism", None),
+        }
+        tasks = {task["name"]: Task.from_dict(task, templates)
+                 for task in d.get("dag", {}).get("tasks", [])}
+        for task in tasks.values():
+            task.dependencies = [tasks[t] for t in task.dependencies]
+        kwargs["tasks"] = list(tasks.values())
+        return cls(**kwargs)
+
     def __iter__(self):
         return iter(self.tasks)
 
