@@ -457,3 +457,49 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
             requests=requests, limits=limits, envs=envs,
             init_containers=init_containers,
         )
+
+
+class ContainerOPTemplate(ScriptOPTemplate):
+    def __init__(
+            self,
+            command: Union[str, List[str]] = "",
+            args: List[str] = None,
+            **kwargs):
+        if args is None:
+            args = []
+        if isinstance(command, str):
+            command = [command]
+        script = "%s %s" % (" ".join(command), " ".join(args))
+        kwargs["command"] = ["sh"]
+        kwargs["script"] = script
+        super().__init__(**kwargs)
+
+    @classmethod
+    def from_dict(cls, d):
+        kwargs = {
+            "name": d.get("name", None),
+            "inputs": Inputs.from_dict(d.get("inputs", {})),
+            "outputs": Outputs.from_dict(d.get("outputs", {})),
+            "memoize_key": d.get("memoize", {}).get("key", None),
+            "annotations": d.get("metadata", {}).get("annotations", None),
+            "image": d.get("container", {}).get("image", None),
+            "command": d.get("container", {})["command"],
+            "args": d.get("container", {}).get("args", []),
+            "volumes": d.get("volumes", None),
+            "mounts": d.get("container", {}).get("volumeMounts", None),
+            "init_progress": d.get("metadata", {}).get("annotations", {}).get(
+                "workflows.argoproj.io/progress", "0/1"),
+            "timeout": d.get("timeout", None),
+            "retry_strategy": d.get("retryStrategy", None),
+            "resource": d.get("resource", None),
+            "image_pull_policy": d.get("container", {}).get("imagePullPolicy",
+                                                            None),
+            "requests": d.get("container", {}).get("resources", {}).get(
+                "requests", None),
+            "limits": d.get("container", {}).get("resources", {}).get(
+                "limits", None),
+            "envs": {env.name: env.value for env in d.get("container", {}).get(
+                "env", [])},
+            "init_containers": d.get("initContainers", None),
+        }
+        return cls(**kwargs)

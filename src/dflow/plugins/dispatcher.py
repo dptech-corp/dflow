@@ -236,7 +236,8 @@ class DispatcherExecutor(Executor):
             if par.save_as_artifact:
                 self.task_dict["backward_files"].append(
                     "./" + par.value_from_path)
-            elif par.value_from_path is not None:
+            elif par.value_from_path is not None and not (
+                    merge and sliced_output_parameters):
                 self.task_dict["backward_files"].append(
                     "./" + par.value_from_path)
 

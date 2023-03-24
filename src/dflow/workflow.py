@@ -13,7 +13,8 @@ from .context import Context
 from .context_syntax import GLOBAL_CONTEXT
 from .dag import DAG
 from .executor import Executor
-from .op_template import OPTemplate, ScriptOPTemplate, get_k8s_client
+from .op_template import (ContainerOPTemplate, OPTemplate, ScriptOPTemplate,
+                          get_k8s_client)
 from .step import Step
 from .steps import Steps
 from .task import Task
@@ -562,6 +563,8 @@ class Workflow:
                 templates[name] = Steps()
             elif "dag" in template:
                 templates[name] = DAG()
+            elif "container" in template:
+                templates[name] = ContainerOPTemplate()
             templates[name].__dict__.update(
                 OPTemplate.from_dict(template).__dict__)
         for template in d["spec"]["templates"]:
@@ -575,10 +578,15 @@ class Workflow:
             elif "dag" in template:
                 templates[name].__dict__.update(
                     DAG.from_dict(template, templates).__dict__)
+            elif "container" in template:
+                templates[name].__dict__.update(
+                    ContainerOPTemplate.from_dict(template).__dict__)
         entrypoint = templates[d["spec"]["entrypoint"]]
         if isinstance(entrypoint, ScriptOPTemplate):
             kwargs["steps"] = Steps()
-            kwargs["steps"].append(Step("main", entrypoint))
+            step = Step("main", entrypoint,
+                        parameters=kwargs.pop("parameters"))
+            kwargs["steps"].add(step)
         elif isinstance(entrypoint, Steps):
             kwargs["steps"] = entrypoint
         elif isinstance(entrypoint, DAG):
