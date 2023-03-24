@@ -1051,7 +1051,7 @@ class Step:
                            d.get("arguments", {}).get("parameters", [])},
             "artifacts": {},
             "when": d.get("when", None),
-            "with_param": d.get("withParam", None),
+            "with_param": d.get("withParam", None) or d.get("withItems", None),
             "continue_on_failed": d.get("continueOn", {}).get("failed", False),
             "continue_on_error": d.get("continueOn", {}).get("error", False),
             "with_sequence": ArgoSequence.from_dict(d.get("withSequence",
@@ -1824,6 +1824,7 @@ class Step:
                 script = template.script
             else:
                 script = script.replace("/tmp", "%s/tmp" % workdir)
+        os.makedirs("%s/tmp" % workdir, exist_ok=True)
         script = render_script(script, parameters, scope.workflow_id, step_id)
         script_path = os.path.join(stepdir, "script")
         with open(script_path, "w") as f:
@@ -1985,10 +1986,13 @@ def get_var(expr, scope):
 
 
 def eval_expr(expr):
+    if expr == "true":
+        return True
+    elif expr == "false":
+        return False
     expr_list = expr.split()
-    operator = expr_list[1]
-
     assert (len(expr_list) == 3), "Expression (%s) not supported" % expr
+    operator = expr_list[1]
     if operator == "==":
         return expr_list[0] == expr_list[2]
     elif operator == "!=":
@@ -2050,4 +2054,5 @@ def replace_argo_func(expr):
     expr = expr.replace("sprig.atoi", "int")
     expr = expr.replace(" ? ", " and ")
     expr = expr.replace(" : ", " or ")
+    expr = expr.replace("asFloat", "float")
     return expr
