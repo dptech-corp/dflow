@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.96](https://github.com/deepmodeling/dflow/compare/v1.6.95...v1.6.96) (2023-03-25)
+
+
+### Bug Fixes
+
+* always deepcopy template before run ([af6b3b4](https://github.com/deepmodeling/dflow/commit/af6b3b466b1eb13ae1ebcbf97cd73967d087fcc7))
+
 ## [1.6.95](https://github.com/deepmodeling/dflow/compare/v1.6.94...v1.6.95) (2023-03-25)
 
 
