@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.95](https://github.com/deepmodeling/dflow/compare/v1.6.94...v1.6.95) (2023-03-25)
+
+
+### Bug Fixes
+
+* workaround dpdispatcher will not generate task hash again after modifying task ([7c7a2f0](https://github.com/deepmodeling/dflow/commit/7c7a2f0331c8cbfa835a19335ff65b101d6f81e1))
+
 ## [1.6.94](https://github.com/deepmodeling/dflow/compare/v1.6.93...v1.6.94) (2023-03-24)
 
 
