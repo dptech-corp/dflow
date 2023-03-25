@@ -1340,7 +1340,6 @@ class Step:
         self.render_by_executor(context)
 
         import os
-        from copy import copy
 
         from .dag import DAG
         from .steps import Steps
@@ -1407,9 +1406,12 @@ class Step:
                 art.source = get_var(art.source, scope)
 
         if isinstance(self.template, (Steps, DAG)):
-            # shallow copy to avoid changing each step
-            steps = copy(self.template)
-            steps.inputs = deepcopy(self.template.inputs)
+            if hasattr(self.template, "orig_template"):
+                steps = deepcopy(self.template.orig_template)
+                steps.orig_template = self.template.orig_template
+            else:
+                steps = deepcopy(self.template)
+                steps.orig_template = self.template
 
             # override default inputs with arguments
             for name, par in parameters.items():

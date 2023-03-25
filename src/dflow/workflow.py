@@ -293,7 +293,9 @@ class Workflow:
             with open(os.path.join(wfdir, "status"), "w") as f:
                 f.write("Running")
             try:
-                self.entrypoint.run(self.id, self.context)
+                entrypoint = deepcopy(self.entrypoint)
+                entrypoint.orig_template = self.entrypoint
+                entrypoint.run(self.id, self.context)
                 with open(os.path.join(wfdir, "status"), "w") as f:
                     f.write("Succeeded")
             except Exception:
