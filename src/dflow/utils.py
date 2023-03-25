@@ -643,6 +643,7 @@ def run_command(
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        **kwargs,
     ) as sub:
         if input is not None:
             sub.stdin.write(bytes(input, encoding=sys.stdout.encoding))
