@@ -318,7 +318,8 @@ class DispatcherExecutor(Executor):
             new_template.script += "    item_list = [format % i if format != "\
                 "'' else i for i in r]\n"
             new_template.script += "for i, item in enumerate(item_list):\n"
-            new_template.script += "    new_task = deepcopy(task)\n"
+            new_template.script += "    new_task_dict = deepcopy(task."\
+                "serialize())\n"
             new_template.script += "    new_script = script\n"
             for k, v in new_template.dflow_vars.items():
                 if "item" in k:
@@ -335,8 +336,8 @@ class DispatcherExecutor(Executor):
                 path = template.outputs.parameters[name].value_from_path
                 new_template.script += "    os.makedirs(os.path.dirname("\
                     "'./%s'), exist_ok=True)\n" % path
-                new_template.script += "    new_task.backward_files.append("\
-                    "'./%s_' + str(i))\n" % path
+                new_template.script += "    new_task_dict['backward_files']"\
+                    ".append('./%s_' + str(i))\n" % path
             if "dflow_success_tag" in template.outputs.parameters:
                 new_template.script += "    new_script = new_script.replace("\
                     "'success_tag', 'success_tag_' + str(i))\n"
@@ -344,16 +345,17 @@ class DispatcherExecutor(Executor):
                     "dflow_success_tag"].value_from_path
                 new_template.script += "    os.makedirs(os.path.dirname("\
                     "'./%s'), exist_ok=True)\n" % path
-                new_template.script += "    new_task.backward_files.append("\
-                    "'./%s_' + str(i))\n" % path
+                new_template.script += "    new_task_dict['backward_files']"\
+                    ".append('./%s_' + str(i))\n" % path
             new_template.script += "    with open('script' + str(i), 'w')"\
                 " as f:\n"
             new_template.script += "        f.write(new_script)\n"
-            new_template.script += "    new_task.command = new_task.command."\
-                "replace('script', 'script' + str(i))\n"
-            new_template.script += "    new_task.forward_files[0] = 'script'"\
-                " + str(i)\n"
-            new_template.script += "    tasks.append(new_task)\n"
+            new_template.script += "    new_task_dict['command'] = new_task_"\
+                "dict['command'].replace('script', 'script' + str(i))\n"
+            new_template.script += "    new_task_dict['forward_files'][0] = "\
+                "'script' + str(i)\n"
+            new_template.script += "    tasks.append(Task.load_from_dict("\
+                "new_task_dict))\n"
             new_template.script += "resources.group_size = 1\n"
             new_template.script += "submission = Submission(work_base='.', "\
                 "machine=machine, resources=resources, task_list=tasks)\n"
