@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.97](https://github.com/deepmodeling/dflow/compare/v1.6.96...v1.6.97) (2023-03-25)
+
+
+### Bug Fixes
+
+* missing **kwargs in run_command ([a68c588](https://github.com/deepmodeling/dflow/commit/a68c58882b5d82978c3cca07f410b3f5cbe733fe))
+
 ## [1.6.96](https://github.com/deepmodeling/dflow/compare/v1.6.95...v1.6.96) (2023-03-25)
 
 
