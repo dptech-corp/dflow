@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.99](https://github.com/deepmodeling/dflow/compare/v1.6.98...v1.6.99) (2023-03-28)
+
+
+### Bug Fixes
+
+* inconsistent behaviors between oss and s3 ([f7403f2](https://github.com/deepmodeling/dflow/commit/f7403f2ae1572e87be5cffc1d989ad0b1ca5d909))
+* path returned by download_artifact when slice is provided ([58449a7](https://github.com/deepmodeling/dflow/commit/58449a735c767b6d436d72f95742b4d5a08d5aa9))
+
 ## [1.6.98](https://github.com/deepmodeling/dflow/compare/v1.6.97...v1.6.98) (2023-03-28)
 
 
