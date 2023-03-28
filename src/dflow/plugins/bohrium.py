@@ -338,7 +338,8 @@ class TiefblueClient(StorageClient):
                 else:
                     raise e
             for obj in res["objects"]:
-                if recursive and obj["path"][-1:] == "/":
+                if (recursive or obj["path"] == prefix) and \
+                        obj["path"].endswith("/"):
                     continue
                 keys.append(obj["path"])
             if not res["hasNext"]:
