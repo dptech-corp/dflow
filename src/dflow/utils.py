@@ -100,7 +100,7 @@ def download_artifact(
         path = os.path.join(path, os.path.dirname(sub_path))
         download_s3(key=key, recursive=True, path=path, keep_dir=True,
                     **kwargs)
-        path = os.path.join(path, sub_path)
+        path = os.path.join(path, os.path.basename(sub_path))
         remove_empty_dir_tag(path)
         return path
 
