@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import tempfile
+import time
 from collections import UserDict, UserList
 from copy import deepcopy
 from typing import Any, List, Union
@@ -266,8 +267,21 @@ class ArgoStep(ArgoObjectDict):
                     'DELETE', response_type='V1Pod',
                     header_params=config["http_headers"],
                     _return_http_data_only=True)
+                logger.info("Delete old pod")
             except Exception as e:
                 logging.warn("Failed to delete pod", e)
+            try:
+                while True:
+                    core_v1_api.api_client.call_api(
+                        '/api/v1/namespaces/%s/pods/%s' % (
+                            config["namespace"], self.pod.metadata.name),
+                        'GET', response_type='V1Pod',
+                        header_params=config["http_headers"],
+                        _return_http_data_only=True)
+                    logger.info("Waiting old pod to be deleted...")
+                    time.sleep(1)
+            except Exception:
+                pass
             core_v1_api.api_client.call_api(
                 '/api/v1/namespaces/%s/pods' % config["namespace"],
                 'POST', body=self.pod, response_type='V1Pod',
