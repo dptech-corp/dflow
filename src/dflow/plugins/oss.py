@@ -56,6 +56,8 @@ class OSSClient(StorageClient):
                 r = self.bucket.list_objects(prefix, delimiter="/",
                                              marker=marker)
                 for obj in r.object_list:
+                    if obj.key == prefix and obj.key.endswith("/"):
+                        continue
                     keys.append(obj.key)
                 for key in r.prefix_list:
                     keys.append(key)
