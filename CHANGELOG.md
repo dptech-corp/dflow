@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.98](https://github.com/deepmodeling/dflow/compare/v1.6.97...v1.6.98) (2023-03-28)
+
+
+### Bug Fixes
+
+* waiting old pod to be deleted before post the new pod in the replay ([afd92c7](https://github.com/deepmodeling/dflow/commit/afd92c7b3ad574aefa60fef01309290c507d7456))
+
 ## [1.6.97](https://github.com/deepmodeling/dflow/compare/v1.6.96...v1.6.97) (2023-03-25)
 
 
