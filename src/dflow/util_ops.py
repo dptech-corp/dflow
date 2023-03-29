@@ -42,6 +42,12 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
                     archive=None)
 
         if self.sliced_input_artifact:
+            if self.key is not None:
+                self.inputs.parameters["dflow_key"] = InputParameter()
+                self.outputs.parameters["dflow_global"] = OutputParameter(
+                    value="{{pod.name}}",
+                    global_name="{{inputs.parameters.dflow_key}}",
+                )
             for name in self.sliced_input_artifact:
                 self.inputs.artifacts[name] = InputArtifact(
                     path="%s/inputs/artifacts/%s" % (self.tmp_root, name),
