@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.100](https://github.com/deepmodeling/dflow/compare/v1.6.99...v1.6.100) (2023-03-29)
+
+
+### Bug Fixes
+
+* reusing sliced steps in sub-path mode ([49c178d](https://github.com/deepmodeling/dflow/commit/49c178d2d32ece247b3d5edac6ab41a3dcd4319b))
+
 ## [1.6.99](https://github.com/deepmodeling/dflow/compare/v1.6.98...v1.6.99) (2023-03-28)
 
 
