@@ -376,6 +376,8 @@ class Workflow:
             art_key_prefix = art_key_prefix[:-len(name)-1]
 
         group_key = step.inputs.parameters["dflow_group_key"].value
+        if "%s-init-artifact" % group_key in self.reused_keys:
+            return
         memoize_key = "%s-%s-init-artifact" % (self.id, group_key)
         if memoize_key not in self.memoize_map:
             self.memoize_map[memoize_key] = {
@@ -423,6 +425,8 @@ class Workflow:
 
         status = None
         if reuse_step is not None:
+            self.reused_keys = [step.key for step in reuse_step
+                                if step.key is not None]
             self.id = self.name + "-" + randstr()
             self.copied_keys = []
             self.memoize_map = {}

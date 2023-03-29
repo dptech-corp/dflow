@@ -656,6 +656,9 @@ class Step:
                         "dflow_artifact_key"])
 
             if sliced_input_artifact:
+                if self.key is not None:
+                    self.prepare_step.inputs.parameters["dflow_key"].value = \
+                        "%s-init-artifact" % group_key
                 for name in sliced_input_artifact:
                     self.inputs.parameters["dflow_%s_sub_path" %
                                            name].value = "{{item.%s}}" % name
