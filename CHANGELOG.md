@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.101](https://github.com/deepmodeling/dflow/compare/v1.6.100...v1.6.101) (2023-04-03)
+
+
+### Bug Fixes
+
+* convert OP to launching parser ([571acf7](https://github.com/deepmodeling/dflow/commit/571acf7dbb1b28e62869819671dec416bd592a74))
+
 ## [1.6.100](https://github.com/deepmodeling/dflow/compare/v1.6.99...v1.6.100) (2023-03-29)
 
 
