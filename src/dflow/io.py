@@ -396,6 +396,8 @@ class InputParameter(ArgoVar):
             self.save_as_artifact = False
         self.path = path
         self.source = source
+        for k, v in kwargs.items():
+            self.__setattr__(k, v)
 
     @classmethod
     def from_dict(cls, d):
@@ -533,6 +535,7 @@ class InputArtifact(ArgoVar):
             mode: Optional[int] = None,
             sub_path: Optional[str] = None,
             archive: str = "default",
+            **kwargs,
     ) -> None:
         self.path = path
         self.name = name
@@ -547,6 +550,8 @@ class InputArtifact(ArgoVar):
         self.archive = archive
         self.slice = None
         self.parent = None
+        for k, v in kwargs.items():
+            self.__setattr__(k, v)
 
     @classmethod
     def from_dict(cls, d):

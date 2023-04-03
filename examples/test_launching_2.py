@@ -1,19 +1,9 @@
 import sys
 from pathlib import Path
 
-from dflow.python import OP, OPIO, Artifact, OPIOSign, Parameter
-
-
-"""@OP.function
-def Duplicate(
-    foo: Artifact(Path, description="input file"),
-    num: Parameter(int, default=2, description="number"),
-) -> {"bar": Artifact(Path)}:
-    with open(foo, "r") as f:
-        content = f.read()
-    with open("bar.txt", "w") as f:
-        f.write(content * num)
-    return {"bar": Path("bar.txt")}"""
+from dflow import InputArtifact, InputParameter, OutputArtifact, Step, Steps
+from dflow.python import (OP, OPIO, Artifact, OPIOSign, Parameter,
+                          PythonOPTemplate)
 
 
 class Duplicate(OP):
@@ -47,5 +37,17 @@ class Duplicate(OP):
 
 if __name__ == '__main__':
     from dflow.plugins.launching import OP_to_parser
-    to_parser = OP_to_parser(Duplicate)
+    steps = Steps(name="duplicate-steps")
+    steps.inputs.parameters["num"] = InputParameter(value=2,
+                                                    description="number")
+    steps.inputs.artifacts["foo"] = InputArtifact(description="input file")
+    step = Step(
+        name="duplicate",
+        template=PythonOPTemplate(Duplicate, image="python:3.8"),
+        parameters={"num": steps.inputs.parameters["num"]},
+        artifacts={"foo": steps.inputs.artifacts["foo"]})
+    steps.add(step)
+    steps.outputs.artifacts["bar"] = OutputArtifact(
+        _from=step.outputs.artifacts["bar"])
+    to_parser = OP_to_parser(steps)
     to_parser()(sys.argv[1:])
