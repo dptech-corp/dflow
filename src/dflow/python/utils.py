@@ -40,7 +40,7 @@ def get_slices(path_list, path_dict, slices):
 
 
 def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
-                          sub_path=None, n_parts=None):
+                          sub_path=None, n_parts=None, path=None):
     require_dict = sign.type in [
         Dict[str, str], Dict[str, Path], NestedDict[str], NestedDict[Path]] \
         or slices is not None
@@ -62,11 +62,10 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
             else:
                 path_list.append(art_path)
     else:
-        if sub_path is None:
-            art_path = '%s/inputs/artifacts/%s' % (data_root, name)
-        else:
-            art_path = '%s/inputs/artifacts/%s/%s' % (data_root, name,
-                                                      sub_path)
+        art_path = '%s/inputs/artifacts/%s' % (data_root, name) \
+            if path is None else path
+        if sub_path is not None:
+            art_path = os.path.join(art_path, sub_path)
         if not os.path.exists(art_path):  # for optional artifact
             return None
         remove_empty_dir_tag(art_path)

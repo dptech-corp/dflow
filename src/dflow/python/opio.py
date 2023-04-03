@@ -63,6 +63,7 @@ class Artifact:
             optional: bool = False,
             global_name: Optional[str] = None,
             sub_path: bool = True,
+            **kwargs,
     ) -> None:
         self.type = type
         if archive == "default":
@@ -72,6 +73,8 @@ class Artifact:
         self.optional = optional
         self.global_name = global_name
         self.sub_path = sub_path
+        for k, v in kwargs.items():
+            self.__setattr__(k, v)
 
     def __setattr__(self, key, value):
         if key == "type":
@@ -107,6 +110,8 @@ class Parameter:
         self.global_name = global_name
         if "default" in kwargs:
             self.default = kwargs["default"]
+        for k, v in kwargs.items():
+            self.__setattr__(k, v)
 
     def to_str(self):
         default = ""
@@ -135,6 +140,8 @@ class BigParameter:
         self.type = type
         if "default" in kwargs:
             self.default = kwargs["default"]
+        for k, v in kwargs.items():
+            self.__setattr__(k, v)
 
     def to_str(self):
         default = ""
