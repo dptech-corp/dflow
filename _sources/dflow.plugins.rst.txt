@@ -20,6 +20,14 @@ dflow.plugins.dispatcher module
    :undoc-members:
    :show-inheritance:
 
+dflow.plugins.launching module
+------------------------------
+
+.. automodule:: dflow.plugins.launching
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dflow.plugins.lebesgue module
 -----------------------------
 
