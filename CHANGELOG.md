@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.102](https://github.com/deepmodeling/dflow/compare/v1.6.101...v1.6.102) (2023-04-03)
+
+
+### Bug Fixes
+
+* convert OP template to launching parser ([895a938](https://github.com/deepmodeling/dflow/commit/895a93895826fa3833a637a1edac67d6c29227f6))
+
 ## [1.6.101](https://github.com/deepmodeling/dflow/compare/v1.6.100...v1.6.101) (2023-04-03)
 
 
