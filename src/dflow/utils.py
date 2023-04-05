@@ -96,6 +96,8 @@ def download_artifact(
 
     if slice is not None:
         sub_path = path_list_of_artifact(artifact)[slice]
+
+    if sub_path is not None:
         key = key + "/" + sub_path
         path = os.path.join(path, os.path.dirname(sub_path))
         download_s3(key=key, recursive=True, path=path, keep_dir=True,
