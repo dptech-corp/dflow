@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.104](https://github.com/deepmodeling/dflow/compare/v1.6.103...v1.6.104) (2023-04-05)
+
+
+### Bug Fixes
+
+* remove duplicated path in init-artifact of sub-path mode ([3a6591a](https://github.com/deepmodeling/dflow/commit/3a6591abf8cbc5083b8cbe5b8d80a81031cd0de8))
+
 ## [1.6.103](https://github.com/deepmodeling/dflow/compare/v1.6.102...v1.6.103) (2023-04-05)
 
 
