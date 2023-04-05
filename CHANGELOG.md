@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.103](https://github.com/deepmodeling/dflow/compare/v1.6.102...v1.6.103) (2023-04-05)
+
+
+### Bug Fixes
+
+* sub_path argument of download_artifact ([cc447d3](https://github.com/deepmodeling/dflow/commit/cc447d33ae77b3a73009d557a82993aeaedd5444))
+
 ## [1.6.102](https://github.com/deepmodeling/dflow/compare/v1.6.101...v1.6.102) (2023-04-03)
 
 
