@@ -92,8 +92,9 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
                 script += "    for f in os.listdir(path):\n"
                 script += "        with open(os.path.join(path, f), 'r')"\
                     " as fd:\n"
-                script += "            path_list_%s += json.load(fd)"\
-                    "['path_list']\n" % i
+                script += "            for i in json.load(fd)['path_list']:\n"
+                script += "                if i not in path_list_%s:\n" % i
+                script += "                    path_list_%s.append(i)\n" % i
                 script += "path_list_%s.sort(key=lambda x: x['order'])\n" \
                     % i
 
