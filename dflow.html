@@ -533,10 +533,10 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dflow.context.Context">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.context.</span></span><span class="sig-name descname"><span class="pre">Context</span></span><a class="headerlink" href="#dflow.context.Context" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.context.Context.render">
-<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></span><a class="headerlink" href="#dflow.context.Context.render" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></span><a class="headerlink" href="#dflow.context.Context.render" title="Permalink to this definition">¶</a></dt>
 <dd><p>render original template and return a new template</p>
 </dd></dl>
 
@@ -634,10 +634,10 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dflow.executor.Executor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.executor.</span></span><span class="sig-name descname"><span class="pre">Executor</span></span><a class="headerlink" href="#dflow.executor.Executor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.executor.Executor.render">
-<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></span><a class="headerlink" href="#dflow.executor.Executor.render" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></span><a class="headerlink" href="#dflow.executor.Executor.render" title="Permalink to this definition">¶</a></dt>
 <dd><p>render original template and return a new template, do not modify
 self in this method to make the executor reusable</p>
 </dd></dl>
@@ -1271,7 +1271,7 @@ None takes arguments from sys.argv</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dflow.resource.Resource">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.resource.</span></span><span class="sig-name descname"><span class="pre">Resource</span></span><a class="headerlink" href="#dflow.resource.Resource" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1293,7 +1293,7 @@ None takes arguments from sys.argv</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.resource.Resource.get_manifest">
-<span class="sig-name descname"><span class="pre">get_manifest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></span><a class="headerlink" href="#dflow.resource.Resource.get_manifest" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_manifest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></span><a class="headerlink" href="#dflow.resource.Resource.get_manifest" title="Permalink to this definition">¶</a></dt>
 <dd><p>The method to get the manifest (str)</p>
 </dd></dl>
 
@@ -2414,10 +2414,10 @@ requested keys. If failed, it will downgrade to query full steps</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dflow.Context">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">Context</span></span><a class="headerlink" href="#dflow.Context" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.Context.render">
-<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></span><a class="headerlink" href="#dflow.Context.render" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></span><a class="headerlink" href="#dflow.Context.render" title="Permalink to this definition">¶</a></dt>
 <dd><p>render original template and return a new template</p>
 </dd></dl>
 
@@ -2482,10 +2482,10 @@ requested keys. If failed, it will downgrade to query full steps</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dflow.Executor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">Executor</span></span><a class="headerlink" href="#dflow.Executor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.Executor.render">
-<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></span><a class="headerlink" href="#dflow.Executor.render" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></span><a class="headerlink" href="#dflow.Executor.render" title="Permalink to this definition">¶</a></dt>
 <dd><p>render original template and return a new template, do not modify
 self in this method to make the executor reusable</p>
 </dd></dl>
@@ -2897,7 +2897,7 @@ self in this method to make the executor reusable</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dflow.Resource">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">Resource</span></span><a class="headerlink" href="#dflow.Resource" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -2919,7 +2919,7 @@ self in this method to make the executor reusable</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.Resource.get_manifest">
-<span class="sig-name descname"><span class="pre">get_manifest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></span><a class="headerlink" href="#dflow.Resource.get_manifest" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_manifest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></span><a class="headerlink" href="#dflow.Resource.get_manifest" title="Permalink to this definition">¶</a></dt>
 <dd><p>The method to get the manifest (str)</p>
 </dd></dl>
 
