@@ -1,9 +1,11 @@
+import abc
+from abc import ABC
 from typing import Optional
 
 from .op_template import OPTemplate
 
 
-class Resource(object):
+class Resource(ABC):
     """
     Resource
 
@@ -16,6 +18,7 @@ class Resource(object):
     success_condition: Optional[str] = None
     failure_condition: Optional[str] = None
 
+    @abc.abstractmethod
     def get_manifest(
             self,
             template: OPTemplate,

@@ -1,11 +1,14 @@
+import abc
+from abc import ABC
+
 from .op_template import OPTemplate
 
 
-class Context(object):
+class Context(ABC):
     """
     Context
     """
-
+    @abc.abstractmethod
     def render(
             self,
             template: OPTemplate,

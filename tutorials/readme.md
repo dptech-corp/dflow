@@ -14,8 +14,6 @@ There are several topics we intend to cover in this series:
     - [dflow-slurm.ipynb](https://github.com/deepmodeling/dflow/blob/master/tutorials/dflow-slurm.ipynb)
 
 # Installation and setup
-**!!!Install and setup the dflow environment on your PC!!!**
-**!!!DO NOT install on the login node of the HPC cluster!!!**
 ## Installation
 We need to install three dependencies to use dflow:
 - Container engine: [Docker](https://www.docker.com/)([知乎介绍](https://zhuanlan.zhihu.com/p/23599229))

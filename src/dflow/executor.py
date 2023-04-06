@@ -1,4 +1,6 @@
+import abc
 import os
+from abc import ABC
 from copy import deepcopy
 from typing import List, Optional, Union
 
@@ -15,11 +17,11 @@ except Exception:
     pass
 
 
-class Executor(object):
+class Executor(ABC):
     """
     Executor
     """
-
+    @abc.abstractmethod
     def render(
             self,
             template: OPTemplate,
