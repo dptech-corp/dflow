@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.105](https://github.com/deepmodeling/dflow/compare/v1.6.104...v1.6.105) (2023-04-07)
+
+
+### Bug Fixes
+
+* make tutorials compatible for argo 3.4.1 ([a207ec4](https://github.com/deepmodeling/dflow/commit/a207ec47e3f2e782485fe34d07c28ce6f00ce6fb))
+* update readme ([289f96b](https://github.com/deepmodeling/dflow/commit/289f96bac5705e193cc130257ff6c060a07390de))
+
 ## [1.6.104](https://github.com/deepmodeling/dflow/compare/v1.6.103...v1.6.104) (2023-04-05)
 
 
