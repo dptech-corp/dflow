@@ -1,3 +1,4 @@
+import json
 from copy import deepcopy
 from typing import Dict, List, Optional, Union
 
@@ -273,6 +274,26 @@ class ScriptOPTemplate(OPTemplate):
                 "env", [])},
             "init_containers": d.get("initContainers", None),
         }
+        if d.get("metadata", {}).get("annotations", {}).get(
+                "workflow.dp.tech/executor") == "dispatcher":
+            host = kwargs["annotations"].get("workflow.dp.tech/host")
+            port = kwargs["annotations"].get("workflow.dp.tech/port", 22)
+            username = kwargs["annotations"].get(
+                "workflow.dp.tech/username", "root")
+            password = kwargs["annotations"].get("workflow.dp.tech/password")
+            queue_name = kwargs["annotations"].get(
+                "workflow.dp.tech/queue_name")
+            extras = kwargs["annotations"].get("workflow.dp.tech/extras")
+            extras = json.loads(extras) if extras else {}
+            machine = extras.get("machine", None)
+            resources = extras.get("resources", None)
+            task = extras.get("task", None)
+            from .plugins.dispatcher import DispatcherExecutor
+            executor = DispatcherExecutor(
+                host, queue_name, port, username, password,
+                machine_dict=machine, resources_dict=resources,
+                task_dict=task)
+            return executor.render(cls(**kwargs))
         return cls(**kwargs)
 
     def convert_to_argo(self, memoize_prefix=None,
