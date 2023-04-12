@@ -597,6 +597,25 @@ class Workflow:
             kwargs["steps"] = entrypoint
         elif isinstance(entrypoint, DAG):
             kwargs["dag"] = entrypoint
+        if d.get("metadata", {}).get("annotations", {}).get(
+                "workflow.dp.tech/executor") == "dispatcher":
+            host = kwargs["annotations"].get("workflow.dp.tech/host")
+            port = kwargs["annotations"].get("workflow.dp.tech/port", 22)
+            username = kwargs["annotations"].get(
+                "workflow.dp.tech/username", "root")
+            password = kwargs["annotations"].get("workflow.dp.tech/password")
+            queue_name = kwargs["annotations"].get(
+                "workflow.dp.tech/queue_name")
+            extras = kwargs["annotations"].get("workflow.dp.tech/extras")
+            extras = json.loads(extras) if extras else {}
+            machine = extras.get("machine", None)
+            resources = extras.get("resources", None)
+            task = extras.get("task", None)
+            from .plugins.dispatcher import DispatcherExecutor
+            kwargs["context"] = DispatcherExecutor(
+                host, queue_name, port, username, password,
+                machine_dict=machine, resources_dict=resources,
+                task_dict=task)
         return cls(**kwargs)
 
     def handle_template(self, template, memoize_prefix=None,
