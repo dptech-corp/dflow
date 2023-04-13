@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.106](https://github.com/deepmodeling/dflow/compare/v1.6.105...v1.6.106) (2023-04-13)
+
+
+### Bug Fixes
+
+* subpath slices for optional artifact ([123ecb8](https://github.com/deepmodeling/dflow/commit/123ecb8b47634b532945ea527df7353000362451))
+
 ## [1.6.105](https://github.com/deepmodeling/dflow/compare/v1.6.104...v1.6.105) (2023-04-07)
 
 
