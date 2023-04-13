@@ -6,11 +6,13 @@ from .op_template import PythonScriptOPTemplate, ShellOPTemplate
 
 
 class InitArtifactForSlices(PythonScriptOPTemplate):
-    def __init__(self, name, image, command, image_pull_policy, key,
+    def __init__(self, template, image, command, image_pull_policy, key,
                  sliced_output_artifact, sliced_input_artifact, sum_var,
                  concat_var, tmp_root="/tmp"):
+        name = template.name
         super().__init__(name="%s-init-artifact" % name, image=image,
                          command=command, image_pull_policy=image_pull_policy)
+        self.origin = template
         self.key = key
         self.sliced_output_artifact = sliced_output_artifact
         self.sliced_input_artifact = sliced_input_artifact
@@ -84,6 +86,7 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
             script += "    json.dump({'path_list': []}, f)\n"
 
         if self.sliced_input_artifact:
+            required = []
             for i, name in enumerate(self.sliced_input_artifact):
                 script += "path_list_%s = []\n" % i
                 script += "path = r'%s/inputs/artifacts/%s'\n" % \
@@ -97,18 +100,20 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
                 script += "                    path_list_%s.append(i)\n" % i
                 script += "path_list_%s.sort(key=lambda x: x['order'])\n" \
                     % i
+                if not self.origin.inputs.artifacts[name].optional:
+                    required.append(i)
 
-            n_arts = len(self.sliced_input_artifact)
-            if n_arts > 1:
+            if len(required) > 1:
                 script += "assert " + " == ".join(
-                    ["len(path_list_%s)" % i for i in range(n_arts)]) + "\n"
+                    ["len(path_list_%s)" % i for i in required]) + "\n"
 
             script += "slices_path = []\n"
-            script += "for i in range(len(path_list_0)):\n"
+            script += "for i in range(len(path_list_%s)):\n" % required[0]
             script += "    item = {'order': i}\n"
             for i, name in enumerate(self.sliced_input_artifact):
                 script += "    item['%s'] = path_list_%s[i]"\
-                    "['dflow_list_item']\n" % (name, i)
+                    "['dflow_list_item'] if path_list_%s else None\n" % (
+                        name, i, i)
             script += "    slices_path.append(item)\n"
             script += "os.makedirs(r'%s/outputs/parameters', exist_ok=True)\n"\
                 % self.tmp_root
