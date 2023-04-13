@@ -632,6 +632,19 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 <section id="module-dflow.executor">
 <span id="dflow-executor-module"></span><h2>dflow.executor module<a class="headerlink" href="#module-dflow.executor" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="dflow.executor.ContainerExecutor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.executor.</span></span><span class="sig-name descname"><span class="pre">ContainerExecutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">docker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singularity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">podman</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_pull_policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.executor.ContainerExecutor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.executor.ContainerExecutor.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.executor.ContainerExecutor.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template, do not modify
+self in this method to make the executor reusable</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="dflow.executor.Executor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.executor.</span></span><span class="sig-name descname"><span class="pre">Executor</span></span><a class="headerlink" href="#dflow.executor.Executor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
@@ -699,7 +712,7 @@ self in this method to make the executor reusable</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dflow.executor.run_script">
-<span class="sig-prename descclassname"><span class="pre">dflow.executor.</span></span><span class="sig-name descname"><span class="pre">run_script</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">podman</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.executor.run_script" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dflow.executor.</span></span><span class="sig-name descname"><span class="pre">run_script</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singularity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">podman</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_pull_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.executor.run_script" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
@@ -2412,6 +2425,19 @@ requested keys. If failed, it will downgrade to query full steps</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="dflow.ContainerExecutor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">ContainerExecutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">docker</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">singularity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">podman</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_pull_policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.ContainerExecutor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.executor.Executor" title="dflow.executor.Executor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Executor</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.ContainerExecutor.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.ContainerExecutor.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>render original template and return a new template, do not modify
+self in this method to make the executor reusable</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="dflow.Context">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">Context</span></span><a class="headerlink" href="#dflow.Context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
@@ -3931,6 +3957,10 @@ parameters</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-dflow.executor">dflow.executor module</a><ul>
+<li><a class="reference internal" href="#dflow.executor.ContainerExecutor"><code class="docutils literal notranslate"><span class="pre">ContainerExecutor</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.executor.ContainerExecutor.render"><code class="docutils literal notranslate"><span class="pre">ContainerExecutor.render()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#dflow.executor.Executor"><code class="docutils literal notranslate"><span class="pre">Executor</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.executor.Executor.render"><code class="docutils literal notranslate"><span class="pre">Executor.render()</span></code></a></li>
 </ul>
@@ -4245,6 +4275,10 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.AutonamedDict"><code class="docutils literal notranslate"><span class="pre">AutonamedDict</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.AutonamedDict.set_step"><code class="docutils literal notranslate"><span class="pre">AutonamedDict.set_step()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.AutonamedDict.set_template"><code class="docutils literal notranslate"><span class="pre">AutonamedDict.set_template()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.ContainerExecutor"><code class="docutils literal notranslate"><span class="pre">ContainerExecutor</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.ContainerExecutor.render"><code class="docutils literal notranslate"><span class="pre">ContainerExecutor.render()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#dflow.Context"><code class="docutils literal notranslate"><span class="pre">Context</span></code></a><ul>
