@@ -563,7 +563,7 @@ class Step:
                 sum_var is not None or concat_var is not None:
             self.template = self.template.copy()
             init_template = InitArtifactForSlices(
-                self.template.name, self.util_image, self.util_command,
+                self.template, self.util_image, self.util_command,
                 self.util_image_pull_policy, self.key, sliced_output_artifact,
                 sliced_input_artifact, sum_var, concat_var)
             if self.key is not None:
