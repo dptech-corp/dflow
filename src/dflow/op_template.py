@@ -245,6 +245,7 @@ class ScriptOPTemplate(OPTemplate):
         self.limits = limits
         self.envs = envs
         self.init_containers = init_containers
+        self.script_rendered = False
 
     @classmethod
     def from_dict(cls, d):
@@ -274,6 +275,11 @@ class ScriptOPTemplate(OPTemplate):
                 "env", [])},
             "init_containers": d.get("initContainers", None),
         }
+        engine = d.get("metadata", {}).get("annotations", {}).get(
+            "workflow.dp.tech/container_engine")
+        docker = "docker" if engine == "docker" else None
+        singularity = "singularity" if engine == "singularity" else None
+        podman = "podman" if engine == "podman" else None
         if d.get("metadata", {}).get("annotations", {}).get(
                 "workflow.dp.tech/executor") == "dispatcher":
             host = kwargs["annotations"].get("workflow.dp.tech/host")
@@ -292,7 +298,12 @@ class ScriptOPTemplate(OPTemplate):
             executor = DispatcherExecutor(
                 host, queue_name, port, username, password,
                 machine_dict=machine, resources_dict=resources,
-                task_dict=task)
+                task_dict=task, docker_executable=docker,
+                singularity_executable=singularity, podman_executable=podman)
+            return executor.render(cls(**kwargs))
+        elif engine:
+            from .executor import ContainerExecutor
+            executor = ContainerExecutor(docker, singularity, podman)
             return executor.render(cls(**kwargs))
         return cls(**kwargs)
 

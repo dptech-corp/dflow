@@ -597,6 +597,11 @@ class Workflow:
             kwargs["steps"] = entrypoint
         elif isinstance(entrypoint, DAG):
             kwargs["dag"] = entrypoint
+        engine = d.get("metadata", {}).get("annotations", {}).get(
+            "workflow.dp.tech/container_engine")
+        docker = "docker" if engine == "docker" else None
+        singularity = "singularity" if engine == "singularity" else None
+        podman = "podman" if engine == "podman" else None
         if d.get("metadata", {}).get("annotations", {}).get(
                 "workflow.dp.tech/executor") == "dispatcher":
             host = kwargs["annotations"].get("workflow.dp.tech/host")
@@ -615,7 +620,11 @@ class Workflow:
             kwargs["context"] = DispatcherExecutor(
                 host, queue_name, port, username, password,
                 machine_dict=machine, resources_dict=resources,
-                task_dict=task)
+                task_dict=task, docker_executable=docker,
+                singularity_executable=singularity, podman_executable=podman)
+        elif engine:
+            from .executor import ContainerExecutor
+            kwargs["context"] = ContainerExecutor(docker, singularity, podman)
         return cls(**kwargs)
 
     def handle_template(self, template, memoize_prefix=None,
