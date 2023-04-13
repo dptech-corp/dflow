@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.107](https://github.com/deepmodeling/dflow/compare/v1.6.106...v1.6.107) (2023-04-13)
+
+
+### Bug Fixes
+
+* add container executor ([0f7f275](https://github.com/deepmodeling/dflow/commit/0f7f27512e60da12b01dab98e608ae068d94978f))
+* add container_engine annotation ([0f7f275](https://github.com/deepmodeling/dflow/commit/0f7f27512e60da12b01dab98e608ae068d94978f))
+
 ## [1.6.106](https://github.com/deepmodeling/dflow/compare/v1.6.105...v1.6.106) (2023-04-13)
 
 
