@@ -1820,7 +1820,7 @@ class Step:
 
         # render variables in the script
         script = self.template.script
-        if self.executor is None:
+        if not self.template.script_rendered:
             if hasattr(self.template, "tmp_root"):
                 # do not modify self.template
                 template = deepcopy(self.template)

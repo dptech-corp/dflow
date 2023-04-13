@@ -134,6 +134,7 @@ class BohriumExecutor(Executor):
         if isinstance(template, PythonScriptOPTemplate):
             new_template.script = "import os\nos.makedirs('tmp', "\
                 "exist_ok=True)\n" + new_template.script
+        new_template.script_rendered = True
         return new_template
 
 
@@ -207,6 +208,7 @@ class BohriumContext(Context):
                 if isinstance(template, PythonScriptOPTemplate):
                     new_template.script = "import os\nos.makedirs('tmp', "\
                         "exist_ok=True)\n" + new_template.script
+                new_template.script_rendered = True
             return new_template
 
         return template

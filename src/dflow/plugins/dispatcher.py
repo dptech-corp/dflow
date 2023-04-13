@@ -263,16 +263,16 @@ class DispatcherExecutor(Executor):
         new_template.script += "from dpdispatcher import Machine, Resources,"\
             " Task, Submission\n"
         new_template.script += "machine = Machine.load_from_dict(json.loads("\
-            "'%s'))\n" % json.dumps(self.machine_dict)
+            "r'%s'))\n" % json.dumps(self.machine_dict)
         new_template.script += "resources = Resources.load_from_dict(json."\
-            "loads('%s'))\n" % json.dumps(self.resources_dict)
+            "loads(r'%s'))\n" % json.dumps(self.resources_dict)
         if new_template.envs is not None:
             for k in new_template.envs.keys():
                 new_template.script += "resources.envs['%s'] = "\
                     "os.environ.get('%s')\n" % (k, k)
         new_template.script += "resources.envs['ARGO_TEMPLATE'] = "\
             "shlex.quote(os.environ.get('ARGO_TEMPLATE'))\n"
-        new_template.script += "task = Task.load_from_dict(json.loads('%s'))"\
+        new_template.script += "task = Task.load_from_dict(json.loads(r'%s'))"\
             "\n" % json.dumps(self.task_dict)
         new_template.script += "task.forward_files = list(filter("\
             "os.path.exists, task.forward_files))\n"
@@ -387,6 +387,7 @@ class DispatcherExecutor(Executor):
                 new_template.script += "            res.append(f.read())\n"
                 new_template.script += "with open('./%s', 'w') as f:\n" % path
                 new_template.script += "    f.write(json.dumps(res))\n"
+        new_template.script_rendered = True
 
         # workaround for unavailable exit code of Bohrium job
         # check output files explicitly

@@ -7,7 +7,7 @@ from typing import List, Optional, Union
 from .common import S3Artifact
 from .config import config
 from .io import InputArtifact
-from .op_template import OPTemplate
+from .op_template import OPTemplate, ScriptOPTemplate
 from .utils import randstr, upload_s3
 
 try:
@@ -33,11 +33,23 @@ class Executor(ABC):
         raise NotImplementedError()
 
 
-def run_script(image, cmd, docker=None, singularity=None, podman=None):
+def run_script(image, cmd, docker=None, singularity=None, podman=None,
+               image_pull_policy=None):
     if docker is not None:
-        return "%s pull %s && %s run -v$(pwd)/tmp:/tmp "\
+        if image_pull_policy is None:
+            if image.split(":")[-1] == "latest":
+                image_pull_policy = "Always"
+            else:
+                image_pull_policy = "IfNotPresent"
+        script = ""
+        if image_pull_policy == "Always":
+            script += "%s pull %s && " % (docker, image)
+        elif image_pull_policy == "IfNotPresent":
+            script += "if [[ $(docker images %s | wc -l) -lt 2 ]]; " % image
+            script += "then %s pull %s; fi && " % (docker, image)
+        return script + "%s run -v$(pwd)/tmp:/tmp "\
             "-v$(pwd)/script:/script %s %s /script" % (
-                docker, image, docker, image, " ".join(cmd))
+                docker, image, " ".join(cmd))
     elif singularity is not None:
         return "%s pull image.sif %s && %s run -B$(pwd)/tmp:/tmp "\
             "-B$(pwd)/script:/script image.sif %s /script && rm image.sif" % (
@@ -58,6 +70,51 @@ def render_script_with_tmp_root(template, tmp_root):
         return tmp_template.script
     else:
         return template.script.replace("/tmp", tmp_root)
+
+
+class ContainerExecutor(Executor):
+    def __init__(
+            self,
+            docker: Optional[str] = None,
+            singularity: Optional[str] = None,
+            podman: Optional[str] = None,
+            image_pull_policy: Optional[str] = None,
+    ):
+        self.docker = docker
+        self.singularity = singularity
+        self.podman = podman
+        self.image_pull_policy = image_pull_policy
+
+    def render(self, template):
+        if not isinstance(template, ScriptOPTemplate):
+            return template
+
+        new_template = deepcopy(template)
+        new_template.name += "-" + randstr()
+        script = "cat <<'EOF'> script\n" + template.script + "\nEOF\n"
+        prep_script = "import os, shutil\n"
+        prep_script += "for dn, ds, fs in os.walk('tmp'):\n"
+        prep_script += "    for d in ds:\n"
+        prep_script += "        d = os.path.join(dn, d)\n"
+        prep_script += "        if os.path.islink(d):\n"
+        prep_script += "            src = os.path.realpath(d)\n"
+        prep_script += "            os.remove(d)\n"
+        prep_script += "            shutil.copytree(src, d, copy_function="\
+            "os.link)\n"
+        prep_script += "    for f in fs:\n"
+        prep_script += "        f = os.path.join(dn, f)\n"
+        prep_script += "        if os.path.islink(f):\n"
+        prep_script += "            src = os.path.realpath(f)\n"
+        prep_script += "            os.remove(f)\n"
+        prep_script += "            os.link(src, f)\n"
+        script += "cat <<'EOF' | python3\n" + prep_script + "\nEOF\n"
+        script += run_script(template.image, template.command, self.docker,
+                             self.singularity, self.podman,
+                             self.image_pull_policy)
+        new_template.command = ["sh"]
+        new_template.script = script
+        new_template.script_rendered = True
+        return new_template
 
 
 class RemoteExecutor(Executor):
@@ -226,4 +283,5 @@ download() {
                     path=config["private_key_host_path"])))
             new_template.mounts.append(V1VolumeMount(
                 name="dflow-private-key", mount_path="/root/.ssh"))
+        new_template.script_rendered = True
         return new_template
