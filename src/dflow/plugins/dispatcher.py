@@ -211,7 +211,7 @@ class DispatcherExecutor(Executor):
             else self.remote_command
         cmd = ""
         if self.map_tmp_dir:
-            cmd += "sed -i \\\"s#\\\\$(pwd)#$(pwd)#g\\\" script && "
+            cmd += "sed -i \"s#\\$(pwd)#$(pwd)#g\" script && "
 
         cmd += run_script(template.image, remote_command,
                           self.docker_executable, self.singularity_executable,
