@@ -381,6 +381,17 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 <section id="module-dflow.common">
 <span id="dflow-common-module"></span><h2>dflow.common module<a class="headerlink" href="#module-dflow.common" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="dflow.common.HTTPArtifact">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.common.</span></span><span class="sig-name descname"><span class="pre">HTTPArtifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.common.HTTPArtifact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.common.HTTPArtifact.download">
+<span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.common.HTTPArtifact.download" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="dflow.common.LineageClient">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.common.</span></span><span class="sig-name descname"><span class="pre">LineageClient</span></span><a class="headerlink" href="#dflow.common.LineageClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
@@ -3902,6 +3913,10 @@ parameters</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-dflow.common">dflow.common module</a><ul>
+<li><a class="reference internal" href="#dflow.common.HTTPArtifact"><code class="docutils literal notranslate"><span class="pre">HTTPArtifact</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.common.HTTPArtifact.download"><code class="docutils literal notranslate"><span class="pre">HTTPArtifact.download()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#dflow.common.LineageClient"><code class="docutils literal notranslate"><span class="pre">LineageClient</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.common.LineageClient.get_artifact_metadata"><code class="docutils literal notranslate"><span class="pre">LineageClient.get_artifact_metadata()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.common.LineageClient.register_artifact"><code class="docutils literal notranslate"><span class="pre">LineageClient.register_artifact()</span></code></a></li>
