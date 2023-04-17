@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.109](https://github.com/deepmodeling/dflow/compare/v1.6.108...v1.6.109) (2023-04-17)
+
+
+### Bug Fixes
+
+* support for HTTP artifact ([cf772eb](https://github.com/deepmodeling/dflow/commit/cf772eb4482100a5d54553f42a0fa3e5f08cedeb))
+
 ## [1.6.108](https://github.com/deepmodeling/dflow/compare/v1.6.107...v1.6.108) (2023-04-17)
 
 
