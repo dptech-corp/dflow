@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.108](https://github.com/deepmodeling/dflow/compare/v1.6.107...v1.6.108) (2023-04-17)
+
+
+### Bug Fixes
+
+* escaping in dispatcher executor ([5cd833a](https://github.com/deepmodeling/dflow/commit/5cd833aefbc3824b1e35eac7b3c5806961039c31))
+
 ## [1.6.107](https://github.com/deepmodeling/dflow/compare/v1.6.106...v1.6.107) (2023-04-13)
 
 
