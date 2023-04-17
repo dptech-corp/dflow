@@ -1,5 +1,7 @@
 import abc
 import logging
+import os
+import shutil
 from abc import ABC
 from copy import copy, deepcopy
 from typing import Any, Dict, List, Union
@@ -105,6 +107,22 @@ class LocalArtifact:
         else:
             art.slice = "%s.%s" % (art.slice, key)
         return art
+
+
+class HTTPArtifact:
+    def __init__(self, url):
+        self.url = url
+
+    def download(self, path="."):
+        os.makedirs(path, exist_ok=True)
+        file_path = os.path.join(path, os.path.basename(self.url))
+        import requests
+        sess = requests.session()
+        with sess.get(self.url, stream=True, verify=False) as req:
+            req.raise_for_status()
+            with open(file_path, 'w') as f:
+                shutil.copyfileobj(req.raw, f.buffer)
+        return file_path
 
 
 class LineageClient(ABC):

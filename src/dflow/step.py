@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import jsonpickle
 
-from .common import LocalArtifact, S3Artifact
+from .common import LocalArtifact, S3Artifact, HTTPArtifact
 from .config import config, s3_config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
@@ -1078,6 +1078,9 @@ class Step:
                 if "subPath" in art:
                     kwargs["artifacts"][name] = kwargs["artifacts"][
                         name].sub_path(art["subPath"])
+            elif "http" in art:
+                kwargs["artifacts"][name] = HTTPArtifact(
+                    url=art["http"]["url"])
         kwargs["key"] = kwargs["parameters"].get("dflow_key", None)
         return cls(**kwargs)
 
@@ -1433,6 +1436,10 @@ class Step:
                         os.rmdir(path)
                         os.rename(path + ".bk", path)
                     art.source.local_path = path
+                elif isinstance(art.source, HTTPArtifact) and not hasattr(
+                        art.source, "local_path"):
+                    path = os.path.abspath("download/%s" % randstr())
+                    art.source.local_path = art.source.download(path=path)
                 if not hasattr(art.source, "local_path") and art.optional:
                     continue
                 steps.inputs.artifacts[name].local_path = art.source.local_path
@@ -1658,8 +1665,13 @@ class Step:
                     os.rmdir(path)
                     os.rename(path + ".bk", path)
                 art.source.local_path = path
-            if isinstance(art.source, (InputArtifact, OutputArtifact,
-                                       LocalArtifact, S3Artifact)):
+            elif isinstance(art.source, HTTPArtifact) and not hasattr(
+                    art.source, "local_path"):
+                path = os.path.abspath("download/%s" % randstr())
+                art.source.local_path = art.source.download(path=path)
+            if isinstance(
+                art.source, (InputArtifact, OutputArtifact, LocalArtifact,
+                             S3Artifact, HTTPArtifact)):
                 if art.sub_path is not None:
                     sub_path = art.sub_path
                     if item is not None:
