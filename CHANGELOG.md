@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.110](https://github.com/deepmodeling/dflow/compare/v1.6.109...v1.6.110) (2023-04-18)
+
+
+### Bug Fixes
+
+* triple quotes in user's script ([b9114a7](https://github.com/deepmodeling/dflow/commit/b9114a7b1e02ba81458ce24625f800a6453830dd))
+
 ## [1.6.109](https://github.com/deepmodeling/dflow/compare/v1.6.108...v1.6.109) (2023-04-17)
 
 
