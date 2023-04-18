@@ -246,10 +246,12 @@ class DispatcherExecutor(Executor):
         new_template.script += "with open('script', 'w') as f:\n"
         new_template.script += "    f.write(r\"\"\"\n"
         if self.map_tmp_dir:
-            new_template.script += render_script_with_tmp_root(template,
-                                                               "$(pwd)/tmp")
+            script = render_script_with_tmp_root(template, "$(pwd)/tmp")
         else:
-            new_template.script += template.script
+            script = template.script
+        # keep the script human-readable
+        script = script.replace("\"\"\"", "'''")
+        new_template.script += script
         new_template.script += "\"\"\")\n"
 
         if self.machine_dict["context_type"] == "Bohrium":
