@@ -179,7 +179,8 @@ class DispatcherExecutor(Executor):
             "group_size": 5,
             "envs": {
                 "DFLOW_WORKFLOW": "{{workflow.name}}",
-                "DFLOW_POD": "{{pod.name}}"
+                "DFLOW_POD": "{{pod.name}}",
+                "PYTHONUNBUFFERED": "true",
             }
         }
         if self.queue_name is not None:
