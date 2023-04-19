@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.111](https://github.com/deepmodeling/dflow/compare/v1.6.110...v1.6.111) (2023-04-19)
+
+
+### Bug Fixes
+
+* set PYTHONUNBUFFERED=true to output real-time log in dispatcher executor ([d912e0d](https://github.com/deepmodeling/dflow/commit/d912e0d6212a4e064d86c19b43f38a5974040812))
+
 ## [1.6.110](https://github.com/deepmodeling/dflow/compare/v1.6.109...v1.6.110) (2023-04-18)
 
 
