@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.112](https://github.com/deepmodeling/dflow/compare/v1.6.111...v1.6.112) (2023-04-19)
+
+
+### Bug Fixes
+
+* close stdin after write input in run_command ([f6b651f](https://github.com/deepmodeling/dflow/commit/f6b651fce5abeac8eaf4f6ee1bcb532ea9696289))
+
 ## [1.6.111](https://github.com/deepmodeling/dflow/compare/v1.6.110...v1.6.111) (2023-04-19)
 
 
