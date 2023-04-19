@@ -650,6 +650,7 @@ def run_command(
     ) as sub:
         if input is not None:
             sub.stdin.write(bytes(input, encoding=sys.stdout.encoding))
+            sub.stdin.close()
         if print_oe:
             out = ""
             err = ""
