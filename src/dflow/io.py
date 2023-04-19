@@ -566,7 +566,7 @@ class InputArtifact(ArgoVar):
         if "s3" in d:
             kwargs["source"] = S3Artifact(key=d["s3"]["key"])
         if "oss" in d:
-            kwargs["source"] = S3Artifact(key=d["oss"]["key"]).oss()
+            kwargs["source"] = S3Artifact(key=d["oss"]["key"])
         return cls(**kwargs)
 
     def __getitem__(self, key):

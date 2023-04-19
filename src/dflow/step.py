@@ -1074,7 +1074,7 @@ class Step:
                         name].sub_path(art["subPath"])
             elif "oss" in art:
                 kwargs["artifacts"][name] = S3Artifact(
-                    key=art["oss"]["key"]).oss()
+                    key=art["oss"]["key"])
                 if "subPath" in art:
                     kwargs["artifacts"][name] = kwargs["artifacts"][
                         name].sub_path(art["subPath"])
