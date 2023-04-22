@@ -160,6 +160,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  post_script: str = "",
                  ) -> None:
         self.n_parts = {}
+        self.keys_of_parts = {}
         self.op_class = op_class
         op = None
         if isinstance(op_class, OP):
@@ -461,9 +462,11 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                             name, name, name, slices, self.tmp_root, name)
                 else:
                     script += "    input['%s'] = handle_input_artifact('%s', "\
-                        "input_sign['%s'], %s, r'%s', None, %s)\n" \
-                        % (name, name, name, slices, self.tmp_root,
-                           self.n_parts.get(name, None))
+                        "input_sign['%s'], %s, r'%s', None, %s, "\
+                        "keys_of_parts=%s)\n" % (
+                            name, name, name, slices, self.tmp_root,
+                            self.n_parts.get(name, None),
+                            self.keys_of_parts.get(name, None))
             else:
                 slices = self.get_slices(input_parameter_slices, name)
                 if isinstance(sign, BigParameter) and \

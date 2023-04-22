@@ -18,7 +18,8 @@ from .op_template import (OPTemplate, PythonScriptOPTemplate, ScriptOPTemplate,
 from .python import Slices
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
-from .utils import catalog_of_artifact, merge_dir, randstr, upload_artifact
+from .utils import (catalog_of_artifact, flatten, merge_dir, randstr,
+                    upload_artifact)
 
 try:
     from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
@@ -1163,6 +1164,46 @@ class Step:
                     if any(map(lambda x: x is not None, slices)):
                         self.template.input_artifact_slices[k] = slices
                     self.template.n_parts[k] = len(v)
+                    self.template.render_script()
+                del self.template.inputs.artifacts[k]
+                del self.inputs.artifacts[k]
+            elif isinstance(v, dict):
+                self.template = self.template.copy()
+                slices = {}
+                flat_v = flatten(v)
+                for i, a in flat_v.items():
+                    vn = "dflow_%s_%s" % (k, i)
+                    self.template.inputs.artifacts[vn] = deepcopy(
+                        self.template.inputs.artifacts[k])
+                    self.inputs.artifacts[vn] = deepcopy(
+                        self.template.inputs.artifacts[vn])
+                    self.inputs.artifacts[vn].source = a
+                    if hasattr(a, "slice") and a.slice is not None:
+                        slices[i] = a.slice
+                    else:
+                        slices[i] = None
+                from .dag import DAG
+                from .steps import Steps
+                if isinstance(self.template, (Steps, DAG)):
+                    for step in self.template:
+                        for name, art in list(step.inputs.artifacts.items()):
+                            if art.source is self.template.inputs.artifacts[k]:
+                                step.set_artifacts({name: {
+                                    i: self.template.inputs.artifacts[
+                                        "dflow_%s_%s" % (k, i)]
+                                    if slice is None else
+                                    self.template.inputs.artifacts[
+                                        "dflow_%s_%s" % (k, i)][slice]
+                                    for i, slice in slices.items()}})
+                else:
+                    for i, a in flat_v.items():
+                        vn = "dflow_%s_%s" % (k, i)
+                        self.template.inputs.artifacts[vn].path = \
+                            "%s/inputs/artifacts/%s" % (self.template.tmp_root,
+                                                        vn)
+                    if any(map(lambda x: x is not None, slices.values())):
+                        self.template.input_artifact_slices[k] = slices
+                    self.template.keys_of_parts[k] = list(v.keys())
                     self.template.render_script()
                 del self.template.inputs.artifacts[k]
                 del self.inputs.artifacts[k]
