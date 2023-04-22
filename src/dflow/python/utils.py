@@ -58,7 +58,10 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
                 pd = assemble_path_nested_dict(art_path)
                 if slices is not None:
                     pl, pd = get_slices(pl, pd, slices[i])
-                path_dict.append(pd)
+                if isinstance(pd, list) and len(pd) == 1:
+                    path_dict.append(pd[0])
+                else:
+                    path_dict.append(pd)
             if pl:
                 path_list += pl
             else:
@@ -73,6 +76,9 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
             pd = assemble_path_nested_dict(art_path)
             if slices is not None:
                 pl, pd = get_slices(pl, pd, slices[i])
+            if isinstance(pd, list) and len(pd) == 1:
+                path_dict[i] = pd[0]
+            else:
                 path_dict[i] = pd
             if pl:
                 path_list += pl
