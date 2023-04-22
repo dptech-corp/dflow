@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.114](https://github.com/deepmodeling/dflow/compare/v1.6.113...v1.6.114) (2023-04-22)
+
+
+### Bug Fixes
+
+* a bug in dict argument of artifacts ([4447fe5](https://github.com/deepmodeling/dflow/commit/4447fe5d17eb4632b75e0ee1e5400a5109551e28))
+
 ## [1.6.113](https://github.com/deepmodeling/dflow/compare/v1.6.112...v1.6.113) (2023-04-22)
 
 
