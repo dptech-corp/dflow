@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.113](https://github.com/deepmodeling/dflow/compare/v1.6.112...v1.6.113) (2023-04-22)
+
+
+### Bug Fixes
+
+* support for pass a dict of artifacts as argument for a step ([9431af0](https://github.com/deepmodeling/dflow/commit/9431af0765311676c3d1c717e52f680666a14700))
+
 ## [1.6.112](https://github.com/deepmodeling/dflow/compare/v1.6.111...v1.6.112) (2023-04-19)
 
 
