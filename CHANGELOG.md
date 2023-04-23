@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.115](https://github.com/deepmodeling/dflow/compare/v1.6.114...v1.6.115) (2023-04-23)
+
+
+### Bug Fixes
+
+* support for passing a dict or list containing ArgoVar ([be5fe8d](https://github.com/deepmodeling/dflow/commit/be5fe8dc5eea3a32a34dd2a15d1905b1b97af856))
+
 ## [1.6.114](https://github.com/deepmodeling/dflow/compare/v1.6.113...v1.6.114) (2023-04-22)
 
 
