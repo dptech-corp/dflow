@@ -62,17 +62,27 @@ class Task(Step):
 
     def set_parameters(self, parameters):
         super().set_parameters(parameters)
-        for v in parameters.values():
-            if isinstance(v, (OutputParameter, OutputArtifact)) and v.step \
-                    not in self.dependencies:
-                self.dependencies.append(v.step)
+        for v in self.inputs.parameters.values():
+            if hasattr(v, "value"):
+                def handle(obj):
+                    # TODO: Only support output parameter, dict and list
+                    if isinstance(obj, OutputParameter):
+                        if obj.step not in self.dependencies:
+                            self.dependencies.append(obj.step)
+                    elif isinstance(obj, dict):
+                        for v in obj.values():
+                            handle(v)
+                    elif isinstance(obj, list):
+                        for v in obj:
+                            handle(v)
+                handle(v.value)
 
     def set_artifacts(self, artifacts):
         super().set_artifacts(artifacts)
-        for v in artifacts.values():
-            if isinstance(v, OutputArtifact) and v.step not in \
+        for v in self.inputs.artifacts.values():
+            if isinstance(v.source, OutputArtifact) and v.source.step not in \
                     self.dependencies:
-                self.dependencies.append(v.step)
+                self.dependencies.append(v.source.step)
 
     def convert_to_argo(self, context=None):
         self.prepare_argo_arguments(context)
