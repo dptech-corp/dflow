@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.116](https://github.com/deepmodeling/dflow/compare/v1.6.115...v1.6.116) (2023-04-23)
+
+
+### Bug Fixes
+
+* handle dependencies of task for passing a dict of parameters/artifacts ([4be10d8](https://github.com/deepmodeling/dflow/commit/4be10d8b21732600f6e5f92e59fe3c99b7cd5f49))
+
 ## [1.6.115](https://github.com/deepmodeling/dflow/compare/v1.6.114...v1.6.115) (2023-04-23)
 
 
