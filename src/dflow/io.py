@@ -340,25 +340,22 @@ def convert_value_to_str(value):
     if isinstance(value, str):
         return value
 
-    s = jsonpickle.dumps(value)
-
     def handle(obj):
-        nonlocal s
-        if isinstance(obj, dict):
-            if "py/object" in obj and obj["py/object"] == "dflow.io.ArgoVar":
-                s = s.replace(json.dumps(obj), "{{=%s}}" % obj["expr"])
-                return
-            for v in obj.values():
-                if isinstance(v, (dict, list)):
-                    handle(v)
-        elif isinstance(obj, list):
-            for v in obj:
-                if isinstance(v, (dict, list)):
+        # TODO: Only support dict and list
+        if isinstance(obj, (dict, list)):
+            for i, v in obj.items() if isinstance(obj, dict) \
+                    else enumerate(obj):
+                if isinstance(v, ArgoVar):
+                    obj[i] = "dflow_placeholder_%s" % len(vars)
+                    vars.append("{{=%s}}" % v.expr)
+                elif isinstance(v, (dict, list)):
                     handle(v)
 
-    if "dflow.io.ArgoVar" in s:
-        d = json.loads(s)
-        handle(d)
+    vars = []
+    handle(value)
+    s = jsonpickle.dumps(value)
+    for i, var in enumerate(vars):
+        s = s.replace("\"dflow_placeholder_%s\"" % i, var)
 
     return s
 
