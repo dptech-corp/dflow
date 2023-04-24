@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.117](https://github.com/deepmodeling/dflow/compare/v1.6.116...v1.6.117) (2023-04-24)
+
+
+### Bug Fixes
+
+* support for using local singularity image ([ebf9595](https://github.com/deepmodeling/dflow/commit/ebf959567aeec26fe12e46e627a269142f030b7f))
+
 ## [1.6.116](https://github.com/deepmodeling/dflow/compare/v1.6.115...v1.6.116) (2023-04-23)
 
 
