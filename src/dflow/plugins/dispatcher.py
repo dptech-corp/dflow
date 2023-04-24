@@ -51,7 +51,7 @@ class DispatcherExecutor(Executor):
         podman_executable: podman executable to run remotely
         remote_root: remote root path for working
         retry_on_submission_error: max retries on submission error
-        merge_sliced_step: handle multi slices in one dispatcher job
+        merge_sliced_step: handle multi slices in a single dispatcher job
     """
 
     def __init__(self,
