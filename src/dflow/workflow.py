@@ -605,7 +605,7 @@ class Workflow:
         if d.get("metadata", {}).get("annotations", {}).get(
                 "workflow.dp.tech/executor") == "dispatcher":
             host = kwargs["annotations"].get("workflow.dp.tech/host")
-            port = kwargs["annotations"].get("workflow.dp.tech/port", 22)
+            port = int(kwargs["annotations"].get("workflow.dp.tech/port", 22))
             username = kwargs["annotations"].get(
                 "workflow.dp.tech/username", "root")
             password = kwargs["annotations"].get("workflow.dp.tech/password")
