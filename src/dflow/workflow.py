@@ -306,7 +306,6 @@ class Workflow:
             os.chdir(cwd)
             return ArgoWorkflow({"id": self.id})
 
-        assert self.id is None, "Do not submit a workflow repeatedly"
         manifest = self.convert_to_argo(reuse_step=reuse_step)
 
         logger.debug("submit manifest:\n%s" % manifest)
@@ -427,7 +426,8 @@ class Workflow:
         if reuse_step is not None:
             self.reused_keys = [step.key for step in reuse_step
                                 if step.key is not None]
-            self.id = self.name + "-" + randstr()
+            if self.id is None:
+                self.id = self.name + "-" + randstr()
             self.copied_keys = []
             self.memoize_map = {}
             key2id = {}
