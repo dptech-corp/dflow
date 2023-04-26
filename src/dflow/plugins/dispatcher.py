@@ -132,8 +132,8 @@ class DispatcherExecutor(Executor):
         if self.remote_root is not None:
             self.machine_dict["remote_root"] = self.remote_root
         else:
-            self.machine_dict["remote_root"] = "/home/%s/dflow/workflows" % \
-                self.username
+            self.machine_dict["remote_root"] = self.machine_dict.get("remote_root", "/home/%s/dflow/workflows" % \
+                self.username)
         if self.private_key_file is not None:
             self.machine_dict["remote_profile"]["key_filename"] = \
                 "/root/.ssh/" + os.path.basename(self.private_key_file)
