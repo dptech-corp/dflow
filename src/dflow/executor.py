@@ -51,9 +51,9 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None,
             "-v$(pwd)/script:/script %s %s /script" % (
                 docker, image, " ".join(cmd))
     elif singularity is not None:
-        return "if [ -f %s ]; then ln -s %s image.sif; else %s pull image.sif"\
-            " %s; fi && %s run -B$(pwd)/tmp:/tmp -B$(pwd)/script:/script "\
-            "image.sif %s /script && rm image.sif" % (
+        return "if [ -f %s ]; then rm -f image.sif && ln -s %s image.sif; "\
+            "else %s pull image.sif %s; fi && %s run -B$(pwd)/tmp:/tmp "\
+            "-B$(pwd)/script:/script image.sif %s /script && rm image.sif" % (
                 image, image, singularity, image, singularity, " ".join(cmd))
     elif podman is not None:
         return "%s pull %s && %s run -v$(pwd)/tmp:/tmp "\

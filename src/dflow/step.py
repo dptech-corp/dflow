@@ -460,7 +460,42 @@ class Step:
             self.template = self.template.copy()
             group_size = self.template.slices.group_size
             self.template.inputs.parameters["dflow_nslices"] = InputParameter()
-            if self.with_param is not None:
+            if isinstance(self.with_param, ArgoRange):
+                self.template.inputs.parameters["dflow_range_end"] = \
+                    InputParameter()
+                self.inputs.parameters["dflow_range_end"] = \
+                    InputParameter(value=self.with_param.end)
+                self.template.inputs.parameters["dflow_range_start"] = \
+                    InputParameter()
+                self.inputs.parameters["dflow_range_start"] = \
+                    InputParameter(value=self.with_param.start)
+                self.template.inputs.parameters["dflow_range_step"] = \
+                    InputParameter()
+                self.inputs.parameters["dflow_range_step"] = \
+                    InputParameter(value=self.with_param.step)
+                nslices = argo_len(self.with_param)
+                old_slices = self.template.slices.slices
+                self.template.slices.slices = \
+                    "[range({{inputs.parameters.dflow_range_start}}, "\
+                    "{{inputs.parameters.dflow_range_end}}, "\
+                    "{{inputs.parameters.dflow_range_step}})"\
+                    "[%s] for i in range({{item}}*%s, min(({{item}}+1)*%s"\
+                    ", {{inputs.parameters.dflow_nslices}}))]" % (
+                        old_slices.replace("{{item}}", "i"), group_size,
+                        group_size)
+                # re-render the script
+                self.template.slices = self.template.slices
+                for k, slice in self.input_artifact_slices.items():
+                    if k in self.template.input_artifact_slices:
+                        old = self.template.input_artifact_slices[k]
+                        self.template.input_artifact_slices[k] = \
+                            add_prefix_to_slices(slice, old)
+                        self.template.render_script()
+                self.with_param = argo_range(if_expression(
+                    "%s %% %s > 0" % (nslices, group_size),
+                    "%s/%s + 1" % (nslices, group_size),
+                    "%s/%s" % (nslices, group_size)))
+            elif self.with_param is not None:
                 self.template.inputs.parameters["dflow_with_param"] = \
                     InputParameter()
                 self.inputs.parameters["dflow_with_param"] = \
