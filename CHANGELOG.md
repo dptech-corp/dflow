@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.118](https://github.com/deepmodeling/dflow/compare/v1.6.117...v1.6.118) (2023-04-26)
+
+
+### Bug Fixes
+
+* optimize group_size when with_param is argo_range ([068dd53](https://github.com/deepmodeling/dflow/commit/068dd53514dfc9e16d6a0983198c04230a9f92c3))
+
 ## [1.6.117](https://github.com/deepmodeling/dflow/compare/v1.6.116...v1.6.117) (2023-04-24)
 
 
