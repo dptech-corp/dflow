@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.119](https://github.com/deepmodeling/dflow/compare/v1.6.118...v1.6.119) (2023-04-26)
+
+
+### Bug Fixes
+
+* support for submitting workflow with ID ([4bd2f84](https://github.com/deepmodeling/dflow/commit/4bd2f84f953eadf2e80ce64a8364ea8a53241e93))
+
 ## [1.6.118](https://github.com/deepmodeling/dflow/compare/v1.6.117...v1.6.118) (2023-04-26)
 
 
