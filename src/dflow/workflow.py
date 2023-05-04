@@ -696,7 +696,7 @@ class Workflow:
         if config["mode"] == "debug":
             with open("%s/status" % self.id, "r") as f:
                 return f.read()
-        workflow = self.query(fields=["status"])
+        workflow = self.query(fields=["status.phase"])
 
         if "phase" not in workflow.status:
             return "Pending"

@@ -187,13 +187,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         self.post_script = post_script
         if timeout is not None:
             self.timeout = "%ss" % timeout
-        if retry_on_transient_error is not None:
-            if timeout_as_transient_error:
-                expr = "asInt(lastRetry.exitCode) != 2"
-            else:
-                expr = "asInt(lastRetry.exitCode) == 1"
-            self.retry_strategy = V1alpha1RetryStrategy(
-                limit=retry_on_transient_error, expression=expr)
+        self.retry_on_transient_error = retry_on_transient_error
+        self.timeout_as_transient_error = timeout_as_transient_error
         self.dflow_vars = {}
         self.tmp_root = tmp_root
         for name, sign in input_sign.items():
@@ -616,6 +611,16 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             slices = slices.replace(var, "{{inputs.parameters.%s}}" % var_name)
             i = slices.find("{{item")
         return slices
+
+    def convert_to_argo(self, memoize_prefix=None, memoize_configmap="dflow"):
+        if self.retry_on_transient_error is not None:
+            if self.timeout_as_transient_error:
+                expr = "asInt(lastRetry.exitCode) != 2"
+            else:
+                expr = "asInt(lastRetry.exitCode) == 1"
+            self.retry_strategy = V1alpha1RetryStrategy(
+                limit=self.retry_on_transient_error, expression=expr)
+        return super().convert_to_argo(memoize_prefix, memoize_configmap)
 
 
 class TransientError(Exception):
