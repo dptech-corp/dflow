@@ -347,7 +347,11 @@ def convert_value_to_str(value):
                     else enumerate(obj):
                 if isinstance(v, ArgoVar):
                     obj[i] = "dflow_placeholder_%s" % len(vars)
-                    vars.append("{{=%s}}" % v.expr)
+                    if (hasattr(v, "type") and v.type == str) or (
+                            hasattr(v, "value") and isinstance(v.value, str)):
+                        vars.append("\"{{=%s}}\"" % v.expr)
+                    else:
+                        vars.append("{{=%s}}" % v.expr)
                 elif isinstance(v, (dict, list)):
                     handle(v)
 
