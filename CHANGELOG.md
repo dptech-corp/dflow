@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.121](https://github.com/deepmodeling/dflow/compare/v1.6.120...v1.6.121) (2023-05-04)
+
+
+### Bug Fixes
+
+* handle str when passing dict of parameters ([e45b40a](https://github.com/deepmodeling/dflow/commit/e45b40af0a56d375f7d53de8f380fac2e1754ef7))
+
 ## [1.6.120](https://github.com/deepmodeling/dflow/compare/v1.6.119...v1.6.120) (2023-05-04)
 
 
