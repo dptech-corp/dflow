@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.120](https://github.com/deepmodeling/dflow/compare/v1.6.119...v1.6.120) (2023-05-04)
+
+
+### Bug Fixes
+
+* move V1alpha1RetryStrategy to convert_to_argo method ([8f764a9](https://github.com/deepmodeling/dflow/commit/8f764a91615bbca27daa9359d997750a226edd25))
+
 ## [1.6.119](https://github.com/deepmodeling/dflow/compare/v1.6.118...v1.6.119) (2023-04-26)
 
 
