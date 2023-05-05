@@ -1535,7 +1535,8 @@ class Step:
                 os.makedirs(stepdir)
             else:
                 while True:
-                    step_id = self.name + "-" + randstr()
+                    step_id = "%s-%s-%s" % (scope.workflow_id, self.name,
+                                            randstr())
                     stepdir = os.path.abspath(step_id)
                     if not os.path.exists(stepdir):
                         os.makedirs(stepdir)
@@ -1863,7 +1864,8 @@ class Step:
             os.makedirs(stepdir)
         else:
             while True:
-                step_id = self.name + "-" + randstr()
+                step_id = "%s-%s-%s" % (scope.workflow_id, self.name,
+                                        randstr())
                 stepdir = os.path.abspath(step_id)
                 if not os.path.exists(stepdir):
                     os.makedirs(stepdir)

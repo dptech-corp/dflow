@@ -272,6 +272,27 @@ class ArgoVar:
             other = "asFloat(%s)" % other.expr
         return ArgoVar("asFloat(%s) + %s" % (self.expr, other))
 
+    def __sub__(self, other):
+        if config["mode"] == "debug":
+            return ArgoVar("%s - %s" % (self.expr, to_expr(other)))
+        if isinstance(other, ArgoVar):
+            other = "asFloat(%s)" % other.expr
+        return ArgoVar("asFloat(%s) - %s" % (self.expr, other))
+
+    def __mul__(self, other):
+        if config["mode"] == "debug":
+            return ArgoVar("%s * %s" % (self.expr, to_expr(other)))
+        if isinstance(other, ArgoVar):
+            other = "asFloat(%s)" % other.expr
+        return ArgoVar("asFloat(%s) * %s" % (self.expr, other))
+
+    def __truediv__(self, other):
+        if config["mode"] == "debug":
+            return ArgoVar("%s / %s" % (self.expr, to_expr(other)))
+        if isinstance(other, ArgoVar):
+            other = "asFloat(%s)" % other.expr
+        return ArgoVar("asFloat(%s) / %s" % (self.expr, other))
+
 
 class IfExpression(ArgoVar, Expression):
     def __init__(
