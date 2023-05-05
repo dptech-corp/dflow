@@ -738,7 +738,7 @@ class Workflow:
                 stepdir = os.path.join(self.id, s)
                 if not os.path.isdir(stepdir):
                     continue
-                if name is not None and not s[:len(name)] == name:
+                if name is not None and not s.startswith(self.id + "-" + name):
                     continue
                 if key is not None and s not in key:
                     continue
