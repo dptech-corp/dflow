@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.123](https://github.com/deepmodeling/dflow/compare/v1.6.122...v1.6.123) (2023-05-05)
+
+
+### Bug Fixes
+
+* add __sub__, __mul__ and __truediv__ methods to ArgoVar ([469ef6d](https://github.com/deepmodeling/dflow/commit/469ef6d4be59a57c175c86c1e9c894cd9059cd8a))
+* prepend workflow id to step id in debug mode ([469ef6d](https://github.com/deepmodeling/dflow/commit/469ef6d4be59a57c175c86c1e9c894cd9059cd8a))
+
 ## [1.6.122](https://github.com/deepmodeling/dflow/compare/v1.6.121...v1.6.122) (2023-05-05)
 
 
