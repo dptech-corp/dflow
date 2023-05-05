@@ -382,10 +382,10 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
         script += "import json, jsonpickle\n"
         script += "from dflow import config, s3_config\n"
-        script += "config.update(jsonpickle.loads(r'''%s'''))\n" % \
-            jsonpickle.dumps(config)
-        script += "s3_config.update(jsonpickle.loads(r'''%s'''))\n" % \
-            jsonpickle.dumps(s3_config)
+        script += "config.update(jsonpickle.loads(r'''%s''', on_missing="\
+            "'error'))\n" % jsonpickle.dumps(config)
+        script += "s3_config.update(jsonpickle.loads(r'''%s''', on_missing="\
+            "'error'))\n" % jsonpickle.dumps(s3_config)
         if op_class.__module__ in ["__main__", "__mp_main__"]:
             try:
                 if hasattr(op_class, "func"):
