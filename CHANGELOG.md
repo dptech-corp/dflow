@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.122](https://github.com/deepmodeling/dflow/compare/v1.6.121...v1.6.122) (2023-05-05)
+
+
+### Bug Fixes
+
+* raise error on missing module when jsonpickle.loads ([aec5bbe](https://github.com/deepmodeling/dflow/commit/aec5bbe350fedcad470f2909613cce2bc2670413))
+
 ## [1.6.121](https://github.com/deepmodeling/dflow/compare/v1.6.120...v1.6.121) (2023-05-04)
 
 
