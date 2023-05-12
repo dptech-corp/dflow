@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.125](https://github.com/deepmodeling/dflow/compare/v1.6.124...v1.6.125) (2023-05-12)
+
+
+### Bug Fixes
+
+* add shuffle to slices group ([7cb23f0](https://github.com/deepmodeling/dflow/commit/7cb23f0e2e60e8cb4228d2a278b74c9e7b340a12))
+
 ## [1.6.124](https://github.com/deepmodeling/dflow/compare/v1.6.123...v1.6.124) (2023-05-12)
 
 
