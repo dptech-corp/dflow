@@ -54,6 +54,8 @@ class Slices:
             output_artifact: Optional[List[str]] = None,
             sub_path: bool = False,
             group_size: Optional[int] = None,
+            shuffle: bool = False,
+            random_seed: int = 0,
             pool_size: Optional[int] = None,
             register_first_only: bool = False,
     ) -> None:
@@ -73,6 +75,8 @@ class Slices:
         else:
             self.slices = "{{item}}"
         self.group_size = group_size
+        self.shuffle = shuffle
+        self.random_seed = random_seed
         self.pool_size = pool_size
         self.register_first_only = register_first_only
 

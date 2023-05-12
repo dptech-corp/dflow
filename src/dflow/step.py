@@ -460,6 +460,15 @@ class Step:
             self.template = self.template.copy()
             group_size = self.template.slices.group_size
             self.template.inputs.parameters["dflow_nslices"] = InputParameter()
+            if self.template.slices.shuffle:
+                self.template.pre_script += "import random\n"
+                self.template.pre_script += "random.seed(%s)\n" % \
+                    self.template.slices.random_seed
+                # pre script is formatted
+                self.template.pre_script += "shuffled = "\
+                    "list(range({{{{inputs.parameters.dflow_nslices}}}}))\n"
+                self.template.pre_script += "random.shuffle(shuffled)\n"
+                self.template.pre_script += "random.seed()\n"  # unset seed
             if isinstance(self.with_param, ArgoRange):
                 self.template.inputs.parameters["dflow_range_end"] = \
                     InputParameter()
@@ -481,8 +490,9 @@ class Step:
                     "{{inputs.parameters.dflow_range_step}})"\
                     "[%s] for i in range({{item}}*%s, min(({{item}}+1)*%s"\
                     ", {{inputs.parameters.dflow_nslices}}))]" % (
-                        old_slices.replace("{{item}}", "i"), group_size,
-                        group_size)
+                        old_slices.replace("{{item}}", "shuffled[i]"
+                                           if self.template.slices.shuffle
+                                           else "i"), group_size, group_size)
                 # re-render the script
                 self.template.slices = self.template.slices
                 for k, slice in self.input_artifact_slices.items():
@@ -509,8 +519,9 @@ class Step:
                     "[json.loads(r'''{{inputs.parameters.dflow_with_param}}"\
                     "''')[%s] for i in range({{item}}*%s, min(({{item}}+1)*%s"\
                     ", {{inputs.parameters.dflow_nslices}}))]" % (
-                        old_slices.replace("{{item}}", "i"), group_size,
-                        group_size)
+                        old_slices.replace("{{item}}", "shuffled[i]"
+                                           if self.template.slices.shuffle
+                                           else "i"), group_size, group_size)
                 # re-render the script
                 self.template.slices = self.template.slices
                 for k, slice in self.input_artifact_slices.items():
@@ -562,12 +573,13 @@ class Step:
                     "inputs.parameters.dflow_sequence_start}}') else range("\
                     "int('{{inputs.parameters.dflow_sequence_start}}'), "\
                     "int('{{inputs.parameters.dflow_sequence_end}}') - 1, -1)"\
-                    ")][i] for i in range(int('{{item}}')*%s, min((int('{{"\
+                    ")][%s] for i in range(int('{{item}}')*%s, min((int('{{"\
                     "item}}')+1)*%s, {{inputs.parameters.dflow_nslices}}))]"\
                     % (old_slices.replace(
                         "'{{item}}'", "('%s' %% j)" % format)
                         if format is not None
                         else old_slices.replace("{{item}}", "j"),
+                        "shuffled[i]" if self.template.slices.shuffle else "i",
                         group_size, group_size)
                 # re-render the script
                 self.template.slices = self.template.slices
