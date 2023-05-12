@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.124](https://github.com/deepmodeling/dflow/compare/v1.6.123...v1.6.124) (2023-05-12)
+
+
+### Bug Fixes
+
+* undefined wfdir in debug mode ([875f1e4](https://github.com/deepmodeling/dflow/commit/875f1e4012ff0d3f7b1ccf763636354ec0f2d522))
+
 ## [1.6.123](https://github.com/deepmodeling/dflow/compare/v1.6.122...v1.6.123) (2023-05-05)
 
 
