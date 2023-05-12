@@ -225,6 +225,9 @@ class Workflow:
                     if not os.path.exists(wfdir):
                         os.makedirs(wfdir)
                         break
+            else:
+                wfdir = os.path.abspath(self.id)
+                os.makedirs(wfdir, exist_ok=True)
 
             if reuse_step is not None:
                 for step in reuse_step:
