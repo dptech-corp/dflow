@@ -76,6 +76,8 @@ class DispatcherExecutor(Executor):
                  remote_root: Optional[str] = None,
                  retry_on_submission_error: Optional[int] = None,
                  merge_sliced_step: bool = False,
+                 pre_script: str = "",
+                 post_script: str = "",
                  ) -> None:
         self.host = host
         self.queue_name = queue_name
@@ -110,6 +112,8 @@ class DispatcherExecutor(Executor):
         self.remote_root = remote_root
         self.retry_on_submission_error = retry_on_submission_error
         self.merge_sliced_step = merge_sliced_step
+        self.pre_script = pre_script
+        self.post_script = post_script
 
         conf = {}
         if json_file is not None:
@@ -242,7 +246,8 @@ class DispatcherExecutor(Executor):
                 self.task_dict["backward_files"].append(
                     "./" + par.value_from_path)
 
-        new_template.script = "import os\n"
+        new_template.script = self.pre_script
+        new_template.script += "import os\n"
         new_template.script += "os.chdir('%s')\n" % self.work_root
         new_template.script += "with open('script', 'w') as f:\n"
         new_template.script += "    f.write(r\"\"\"\n"
@@ -402,6 +407,7 @@ class DispatcherExecutor(Executor):
                 new_template.script += "assert os.path.exists('./%s')\n" % \
                     par.value_from_path
 
+        new_template.script += self.post_script
         if self.private_key_file is not None:
             key = upload_s3(self.private_key_file)
             private_key_artifact = S3Artifact(key=key)
