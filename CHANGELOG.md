@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.126](https://github.com/deepmodeling/dflow/compare/v1.6.125...v1.6.126) (2023-05-14)
+
+
+### Bug Fixes
+
+* add pre_script and post_script to dispatcher executor ([bba57ff](https://github.com/deepmodeling/dflow/commit/bba57ff8204db46e16dea79a9e5796b13680380b))
+
 ## [1.6.125](https://github.com/deepmodeling/dflow/compare/v1.6.124...v1.6.125) (2023-05-12)
 
 
