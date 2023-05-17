@@ -1,6 +1,7 @@
 import os
 from importlib import import_module
 
+from .argo_objects import ArgoStep, ArgoWorkflow
 from .common import LineageClient, LocalArtifact, S3Artifact
 from .config import config, s3_config, set_config, set_s3_config
 from .context import Context
@@ -34,7 +35,8 @@ __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "Context", "randstr", "LocalArtifact", "set_config",
            "set_s3_config", "DockerSecret", "argo_sum", "argo_concat",
            "LineageClient", "Secret", "query_workflows",
-           "query_archived_workflows", "ContainerExecutor"]
+           "query_archived_workflows", "ContainerExecutor", "ArgoStep",
+           "ArgoWorkflow"]
 
 
 def import_func(s):
