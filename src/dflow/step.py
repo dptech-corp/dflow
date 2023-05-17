@@ -252,8 +252,8 @@ class Step:
             name: str,
             template: OPTemplate,
             parameters: Dict[str, Any] = None,
-            artifacts: Dict[str, Union[S3Artifact,
-                                       InputArtifact, OutputArtifact]] = None,
+            artifacts: Dict[str, Optional[Union[
+                S3Artifact, InputArtifact, OutputArtifact]]] = None,
             when: Optional[str] = None,
             with_param: Union[str, list,
                               InputParameter, OutputParameter] = None,

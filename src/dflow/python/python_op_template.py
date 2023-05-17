@@ -1,5 +1,6 @@
 import inspect
 import os
+from abc import ABCMeta
 from pathlib import Path
 from typing import Optional, Any, Dict, List, Union
 
@@ -131,13 +132,13 @@ class PythonOPTemplate(PythonScriptOPTemplate):
     """
 
     def __init__(self,
-                 op_class: OP,
+                 op_class: Union[ABCMeta, OP],
                  image: Optional[str] = None,
                  command: Union[str, List[str]] = None,
                  output_artifact_save: Dict[str,
                                             List[Union[PVC, S3Artifact]]]
                  = None,
-                 output_artifact_archive: Dict[str, str] = None,
+                 output_artifact_archive: Dict[str, Optional[str]] = None,
                  output_parameter_default: Dict[str, Any] = None,
                  input_artifact_slices: Dict[str, str] = None,
                  input_parameter_slices: Dict[str, str] = None,

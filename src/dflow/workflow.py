@@ -107,8 +107,8 @@ class Workflow:
             labels: Dict[str, str] = None,
             parallelism: Optional[int] = None,
             pod_gc_strategy: Optional[str] = None,
-            image_pull_secrets: Union[str, DockerSecret,
-                                      List[Union[str, DockerSecret]]] = None,
+            image_pull_secrets: Optional[Union[
+                str, DockerSecret, List[Union[str, DockerSecret]]]] = None,
             artifact_repo_key: Optional[str] = None,
             parameters: Optional[Dict[str, Any]] = None,
     ) -> None:
