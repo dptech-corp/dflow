@@ -110,6 +110,7 @@ class OP(ABC):
         """
         raise NotImplementedError
 
+    @staticmethod
     def exec_sign_check(func):
         @functools.wraps(func)
         def wrapper_exec(self, op_in):
