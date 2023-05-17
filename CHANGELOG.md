@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.127](https://github.com/deepmodeling/dflow/compare/v1.6.126...v1.6.127) (2023-05-17)
+
+
+### Bug Fixes
+
+* pyright issues ([967278d](https://github.com/deepmodeling/dflow/commit/967278d9f4889a59bc1269baad5790c3b23f6b61))
+
 ## [1.6.126](https://github.com/deepmodeling/dflow/compare/v1.6.125...v1.6.126) (2023-05-14)
 
 
