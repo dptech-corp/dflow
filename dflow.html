@@ -2431,6 +2431,91 @@ requested keys. If failed, it will downgrade to query full steps</p>
 <section id="module-dflow">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dflow" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="dflow.ArgoStep">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">ArgoStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.ArgoStep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.argo_objects.ArgoObjectDict" title="dflow.argo_objects.ArgoObjectDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArgoObjectDict</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.ArgoStep.get_duration">
+<span class="sig-name descname"><span class="pre">get_duration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">timedelta</span></span></span><a class="headerlink" href="#dflow.ArgoStep.get_duration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.ArgoStep.get_pod">
+<span class="sig-name descname"><span class="pre">get_pod</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.ArgoStep.get_pod" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.ArgoStep.get_script">
+<span class="sig-name descname"><span class="pre">get_script</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.ArgoStep.get_script" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.ArgoStep.handle_big_parameters">
+<span class="sig-name descname"><span class="pre">handle_big_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">io</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.ArgoStep.handle_big_parameters" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.ArgoStep.handle_io">
+<span class="sig-name descname"><span class="pre">handle_io</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">io</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.ArgoStep.handle_io" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.ArgoStep.modify_output_artifact">
+<span class="sig-name descname"><span class="pre">modify_output_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s3</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.common.S3Artifact" title="dflow.common.S3Artifact"><span class="pre">S3Artifact</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dflow.ArgoStep.modify_output_artifact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify output artifact of an Argo step</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – artifact name</p></li>
+<li><p><strong>s3</strong> – replace the artifact with a s3 object</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.ArgoStep.modify_output_parameter">
+<span class="sig-name descname"><span class="pre">modify_output_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dflow.ArgoStep.modify_output_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modify output parameter of an Argo step</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – parameter name</p></li>
+<li><p><strong>value</strong> – new value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.ArgoStep.replay">
+<span class="sig-name descname"><span class="pre">replay</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.ArgoStep.replay" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.ArgoStep.set_script">
+<span class="sig-name descname"><span class="pre">set_script</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.ArgoStep.set_script" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.ArgoWorkflow">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">ArgoWorkflow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.ArgoWorkflow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.argo_objects.ArgoObjectDict" title="dflow.argo_objects.ArgoObjectDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArgoObjectDict</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.ArgoWorkflow.get_duration">
+<span class="sig-name descname"><span class="pre">get_duration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">timedelta</span></span></span><a class="headerlink" href="#dflow.ArgoWorkflow.get_duration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.ArgoWorkflow.get_step">
+<span class="sig-name descname"><span class="pre">get_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#dflow.argo_objects.ArgoStep" title="dflow.argo_objects.ArgoStep"><span class="pre">ArgoStep</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dflow.ArgoWorkflow.get_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="dflow.AutonamedDict">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">AutonamedDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.AutonamedDict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">UserDict</span></code></p>
@@ -4300,6 +4385,23 @@ parameters</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-dflow">Module contents</a><ul>
+<li><a class="reference internal" href="#dflow.ArgoStep"><code class="docutils literal notranslate"><span class="pre">ArgoStep</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.ArgoStep.get_duration"><code class="docutils literal notranslate"><span class="pre">ArgoStep.get_duration()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.ArgoStep.get_pod"><code class="docutils literal notranslate"><span class="pre">ArgoStep.get_pod()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.ArgoStep.get_script"><code class="docutils literal notranslate"><span class="pre">ArgoStep.get_script()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.ArgoStep.handle_big_parameters"><code class="docutils literal notranslate"><span class="pre">ArgoStep.handle_big_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.ArgoStep.handle_io"><code class="docutils literal notranslate"><span class="pre">ArgoStep.handle_io()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.ArgoStep.modify_output_artifact"><code class="docutils literal notranslate"><span class="pre">ArgoStep.modify_output_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.ArgoStep.modify_output_parameter"><code class="docutils literal notranslate"><span class="pre">ArgoStep.modify_output_parameter()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.ArgoStep.replay"><code class="docutils literal notranslate"><span class="pre">ArgoStep.replay()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.ArgoStep.set_script"><code class="docutils literal notranslate"><span class="pre">ArgoStep.set_script()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.ArgoWorkflow"><code class="docutils literal notranslate"><span class="pre">ArgoWorkflow</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.ArgoWorkflow.get_duration"><code class="docutils literal notranslate"><span class="pre">ArgoWorkflow.get_duration()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.ArgoWorkflow.get_step"><code class="docutils literal notranslate"><span class="pre">ArgoWorkflow.get_step()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#dflow.AutonamedDict"><code class="docutils literal notranslate"><span class="pre">AutonamedDict</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.AutonamedDict.set_step"><code class="docutils literal notranslate"><span class="pre">AutonamedDict.set_step()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.AutonamedDict.set_template"><code class="docutils literal notranslate"><span class="pre">AutonamedDict.set_template()</span></code></a></li>
