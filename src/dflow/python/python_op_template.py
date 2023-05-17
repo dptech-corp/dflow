@@ -1,8 +1,7 @@
 import inspect
 import os
-from abc import ABCMeta
 from pathlib import Path
-from typing import Optional, Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 import jsonpickle
 import typeguard
@@ -13,7 +12,7 @@ from ..config import config
 from ..io import (PVC, InputArtifact, InputParameter, Inputs, OutputArtifact,
                   OutputParameter, Outputs)
 from ..op_template import PythonScriptOPTemplate
-from ..utils import s3_config, randstr
+from ..utils import randstr, s3_config
 from .op import OP
 from .opio import Artifact, BigParameter, Parameter
 
@@ -132,7 +131,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
     """
 
     def __init__(self,
-                 op_class: Union[ABCMeta, OP],
+                 op_class: Union[Type[OP], OP],
                  image: Optional[str] = None,
                  command: Union[str, List[str]] = None,
                  output_artifact_save: Dict[str,
