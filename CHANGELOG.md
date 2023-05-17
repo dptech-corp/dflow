@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.128](https://github.com/deepmodeling/dflow/compare/v1.6.127...v1.6.128) (2023-05-17)
+
+
+### Bug Fixes
+
+* change type hint ABCMeta -&gt; Type[OP] ([1f654c6](https://github.com/deepmodeling/dflow/commit/1f654c64f517b7b0ac6853267ee13421c4eb2e93))
+* export ArgoStep and ArgoWorkflow ([1f654c6](https://github.com/deepmodeling/dflow/commit/1f654c64f517b7b0ac6853267ee13421c4eb2e93))
+
 ## [1.6.127](https://github.com/deepmodeling/dflow/compare/v1.6.126...v1.6.127) (2023-05-17)
 
 
