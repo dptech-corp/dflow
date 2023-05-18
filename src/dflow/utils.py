@@ -327,7 +327,8 @@ def download_s3(
     else:
         client = MinioClient(**kwargs)
     if recursive:
-        for obj in client.list(prefix=key, recursive=True):
+        from tqdm import tqdm
+        for obj in tqdm(client.list(prefix=key, recursive=True)):
             rel_path = obj[len(key):]
             if rel_path[:1] == "/":
                 rel_path = rel_path[1:]

@@ -1953,6 +1953,8 @@ class Step:
             p.wait()
             ret_code = p.poll()
         if ret_code != 0:
+            with open(os.path.join(stepdir, "phase"), "w") as f:
+                f.write("Failed")
             raise RuntimeError("Run %s failed" % args)
 
         # generate output parameters

@@ -10,3 +10,4 @@ kubernetes
 pyyaml
 cloudpickle==2.2.0
 requests
+tqdm
