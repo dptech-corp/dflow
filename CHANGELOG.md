@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.129](https://github.com/deepmodeling/dflow/compare/v1.6.128...v1.6.129) (2023-05-18)
+
+
+### Bug Fixes
+
+* add tqdm to download_s3 ([e6a6cbf](https://github.com/deepmodeling/dflow/commit/e6a6cbf418ecc5b441c7b91411749cf5c8fab525))
+* write phase file when step fails in debug mode ([e6a6cbf](https://github.com/deepmodeling/dflow/commit/e6a6cbf418ecc5b441c7b91411749cf5c8fab525))
+
 ## [1.6.128](https://github.com/deepmodeling/dflow/compare/v1.6.127...v1.6.128) (2023-05-17)
 
 
