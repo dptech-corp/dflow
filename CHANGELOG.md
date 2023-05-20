@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.130](https://github.com/deepmodeling/dflow/compare/v1.6.129...v1.6.130) (2023-05-20)
+
+
+### Bug Fixes
+
+* add detach mode for running workflows locally ([0b06961](https://github.com/deepmodeling/dflow/commit/0b06961a8a859f88061fe68e95dca6b6dd5aab6b))
+
 ## [1.6.129](https://github.com/deepmodeling/dflow/compare/v1.6.128...v1.6.129) (2023-05-18)
 
 
