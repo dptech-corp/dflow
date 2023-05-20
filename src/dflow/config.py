@@ -61,6 +61,7 @@ config = {
         "DFLOW_WORKFLOW_ANNOTATIONS", "{}")),
     "overwrite_reused_artifact": boolize(os.environ.get(
         "DFLOW_OVERWRITE_REUSED_ARTIFACT", True)),
+    "detach": boolize(os.environ.get("DFLOW_DETACH", False)),
 }
 
 

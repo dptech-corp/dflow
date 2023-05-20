@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import sys
 import time
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Union
@@ -295,6 +296,14 @@ class Workflow:
             print("Workflow is running locally (ID: %s)" % self.id)
             with open(os.path.join(wfdir, "status"), "w") as f:
                 f.write("Running")
+            if config["detach"]:
+                pid = os.fork()
+                if pid != 0:
+                    os.chdir(cwd)
+                    return ArgoWorkflow({"id": self.id})
+                flog = open(os.path.join(wfdir, "log.txt"), "w")
+                os.dup2(flog.fileno(), sys.stdout.fileno())
+                os.dup2(flog.fileno(), sys.stderr.fileno())
             try:
                 entrypoint = deepcopy(self.entrypoint)
                 entrypoint.orig_template = self.entrypoint
@@ -306,6 +315,9 @@ class Workflow:
                 traceback.print_exc()
                 with open(os.path.join(wfdir, "status"), "w") as f:
                     f.write("Failed")
+            if config["detach"]:
+                flog.close()
+                exit()
             os.chdir(cwd)
             return ArgoWorkflow({"id": self.id})
 
