@@ -2,8 +2,8 @@ import argparse
 import datetime
 from typing import List, Optional
 
-from dflow import (S3Artifact, Workflow, download_artifact, query_workflows,
-                   upload_artifact)
+from dflow import (S3Artifact, Workflow, config, download_artifact,
+                   query_workflows, upload_artifact)
 
 
 def main_parser():
@@ -228,6 +228,12 @@ def main_parser():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_submit.add_argument("FILE", help="the YAML file")
+    parser_submit.add_argument(
+        "-d",
+        "--detach",
+        action="store_true",
+        help="detach mode for running workflow",
+    )
     return parser
 
 
@@ -437,6 +443,8 @@ def main():
     elif args.command == "submit":
         with open(args.FILE, "r") as f:
             wf = Workflow.from_yaml(f.read())
+        if args.detach:
+            config["detach"] = True
         wf.submit()
 
 

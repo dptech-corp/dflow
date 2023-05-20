@@ -78,7 +78,7 @@ def test_big_parameter():
         time.sleep(1)
 
     assert(wf.query_status() == "Succeeded")
-    step = wf.query_step(name="step1")[0]
+    step = wf.query_step(key="step1")[0]
     assert(step.phase == "Succeeded")
     assert(isinstance(step.outputs.parameters["foo"].value, Hello))
 
