@@ -45,7 +45,7 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None,
         if image_pull_policy == "Always":
             script += "%s pull %s && " % (docker, image)
         elif image_pull_policy == "IfNotPresent":
-            script += "if [[ $(docker images %s | wc -l) -lt 2 ]]; " % image
+            script += "if [ $(docker images %s | wc -l) -lt 2 ]; " % image
             script += "then %s pull %s; fi && " % (docker, image)
         return script + "%s run -v$(pwd)/tmp:/tmp "\
             "-v$(pwd)/script:/script %s %s /script" % (

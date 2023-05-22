@@ -1817,9 +1817,12 @@ class Step:
                             exist_ok=True)
                 global_art_path = os.path.join(
                     stepdir, "../outputs/artifacts/%s" % art.global_name)
-                if os.path.exists(global_art_path):
-                    os.remove(global_art_path)
-                os.symlink(art_path, global_art_path)
+                while True:
+                    try:
+                        os.symlink(art_path, global_art_path)
+                        break
+                    except FileExistsError:
+                        os.remove(global_art_path)
 
     def load_output_parameters(self, stepdir, parameters):
         for name, par in parameters.items():
@@ -1857,6 +1860,11 @@ class Step:
             for name, par in parameters.items():
                 if isinstance(par.value, str):
                     par.value = render_item(par.value, item)
+            for name, art in self.inputs.artifacts.items():
+                if isinstance(art.source, S3Artifact):
+                    art.source.key = render_item(art.source.key, item)
+                elif isinstance(art.source, HTTPArtifact):
+                    art.source.url = render_item(art.source.url, item)
 
         import os
         cwd = os.getcwd()
@@ -1913,12 +1921,6 @@ class Step:
                 pass
             else:
                 os.symlink(art_path, path)
-
-        # clean output path
-        for art in self.outputs.artifacts.values():
-            path = art.path
-            path = "%s/%s" % (workdir, path)
-            backup(path)
 
         # render variables in the script
         script = self.template.script
