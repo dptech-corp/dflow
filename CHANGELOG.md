@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.6.131](https://github.com/deepmodeling/dflow/compare/v1.6.130...v1.6.131) (2023-05-22)
+
+
+### Bug Fixes
+
+* remove cleaning output path in debug mode ([279c22e](https://github.com/deepmodeling/dflow/commit/279c22e4858f50f5444ed1ef72f123789128e809))
+* render item in artifact key in debug mode ([279c22e](https://github.com/deepmodeling/dflow/commit/279c22e4858f50f5444ed1ef72f123789128e809))
+* repeatedly try to make symbolic link for global output artifact in debug mode ([279c22e](https://github.com/deepmodeling/dflow/commit/279c22e4858f50f5444ed1ef72f123789128e809))
+* syntax error [[ of sh ([279c22e](https://github.com/deepmodeling/dflow/commit/279c22e4858f50f5444ed1ef72f123789128e809))
+
 ## [1.6.130](https://github.com/deepmodeling/dflow/compare/v1.6.129...v1.6.130) (2023-05-20)
 
 
