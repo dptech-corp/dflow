@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.132](https://github.com/deepmodeling/dflow/compare/v1.6.131...v1.6.132) (2023-05-23)
+
+
+### Bug Fixes
+
+* property name and method name of input artifact conflict ([a0aa612](https://github.com/deepmodeling/dflow/commit/a0aa612c06e20b73f013e72d907265f9a433e590))
+
 ## [1.6.131](https://github.com/deepmodeling/dflow/compare/v1.6.130...v1.6.131) (2023-05-22)
 
 
