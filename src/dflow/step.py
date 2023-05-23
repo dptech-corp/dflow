@@ -722,8 +722,7 @@ class Step:
                     elif isinstance(v, (InputArtifact, OutputArtifact,
                                         LocalArtifact)):
                         self.prepare_step.inputs.artifacts[name].source = v
-                        self.inputs.artifacts[name].sub_path = \
-                            "{{item.%s}}" % name
+                        self.inputs.artifacts[name].sp = "{{item.%s}}" % name
                 self.with_param = self.prepare_step.outputs.parameters[
                     "dflow_slices_path"]
 
@@ -995,7 +994,7 @@ class Step:
                 else:
                     step.set_parameters({name: steps.inputs.parameters[name]})
             for name, art in list(self.inputs.artifacts.items()):
-                art.sub_path = None
+                art.sp = None
                 if isinstance(art.source, S3Artifact):
                     del steps.inputs.artifacts[name]
                     del self.inputs.artifacts[name]
@@ -1739,7 +1738,7 @@ class Step:
             if isinstance(art.source, str) and art.source.startswith("{{"):
                 if "/" in art.source:
                     i = art.source.find("}}")
-                    art.sub_path = art.source[i+3:]
+                    art.sp = art.source[i+3:]
                     art.source = art.source[:i+2]
                 art.source = get_var(art.source, scope)
             if isinstance(art.source, S3Artifact) and not hasattr(
@@ -1761,8 +1760,8 @@ class Step:
             if isinstance(
                 art.source, (InputArtifact, OutputArtifact, LocalArtifact,
                              S3Artifact, HTTPArtifact)):
-                if art.sub_path is not None:
-                    sub_path = art.sub_path
+                if art.sp is not None:
+                    sub_path = art.sp
                     if item is not None:
                         sub_path = render_item(sub_path, item)
                     os.symlink(os.path.join(art.source.local_path, sub_path),

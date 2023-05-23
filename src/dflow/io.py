@@ -568,7 +568,7 @@ class InputArtifact(ArgoVar):
         self.source = source
         self._sub_path = None
         self.mode = mode
-        self.sub_path = sub_path
+        self.sp = sub_path
         self.archive = archive
         self.slice = None
         self.parent = None
@@ -652,7 +652,7 @@ class InputArtifact(ArgoVar):
                                     optional=self.optional, mode=self.mode,
                                     archive=archive)
         if isinstance(self.source, (InputArtifact, OutputArtifact)):
-            sub_path = self.sub_path if self.sub_path is not None else \
+            sub_path = self.sp if self.sp is not None else \
                 self.source._sub_path
             return V1alpha1Artifact(name=self.name, path=self.path,
                                     optional=self.optional,
@@ -662,13 +662,13 @@ class InputArtifact(ArgoVar):
             if s3_config["repo_type"] == "s3":
                 return V1alpha1Artifact(name=self.name, path=self.path,
                                         optional=self.optional, s3=self.source,
-                                        sub_path=self.sub_path, mode=self.mode,
+                                        sub_path=self.sp, mode=self.mode,
                                         archive=archive)
             else:
                 return V1alpha1Artifact(name=self.name, path=self.path,
                                         optional=self.optional,
                                         oss=self.source.oss(),
-                                        sub_path=self.sub_path, mode=self.mode,
+                                        sub_path=self.sp, mode=self.mode,
                                         archive=archive)
         elif isinstance(self.source, str):
             return V1alpha1Artifact(name=self.name, path=self.path,
