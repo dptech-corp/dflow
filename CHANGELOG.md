@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.133](https://github.com/deepmodeling/dflow/compare/v1.6.132...v1.6.133) (2023-05-24)
+
+
+### Bug Fixes
+
+* use OSS client to upload ([b05c373](https://github.com/deepmodeling/dflow/commit/b05c3730bdf8f59b610f1c43b5d99404185acc99))
+
 ## [1.6.132](https://github.com/deepmodeling/dflow/compare/v1.6.131...v1.6.132) (2023-05-23)
 
 
