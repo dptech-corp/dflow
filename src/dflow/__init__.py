@@ -20,8 +20,8 @@ from .steps import Steps
 from .task import Task
 from .utils import (copy_artifact, copy_s3, download_artifact, download_s3,
                     path_list_of_artifact, randstr, upload_artifact, upload_s3)
-from .workflow import (DockerSecret, Workflow, query_archived_workflows,
-                       query_workflows)
+from .workflow import (DockerSecret, Workflow, parse_repo,
+                       query_archived_workflows, query_workflows)
 
 __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "IfExpression", "InputArtifact", "InputParameter", "Inputs",
@@ -54,3 +54,4 @@ if os.environ.get("DFLOW_LINEAGE"):
 if os.environ.get("DFLOW_S3_STORAGE_CLIENT"):
     s3_config["storage_client"] = import_func(os.environ.get(
         "DFLOW_S3_STORAGE_CLIENT"))()
+parse_repo()
