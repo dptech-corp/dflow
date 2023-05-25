@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.134](https://github.com/deepmodeling/dflow/compare/v1.6.133...v1.6.134) (2023-05-25)
+
+
+### Bug Fixes
+
+* do not parse repo when repo is provided ([ac8bb40](https://github.com/deepmodeling/dflow/commit/ac8bb40629a98977ee72fddf539fdbabe1512a7a))
+* parse repo when import dflow if repo_key is provided ([ac8bb40](https://github.com/deepmodeling/dflow/commit/ac8bb40629a98977ee72fddf539fdbabe1512a7a))
+
 ## [1.6.133](https://github.com/deepmodeling/dflow/compare/v1.6.132...v1.6.133) (2023-05-24)
 
 
