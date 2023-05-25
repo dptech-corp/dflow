@@ -159,23 +159,9 @@ class Workflow:
             parameters = {}
         self.parameters = parameters
         self.k8s_client = None
-
-        if self.artifact_repo_key is not None:
-            core_v1_api = self.get_k8s_core_v1_api()
-            cm = core_v1_api.read_namespaced_config_map(
-                namespace=self.namespace, name="artifact-repositories")
-            repo = yaml.full_load(cm.data[self.artifact_repo_key])
-            s3_config["repo"] = repo
-            if "s3" in repo:
-                s3_config["repo_type"] = "s3"
-                s3 = repo["s3"]
-            elif "oss" in repo:
-                s3_config["repo_type"] = "oss"
-                s3 = repo["oss"]
-            if "keyFormat" in s3:
-                t = "{{workflow.name}}/{{pod.name}}"
-                if s3["keyFormat"].endswith(t):
-                    s3_config["repo_prefix"] = s3["keyFormat"][:-len(t)]
+        parse_repo(self.artifact_repo_key, self.namespace,
+                   k8s_api_server=self.k8s_api_server, token=self.token,
+                   k8s_config_file=self.k8s_config_file)
 
     def get_k8s_core_v1_api(self):
         if self.k8s_client is None:
@@ -1042,3 +1028,27 @@ def query_archived_workflows(
             query_params=query_params,
             _return_http_data_only=True)
     return [ArgoWorkflow(w) for w in res["items"]] if res["items"] else []
+
+
+def parse_repo(repo_key=None, namespace=None, **kwargs):
+    if repo_key is None:
+        repo_key = s3_config["repo_key"]
+    if namespace is None:
+        namespace = config["namespace"]
+    if repo_key is not None and s3_config["repo"] is None:
+        with get_k8s_client(**kwargs) as k8s_client:
+            core_v1_api = kubernetes.client.CoreV1Api(k8s_client)
+            cm = core_v1_api.read_namespaced_config_map(
+                namespace=namespace, name="artifact-repositories")
+            repo = yaml.full_load(cm.data[repo_key])
+            s3_config["repo"] = repo
+            if "s3" in repo:
+                s3_config["repo_type"] = "s3"
+                s3 = repo["s3"]
+            elif "oss" in repo:
+                s3_config["repo_type"] = "oss"
+                s3 = repo["oss"]
+            if "keyFormat" in s3:
+                t = "{{workflow.name}}/{{pod.name}}"
+                if s3["keyFormat"].endswith(t):
+                    s3_config["repo_prefix"] = s3["keyFormat"][:-len(t)]
