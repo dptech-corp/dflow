@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.137](https://github.com/deepmodeling/dflow/compare/v1.6.136...v1.6.137) (2023-05-29)
+
+
+### Bug Fixes
+
+* add argo_enumerate ([2ae1a7d](https://github.com/deepmodeling/dflow/commit/2ae1a7dcea838318ea5c9d72dc4459c22903143d))
+
 ## [1.6.136](https://github.com/deepmodeling/dflow/compare/v1.6.135...v1.6.136) (2023-05-29)
 
 
