@@ -14,8 +14,8 @@ from .op_template import (OPTemplate, PythonScriptOPTemplate, Secret,
                           ShellOPTemplate)
 from .resource import Resource
 from .slurm import SlurmJob, SlurmJobTemplate, SlurmRemoteExecutor
-from .step import (Step, argo_concat, argo_len, argo_range, argo_sequence,
-                   argo_sum)
+from .step import (Step, argo_concat, argo_enumerate, argo_len, argo_range,
+                   argo_sequence, argo_sum)
 from .steps import Steps
 from .task import Task
 from .utils import (copy_artifact, copy_s3, download_artifact, download_s3,
@@ -36,7 +36,7 @@ __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "set_s3_config", "DockerSecret", "argo_sum", "argo_concat",
            "LineageClient", "Secret", "query_workflows",
            "query_archived_workflows", "ContainerExecutor", "ArgoStep",
-           "ArgoWorkflow"]
+           "ArgoWorkflow", "argo_enumerate"]
 
 
 def import_func(s):
