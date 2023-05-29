@@ -270,6 +270,8 @@ class ArgoVar:
             return ArgoVar("%s + %s" % (self.expr, to_expr(other)))
         if isinstance(other, ArgoVar):
             other = "asFloat(%s)" % other.expr
+        elif isinstance(other, str):
+            other = "'%s'" % other
         return ArgoVar("asFloat(%s) + %s" % (self.expr, other))
 
     def __sub__(self, other):
@@ -630,7 +632,10 @@ class InputArtifact(ArgoVar):
 
     def sub_path(self, path):
         artifact = deepcopy(self)
-        artifact._sub_path = path
+        if artifact._sub_path is None:
+            artifact._sub_path = path
+        else:
+            artifact._sub_path += "/" + path
         return artifact
 
     def get_path_list_parameter(self):
@@ -654,6 +659,8 @@ class InputArtifact(ArgoVar):
         if isinstance(self.source, (InputArtifact, OutputArtifact)):
             sub_path = self.sp if self.sp is not None else \
                 self.source._sub_path
+            if isinstance(sub_path, ArgoVar):
+                sub_path = "{{=%s}}" % sub_path.expr
             return V1alpha1Artifact(name=self.name, path=self.path,
                                     optional=self.optional,
                                     _from=str(self.source), sub_path=sub_path,
@@ -999,7 +1006,10 @@ class OutputArtifact(ArgoVar):
 
     def sub_path(self, path):
         artifact = deepcopy(self)
-        artifact._sub_path = path
+        if artifact._sub_path is None:
+            artifact._sub_path = path
+        else:
+            artifact._sub_path += "/" + path
         return artifact
 
     def __getattr__(self, key):
