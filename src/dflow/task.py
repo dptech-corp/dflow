@@ -5,8 +5,7 @@ from .op_template import OPTemplate
 from .step import Step
 
 try:
-    from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
-                                       V1alpha1DAGTask)
+    from argo.workflows.client import V1alpha1Arguments, V1alpha1DAGTask
 except Exception:
     pass
 
@@ -89,8 +88,7 @@ class Task(Step):
         depends = []
         for task in self.dependencies:
             if isinstance(task, Task):
-                depends.append("(%s.Succeeded || %s.Skipped || %s.Daemoned)" %
-                               (task, task, task))
+                depends.append("(%s.Succeeded)" % task)
             else:
                 depends.append("(%s)" % task)
         return V1alpha1DAGTask(
