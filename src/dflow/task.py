@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import List, Optional, Union
 
 from .io import OutputArtifact, OutputParameter
 from .op_template import OPTemplate
@@ -42,7 +42,7 @@ class Task(Step):
             self,
             name: str,
             template: OPTemplate,
-            dependencies: Optional[List["Task"]] = None,
+            dependencies: Optional[List[Union["Task", str]]] = None,
             **kwargs,
     ) -> None:
         if dependencies is None:
@@ -86,6 +86,13 @@ class Task(Step):
 
     def convert_to_argo(self, context=None):
         self.prepare_argo_arguments(context)
+        depends = []
+        for task in self.dependencies:
+            if isinstance(task, Task):
+                depends.append("(%s.Succeeded || %s.Skipped || %s.Daemoned)" %
+                               (task, task, task))
+            else:
+                depends.append("(%s)" % task)
         return V1alpha1DAGTask(
             name=self.name, template=self.template.name,
             arguments=V1alpha1Arguments(
@@ -93,6 +100,5 @@ class Task(Step):
                 artifacts=self.argo_artifacts
             ), when=self.when, with_param=self.with_param,
             with_sequence=self.with_sequence,
-            continue_on=V1alpha1ContinueOn(failed=self.continue_on_failed),
-            dependencies=[task.name for task in self.dependencies],
+            depends=" && ".join(depends),
         )
