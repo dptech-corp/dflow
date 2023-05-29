@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.138](https://github.com/deepmodeling/dflow/compare/v1.6.137...v1.6.138) (2023-05-29)
+
+
+### Bug Fixes
+
+* incompatibility across python version of cloudpickle in tutorials ([94e0ad5](https://github.com/deepmodeling/dflow/commit/94e0ad5b5cda6a5f0e207a6afd0093c5ad55b9a2))
+* replace dependencies with depends in dag ([5f08042](https://github.com/deepmodeling/dflow/commit/5f0804242dc697b88628674e6e8044edfb00e3d0))
+
 ## [1.6.137](https://github.com/deepmodeling/dflow/compare/v1.6.136...v1.6.137) (2023-05-29)
 
 
