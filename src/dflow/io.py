@@ -266,12 +266,12 @@ class ArgoVar:
         return ArgoVar("asFloat(%s) >= %s" % (self.expr, other))
 
     def __add__(self, other):
+        if isinstance(other, str):
+            return ArgoVar("%s + '%s'" % (self.expr, other))
         if config["mode"] == "debug":
             return ArgoVar("%s + %s" % (self.expr, to_expr(other)))
         if isinstance(other, ArgoVar):
             other = "asFloat(%s)" % other.expr
-        elif isinstance(other, str):
-            other = "'%s'" % other
         return ArgoVar("asFloat(%s) + %s" % (self.expr, other))
 
     def __sub__(self, other):
