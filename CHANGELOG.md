@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.139](https://github.com/deepmodeling/dflow/compare/v1.6.138...v1.6.139) (2023-05-29)
+
+
+### Bug Fixes
+
+* depends on success of task by default in dag ([14ec71a](https://github.com/deepmodeling/dflow/commit/14ec71a4119678fe5824c0fa785b253499118d19))
+
 ## [1.6.138](https://github.com/deepmodeling/dflow/compare/v1.6.137...v1.6.138) (2023-05-29)
 
 
