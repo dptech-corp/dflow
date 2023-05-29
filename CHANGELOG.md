@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.6.135](https://github.com/deepmodeling/dflow/compare/v1.6.134...v1.6.135) (2023-05-29)
+
+
+### Bug Fixes
+
+* support ArgoVar add string ([ddd6234](https://github.com/deepmodeling/dflow/commit/ddd62341795eefd21fbef4d66222aeaba6bdf352))
+* support call sub_path of InputArtifact/OutputArtifact multi times ([ddd6234](https://github.com/deepmodeling/dflow/commit/ddd62341795eefd21fbef4d66222aeaba6bdf352))
+* support pass ArgoVar to sub_path method of InputArtifact/OutputArtifact ([ddd6234](https://github.com/deepmodeling/dflow/commit/ddd62341795eefd21fbef4d66222aeaba6bdf352))
+
 ## [1.6.134](https://github.com/deepmodeling/dflow/compare/v1.6.133...v1.6.134) (2023-05-25)
 
 
