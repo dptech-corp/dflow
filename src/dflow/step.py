@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import re
@@ -180,6 +181,33 @@ def argo_len(
     if config["mode"] == "debug":
         return Expression("len(%s)" % to_expr(param))
     return ArgoLen(param)
+
+
+class ArgoEnumerate(ArgoVar):
+    def __init__(self, param: ArgoVar):
+        super().__init__(
+            "toJson(map(sprig.untilStep(0, len(sprig.fromJson(%s)), 1),"
+            " { {'order': #, 'value': jsonpath(%s, '$')[#]} }))" % (
+                param.expr, param.expr))
+
+
+def argo_enumerate(
+        param,
+) -> ArgoVar:
+    """
+    Return the enumeration of a list which is an Argo parameter
+
+    Args:
+        param: the Argo parameter which is a list
+    """
+    if config["mode"] == "debug":
+        return Expression("[{'order': i, 'value': v} for i, v in "
+                          "enumerate(%s)]" % to_expr(param))
+    if isinstance(param, ArgoVar):
+        return ArgoEnumerate(param)
+    else:
+        return json.dumps([{'order': i, 'value': v} for i, v in
+                           enumerate(param)])
 
 
 class ArgoSum:
