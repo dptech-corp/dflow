@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.140](https://github.com/deepmodeling/dflow/compare/v1.6.139...v1.6.140) (2023-05-30)
+
+
+### Bug Fixes
+
+* update slurm tutorial with dispatcher executor ([1398d9f](https://github.com/deepmodeling/dflow/commit/1398d9ff979aeb00c7e4751df12ef8fc2e2ededa))
+
 ## [1.6.139](https://github.com/deepmodeling/dflow/compare/v1.6.138...v1.6.139) (2023-05-29)
 
 
