@@ -12,6 +12,14 @@ dflow.plugins.bohrium module
    :undoc-members:
    :show-inheritance:
 
+dflow.plugins.datasets module
+-----------------------------
+
+.. automodule:: dflow.plugins.datasets
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dflow.plugins.dispatcher module
 -------------------------------
 
