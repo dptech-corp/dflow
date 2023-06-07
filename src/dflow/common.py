@@ -153,3 +153,16 @@ class LineageClient(ABC):
     @abc.abstractmethod
     def get_artifact_metadata(self, urn: str) -> object:
         pass
+
+
+class CustomArtifact(ABC):
+    @abc.abstractmethod
+    def get_urn(self) -> str:
+        pass
+
+    def __repr__(self):
+        return self.get_urn()
+
+    @abc.abstractmethod
+    def download(self, name: str, path: str):
+        pass

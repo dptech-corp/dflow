@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import jsonpickle
 
-from .common import LocalArtifact, S3Artifact, HTTPArtifact
+from .common import CustomArtifact, HTTPArtifact, LocalArtifact, S3Artifact
 from .config import config, s3_config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
@@ -1202,6 +1202,20 @@ class Step:
             if v is None:
                 del self.inputs.artifacts[k]
                 self.template.inputs.artifacts[k].optional = True
+            elif isinstance(v, CustomArtifact):
+                self.inputs.artifacts[k].source = v
+                self.inputs.artifacts[k].save_as_parameter = True
+                self.template = deepcopy(self.template)
+                self.template.inputs.artifacts[k].save_as_parameter = True
+                if hasattr(self.template, "render_script"):
+                    self.template.render_script()
+                from .dag import DAG
+                from .steps import Steps
+                if isinstance(self.template, (Steps, DAG)):
+                    for step in self.template:
+                        for name, art in step.inputs.artifacts.items():
+                            if art.source is self.template.inputs.artifacts[k]:
+                                step.set_artifact({name: v})
             elif isinstance(v, (list, tuple)):
                 self.template = self.template.copy()
                 slices = []
@@ -1428,6 +1442,8 @@ class Step:
                 pass
             elif art.source is None and art.optional:
                 pass
+            elif art.save_as_parameter:
+                self.argo_parameters.append(art.convert_to_argo())
             else:
                 self.argo_artifacts.append(art.convert_to_argo())
 

@@ -1,13 +1,17 @@
+import abc
 import json
 import os
+from abc import ABC
 from copy import deepcopy
+from getpass import getpass
 from typing import List, Optional, Union
 
-from ..common import S3Artifact
+from ..common import CustomArtifact, S3Artifact
 from ..config import config
 from ..executor import Executor, render_script_with_tmp_root, run_script
 from ..io import InputArtifact, InputParameter
 from ..op_template import ScriptOPTemplate
+from ..python.python_op_template import handle_packages_script
 from ..utils import randstr, upload_s3
 from . import bohrium
 
@@ -152,18 +156,27 @@ class DispatcherExecutor(Executor):
         if self.machine_dict["context_type"] == "Bohrium":
             if "batch_type" not in self.machine_dict:
                 self.machine_dict["batch_type"] = "Bohrium"
-            if "email" not in self.machine_dict["remote_profile"] and \
-                    bohrium.config["username"] is not None:
-                self.machine_dict["remote_profile"]["email"] = \
-                    bohrium.config["username"]
-            if "password" not in self.machine_dict["remote_profile"] and \
-                    bohrium.config["password"] is not None:
-                self.machine_dict["remote_profile"]["password"] = \
-                    bohrium.config["password"]
-            if "program_id" not in self.machine_dict["remote_profile"] and \
-                    bohrium.config["project_id"] is not None:
-                self.machine_dict["remote_profile"]["program_id"] = int(
-                    bohrium.config["project_id"])
+            if "email" not in self.machine_dict["remote_profile"]:
+                if bohrium.config["username"] is not None:
+                    self.machine_dict["remote_profile"]["email"] = \
+                        bohrium.config["username"]
+                else:
+                    self.machine_dict["remote_profile"]["email"] = input(
+                        "Bohrium email: ")
+            if "password" not in self.machine_dict["remote_profile"]:
+                if bohrium.config["password"] is not None:
+                    self.machine_dict["remote_profile"]["password"] = \
+                        bohrium.config["password"]
+                else:
+                    self.machine_dict["remote_profile"]["password"] = getpass(
+                        "Bohrium password: ")
+            if "program_id" not in self.machine_dict["remote_profile"]:
+                if bohrium.config["project_id"] is not None:
+                    self.machine_dict["remote_profile"]["program_id"] = int(
+                        bohrium.config["project_id"])
+                else:
+                    self.machine_dict["remote_profile"]["program_id"] = int(
+                        input("Bohrium program ID: "))
             if "input_data" not in self.machine_dict["remote_profile"]:
                 self.machine_dict["remote_profile"]["input_data"] = {}
             input_data = self.machine_dict["remote_profile"]["input_data"]
@@ -252,6 +265,17 @@ class DispatcherExecutor(Executor):
         new_template.script = self.pre_script
         new_template.script += "import os\n"
         new_template.script += "os.chdir('%s')\n" % self.work_root
+        if self.machine_dict["context_type"] == "Bohrium" and any(
+            [art.save_as_parameter for art in
+                template.inputs.artifacts.values()]):
+            if hasattr(template, "render_script"):
+                template.download_method = "bohrium_download"
+                template.render_script()
+            if "dflow_python_packages" in template.inputs.artifacts:
+                new_template.script += handle_packages_script(
+                    "./" + template.inputs.artifacts[
+                        "dflow_python_packages"].path)
+            new_template.script += "import jsonpickle\n"
         new_template.script += "with open('script', 'w') as f:\n"
         new_template.script += "    f.write(r\"\"\"\n"
         if self.map_tmp_dir:
@@ -275,6 +299,14 @@ class DispatcherExecutor(Executor):
             " Task, Submission\n"
         new_template.script += "machine = Machine.load_from_dict(json.loads("\
             "r'%s'))\n" % json.dumps(self.machine_dict)
+        for name, art in template.inputs.artifacts.items():
+            if self.machine_dict["context_type"] == "Bohrium" and \
+                    art.save_as_parameter:
+                new_template.script += "machine.input_data['job_resources']"\
+                    " = machine.input_data.get('job_resources', []) + ["\
+                    "jsonpickle.loads('{{inputs.parameters.dflow_art_%s}}')"\
+                    ".get_bohrium_urn('%s')]\n" % (name, name)
+
         new_template.script += "resources = Resources.load_from_dict(json."\
             "loads(r'%s'))\n" % json.dumps(self.resources_dict)
         if new_template.envs is not None:
@@ -424,3 +456,13 @@ class DispatcherExecutor(Executor):
             new_template.mounts.append(V1VolumeMount(
                 name="dflow-private-key", mount_path="/root/.ssh"))
         return new_template
+
+
+class BohriumArtifact(CustomArtifact, ABC):
+    @abc.abstractmethod
+    def get_bohrium_urn(self, name: str) -> str:
+        pass
+
+    @abc.abstractmethod
+    def bohrium_download(self, name: str, path: str):
+        pass

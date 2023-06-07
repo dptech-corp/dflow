@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import jsonpickle
 
-from .common import S3Artifact
+from .common import CustomArtifact, S3Artifact
 from .config import config
 from .utils import randstr, s3_config, upload_s3
 
@@ -559,6 +559,7 @@ class InputArtifact(ArgoVar):
             mode: Optional[int] = None,
             sub_path: Optional[str] = None,
             archive: str = "default",
+            save_as_parameter: bool = False,
             **kwargs,
     ) -> None:
         self.path = path
@@ -574,6 +575,7 @@ class InputArtifact(ArgoVar):
         self.archive = archive
         self.slice = None
         self.parent = None
+        self.save_as_parameter = save_as_parameter
         for k, v in kwargs.items():
             self.__setattr__(k, v)
 
@@ -619,6 +621,17 @@ class InputArtifact(ArgoVar):
 
     def __repr__(self):
         from .task import Task
+        if self.save_as_parameter:
+            if self.name is not None:
+                if self.step is not None:
+                    if isinstance(self.step, Task):
+                        return "{{tasks.%s.inputs.parameters.dflow_art_%s}}"\
+                            % (self.step.id, self.name)
+                    else:
+                        return "{{steps.%s.inputs.artifacts.dflow_art_%s}}"\
+                            % (self.step.id, self.name)
+                return "{{inputs.artifacts.dflow_art_%s}}" % self.name
+            return ""
         if self.name is not None:
             if self.step is not None:
                 if isinstance(self.step, Task):
@@ -646,6 +659,16 @@ class InputArtifact(ArgoVar):
         return self.template.inputs.parameters["dflow_%s_urn" % self.name]
 
     def convert_to_argo(self):
+        if self.save_as_parameter:
+            if self.source is None:
+                return V1alpha1Parameter(name="dflow_art_%s" % self.name)
+            elif isinstance(self.source, CustomArtifact):
+                return V1alpha1Parameter(name="dflow_art_%s" % self.name,
+                                         value=jsonpickle.dumps(self.source))
+            else:
+                return V1alpha1Parameter(name="dflow_art_%s" % self.name,
+                                         value=str(self.source))
+
         archive = None
         if self.archive is None:
             archive = V1alpha1ArchiveStrategy(_none={})
@@ -1213,7 +1236,10 @@ class Inputs:
             else:
                 parameters.append(par.convert_to_argo())
         for art in self.artifacts.values():
-            artifacts.append(art.convert_to_argo())
+            if art.save_as_parameter:
+                parameters.append(art.convert_to_argo())
+            else:
+                artifacts.append(art.convert_to_argo())
         return V1alpha1Inputs(parameters=parameters, artifacts=artifacts)
 
 

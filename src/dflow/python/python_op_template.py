@@ -89,6 +89,21 @@ def get_source_code(o):
     return "".join(pre_lines + source_lines) + "\n"
 
 
+def handle_packages_script(package_root):
+    script = "import os, sys, json\n"
+    script += "package_root = r'%s'\n" % package_root
+    script += "catalog_dir = os.path.join(package_root, "\
+        "'%s')\n" % config['catalog_dir_name']
+    script += "if os.path.exists(catalog_dir):\n"
+    script += "    for f in os.listdir(catalog_dir):\n"
+    script += "        with open(os.path.join(catalog_dir, f), 'r')"\
+        " as fd:\n"
+    script += "            for item in json.load(fd)['path_list']:\n"
+    script += "                sys.path.insert(0, os.path.join("\
+        "package_root, os.path.dirname(item['dflow_list_item'])))\n"
+    return script
+
+
 class PythonOPTemplate(PythonScriptOPTemplate):
     """
     Convert from Python class OP to OP template
@@ -316,6 +331,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         self.output_parameter_slices = {} if output_parameter_slices is None \
             else output_parameter_slices
         self.slices = slices
+        self.download_method = "download"
 
     def __setattr__(self, key, value):
         super().__setattr__(key, value)
@@ -371,18 +387,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
         script = self.pre_script.format(**{"tmp_root": self.tmp_root})
         if self.python_packages:
-            script += "import os, sys, json\n"
-            script += "package_root = r'%s/inputs/artifacts/"\
-                "dflow_python_packages'\n" % self.tmp_root
-            script += "catalog_dir = os.path.join(package_root, "\
-                "'%s')\n" % config['catalog_dir_name']
-            script += "if os.path.exists(catalog_dir):\n"
-            script += "    for f in os.listdir(catalog_dir):\n"
-            script += "        with open(os.path.join(catalog_dir, f), 'r')"\
-                " as fd:\n"
-            script += "            for item in json.load(fd)['path_list']:\n"
-            script += "                sys.path.insert(0, os.path.join("\
-                "package_root, os.path.dirname(item['dflow_list_item'])))\n"
+            script += handle_packages_script(
+                "%s/inputs/artifacts/dflow_python_packages" % self.tmp_root)
 
         script += "import json, jsonpickle\n"
         script += "from dflow import config, s3_config\n"
@@ -452,6 +458,11 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                             name
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
+                if self.inputs.artifacts[name].save_as_parameter:
+                    script += "    jsonpickle.loads('{{inputs.parameters."\
+                        "dflow_art_%s}}').%s('%s', '%s/inputs/artifacts/%s')"\
+                        "\n" % (name, self.download_method, name,
+                                self.tmp_root, name)
                 slices = self.get_slices(input_artifact_slices, name)
                 if self.slices is not None and self.slices.sub_path and \
                         name in self.slices.input_artifact:
