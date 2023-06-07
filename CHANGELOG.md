@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.141](https://github.com/deepmodeling/dflow/compare/v1.6.140...v1.6.141) (2023-06-07)
+
+
+### Bug Fixes
+
+* add datasets plugin ([b9ee6e7](https://github.com/deepmodeling/dflow/commit/b9ee6e73fe4e99e3d4076a045bdabc3e4773c711))
+
 ## [1.6.140](https://github.com/deepmodeling/dflow/compare/v1.6.139...v1.6.140) (2023-05-30)
 
 
