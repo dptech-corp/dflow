@@ -11,7 +11,7 @@ from ..config import config
 from ..executor import Executor, render_script_with_tmp_root, run_script
 from ..io import InputArtifact, InputParameter
 from ..op_template import ScriptOPTemplate
-from ..python.python_op_template import handle_packages_script
+from ..python import PythonOPTemplate
 from ..utils import randstr, upload_s3
 from . import bohrium
 
@@ -265,17 +265,22 @@ class DispatcherExecutor(Executor):
         new_template.script = self.pre_script
         new_template.script += "import os\n"
         new_template.script += "os.chdir('%s')\n" % self.work_root
-        if self.machine_dict["context_type"] == "Bohrium" and any(
-            [art.save_as_parameter for art in
-                template.inputs.artifacts.values()]):
-            if hasattr(template, "render_script"):
+        if any([art.save_as_parameter for art in
+                template.inputs.artifacts.values()]) and \
+                isinstance(template, PythonOPTemplate):
+            template = deepcopy(template)
+            if self.machine_dict["context_type"] == "Bohrium":
                 template.download_method = "bohrium_download"
-                template.render_script()
-            if "dflow_python_packages" in template.inputs.artifacts:
-                new_template.script += handle_packages_script(
-                    "./" + template.inputs.artifacts[
-                        "dflow_python_packages"].path)
-            new_template.script += "import jsonpickle\n"
+            elif self.machine_dict["context_type"] == "SSHContext":
+                template.download_method = "remote_download"
+            template.render_script()
+            new_template.volumes = [v for v in new_template.volumes
+                                    if v.name not in ["launching", "dev-fuse"]]
+            new_template.mounts = [m for m in new_template.mounts
+                                   if m.name != "launching"]
+            new_template.sidecars = [s for s in new_template.sidecars
+                                     if not s.name.startswith("rclone-")]
+
         new_template.script += "with open('script', 'w') as f:\n"
         new_template.script += "    f.write(r\"\"\"\n"
         if self.map_tmp_dir:
@@ -303,9 +308,8 @@ class DispatcherExecutor(Executor):
             if self.machine_dict["context_type"] == "Bohrium" and \
                     art.save_as_parameter:
                 new_template.script += "machine.input_data['job_resources']"\
-                    " = machine.input_data.get('job_resources', []) + ["\
-                    "jsonpickle.loads('{{inputs.parameters.dflow_art_%s}}')"\
-                    ".get_bohrium_urn('%s')]\n" % (name, name)
+                    " = machine.input_data.get('job_resources', []) + ['%s']"\
+                    "\n" % art.source.get_bohrium_urn(name)
 
         new_template.script += "resources = Resources.load_from_dict(json."\
             "loads(r'%s'))\n" % json.dumps(self.resources_dict)
@@ -458,9 +462,13 @@ class DispatcherExecutor(Executor):
         return new_template
 
 
-class BohriumArtifact(CustomArtifact, ABC):
+class DispatcherArtifact(CustomArtifact, ABC):
     @abc.abstractmethod
     def get_bohrium_urn(self, name: str) -> str:
+        pass
+
+    @abc.abstractmethod
+    def remote_download(self, name: str, path: str):
         pass
 
     @abc.abstractmethod

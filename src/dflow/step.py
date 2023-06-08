@@ -1206,16 +1206,18 @@ class Step:
                 self.inputs.artifacts[k].source = v
                 self.inputs.artifacts[k].save_as_parameter = True
                 self.template = deepcopy(self.template)
+                self.template.inputs.artifacts[k].source = v
                 self.template.inputs.artifacts[k].save_as_parameter = True
-                if hasattr(self.template, "render_script"):
-                    self.template.render_script()
+                from .python import PythonOPTemplate
+                if isinstance(self.template, PythonOPTemplate):
+                    self.template = v.render(self.template, k)
                 from .dag import DAG
                 from .steps import Steps
                 if isinstance(self.template, (Steps, DAG)):
                     for step in self.template:
                         for name, art in step.inputs.artifacts.items():
                             if art.source is self.template.inputs.artifacts[k]:
-                                step.set_artifact({name: v})
+                                step.set_artifacts({name: v})
             elif isinstance(v, (list, tuple)):
                 self.template = self.template.copy()
                 slices = []

@@ -166,3 +166,6 @@ class CustomArtifact(ABC):
     @abc.abstractmethod
     def download(self, name: str, path: str):
         pass
+
+    def render(self, template, name: str):
+        return template
