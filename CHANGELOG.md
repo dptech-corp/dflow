@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.142](https://github.com/deepmodeling/dflow/compare/v1.6.141...v1.6.142) (2023-06-08)
+
+
+### Bug Fixes
+
+* support datasets in container/remote context ([6b47487](https://github.com/deepmodeling/dflow/commit/6b47487253f2c11c5266035d6baa5a17f8fc09c9))
+
 ## [1.6.141](https://github.com/deepmodeling/dflow/compare/v1.6.140...v1.6.141) (2023-06-07)
 
 
