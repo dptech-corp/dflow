@@ -221,6 +221,7 @@ class ScriptOPTemplate(OPTemplate):
             limits: Dict[str, str] = None,
             envs: Dict[str, Union[str, Secret, V1EnvVarSource]] = None,
             init_containers: Optional[List[V1alpha1UserContainer]] = None,
+            sidecars: Optional[List[V1alpha1UserContainer]] = None,
     ) -> None:
         super().__init__(name=name, inputs=inputs, outputs=outputs,
                          memoize_key=memoize_key, pvcs=pvcs,
@@ -244,7 +245,12 @@ class ScriptOPTemplate(OPTemplate):
         self.requests = requests
         self.limits = limits
         self.envs = envs
+        if init_containers is None:
+            init_containers = []
         self.init_containers = init_containers
+        if sidecars is None:
+            sidecars = []
+        self.sidecars = sidecars
         self.script_rendered = False
 
     @classmethod
@@ -274,6 +280,7 @@ class ScriptOPTemplate(OPTemplate):
             "envs": {env.name: env.value for env in d.get("script", {}).get(
                 "env", [])},
             "init_containers": d.get("initContainers", None),
+            "sidecars": d.get("sidecars", None),
         }
         engine = d.get("metadata", {}).get("annotations", {}).get(
             "workflow.dp.tech/container_engine")
@@ -323,6 +330,7 @@ class ScriptOPTemplate(OPTemplate):
                                     volumes=self.volumes,
                                     resource=self.resource,
                                     init_containers=self.init_containers,
+                                    sidecars=self.sidecars,
                                     )
         else:
             if self.envs is not None:
@@ -365,6 +373,7 @@ class ScriptOPTemplate(OPTemplate):
                                          requests=self.requests),
                                      env=env),
                                  init_containers=self.init_containers,
+                                 sidecars=self.sidecars,
                                  archive_location=loc,
                                  )
 
@@ -393,6 +402,7 @@ class ShellOPTemplate(ScriptOPTemplate):
         limits: a dict of resource limits
         envs: environment variables
         init_containers: init containers before the template runs
+        sidecars: sidecar containers
     """
 
     def __init__(
@@ -416,6 +426,7 @@ class ShellOPTemplate(ScriptOPTemplate):
         limits: Dict[str, str] = None,
         envs: Dict[str, str] = None,
         init_containers: Optional[List[V1alpha1UserContainer]] = None,
+        sidecars: Optional[List[V1alpha1UserContainer]] = None,
     ) -> None:
         if command is None:
             command = ["sh"]
@@ -426,7 +437,7 @@ class ShellOPTemplate(ScriptOPTemplate):
             retry_strategy=retry_strategy, memoize_key=memoize_key, pvcs=pvcs,
             image_pull_policy=image_pull_policy, annotations=annotations,
             requests=requests, limits=limits, envs=envs,
-            init_containers=init_containers,
+            init_containers=init_containers, sidecars=sidecars,
         )
 
 
@@ -454,6 +465,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         limits: a dict of resource limits
         envs: environment variables
         init_containers: init containers before the template runs
+        sidecars: sidecar containers
     """
 
     def __init__(
@@ -477,6 +489,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         limits: Dict[str, str] = None,
         envs: Dict[str, str] = None,
         init_containers: Optional[List[V1alpha1UserContainer]] = None,
+        sidecars: Optional[List[V1alpha1UserContainer]] = None,
     ) -> None:
         if command is None:
             command = ["python3"]
@@ -487,7 +500,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
             retry_strategy=retry_strategy, memoize_key=memoize_key, pvcs=pvcs,
             image_pull_policy=image_pull_policy, annotations=annotations,
             requests=requests, limits=limits, envs=envs,
-            init_containers=init_containers,
+            init_containers=init_containers, sidecars=sidecars,
         )
 
 
@@ -533,5 +546,6 @@ class ContainerOPTemplate(ScriptOPTemplate):
             "envs": {env.name: env.value for env in d.get("container", {}).get(
                 "env", [])},
             "init_containers": d.get("initContainers", None),
+            "sidecars": d.get("sidecars", None),
         }
         return cls(**kwargs)

@@ -143,6 +143,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         limits: a dict of resource limits
         envs: environment variables
         init_containers: init containers before the template runs
+        sidecars: sidecar containers
     """
 
     def __init__(self,
@@ -174,6 +175,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  upload_dflow: bool = True,
                  envs: Dict[str, str] = None,
                  init_containers: Optional[List[V1alpha1UserContainer]] = None,
+                 sidecars: Optional[List[V1alpha1UserContainer]] = None,
                  tmp_root: str = "/tmp",
                  pre_script: str = "",
                  post_script: str = "",
@@ -201,7 +203,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             name="%s-%s" % (class_name, randstr()), inputs=Inputs(),
             outputs=Outputs(), volumes=volumes, mounts=mounts,
             requests=requests, limits=limits, envs=envs,
-            init_containers=init_containers)
+            init_containers=init_containers, sidecars=sidecars)
         self.pre_script = pre_script
         self.post_script = post_script
         if timeout is not None:
@@ -456,13 +458,16 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     elif input_sign[name].type == Path:
                         script += "    input_sign['%s'].type = List[Path]\n" %\
                             name
+        if any([art.save_as_parameter
+                for art in self.inputs.artifacts.values()]):
+            script += "    pids = []\n"
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 if self.inputs.artifacts[name].save_as_parameter:
-                    script += "    jsonpickle.loads('{{inputs.parameters."\
-                        "dflow_art_%s}}').%s('%s', '%s/inputs/artifacts/%s')"\
-                        "\n" % (name, self.download_method, name,
-                                self.tmp_root, name)
+                    script += "    pids.append(jsonpickle.loads('{{inputs."\
+                        "parameters.dflow_art_%s}}').%s('%s', '%s/inputs/"\
+                        "artifacts/%s'))\n" % (name, self.download_method,
+                                               name, self.tmp_root, name)
                 slices = self.get_slices(input_artifact_slices, name)
                 if self.slices is not None and self.slices.sub_path and \
                         name in self.slices.input_artifact:
@@ -601,6 +606,13 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "        sys.exit(2)\n"
 
         script += self.post_script.format(**{"tmp_root": self.tmp_root})
+
+        if any([art.save_as_parameter
+                for art in self.inputs.artifacts.values()]):
+            script += "    import signal\n"
+            script += "    [os.killpg(os.getpgid(pid), signal.SIGTERM)"\
+                " for pid in pids if pid is not None]\n"
+
         self.script = script
 
     def get_slices(self, slices_dict, name):
