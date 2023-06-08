@@ -153,8 +153,8 @@ self in this method to make the executor reusable</p>
 <span id="dflow-plugins-datasets-module"></span><h2>dflow.plugins.datasets module<a class="headerlink" href="#module-dflow.plugins.datasets" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="dflow.plugins.datasets.DatasetsArtifact">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.datasets.</span></span><span class="sig-name descname"><span class="pre">DatasetsArtifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'datasets'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.datasets.DatasetsArtifact" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#dflow.plugins.dispatcher.BohriumArtifact" title="dflow.plugins.dispatcher.BohriumArtifact"><code class="xref py py-class docutils literal notranslate"><span class="pre">BohriumArtifact</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.datasets.</span></span><span class="sig-name descname"><span class="pre">DatasetsArtifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'datasets'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rclone_image</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rclone_image_pull_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rclone_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ftp_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">webdav_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rclone_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.datasets.DatasetsArtifact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dflow.plugins.dispatcher.DispatcherArtifact" title="dflow.plugins.dispatcher.DispatcherArtifact"><code class="xref py py-class docutils literal notranslate"><span class="pre">DispatcherArtifact</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.plugins.datasets.DatasetsArtifact.bohrium_download">
 <span class="sig-name descname"><span class="pre">bohrium_download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.datasets.DatasetsArtifact.bohrium_download" title="Permalink to this definition">¶</a></dt>
@@ -163,6 +163,11 @@ self in this method to make the executor reusable</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.plugins.datasets.DatasetsArtifact.download">
 <span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.datasets.DatasetsArtifact.download" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.datasets.DatasetsArtifact.from_rclone_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_rclone_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.datasets.DatasetsArtifact.from_rclone_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -176,27 +181,52 @@ self in this method to make the executor reusable</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.datasets.DatasetsArtifact.get_mount_script">
+<span class="sig-name descname"><span class="pre">get_mount_script</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.datasets.DatasetsArtifact.get_mount_script" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dflow.plugins.datasets.DatasetsArtifact.get_urn">
 <span class="sig-name descname"><span class="pre">get_urn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#dflow.plugins.datasets.DatasetsArtifact.get_urn" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.datasets.DatasetsArtifact.remote_download">
+<span class="sig-name descname"><span class="pre">remote_download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.datasets.DatasetsArtifact.remote_download" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.datasets.DatasetsArtifact.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate" title="dflow.python.python_op_template.PythonOPTemplate"><span class="pre">PythonOPTemplate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate" title="dflow.python.python_op_template.PythonOPTemplate"><span class="pre">PythonOPTemplate</span></a></span></span><a class="headerlink" href="#dflow.plugins.datasets.DatasetsArtifact.render" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.plugins.datasets.wait_for_mount">
+<span class="sig-prename descclassname"><span class="pre">dflow.plugins.datasets.</span></span><span class="sig-name descname"><span class="pre">wait_for_mount</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.datasets.wait_for_mount" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </section>
 <section id="module-dflow.plugins.dispatcher">
 <span id="dflow-plugins-dispatcher-module"></span><h2>dflow.plugins.dispatcher module<a class="headerlink" href="#module-dflow.plugins.dispatcher" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="dflow.plugins.dispatcher.BohriumArtifact">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.dispatcher.</span></span><span class="sig-name descname"><span class="pre">BohriumArtifact</span></span><a class="headerlink" href="#dflow.plugins.dispatcher.BohriumArtifact" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dflow.plugins.dispatcher.DispatcherArtifact">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.plugins.dispatcher.</span></span><span class="sig-name descname"><span class="pre">DispatcherArtifact</span></span><a class="headerlink" href="#dflow.plugins.dispatcher.DispatcherArtifact" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="dflow.html#dflow.common.CustomArtifact" title="dflow.common.CustomArtifact"><code class="xref py py-class docutils literal notranslate"><span class="pre">CustomArtifact</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="dflow.plugins.dispatcher.BohriumArtifact.bohrium_download">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bohrium_download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.dispatcher.BohriumArtifact.bohrium_download" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dflow.plugins.dispatcher.DispatcherArtifact.bohrium_download">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bohrium_download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.dispatcher.DispatcherArtifact.bohrium_download" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="dflow.plugins.dispatcher.BohriumArtifact.get_bohrium_urn">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_bohrium_urn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#dflow.plugins.dispatcher.BohriumArtifact.get_bohrium_urn" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dflow.plugins.dispatcher.DispatcherArtifact.get_bohrium_urn">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_bohrium_urn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#dflow.plugins.dispatcher.DispatcherArtifact.get_bohrium_urn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.plugins.dispatcher.DispatcherArtifact.remote_download">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remote_download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.plugins.dispatcher.DispatcherArtifact.remote_download" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -377,17 +407,23 @@ self in this method to make the executor reusable</p>
 <li><a class="reference internal" href="#dflow.plugins.datasets.DatasetsArtifact"><code class="docutils literal notranslate"><span class="pre">DatasetsArtifact</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.plugins.datasets.DatasetsArtifact.bohrium_download"><code class="docutils literal notranslate"><span class="pre">DatasetsArtifact.bohrium_download()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.plugins.datasets.DatasetsArtifact.download"><code class="docutils literal notranslate"><span class="pre">DatasetsArtifact.download()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.datasets.DatasetsArtifact.from_rclone_config"><code class="docutils literal notranslate"><span class="pre">DatasetsArtifact.from_rclone_config()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.plugins.datasets.DatasetsArtifact.from_urn"><code class="docutils literal notranslate"><span class="pre">DatasetsArtifact.from_urn()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.plugins.datasets.DatasetsArtifact.get_bohrium_urn"><code class="docutils literal notranslate"><span class="pre">DatasetsArtifact.get_bohrium_urn()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.datasets.DatasetsArtifact.get_mount_script"><code class="docutils literal notranslate"><span class="pre">DatasetsArtifact.get_mount_script()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.plugins.datasets.DatasetsArtifact.get_urn"><code class="docutils literal notranslate"><span class="pre">DatasetsArtifact.get_urn()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.datasets.DatasetsArtifact.remote_download"><code class="docutils literal notranslate"><span class="pre">DatasetsArtifact.remote_download()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.datasets.DatasetsArtifact.render"><code class="docutils literal notranslate"><span class="pre">DatasetsArtifact.render()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#dflow.plugins.datasets.wait_for_mount"><code class="docutils literal notranslate"><span class="pre">wait_for_mount()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-dflow.plugins.dispatcher">dflow.plugins.dispatcher module</a><ul>
-<li><a class="reference internal" href="#dflow.plugins.dispatcher.BohriumArtifact"><code class="docutils literal notranslate"><span class="pre">BohriumArtifact</span></code></a><ul>
-<li><a class="reference internal" href="#dflow.plugins.dispatcher.BohriumArtifact.bohrium_download"><code class="docutils literal notranslate"><span class="pre">BohriumArtifact.bohrium_download()</span></code></a></li>
-<li><a class="reference internal" href="#dflow.plugins.dispatcher.BohriumArtifact.get_bohrium_urn"><code class="docutils literal notranslate"><span class="pre">BohriumArtifact.get_bohrium_urn()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.dispatcher.DispatcherArtifact"><code class="docutils literal notranslate"><span class="pre">DispatcherArtifact</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.plugins.dispatcher.DispatcherArtifact.bohrium_download"><code class="docutils literal notranslate"><span class="pre">DispatcherArtifact.bohrium_download()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.dispatcher.DispatcherArtifact.get_bohrium_urn"><code class="docutils literal notranslate"><span class="pre">DispatcherArtifact.get_bohrium_urn()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.plugins.dispatcher.DispatcherArtifact.remote_download"><code class="docutils literal notranslate"><span class="pre">DispatcherArtifact.remote_download()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#dflow.plugins.dispatcher.DispatcherExecutor"><code class="docutils literal notranslate"><span class="pre">DispatcherExecutor</span></code></a><ul>

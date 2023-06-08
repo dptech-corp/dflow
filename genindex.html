@@ -199,13 +199,11 @@
       <li><a href="dflow.plugins.html#dflow.plugins.datasets.DatasetsArtifact.bohrium_download">bohrium_download() (dflow.plugins.datasets.DatasetsArtifact method)</a>
 
       <ul>
-        <li><a href="dflow.plugins.html#dflow.plugins.dispatcher.BohriumArtifact.bohrium_download">(dflow.plugins.dispatcher.BohriumArtifact method)</a>
+        <li><a href="dflow.plugins.html#dflow.plugins.dispatcher.DispatcherArtifact.bohrium_download">(dflow.plugins.dispatcher.DispatcherArtifact method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="dflow.plugins.html#dflow.plugins.dispatcher.BohriumArtifact">BohriumArtifact (class in dflow.plugins.dispatcher)</a>
-</li>
       <li><a href="dflow.plugins.html#dflow.plugins.bohrium.BohriumContext">BohriumContext (class in dflow.plugins.bohrium)</a>
 </li>
       <li><a href="dflow.plugins.html#dflow.plugins.bohrium.BohriumExecutor">BohriumExecutor (class in dflow.plugins.bohrium)</a>
@@ -490,8 +488,6 @@
         <li><a href="dflow.python.html#module-dflow.python">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     dflow.python.op
 
@@ -499,6 +495,8 @@
         <li><a href="dflow.python.html#module-dflow.python.op">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     dflow.python.opio
 
@@ -577,6 +575,8 @@
 </li>
       </ul></li>
       <li><a href="dflow.html#dflow.utils.dict2list">dict2list() (in module dflow.utils)</a>
+</li>
+      <li><a href="dflow.plugins.html#dflow.plugins.dispatcher.DispatcherArtifact">DispatcherArtifact (class in dflow.plugins.dispatcher)</a>
 </li>
       <li><a href="dflow.plugins.html#dflow.plugins.dispatcher.DispatcherExecutor">DispatcherExecutor (class in dflow.plugins.dispatcher)</a>
 </li>
@@ -778,6 +778,8 @@
         <li><a href="dflow.html#dflow.workflow.Workflow.from_json">(dflow.workflow.Workflow class method)</a>
 </li>
       </ul></li>
+      <li><a href="dflow.plugins.html#dflow.plugins.datasets.DatasetsArtifact.from_rclone_config">from_rclone_config() (dflow.plugins.datasets.DatasetsArtifact class method)</a>
+</li>
       <li><a href="dflow.plugins.html#dflow.plugins.datasets.DatasetsArtifact.from_urn">from_urn() (dflow.plugins.datasets.DatasetsArtifact class method)</a>
 </li>
       <li><a href="dflow.html#dflow.Workflow.from_yaml">from_yaml() (dflow.Workflow class method)</a>
@@ -809,7 +811,7 @@
       <li><a href="dflow.plugins.html#dflow.plugins.datasets.DatasetsArtifact.get_bohrium_urn">get_bohrium_urn() (dflow.plugins.datasets.DatasetsArtifact method)</a>
 
       <ul>
-        <li><a href="dflow.plugins.html#dflow.plugins.dispatcher.BohriumArtifact.get_bohrium_urn">(dflow.plugins.dispatcher.BohriumArtifact method)</a>
+        <li><a href="dflow.plugins.html#dflow.plugins.dispatcher.DispatcherArtifact.get_bohrium_urn">(dflow.plugins.dispatcher.DispatcherArtifact method)</a>
 </li>
       </ul></li>
       <li><a href="dflow.html#dflow.context_syntax.Range_Context.get_current_range_param_name">get_current_range_param_name() (dflow.context_syntax.Range_Context method)</a>
@@ -880,14 +882,16 @@
         <li><a href="dflow.html#dflow.utils.get_md5">(in module dflow.utils)</a>
 </li>
       </ul></li>
+      <li><a href="dflow.plugins.html#dflow.plugins.datasets.DatasetsArtifact.get_mount_script">get_mount_script() (dflow.plugins.datasets.DatasetsArtifact method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dflow.python.html#dflow.python.OP.get_opio_info">get_opio_info() (dflow.python.OP class method)</a>
 
       <ul>
         <li><a href="dflow.python.html#dflow.python.op.OP.get_opio_info">(dflow.python.op.OP class method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dflow.python.html#dflow.python.OP.get_output_artifact_link">get_output_artifact_link() (dflow.python.OP method)</a>
 
       <ul>
@@ -1529,6 +1533,12 @@
         <li><a href="dflow.html#dflow.LineageClient.register_workflow">(dflow.LineageClient method)</a>
 </li>
       </ul></li>
+      <li><a href="dflow.plugins.html#dflow.plugins.datasets.DatasetsArtifact.remote_download">remote_download() (dflow.plugins.datasets.DatasetsArtifact method)</a>
+
+      <ul>
+        <li><a href="dflow.plugins.html#dflow.plugins.dispatcher.DispatcherArtifact.remote_download">(dflow.plugins.dispatcher.DispatcherArtifact method)</a>
+</li>
+      </ul></li>
       <li><a href="dflow.html#dflow.RemoteExecutor">RemoteExecutor (class in dflow)</a>
 
       <ul>
@@ -1537,9 +1547,11 @@
       </ul></li>
       <li><a href="dflow.html#dflow.utils.remove_empty_dir_tag">remove_empty_dir_tag() (in module dflow.utils)</a>
 </li>
-      <li><a href="dflow.html#dflow.ContainerExecutor.render">render() (dflow.ContainerExecutor method)</a>
+      <li><a href="dflow.html#dflow.common.CustomArtifact.render">render() (dflow.common.CustomArtifact method)</a>
 
       <ul>
+        <li><a href="dflow.html#dflow.ContainerExecutor.render">(dflow.ContainerExecutor method)</a>
+</li>
         <li><a href="dflow.html#dflow.Context.render">(dflow.Context method)</a>
 </li>
         <li><a href="dflow.html#dflow.context.Context.render">(dflow.context.Context method)</a>
@@ -1555,6 +1567,8 @@
         <li><a href="dflow.plugins.html#dflow.plugins.bohrium.BohriumContext.render">(dflow.plugins.bohrium.BohriumContext method)</a>
 </li>
         <li><a href="dflow.plugins.html#dflow.plugins.bohrium.BohriumExecutor.render">(dflow.plugins.bohrium.BohriumExecutor method)</a>
+</li>
+        <li><a href="dflow.plugins.html#dflow.plugins.datasets.DatasetsArtifact.render">(dflow.plugins.datasets.DatasetsArtifact method)</a>
 </li>
         <li><a href="dflow.plugins.html#dflow.plugins.dispatcher.DispatcherExecutor.render">(dflow.plugins.dispatcher.DispatcherExecutor method)</a>
 </li>
@@ -1991,14 +2005,16 @@
         <li><a href="dflow.html#dflow.workflow.Workflow.wait">(dflow.workflow.Workflow method)</a>
 </li>
       </ul></li>
+      <li><a href="dflow.plugins.html#dflow.plugins.datasets.wait_for_mount">wait_for_mount() (in module dflow.plugins.datasets)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dflow.html#dflow.Workflow">Workflow (class in dflow)</a>
 
       <ul>
         <li><a href="dflow.html#dflow.workflow.Workflow">(class in dflow.workflow)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dflow.python.html#dflow.python.OP.workflow_name">workflow_name (dflow.python.OP attribute)</a>
 
       <ul>
