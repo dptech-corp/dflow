@@ -1,4 +1,5 @@
 import os
+import logging
 from importlib import import_module
 
 from .argo_objects import ArgoStep, ArgoWorkflow
@@ -22,6 +23,10 @@ from .utils import (copy_artifact, copy_s3, download_artifact, download_s3,
                     path_list_of_artifact, randstr, upload_artifact, upload_s3)
 from .workflow import (DockerSecret, Workflow, parse_repo,
                        query_archived_workflows, query_workflows)
+
+log_level = os.environ.get('LOG_LEVEL')
+if log_level:
+    logging.basicConfig(level=getattr(logging, log_level.upper(), None))
 
 __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "IfExpression", "InputArtifact", "InputParameter", "Inputs",
