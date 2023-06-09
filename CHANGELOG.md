@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.6.143](https://github.com/deepmodeling/dflow/compare/v1.6.142...v1.6.143) (2023-06-09)
+
+
+### Bug Fixes
+
+* get log level from env var ([bc5221d](https://github.com/deepmodeling/dflow/commit/bc5221d62298afe3894ee249e305855e8241af72))
+* log info when failed to get source code ([bc5221d](https://github.com/deepmodeling/dflow/commit/bc5221d62298afe3894ee249e305855e8241af72))
+
 ## [1.6.142](https://github.com/deepmodeling/dflow/compare/v1.6.141...v1.6.142) (2023-06-08)
 
 
