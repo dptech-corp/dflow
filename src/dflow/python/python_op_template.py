@@ -1,4 +1,5 @@
 import inspect
+import logging
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type, Union
@@ -405,6 +406,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 else:
                     script += get_source_code(op_class)
             except Exception:
+                logging.info("Failed to get source code of OP, "
+                             "use cloudpickle instead", exc_info=True)
                 import cloudpickle
                 if self.python_packages:
                     self.python_packages.update(cloudpickle.__path__)
