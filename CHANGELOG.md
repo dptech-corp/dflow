@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.145](https://github.com/deepmodeling/dflow/compare/v1.6.144...v1.6.145) (2023-06-10)
+
+
+### Bug Fixes
+
+* add VERSION to package data ([d2c9883](https://github.com/deepmodeling/dflow/commit/d2c9883b2de982c57d8f8bcf93ee2c74f919d8e0))
+
 ## [1.6.144](https://github.com/deepmodeling/dflow/compare/v1.6.143...v1.6.144) (2023-06-10)
 
 
