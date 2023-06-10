@@ -22,7 +22,9 @@ setup(
         "dflow/client",
         "dflow/plugins",
     ],
-    package_data=["VERSION"],
+    package_data={
+        "pydflow": ["VERSION"],
+    },
     python_requires='>=3.6',
     install_requires=[
         "six",
