@@ -14,6 +14,8 @@ setup(
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     author="Xinzijian Liu",
+    author_email="liuxzj@dp.tech",
+    url="https://github.com/deepmodeling/dflow",
     license="LGPLv3",
     package_dir={'': 'src'},
     packages=[
@@ -22,9 +24,7 @@ setup(
         "dflow/client",
         "dflow/plugins",
     ],
-    package_data={
-        "pydflow": ["VERSION"],
-    },
+    include_package_data=True,
     python_requires='>=3.6',
     install_requires=[
         "six",
