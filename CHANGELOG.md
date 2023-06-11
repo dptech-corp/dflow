@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.146](https://github.com/deepmodeling/dflow/compare/v1.6.145...v1.6.146) (2023-06-11)
+
+
+### Bug Fixes
+
+* add VERSION to MANIFEST.in ([e489461](https://github.com/deepmodeling/dflow/commit/e48946102c5f25f281be236f11087338be0f55f8))
+
 ## [1.6.145](https://github.com/deepmodeling/dflow/compare/v1.6.144...v1.6.145) (2023-06-10)
 
 
