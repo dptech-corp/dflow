@@ -1,6 +1,7 @@
 import inspect
 import logging
 import os
+import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type, Union
 
@@ -14,7 +15,7 @@ from ..io import (PVC, InputArtifact, InputParameter, Inputs, OutputArtifact,
                   OutputParameter, Outputs)
 from ..op_template import PythonScriptOPTemplate
 from ..utils import randstr, s3_config
-from .op import OP
+from .op import OP, iwd
 from .opio import Artifact, BigParameter, Parameter
 
 try:
@@ -84,8 +85,11 @@ class Slices:
 
 def get_source_code(o):
     source_lines, start_line = inspect.getsourcelines(o)
-    with open(inspect.getsourcefile(o), "r",
-              encoding="utf-8") as fd:
+    if sys.version_info.minor >= 9:
+        source_file = inspect.getsourcefile(o)
+    else:
+        source_file = os.path.join(iwd, inspect.getsourcefile(o))
+    with open(source_file, "r", encoding="utf-8") as fd:
         pre_lines = fd.readlines()[:start_line-1]
     return "".join(pre_lines + source_lines) + "\n"
 
