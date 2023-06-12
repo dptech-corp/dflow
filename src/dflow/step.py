@@ -2104,8 +2104,15 @@ def add_slices(templ: OPTemplate, slices: Slices, input_artifact_prefix=None):
     templ.inputs.parameters["dflow_slice"] = InputParameter(
         value=slices.slices)
 
+    steps = []
+    for s in templ:
+        if isinstance(s, list):
+            steps += s
+        else:
+            steps.append(s)
+
     for name in slices.input_parameter:
-        for step in templ:
+        for step in steps:
             for par in list(step.inputs.parameters.values()):
                 # input parameter referring to sliced input parameter
                 if par.value is templ.inputs.parameters[name]:
@@ -2120,9 +2127,8 @@ def add_slices(templ: OPTemplate, slices: Slices, input_artifact_prefix=None):
                         value="{{inputs.parameters.dflow_slice}}")
 
     for name in slices.input_artifact:
-        for step in templ:
+        for step in steps:
             for art in list(step.inputs.artifacts.values()):
-                print(art.source, art.source is templ.inputs.artifacts[name])
                 # input artifact referring to sliced input artifact
                 if art.source is templ.inputs.artifacts[name] or getattr(
                     art.source, "parent", None) is \
