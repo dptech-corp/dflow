@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.0](https://github.com/deepmodeling/dflow/compare/v1.6.148...v1.7.0) (2023-06-12)
+
+
+### Features
+
+* support for slicing nested steps/dagreplace the method of set slices of PythonOPTemplate with set_slices ([f149c99](https://github.com/deepmodeling/dflow/commit/f149c991ba33474a047f3d58c662818c64449eed))
+
 ## [1.6.148](https://github.com/deepmodeling/dflow/compare/v1.6.147...v1.6.148) (2023-06-12)
 
 
