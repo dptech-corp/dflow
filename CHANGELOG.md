@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.147](https://github.com/deepmodeling/dflow/compare/v1.6.146...v1.6.147) (2023-06-12)
+
+
+### Bug Fixes
+
+* inspect.getsourcefile returns relative path in python&lt;=3.8 ([ac4f72e](https://github.com/deepmodeling/dflow/commit/ac4f72ed509d91577044e029f7a4eddbe3b23fd9))
+
 ## [1.6.146](https://github.com/deepmodeling/dflow/compare/v1.6.145...v1.6.146) (2023-06-11)
 
 
