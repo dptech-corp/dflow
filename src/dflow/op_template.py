@@ -301,12 +301,14 @@ class ScriptOPTemplate(OPTemplate):
             machine = extras.get("machine", None)
             resources = extras.get("resources", None)
             task = extras.get("task", None)
+            clean = extras.get("clean", True)
             from .plugins.dispatcher import DispatcherExecutor
             executor = DispatcherExecutor(
                 host, queue_name, port, username, password,
                 machine_dict=machine, resources_dict=resources,
                 task_dict=task, docker_executable=docker,
-                singularity_executable=singularity, podman_executable=podman)
+                singularity_executable=singularity, podman_executable=podman,
+                clean=clean)
             return executor.render(cls(**kwargs))
         elif engine:
             from .executor import ContainerExecutor

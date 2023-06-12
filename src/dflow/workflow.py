@@ -617,12 +617,14 @@ class Workflow:
             machine = extras.get("machine", None)
             resources = extras.get("resources", None)
             task = extras.get("task", None)
+            clean = extras.get("clean", True)
             from .plugins.dispatcher import DispatcherExecutor
             kwargs["context"] = DispatcherExecutor(
                 host, queue_name, port, username, password,
                 machine_dict=machine, resources_dict=resources,
                 task_dict=task, docker_executable=docker,
-                singularity_executable=singularity, podman_executable=podman)
+                singularity_executable=singularity, podman_executable=podman,
+                clean=clean)
         elif engine:
             from .executor import ContainerExecutor
             kwargs["context"] = ContainerExecutor(docker, singularity, podman)
