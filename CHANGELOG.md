@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.1](https://github.com/deepmodeling/dflow/compare/v1.7.0...v1.7.1) (2023-06-12)
+
+
+### Bug Fixes
+
+* parallel steps has no attribute inputs ([04093b0](https://github.com/deepmodeling/dflow/commit/04093b08811cc97ec63faf2e71436cd2ea503c42))
+
 ## [1.7.0](https://github.com/deepmodeling/dflow/compare/v1.6.148...v1.7.0) (2023-06-12)
 
 
