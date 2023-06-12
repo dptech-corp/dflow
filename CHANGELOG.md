@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.6.148](https://github.com/deepmodeling/dflow/compare/v1.6.147...v1.6.148) (2023-06-12)
+
+
+### Bug Fixes
+
+* add clean option to dispatcher executor ([c7a8431](https://github.com/deepmodeling/dflow/commit/c7a84313c8b3d37301e8bfdcea813ee6f44be118))
+
 ## [1.6.147](https://github.com/deepmodeling/dflow/compare/v1.6.146...v1.6.147) (2023-06-12)
 
 
