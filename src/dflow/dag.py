@@ -3,6 +3,7 @@ from typing import Optional, Dict, List, Union
 from .config import config, s3_config
 from .io import Inputs, Outputs
 from .op_template import OPTemplate
+from .step import add_slices
 from .task import Task
 
 try:
@@ -150,3 +151,6 @@ class DAG(OPTemplate):
             self.resolve()
 
         assert len(self.finished) == len(self.tasks), "cyclic graph"
+
+    def add_slices(self, slices, input_artifact_prefix=None):
+        add_slices(self, slices, input_artifact_prefix)
