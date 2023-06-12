@@ -17,6 +17,8 @@ from ..utils import get_key, s3_config
 from .opio import (OPIO, Artifact, BigParameter, OPIOSign, Parameter,
                    type_to_str)
 
+iwd = os.getcwd()
+
 
 class OP(ABC):
     """
