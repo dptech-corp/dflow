@@ -291,7 +291,7 @@ one</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.python.python_op_template.PythonOPTemplate.add_slices">
-<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.python_op_template.PythonOPTemplate.add_slices" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.python.python_op_template.Slices" title="dflow.python.python_op_template.Slices"><span class="pre">Slices</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_artifact_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.python_op_template.PythonOPTemplate.add_slices" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -305,11 +305,6 @@ one</p></li>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="dflow.python.python_op_template.PythonOPTemplate.init_slices">
-<span class="sig-name descname"><span class="pre">init_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.python_op_template.PythonOPTemplate.init_slices" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="dflow.python.python_op_template.PythonOPTemplate.render_script">
 <span class="sig-name descname"><span class="pre">render_script</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.python_op_template.PythonOPTemplate.render_script" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -317,6 +312,11 @@ one</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.python.python_op_template.PythonOPTemplate.render_slices">
 <span class="sig-name descname"><span class="pre">render_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.python_op_template.PythonOPTemplate.render_slices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.python.python_op_template.PythonOPTemplate.set_slices">
+<span class="sig-name descname"><span class="pre">set_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_artifact_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.python_op_template.PythonOPTemplate.set_slices" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -646,7 +646,7 @@ one</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.python.PythonOPTemplate.add_slices">
-<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.PythonOPTemplate.add_slices" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.python.python_op_template.Slices" title="dflow.python.python_op_template.Slices"><span class="pre">Slices</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_artifact_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.PythonOPTemplate.add_slices" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -660,11 +660,6 @@ one</p></li>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="dflow.python.PythonOPTemplate.init_slices">
-<span class="sig-name descname"><span class="pre">init_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.PythonOPTemplate.init_slices" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="dflow.python.PythonOPTemplate.render_script">
 <span class="sig-name descname"><span class="pre">render_script</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.PythonOPTemplate.render_script" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -672,6 +667,11 @@ one</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.python.PythonOPTemplate.render_slices">
 <span class="sig-name descname"><span class="pre">render_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.PythonOPTemplate.render_slices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.python.PythonOPTemplate.set_slices">
+<span class="sig-name descname"><span class="pre">set_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_artifact_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.PythonOPTemplate.set_slices" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -767,9 +767,9 @@ the number of slices)</p></li>
 <li><a class="reference internal" href="#dflow.python.python_op_template.PythonOPTemplate.add_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.add_slices()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.python_op_template.PythonOPTemplate.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.python_op_template.PythonOPTemplate.get_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.get_slices()</span></code></a></li>
-<li><a class="reference internal" href="#dflow.python.python_op_template.PythonOPTemplate.init_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.init_slices()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.python_op_template.PythonOPTemplate.render_script"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_script()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.python_op_template.PythonOPTemplate.render_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_slices()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.python_op_template.PythonOPTemplate.set_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.set_slices()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#dflow.python.python_op_template.Slices"><code class="docutils literal notranslate"><span class="pre">Slices</span></code></a></li>
@@ -830,9 +830,9 @@ the number of slices)</p></li>
 <li><a class="reference internal" href="#dflow.python.PythonOPTemplate.add_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.add_slices()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.PythonOPTemplate.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.PythonOPTemplate.get_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.get_slices()</span></code></a></li>
-<li><a class="reference internal" href="#dflow.python.PythonOPTemplate.init_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.init_slices()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.PythonOPTemplate.render_script"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_script()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.PythonOPTemplate.render_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_slices()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.PythonOPTemplate.set_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.set_slices()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#dflow.python.Slices"><code class="docutils literal notranslate"><span class="pre">Slices</span></code></a></li>

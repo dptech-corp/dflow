@@ -183,9 +183,9 @@
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate.add_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.add_slices()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.convert_to_argo()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate.get_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.get_slices()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate.init_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.init_slices()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate.render_script"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_script()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate.render_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_slices()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate.set_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.set_slices()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.Slices"><code class="docutils literal notranslate"><span class="pre">Slices</span></code></a></li>
@@ -246,9 +246,9 @@
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.PythonOPTemplate.add_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.add_slices()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.PythonOPTemplate.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.convert_to_argo()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.PythonOPTemplate.get_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.get_slices()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.PythonOPTemplate.init_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.init_slices()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.PythonOPTemplate.render_script"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_script()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.PythonOPTemplate.render_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.render_slices()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.PythonOPTemplate.set_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.set_slices()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.Slices"><code class="docutils literal notranslate"><span class="pre">Slices</span></code></a></li>
@@ -661,6 +661,11 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.dag.DAG.add_slices">
+<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_artifact_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.dag.DAG.add_slices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.dag.DAG.convert_to_argo">
@@ -1642,8 +1647,8 @@ step-xxxxx
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="dflow.step.add_prefix_to_slices">
-<span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">add_prefix_to_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.add_prefix_to_slices" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dflow.step.add_slices">
+<span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">templ</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.Slices" title="dflow.python.python_op_template.Slices"><span class="pre">Slices</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_artifact_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.add_slices" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1786,6 +1791,11 @@ entrypoint of the workflow</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.steps.Steps.add_slices">
+<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_artifact_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.steps.Steps.add_slices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.steps.Steps.convert_to_argo">
@@ -1949,6 +1959,11 @@ generated parallel tasks greater than certain number</p></li>
 <dd></dd></dl>
 
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.utils.add_prefix_to_slice">
+<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">add_prefix_to_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.add_prefix_to_slice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dflow.utils.assemble_path_dict">
@@ -2651,6 +2666,11 @@ self in this method to make the executor reusable</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.DAG.add_slices">
+<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_artifact_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.DAG.add_slices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.DAG.convert_to_argo">
@@ -3452,6 +3472,11 @@ entrypoint of the workflow</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dflow.Steps.add_slices">
+<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_artifact_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Steps.add_slices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dflow.Steps.convert_to_argo">
 <span class="sig-name descname"><span class="pre">convert_to_argo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memoize_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memoize_configmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dflow'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Steps.convert_to_argo" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -4146,6 +4171,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#module-dflow.dag">dflow.dag module</a><ul>
 <li><a class="reference internal" href="#dflow.dag.DAG"><code class="docutils literal notranslate"><span class="pre">DAG</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.dag.DAG.add"><code class="docutils literal notranslate"><span class="pre">DAG.add()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.dag.DAG.add_slices"><code class="docutils literal notranslate"><span class="pre">DAG.add_slices()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.dag.DAG.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">DAG.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.dag.DAG.from_dict"><code class="docutils literal notranslate"><span class="pre">DAG.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.dag.DAG.resolve"><code class="docutils literal notranslate"><span class="pre">DAG.resolve()</span></code></a></li>
@@ -4342,7 +4368,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.step.Step.set_parameters"><code class="docutils literal notranslate"><span class="pre">Step.set_parameters()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#dflow.step.add_prefix_to_slices"><code class="docutils literal notranslate"><span class="pre">add_prefix_to_slices()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.add_slices"><code class="docutils literal notranslate"><span class="pre">add_slices()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.argo_concat"><code class="docutils literal notranslate"><span class="pre">argo_concat()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.argo_enumerate"><code class="docutils literal notranslate"><span class="pre">argo_enumerate()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.argo_len"><code class="docutils literal notranslate"><span class="pre">argo_len()</span></code></a></li>
@@ -4361,6 +4387,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#module-dflow.steps">dflow.steps module</a><ul>
 <li><a class="reference internal" href="#dflow.steps.Steps"><code class="docutils literal notranslate"><span class="pre">Steps</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.steps.Steps.add"><code class="docutils literal notranslate"><span class="pre">Steps.add()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.steps.Steps.add_slices"><code class="docutils literal notranslate"><span class="pre">Steps.add_slices()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.steps.Steps.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Steps.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.steps.Steps.from_dict"><code class="docutils literal notranslate"><span class="pre">Steps.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.steps.Steps.run"><code class="docutils literal notranslate"><span class="pre">Steps.run()</span></code></a></li>
@@ -4404,6 +4431,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.utils.StorageClient.upload"><code class="docutils literal notranslate"><span class="pre">StorageClient.upload()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#dflow.utils.add_prefix_to_slice"><code class="docutils literal notranslate"><span class="pre">add_prefix_to_slice()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.assemble_path_dict"><code class="docutils literal notranslate"><span class="pre">assemble_path_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.assemble_path_list"><code class="docutils literal notranslate"><span class="pre">assemble_path_list()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.assemble_path_nested_dict"><code class="docutils literal notranslate"><span class="pre">assemble_path_nested_dict()</span></code></a></li>
@@ -4507,6 +4535,7 @@ parameters</p></li>
 </li>
 <li><a class="reference internal" href="#dflow.DAG"><code class="docutils literal notranslate"><span class="pre">DAG</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.DAG.add"><code class="docutils literal notranslate"><span class="pre">DAG.add()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.DAG.add_slices"><code class="docutils literal notranslate"><span class="pre">DAG.add_slices()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.DAG.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">DAG.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.DAG.from_dict"><code class="docutils literal notranslate"><span class="pre">DAG.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.DAG.resolve"><code class="docutils literal notranslate"><span class="pre">DAG.resolve()</span></code></a></li>
@@ -4645,6 +4674,7 @@ parameters</p></li>
 </li>
 <li><a class="reference internal" href="#dflow.Steps"><code class="docutils literal notranslate"><span class="pre">Steps</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.Steps.add"><code class="docutils literal notranslate"><span class="pre">Steps.add()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Steps.add_slices"><code class="docutils literal notranslate"><span class="pre">Steps.add_slices()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Steps.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Steps.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Steps.from_dict"><code class="docutils literal notranslate"><span class="pre">Steps.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Steps.run"><code class="docutils literal notranslate"><span class="pre">Steps.run()</span></code></a></li>
