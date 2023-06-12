@@ -14,7 +14,7 @@ from ..config import config
 from ..io import (PVC, InputArtifact, InputParameter, Inputs, OutputArtifact,
                   OutputParameter, Outputs)
 from ..op_template import PythonScriptOPTemplate
-from ..utils import randstr, s3_config
+from ..utils import add_prefix_to_slice, randstr, s3_config
 from .op import OP, iwd
 from .opio import Artifact, BigParameter, Parameter
 
@@ -337,49 +337,52 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             else output_artifact_slices
         self.output_parameter_slices = {} if output_parameter_slices is None \
             else output_parameter_slices
-        self.slices = slices
+        self.set_slices(slices)
         self.download_method = "download"
 
-    def __setattr__(self, key, value):
-        super().__setattr__(key, value)
-        if key == "slices":
-            self.init_slices(value)
-            self.render_script()
-
-    def init_slices(self, slices):
+    def set_slices(self, slices, input_artifact_prefix=None):
+        self.slices = slices
         self.input_artifact_slices = {}
         self.input_parameter_slices = {}
         self.output_artifact_slices = {}
         self.output_parameter_slices = {}
-        self.add_slices(slices)
-
-    def add_slices(self, slices):
         if slices is not None:
-            assert isinstance(slices, Slices)
-            if slices.input_artifact and not slices.sub_path:
-                for name in slices.input_artifact:
-                    self.input_artifact_slices[name] = slices.slices
-            if slices.input_parameter:
-                for name in slices.input_parameter:
-                    self.input_parameter_slices[name] = slices.slices
-            if slices.output_artifact:
-                self.output_artifact_slices = {}
-                for name in slices.output_artifact:
-                    self.output_artifact_slices[name] = slices.slices
-                    self.outputs.artifacts[name].archive = None  # no archive
-            if slices.output_parameter:
-                for name in slices.output_parameter:
-                    self.output_parameter_slices[name] = slices.slices
+            self.add_slices(slices, input_artifact_prefix)
+        else:
+            self.render_script()
 
-            if slices.sub_path:
-                for name in slices.input_artifact:
-                    self.inputs.parameters["dflow_%s_sub_path" %
-                                           name] = InputParameter(value=".")
-                    sign = self.input_sign[name]
-                    self.inputs.artifacts[name] = InputArtifact(
-                        path="%s/inputs/artifacts/%s/{{inputs.parameters."
-                        "dflow_%s_sub_path}}" % (self.tmp_root, name, name),
-                        optional=sign.optional, type=sign.type)
+    def add_slices(self, slices: Slices, input_artifact_prefix=None):
+        if input_artifact_prefix is None:
+            input_artifact_prefix = {}
+        if slices.input_artifact and not slices.sub_path:
+            for name in slices.input_artifact:
+                if name in input_artifact_prefix:
+                    self.input_artifact_slices[name] = add_prefix_to_slice(
+                        input_artifact_prefix[name], slices.slices)
+                else:
+                    self.input_artifact_slices[name] = slices.slices
+        if slices.input_parameter:
+            for name in slices.input_parameter:
+                self.input_parameter_slices[name] = slices.slices
+        if slices.output_artifact:
+            self.output_artifact_slices = {}
+            for name in slices.output_artifact:
+                self.output_artifact_slices[name] = slices.slices
+                self.outputs.artifacts[name].archive = None  # no archive
+        if slices.output_parameter:
+            for name in slices.output_parameter:
+                self.output_parameter_slices[name] = slices.slices
+
+        if slices.sub_path:
+            for name in slices.input_artifact:
+                self.inputs.parameters["dflow_%s_sub_path" %
+                                       name] = InputParameter(value=".")
+                sign = self.input_sign[name]
+                self.inputs.artifacts[name] = InputArtifact(
+                    path="%s/inputs/artifacts/%s/{{inputs.parameters."
+                    "dflow_%s_sub_path}}" % (self.tmp_root, name, name),
+                    optional=sign.optional, type=sign.type)
+        self.render_script()
 
     def render_script(self):
         op_class = self.op_class

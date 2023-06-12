@@ -1,10 +1,10 @@
 from copy import deepcopy
-from typing import Optional, Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 from .config import config, s3_config
 from .io import Inputs, Outputs
 from .op_template import OPTemplate
-from .step import Step
+from .step import Step, add_slices
 
 try:
     from argo.workflows.client import V1alpha1Metadata, V1alpha1Template
@@ -147,3 +147,6 @@ class Steps(OPTemplate):
                         step[j].outputs = deepcopy(ps.outputs)
             else:
                 step.run(self, context)
+
+    def add_slices(self, slices, input_artifact_prefix=None):
+        add_slices(self, slices, input_artifact_prefix)

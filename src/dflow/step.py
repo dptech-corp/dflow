@@ -19,8 +19,8 @@ from .op_template import (OPTemplate, PythonScriptOPTemplate, ScriptOPTemplate,
 from .python import Slices
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
-from .utils import (catalog_of_artifact, flatten, merge_dir, randstr,
-                    upload_artifact)
+from .utils import (add_prefix_to_slice, catalog_of_artifact, flatten,
+                    merge_dir, randstr, upload_artifact)
 
 try:
     from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
@@ -33,12 +33,6 @@ except Exception:
 
 
 uploaded_python_packages = []
-
-
-def add_prefix_to_slices(prefix, slices):
-    return "(lambda x: ['%s.' + str(i) for i in x] "\
-        "if isinstance(x, list) else '%s.' + str(x))(%s)" % (
-            prefix, prefix, slices)
 
 
 class ArgoRange(ArgoVar):
@@ -361,107 +355,12 @@ class Step:
             for name, par in self.template.inputs.parameters.items():
                 if name not in self.inputs.parameters:
                     self.inputs.parameters[name] = deepcopy(par)
-
-            self.template.inputs.parameters["dflow_slice"] = InputParameter(
-                value=slices.slices)
-            self.inputs.parameters["dflow_slice"] = InputParameter(
-                value=slices.slices)
-            for name in slices.input_parameter:
-                for step in (self.template if hasattr(
-                        self.template, "__iter__") else []):
-                    for par in list(step.inputs.parameters.values()):
-                        # input parameter referring to sliced input parameter
-                        if par.value is self.template.inputs.parameters[name]:
-                            step.template.inputs.parameters["dflow_slice"] = \
-                                InputParameter()
-                            step.template.add_slices(Slices(
-                                "{{inputs.parameters.dflow_slice}}",
-                                input_parameter=[par.name],
-                                sub_path=slices.sub_path,
-                                pool_size=slices.pool_size))
-                            step.template.render_script()
-                            step.inputs.parameters["dflow_slice"] = \
-                                InputParameter(
-                                    value="{{inputs.parameters.dflow_slice}}")
-
-            for name in slices.input_artifact:
-                for step in (self.template if hasattr(
-                        self.template, "__iter__") else []):
-                    for art in list(step.inputs.artifacts.values()):
-                        # input artifact referring to sliced input artifact
-                        if art.source is self.template.inputs.artifacts[name]:
-                            if name in self.input_artifact_slices:
-                                slice = self.input_artifact_slices[name]
-                                pattern = add_prefix_to_slices(
-                                    slice, "{{inputs.parameters.dflow_slice}}")
-                            else:
-                                pattern = "{{inputs.parameters.dflow_slice}}"
-                            step.template.inputs.parameters["dflow_slice"] = \
-                                InputParameter()
-                            step.template.add_slices(Slices(
-                                pattern,
-                                input_artifact=[art.name],
-                                sub_path=slices.sub_path,
-                                pool_size=slices.pool_size))
-                            step.template.render_script()
-                            step.inputs.parameters["dflow_slice"] = \
-                                InputParameter(
-                                    value="{{inputs.parameters.dflow_slice}}")
-
-            def stack_output_parameter(par):
-                if isinstance(par, OutputParameter):
-                    step = par.step
-                    step.template.inputs.parameters["dflow_slice"] = \
-                        InputParameter()
-                    step.template.add_slices(Slices(
-                        "{{inputs.parameters.dflow_slice}}",
-                        output_parameter=[par.name],
-                        sub_path=slices.sub_path,
-                        pool_size=slices.pool_size))
-                    step.template.render_script()
-                    step.inputs.parameters["dflow_slice"] = \
-                        InputParameter(
-                            value="{{inputs.parameters.dflow_slice}}")
-
-            for name in slices.output_parameter:
-                # sliced output parameter from
-                if self.template.outputs.parameters[name].value_from_parameter\
-                        is not None:
-                    stack_output_parameter(self.template.outputs.parameters[
-                        name].value_from_parameter)
-                elif self.template.outputs.parameters[name].\
-                        value_from_expression is not None:
-                    stack_output_parameter(self.template.outputs.parameters[
-                        name].value_from_expression._then)
-                    stack_output_parameter(self.template.outputs.parameters[
-                        name].value_from_expression._else)
-
-            def stack_output_artifact(art):
-                if isinstance(art, OutputArtifact):
-                    step = art.step
-                    step.template.inputs.parameters["dflow_slice"] = \
-                        InputParameter()
-                    step.template.add_slices(Slices(
-                        "{{inputs.parameters.dflow_slice}}",
-                        output_artifact=[art.name],
-                        sub_path=slices.sub_path,
-                        pool_size=slices.pool_size))
-                    step.template.render_script()
-                    step.inputs.parameters["dflow_slice"] = \
-                        InputParameter(
-                            value="{{inputs.parameters.dflow_slice}}")
-
-            for name in slices.output_artifact:
-                # sliced output artifact from
-                if self.template.outputs.artifacts[name]._from is not None:
-                    stack_output_artifact(
-                        self.template.outputs.artifacts[name]._from)
-                elif self.template.outputs.artifacts[name].from_expression is \
-                        not None:
-                    stack_output_artifact(self.template.outputs.artifacts[
-                        name].from_expression._then)
-                    stack_output_artifact(self.template.outputs.artifacts[
-                        name].from_expression._else)
+            self.template.add_slices(slices, self.input_artifact_slices)
+            from .dag import DAG
+            from .steps import Steps
+            if isinstance(self.template, (DAG, Steps)):
+                self.inputs.parameters["dflow_slice"] = InputParameter(
+                    value=slices.slices)
 
         sum_var = None
         if isinstance(self.with_param, ArgoRange) and \
@@ -522,13 +421,8 @@ class Step:
                                            if self.template.slices.shuffle
                                            else "i"), group_size, group_size)
                 # re-render the script
-                self.template.slices = self.template.slices
-                for k, slice in self.input_artifact_slices.items():
-                    if k in self.template.input_artifact_slices:
-                        old = self.template.input_artifact_slices[k]
-                        self.template.input_artifact_slices[k] = \
-                            add_prefix_to_slices(slice, old)
-                        self.template.render_script()
+                self.template.set_slices(self.template.slices,
+                                         self.input_artifact_slices)
                 self.with_param = argo_range(if_expression(
                     "%s %% %s > 0" % (nslices, group_size),
                     "%s/%s + 1" % (nslices, group_size),
@@ -551,13 +445,8 @@ class Step:
                                            if self.template.slices.shuffle
                                            else "i"), group_size, group_size)
                 # re-render the script
-                self.template.slices = self.template.slices
-                for k, slice in self.input_artifact_slices.items():
-                    if k in self.template.input_artifact_slices:
-                        old = self.template.input_artifact_slices[k]
-                        self.template.input_artifact_slices[k] = \
-                            add_prefix_to_slices(slice, old)
-                        self.template.render_script()
+                self.template.set_slices(self.template.slices,
+                                         self.input_artifact_slices)
                 self.with_param = argo_range(if_expression(
                     "%s %% %s > 0" % (nslices, group_size),
                     "%s/%s + 1" % (nslices, group_size),
@@ -610,13 +499,8 @@ class Step:
                         "shuffled[i]" if self.template.slices.shuffle else "i",
                         group_size, group_size)
                 # re-render the script
-                self.template.slices = self.template.slices
-                for k, slice in self.input_artifact_slices.items():
-                    if k in self.template.input_artifact_slices:
-                        old = self.template.input_artifact_slices[k]
-                        self.template.input_artifact_slices[k] = \
-                            add_prefix_to_slices(slice, old)
-                        self.template.render_script()
+                self.template.set_slices(self.template.slices,
+                                         self.input_artifact_slices)
                 self.with_sequence = argo_sequence(
                     count=if_expression(
                         "%s %% %s > 0" % (nslices, group_size),
@@ -652,11 +536,7 @@ class Step:
                 # For the case of reusing sliced steps, ensure that the output
                 # artifacts are reused
                 for name in sliced_output_artifact:
-                    self.template.outputs.artifacts[name].save.append(
-                        S3Artifact(key="{{inputs.parameters."
-                                   "dflow_artifact_key}}/%s" % name))
-
-                    def merge_output_artifact(art):
+                    def merge_step_output_artifact(art):
                         step = art.step
                         template = step.template
                         template.inputs.parameters["dflow_group_key"] = \
@@ -669,29 +549,29 @@ class Step:
                         step.inputs.parameters["dflow_artifact_key"] = \
                             InputParameter(value="{{inputs.parameters."
                                            "dflow_artifact_key}}")
-                        template.outputs.artifacts[art.name].save.append(
-                            S3Artifact(key="{{inputs.parameters."
-                                       "dflow_artifact_key}}/%s" % name))
-
-                    if self.template.outputs.artifacts[name]._from is not \
-                            None:
                         merge_output_artifact(
-                            self.template.outputs.artifacts[name]._from)
-                    elif self.template.outputs.artifacts[name].\
-                            from_expression is not None:
-                        merge_output_artifact(self.template.outputs.artifacts[
-                            name].from_expression._then)
-                        merge_output_artifact(self.template.outputs.artifacts[
-                            name].from_expression._else)
+                            template.outputs.artifacts[art.name])
+
+                    def merge_output_artifact(art):
+                        if art._from is not None:
+                            merge_step_output_artifact(art._from)
+                        elif art.from_expression is not None:
+                            merge_step_output_artifact(
+                                art.from_expression._then)
+                            merge_step_output_artifact(
+                                art.from_expression._else)
+                        else:
+                            art.save.append(S3Artifact(
+                                key="{{inputs.parameters.dflow_artifact_key}}"
+                                "/%s" % name))
+
+                    merge_output_artifact(
+                        self.template.outputs.artifacts[name])
             else:
                 self.template.inputs.parameters["dflow_artifact_key"] = \
                     InputParameter(value="")
                 for name in sliced_output_artifact:
-                    self.template.outputs.artifacts[name].save.append(
-                        S3Artifact(key="{{inputs.parameters."
-                                   "dflow_artifact_key}}/%s" % name))
-
-                    def merge_output_artifact(art):
+                    def merge_step_output_artifact(art):
                         step = art.step
                         template = step.template
                         template.inputs.parameters["dflow_artifact_key"] = \
@@ -699,20 +579,24 @@ class Step:
                         step.inputs.parameters["dflow_artifact_key"] = \
                             InputParameter(value="{{inputs.parameters."
                                            "dflow_artifact_key}}")
-                        template.outputs.artifacts[art.name].save.append(
-                            S3Artifact(key="{{inputs.parameters."
-                                       "dflow_artifact_key}}/%s" % name))
-
-                    if self.template.outputs.artifacts[name]._from is not \
-                            None:
                         merge_output_artifact(
-                            self.template.outputs.artifacts[name]._from)
-                    elif self.template.outputs.artifacts[name].\
-                            from_expression is not None:
-                        merge_output_artifact(self.template.outputs.artifacts[
-                            name].from_expression._then)
-                        merge_output_artifact(self.template.outputs.artifacts[
-                            name].from_expression._else)
+                            template.outputs.artifacts[art.name])
+
+                    def merge_output_artifact(art):
+                        if art._from is not None:
+                            merge_step_output_artifact(art._from)
+                        elif art.from_expression is not None:
+                            merge_step_output_artifact(
+                                art.from_expression._then)
+                            merge_step_output_artifact(
+                                art.from_expression._else)
+                        else:
+                            art.save.append(S3Artifact(
+                                key="{{inputs.parameters.dflow_artifact_key}}"
+                                "/%s" % name))
+
+                    merge_output_artifact(
+                        self.template.outputs.artifacts[name])
 
             if self.key is not None:
                 group_key = re.sub("{{=?item.*}}", "group", str(self.key))
@@ -1232,8 +1116,8 @@ class Step:
                         slices.append(a.slice)
                     else:
                         slices.append(None)
-                from .steps import Steps
                 from .dag import DAG
+                from .steps import Steps
                 if isinstance(self.template, (Steps, DAG)):
                     for step in self.template:
                         for name, art in list(step.inputs.artifacts.items()):
@@ -1309,8 +1193,8 @@ class Step:
                             InputParameter(value=v.slice)
                         v.slice = "{{inputs.parameters.dflow_%s}}" % \
                             v.slice.name
-                    from .steps import Steps
                     from .dag import DAG
+                    from .steps import Steps
                     if isinstance(self.template, (Steps, DAG)):
                         for step in self.template:
                             for name, art in step.inputs.artifacts.items():
@@ -1332,7 +1216,7 @@ class Step:
                         if k in self.template.input_artifact_slices:
                             old = self.template.input_artifact_slices[k]
                             self.template.input_artifact_slices[k] = \
-                                add_prefix_to_slices(v.slice, old)
+                                add_prefix_to_slice(v.slice, old)
                         else:
                             self.template.input_artifact_slices[k] = v.slice \
                                 if isinstance(v.slice, int) \
@@ -2212,3 +2096,94 @@ def replace_argo_func(expr):
     expr = expr.replace(" : ", " or ")
     expr = expr.replace("asFloat", "float")
     return expr
+
+
+def add_slices(templ: OPTemplate, slices: Slices, input_artifact_prefix=None):
+    if input_artifact_prefix is None:
+        input_artifact_prefix = {}
+    templ.inputs.parameters["dflow_slice"] = InputParameter(
+        value=slices.slices)
+
+    for name in slices.input_parameter:
+        for step in templ:
+            for par in list(step.inputs.parameters.values()):
+                # input parameter referring to sliced input parameter
+                if par.value is templ.inputs.parameters[name]:
+                    step.template.inputs.parameters["dflow_slice"] = \
+                        InputParameter()
+                    step.template.add_slices(Slices(
+                        "{{inputs.parameters.dflow_slice}}",
+                        input_parameter=[par.name],
+                        sub_path=slices.sub_path,
+                        pool_size=slices.pool_size))
+                    step.inputs.parameters["dflow_slice"] = InputParameter(
+                        value="{{inputs.parameters.dflow_slice}}")
+
+    for name in slices.input_artifact:
+        for step in templ:
+            for art in list(step.inputs.artifacts.values()):
+                print(art.source, art.source is templ.inputs.artifacts[name])
+                # input artifact referring to sliced input artifact
+                if art.source is templ.inputs.artifacts[name] or getattr(
+                    art.source, "parent", None) is \
+                        templ.inputs.artifacts[name]:
+                    if name in input_artifact_prefix:
+                        slice = input_artifact_prefix[name]
+                        pattern = add_prefix_to_slice(
+                            slice, "{{inputs.parameters.dflow_slice}}")
+                    else:
+                        pattern = "{{inputs.parameters.dflow_slice}}"
+                    step.template.inputs.parameters["dflow_slice"] = \
+                        InputParameter()
+                    step.template.add_slices(Slices(
+                        pattern,
+                        input_artifact=[art.name],
+                        sub_path=slices.sub_path,
+                        pool_size=slices.pool_size))
+                    step.inputs.parameters["dflow_slice"] = InputParameter(
+                        value="{{inputs.parameters.dflow_slice}}")
+
+    def stack_output_parameter(par):
+        if isinstance(par, OutputParameter):
+            step = par.step
+            step.template.inputs.parameters["dflow_slice"] = InputParameter()
+            step.template.add_slices(Slices(
+                "{{inputs.parameters.dflow_slice}}",
+                output_parameter=[par.name],
+                sub_path=slices.sub_path,
+                pool_size=slices.pool_size))
+            step.inputs.parameters["dflow_slice"] = InputParameter(
+                value="{{inputs.parameters.dflow_slice}}")
+
+    for name in slices.output_parameter:
+        # sliced output parameter from
+        if templ.outputs.parameters[name].value_from_parameter is not None:
+            stack_output_parameter(
+                templ.outputs.parameters[name].value_from_parameter)
+        elif templ.outputs.parameters[name].value_from_expression is not None:
+            stack_output_parameter(
+                templ.outputs.parameters[name].value_from_expression._then)
+            stack_output_parameter(
+                templ.outputs.parameters[name].value_from_expression._else)
+
+    def stack_output_artifact(art):
+        if isinstance(art, OutputArtifact):
+            step = art.step
+            step.template.inputs.parameters["dflow_slice"] = InputParameter()
+            step.template.add_slices(Slices(
+                "{{inputs.parameters.dflow_slice}}",
+                output_artifact=[art.name],
+                sub_path=slices.sub_path,
+                pool_size=slices.pool_size))
+            step.inputs.parameters["dflow_slice"] = InputParameter(
+                value="{{inputs.parameters.dflow_slice}}")
+
+    for name in slices.output_artifact:
+        # sliced output artifact from
+        if templ.outputs.artifacts[name]._from is not None:
+            stack_output_artifact(templ.outputs.artifacts[name]._from)
+        elif templ.outputs.artifacts[name].from_expression is not None:
+            stack_output_artifact(
+                templ.outputs.artifacts[name].from_expression._then)
+            stack_output_artifact(
+                templ.outputs.artifacts[name].from_expression._else)
