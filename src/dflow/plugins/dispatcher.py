@@ -82,6 +82,7 @@ class DispatcherExecutor(Executor):
                  merge_sliced_step: bool = False,
                  pre_script: str = "",
                  post_script: str = "",
+                 clean: bool = True,
                  ) -> None:
         self.host = host
         self.queue_name = queue_name
@@ -118,6 +119,7 @@ class DispatcherExecutor(Executor):
         self.merge_sliced_step = merge_sliced_step
         self.pre_script = pre_script
         self.post_script = post_script
+        self.clean = clean
 
         conf = {}
         if json_file is not None:
@@ -414,7 +416,8 @@ class DispatcherExecutor(Executor):
                 self.retry_on_submission_error
             new_template.script += "    try:\n"
             new_template.script += "        print('retry ' + str(retry))\n"
-            new_template.script += "        submission.run_submission()\n"
+            new_template.script += "        submission.run_submission(clean="\
+                "%s)\n" % self.clean
             new_template.script += "        break\n"
             new_template.script += "    except Exception:\n"
             new_template.script += "        import traceback\n"
@@ -422,7 +425,8 @@ class DispatcherExecutor(Executor):
             new_template.script += "        import time\n"
             new_template.script += "        time.sleep(2**retry)\n"
         else:
-            new_template.script += "submission.run_submission()\n"
+            new_template.script += "submission.run_submission(clean=%s)\n" % \
+                self.clean
         if merge:
             for name in sliced_output_parameters:
                 path = template.outputs.parameters[name].value_from_path
