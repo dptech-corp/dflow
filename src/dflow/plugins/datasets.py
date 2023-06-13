@@ -33,7 +33,7 @@ config = {
     "ftp_host": os.environ.get("DATASETS_FTP_HOST",
                                "uftp.mlops-passthrough.dp.tech"),
     "webdav_host": os.environ.get("DATASETS_WEBDAV_HOST",
-                                  "https://webdav.launching.mlops.dp.tech"),
+                                  "https://webdav.mlops.dp.tech"),
     "user": os.environ.get("DATASETS_USER"),
     "password": os.environ.get("DATASETS_PASSWORD"),
 }

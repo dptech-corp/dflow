@@ -473,7 +473,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "    pids = []\n"
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
-                if self.inputs.artifacts[name].save_as_parameter:
+                if name in self.inputs.artifacts and self.inputs.artifacts[
+                        name].save_as_parameter:
                     script += "    pids.append(jsonpickle.loads('{{inputs."\
                         "parameters.dflow_art_%s}}').%s('%s', '%s/inputs/"\
                         "artifacts/%s'))\n" % (name, self.download_method,

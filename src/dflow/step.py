@@ -1446,6 +1446,8 @@ class Step:
                     path = os.path.abspath("download/%s" % randstr())
                     art.source.download(path=path, debug_download=True,
                                         remove_catalog=False)
+                    assert os.path.exists(path), "S3 key of the input art"\
+                        "ifact %s: %s does not exist" % (name, art.source.key)
                     fs = os.listdir(path)
                     if len(fs) == 1 and os.path.isfile(os.path.join(path,
                                                                     fs[0])):
@@ -1676,6 +1678,8 @@ class Step:
                 path = os.path.abspath("download/%s" % randstr())
                 art.source.download(path=path, debug_download=True,
                                     remove_catalog=False)
+                assert os.path.exists(path), "S3 key of the input art"\
+                    "ifact %s: %s does not exist" % (name, art.source.key)
                 fs = os.listdir(path)
                 if len(fs) == 1 and os.path.isfile(os.path.join(path,
                                                                 fs[0])):
