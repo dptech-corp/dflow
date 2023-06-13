@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.2](https://github.com/deepmodeling/dflow/compare/v1.7.1...v1.7.2) (2023-06-13)
+
+
+### Bug Fixes
+
+* par has no attr value ([8fa769e](https://github.com/deepmodeling/dflow/commit/8fa769e323e729c794e9cd0b13110a8e6eed25db))
+
 ## [1.7.1](https://github.com/deepmodeling/dflow/compare/v1.7.0...v1.7.1) (2023-06-12)
 
 
