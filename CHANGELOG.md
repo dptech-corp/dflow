@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.3](https://github.com/deepmodeling/dflow/compare/v1.7.2...v1.7.3) (2023-06-13)
+
+
+### Bug Fixes
+
+* name in input signs not in input artifacts after set list/dict of artifacts ([71cabf9](https://github.com/deepmodeling/dflow/commit/71cabf914f25c5ecab4d3b3e01f8f9a90d40390b))
+* raise error when download failed in debug mode ([71cabf9](https://github.com/deepmodeling/dflow/commit/71cabf914f25c5ecab4d3b3e01f8f9a90d40390b))
+
 ## [1.7.2](https://github.com/deepmodeling/dflow/compare/v1.7.1...v1.7.2) (2023-06-13)
 
 
