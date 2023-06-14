@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.4](https://github.com/deepmodeling/dflow/compare/v1.7.3...v1.7.4) (2023-06-14)
+
+
+### Bug Fixes
+
+* follow_symlinks=True of os.link not work on Linux ([4779672](https://github.com/deepmodeling/dflow/commit/4779672d08413cc45b2076b0e46864e3e8aa1dae))
+
 ## [1.7.3](https://github.com/deepmodeling/dflow/compare/v1.7.2...v1.7.3) (2023-06-13)
 
 
