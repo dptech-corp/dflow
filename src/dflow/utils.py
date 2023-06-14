@@ -475,7 +475,15 @@ def merge_dir(src, dst, func=force_move):
             func(src_file, dst_file)
 
 
-def copy_file(src, dst, func=os.link):
+def link(src, dst):
+    # follow_symlinks=True of os.link not work on Linux
+    if os.path.islink(src):
+        os.link(os.path.realpath(src), dst)
+    else:
+        os.link(src, dst)
+
+
+def copy_file(src, dst, func=link):
     os.makedirs(os.path.abspath(os.path.dirname(dst)), exist_ok=True)
     if os.path.isdir(src):
         try:
