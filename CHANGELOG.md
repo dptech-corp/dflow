@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.5](https://github.com/deepmodeling/dflow/compare/v1.7.4...v1.7.5) (2023-06-19)
+
+
+### Bug Fixes
+
+* skip unmerged output artifact of reused sliced steps ([c516396](https://github.com/deepmodeling/dflow/commit/c5163969c4fe07faef12677ac29086792a11a4d8))
+* support link and copy for copy method in debug mode ([c516396](https://github.com/deepmodeling/dflow/commit/c5163969c4fe07faef12677ac29086792a11a4d8))
+
 ## [1.7.4](https://github.com/deepmodeling/dflow/compare/v1.7.3...v1.7.4) (2023-06-14)
 
 
