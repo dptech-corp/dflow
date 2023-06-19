@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import re
+import shutil
 import sys
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Union
@@ -19,8 +20,8 @@ from .op_template import (OPTemplate, PythonScriptOPTemplate, ScriptOPTemplate,
 from .python import Slices
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
-from .utils import (add_prefix_to_slice, catalog_of_artifact, flatten,
-                    merge_dir, randstr, upload_artifact)
+from .utils import (add_prefix_to_slice, catalog_of_artifact, copy_file,
+                    flatten, merge_dir, randstr, upload_artifact)
 
 try:
     from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
@@ -1852,8 +1853,14 @@ class Step:
                     art.source,
                     InputArtifact) and art.source is None and art.optional:
                 pass
-            else:
+            elif config["debug_copy_method"] == "symlink":
                 os.symlink(art_path, path)
+            elif config["debug_copy_method"] == "link":
+                copy_file(art_path, path)
+            elif config["debug_copy_method"] == "copy":
+                copy_file(art_path, path, func=shutil.copy2)
+            else:
+                raise ValueError("Unsupported copy method for debug mode.")
 
         # render variables in the script
         script = self.template.script
