@@ -62,6 +62,7 @@ config = {
     "overwrite_reused_artifact": boolize(os.environ.get(
         "DFLOW_OVERWRITE_REUSED_ARTIFACT", True)),
     "detach": boolize(os.environ.get("DFLOW_DETACH", False)),
+    "debug_copy_method": os.environ.get("DFLOW_DEBUG_COPY_METHOD", "symlink"),
 }
 
 

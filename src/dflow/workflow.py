@@ -341,10 +341,12 @@ class Workflow:
                         outputs["parameters"].append(par.recover())
             if hasattr(step.outputs, "artifacts"):
                 for name, art in step.outputs.artifacts.items():
-                    if hasattr(step, "inputs") and \
-                        hasattr(step.inputs, "parameters") and \
-                        "dflow_group_key" in step.inputs.parameters \
-                            and name != "main-logs":
+                    group_key = step.get("inputs", {}).get(
+                        "parameters", {}).get("dflow_group_key", {}).get(
+                        "value")
+                    art_key = get_key(art, raise_error=False)
+                    if group_key and art_key and art_key.endswith(
+                            "%s/%s" % (group_key, name)):
                         if config["overwrite_reused_artifact"]:
                             self.handle_reused_artifact(step, name, art)
                         else:
