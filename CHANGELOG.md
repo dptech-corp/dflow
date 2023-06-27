@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.6](https://github.com/deepmodeling/dflow/compare/v1.7.5...v1.7.6) (2023-06-27)
+
+
+### Bug Fixes
+
+* support for multi arguments to argo_enumerate ([c58e9ea](https://github.com/deepmodeling/dflow/commit/c58e9ea9eb95839a8167b066bbe23e3b52177546))
+
 ## [1.7.5](https://github.com/deepmodeling/dflow/compare/v1.7.4...v1.7.5) (2023-06-19)
 
 
