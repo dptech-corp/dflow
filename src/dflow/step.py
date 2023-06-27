@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import re
+import shlex
 import shutil
 import sys
 from copy import deepcopy
@@ -179,15 +180,24 @@ def argo_len(
 
 
 class ArgoEnumerate(ArgoVar):
-    def __init__(self, param: ArgoVar):
+    def __init__(self, **kwargs):
+        param = list(kwargs.values())[0]
+        if isinstance(param, ArgoVar):
+            length = "len(sprig.fromJson(%s))" % param.expr
+        else:
+            length = len(param)
+        values = ""
+        for k, v in kwargs.items():
+            values += ", '%s': jsonpath(%s, '$')[#]" % (
+                k, v.expr if isinstance(v, ArgoVar)
+                else shlex.quote(json.dumps(v)))
         super().__init__(
-            "toJson(map(sprig.untilStep(0, len(sprig.fromJson(%s)), 1),"
-            " { {'order': #, 'value': jsonpath(%s, '$')[#]} }))" % (
-                param.expr, param.expr))
+            "toJson(map(sprig.untilStep(0, %s, 1), "
+            "{ {'order': #%s} }))" % (length, values))
 
 
 def argo_enumerate(
-        param,
+        *args, **kwargs,
 ) -> ArgoVar:
     """
     Return the enumeration of a list which is an Argo parameter
@@ -195,14 +205,17 @@ def argo_enumerate(
     Args:
         param: the Argo parameter which is a list
     """
+    if len(args) == 1:
+        kwargs["value"] = args[0]
+    elif len(args) > 1:
+        for i, arg in enumerate(args):
+            kwargs["value" + str(i)] = arg
     if config["mode"] == "debug":
-        return Expression("[{'order': i, 'value': v} for i, v in "
-                          "enumerate(%s)]" % to_expr(param))
-    if isinstance(param, ArgoVar):
-        return ArgoEnumerate(param)
-    else:
-        return json.dumps([{'order': i, 'value': v} for i, v in
-                           enumerate(param)])
+        values = "".join([", '%s': %s[i]" % (k, to_expr(v))
+                          for k, v in kwargs.items()])
+        return Expression("[{'order': i%s} for i in range(len(%s))]" % (
+            values, to_expr(list(kwargs.values())[0])))
+    return ArgoEnumerate(**kwargs)
 
 
 class ArgoSum:
