@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.7](https://github.com/deepmodeling/dflow/compare/v1.7.6...v1.7.7) (2023-06-28)
+
+
+### Bug Fixes
+
+* take apart input_artifact_prefix from input_artifact_slices ([d5eaac0](https://github.com/deepmodeling/dflow/commit/d5eaac06f97d1234f09b37a10fe8e44a74b05d9c))
+
 ## [1.7.6](https://github.com/deepmodeling/dflow/compare/v1.7.5...v1.7.6) (2023-06-27)
 
 
