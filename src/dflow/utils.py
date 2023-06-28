@@ -787,9 +787,3 @@ class MinioClient(StorageClient):
     def get_md5(self, key: str) -> str:
         return self.client.stat_object(bucket_name=self.bucket_name,
                                        object_name=key).etag
-
-
-def add_prefix_to_slice(prefix, slices):
-    return "(lambda x: ['%s.' + str(i) for i in x] "\
-        "if isinstance(x, list) else '%s.' + str(x))(%s)" % (
-            prefix, prefix, slices)

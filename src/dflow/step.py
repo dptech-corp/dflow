@@ -21,8 +21,8 @@ from .op_template import (OPTemplate, PythonScriptOPTemplate, ScriptOPTemplate,
 from .python import Slices
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
-from .utils import (add_prefix_to_slice, catalog_of_artifact, copy_file,
-                    flatten, merge_dir, randstr, upload_artifact)
+from .utils import (catalog_of_artifact, copy_file, flatten, merge_dir,
+                    randstr, upload_artifact)
 
 try:
     from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
@@ -320,7 +320,6 @@ class Step:
         self.continue_on_success_ratio = continue_on_success_ratio
         self.check_step = None
         self.prepare_step = None
-        self.input_artifact_slices = {}
 
         if parameters is not None:
             self.set_parameters(parameters)
@@ -364,17 +363,19 @@ class Step:
                 value=str(self.key))
 
         if slices is not None:
+            from .dag import DAG
+            from .steps import Steps
+            assert isinstance(self.template, (DAG, Steps)), \
+                "Please specify slices in PythonOPTemplate "\
+                "if the template is a Python OP template"
             self.template = self.template.copy()
             self.template.slices = slices
             for name, par in self.template.inputs.parameters.items():
                 if name not in self.inputs.parameters:
                     self.inputs.parameters[name] = deepcopy(par)
-            self.template.add_slices(slices, self.input_artifact_slices)
-            from .dag import DAG
-            from .steps import Steps
-            if isinstance(self.template, (DAG, Steps)):
-                self.inputs.parameters["dflow_slice"] = InputParameter(
-                    value=slices.slices)
+            self.template.add_slices(slices)
+            self.inputs.parameters["dflow_slice"] = InputParameter(
+                value=slices.slices)
 
         sum_var = None
         if isinstance(self.with_param, ArgoRange) and \
@@ -435,8 +436,7 @@ class Step:
                                            if self.template.slices.shuffle
                                            else "i"), group_size, group_size)
                 # re-render the script
-                self.template.set_slices(self.template.slices,
-                                         self.input_artifact_slices)
+                self.template.set_slices(self.template.slices)
                 self.with_param = argo_range(if_expression(
                     "%s %% %s > 0" % (nslices, group_size),
                     "%s/%s + 1" % (nslices, group_size),
@@ -459,8 +459,7 @@ class Step:
                                            if self.template.slices.shuffle
                                            else "i"), group_size, group_size)
                 # re-render the script
-                self.template.set_slices(self.template.slices,
-                                         self.input_artifact_slices)
+                self.template.set_slices(self.template.slices)
                 self.with_param = argo_range(if_expression(
                     "%s %% %s > 0" % (nslices, group_size),
                     "%s/%s + 1" % (nslices, group_size),
@@ -513,8 +512,7 @@ class Step:
                         "shuffled[i]" if self.template.slices.shuffle else "i",
                         group_size, group_size)
                 # re-render the script
-                self.template.set_slices(self.template.slices,
-                                         self.input_artifact_slices)
+                self.template.set_slices(self.template.slices)
                 self.with_sequence = argo_sequence(
                     count=if_expression(
                         "%s %% %s > 0" % (nslices, group_size),
@@ -1150,7 +1148,7 @@ class Step:
                             "%s/inputs/artifacts/%s" % (self.template.tmp_root,
                                                         vn)
                     if any(map(lambda x: x is not None, slices)):
-                        self.template.input_artifact_slices[k] = slices
+                        self.template.input_artifact_prefix[k] = slices
                     self.template.n_parts[k] = len(v)
                     self.template.render_script()
                 del self.template.inputs.artifacts[k]
@@ -1190,7 +1188,7 @@ class Step:
                             "%s/inputs/artifacts/%s" % (self.template.tmp_root,
                                                         vn)
                     if any(map(lambda x: x is not None, slices.values())):
-                        self.template.input_artifact_slices[k] = slices
+                        self.template.input_artifact_prefix[k] = slices
                     self.template.keys_of_parts[k] = list(v.keys())
                     self.template.render_script()
                 del self.template.inputs.artifacts[k]
@@ -1198,7 +1196,6 @@ class Step:
             else:
                 self.inputs.artifacts[k].source = v
                 if hasattr(v, "slice") and v.slice is not None:
-                    self.input_artifact_slices[k] = v.slice
                     self.template = self.template.copy()
                     if isinstance(v.slice, (InputParameter, OutputParameter)):
                         self.template.inputs.parameters[
@@ -1227,14 +1224,8 @@ class Step:
                                         name: self.template.inputs.artifacts[
                                             k][slice]})
                     else:
-                        if k in self.template.input_artifact_slices:
-                            old = self.template.input_artifact_slices[k]
-                            self.template.input_artifact_slices[k] = \
-                                add_prefix_to_slice(v.slice, old)
-                        else:
-                            self.template.input_artifact_slices[k] = v.slice \
-                                if isinstance(v.slice, int) \
-                                else "'%s'" % v.slice
+                        self.template.input_artifact_prefix[k] = v.slice \
+                            if isinstance(v.slice, int) else "'%s'" % v.slice
                         self.template.render_script()
                 if config["save_path_as_parameter"]:
                     if isinstance(v, S3Artifact) and v.path_list is not None:
@@ -2122,9 +2113,7 @@ def replace_argo_func(expr):
     return expr
 
 
-def add_slices(templ: OPTemplate, slices: Slices, input_artifact_prefix=None):
-    if input_artifact_prefix is None:
-        input_artifact_prefix = {}
+def add_slices(templ: OPTemplate, slices: Slices):
     templ.inputs.parameters["dflow_slice"] = InputParameter(
         value=slices.slices)
 
@@ -2158,12 +2147,7 @@ def add_slices(templ: OPTemplate, slices: Slices, input_artifact_prefix=None):
                 if art.source is templ.inputs.artifacts[name] or getattr(
                     art.source, "parent", None) is \
                         templ.inputs.artifacts[name]:
-                    if name in input_artifact_prefix:
-                        slice = input_artifact_prefix[name]
-                        pattern = add_prefix_to_slice(
-                            slice, "{{inputs.parameters.dflow_slice}}")
-                    else:
-                        pattern = "{{inputs.parameters.dflow_slice}}"
+                    pattern = "{{inputs.parameters.dflow_slice}}"
                     step.template.inputs.parameters["dflow_slice"] = \
                         InputParameter()
                     step.template.add_slices(Slices(
