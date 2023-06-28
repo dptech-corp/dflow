@@ -148,5 +148,5 @@ class Steps(OPTemplate):
             else:
                 step.run(self, context)
 
-    def add_slices(self, slices, input_artifact_prefix=None):
-        add_slices(self, slices, input_artifact_prefix)
+    def add_slices(self, slices):
+        add_slices(self, slices)

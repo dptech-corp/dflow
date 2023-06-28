@@ -42,10 +42,14 @@ def get_slices(path_list, path_dict, slices):
 
 def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
                           sub_path=None, n_parts=None, keys_of_parts=None,
-                          path=None):
+                          path=None, prefix=None):
+    def has_str(s):
+        return isinstance(s, str) or (
+            isinstance(s, list) and any(map(lambda x: isinstance(x, str), s)))
+
     require_dict = sign.type in [
         Dict[str, str], Dict[str, Path], NestedDict[str], NestedDict[Path]] \
-        or slices is not None
+        or has_str(prefix) or has_str(slices)
 
     if n_parts is not None:
         path_list = []
@@ -56,8 +60,8 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
             pl = assemble_path_list(art_path)
             if require_dict:
                 pd = assemble_path_nested_dict(art_path)
-                if slices is not None:
-                    pl, pd = get_slices(pl, pd, slices[i])
+                if prefix is not None:
+                    pl, pd = get_slices(pl, pd, prefix[i])
                 if isinstance(pd, list) and len(pd) == 1:
                     path_dict.append(pd[0])
                 else:
@@ -74,8 +78,8 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
             remove_empty_dir_tag(art_path)
             pl = assemble_path_list(art_path)
             pd = assemble_path_nested_dict(art_path)
-            if slices is not None:
-                pl, pd = get_slices(pl, pd, slices[i])
+            if prefix is not None:
+                pl, pd = get_slices(pl, pd, prefix[i])
             if isinstance(pd, list) and len(pd) == 1:
                 path_dict[i] = pd[0]
             else:
@@ -94,9 +98,12 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
             return None
         remove_empty_dir_tag(art_path)
         path_list = assemble_path_list(art_path)
+        path_dict = {}
         if require_dict:
             path_dict = assemble_path_nested_dict(art_path)
-            path_list, path_dict = get_slices(path_list, path_dict, slices)
+            path_list, path_dict = get_slices(path_list, path_dict, prefix)
+
+    path_list, path_dict = get_slices(path_list, path_dict, slices)
 
     if sign.type == str:
         if len(path_list) == 1 and sign.sub_path:

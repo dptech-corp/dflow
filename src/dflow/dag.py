@@ -152,5 +152,5 @@ class DAG(OPTemplate):
 
         assert len(self.finished) == len(self.tasks), "cyclic graph"
 
-    def add_slices(self, slices, input_artifact_prefix=None):
-        add_slices(self, slices, input_artifact_prefix)
+    def add_slices(self, slices):
+        add_slices(self, slices)

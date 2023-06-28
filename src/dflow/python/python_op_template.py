@@ -14,7 +14,7 @@ from ..config import config
 from ..io import (PVC, InputArtifact, InputParameter, Inputs, OutputArtifact,
                   OutputParameter, Outputs)
 from ..op_template import PythonScriptOPTemplate
-from ..utils import add_prefix_to_slice, randstr, s3_config
+from ..utils import randstr, s3_config
 from .op import OP, iwd
 from .opio import Artifact, BigParameter, Parameter
 
@@ -61,6 +61,9 @@ class Slices:
             pool_size: Optional[int] = None,
             register_first_only: bool = False,
     ) -> None:
+        if sub_path:
+            assert input_artifact is not None, \
+                "input artifact not provided in subpath mode"
         self.input_parameter = input_parameter if input_parameter is not \
             None else []
         self.input_artifact = input_artifact if input_artifact is not None \
@@ -160,6 +163,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  = None,
                  output_artifact_archive: Dict[str, Optional[str]] = None,
                  output_parameter_default: Dict[str, Any] = None,
+                 input_artifact_prefix: Dict[str, str] = None,
                  input_artifact_slices: Dict[str, str] = None,
                  input_parameter_slices: Dict[str, str] = None,
                  output_artifact_slices: Dict[str, str] = None,
@@ -329,6 +333,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         self.input_sign = input_sign
         self.output_sign = output_sign
         self.op = op
+        self.input_artifact_prefix = {} if input_artifact_prefix is None \
+            else input_artifact_prefix
         self.input_artifact_slices = {} if input_artifact_slices is None \
             else input_artifact_slices
         self.input_parameter_slices = {} if input_parameter_slices is None \
@@ -340,27 +346,21 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         self.set_slices(slices)
         self.download_method = "download"
 
-    def set_slices(self, slices, input_artifact_prefix=None):
+    def set_slices(self, slices):
         self.slices = slices
         self.input_artifact_slices = {}
         self.input_parameter_slices = {}
         self.output_artifact_slices = {}
         self.output_parameter_slices = {}
         if slices is not None:
-            self.add_slices(slices, input_artifact_prefix)
+            self.add_slices(slices)
         else:
             self.render_script()
 
-    def add_slices(self, slices: Slices, input_artifact_prefix=None):
-        if input_artifact_prefix is None:
-            input_artifact_prefix = {}
+    def add_slices(self, slices: Slices):
         if slices.input_artifact and not slices.sub_path:
             for name in slices.input_artifact:
-                if name in input_artifact_prefix:
-                    self.input_artifact_slices[name] = add_prefix_to_slice(
-                        input_artifact_prefix[name], slices.slices)
-                else:
-                    self.input_artifact_slices[name] = slices.slices
+                self.input_artifact_slices[name] = slices.slices
         if slices.input_parameter:
             for name in slices.input_parameter:
                 self.input_parameter_slices[name] = slices.slices
@@ -488,11 +488,12 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                             name, name, name, slices, self.tmp_root, name)
                 else:
                     script += "    input['%s'] = handle_input_artifact('%s', "\
-                        "input_sign['%s'], %s, r'%s', None, %s, "\
-                        "keys_of_parts=%s)\n" % (
+                        "input_sign['%s'], %s, r'%s', None, n_parts=%s, "\
+                        "keys_of_parts=%s, prefix=%s)\n" % (
                             name, name, name, slices, self.tmp_root,
                             self.n_parts.get(name, None),
-                            self.keys_of_parts.get(name, None))
+                            self.keys_of_parts.get(name, None),
+                            self.input_artifact_prefix.get(name, None))
             else:
                 slices = self.get_slices(input_parameter_slices, name)
                 if isinstance(sign, BigParameter) and \
