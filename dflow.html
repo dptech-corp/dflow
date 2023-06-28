@@ -664,7 +664,7 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.dag.DAG.add_slices">
-<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_artifact_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.dag.DAG.add_slices" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.dag.DAG.add_slices" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1648,7 +1648,7 @@ step-xxxxx
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dflow.step.add_slices">
-<span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">templ</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.Slices" title="dflow.python.python_op_template.Slices"><span class="pre">Slices</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_artifact_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.add_slices" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dflow.step.</span></span><span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">templ</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#dflow.op_template.OPTemplate" title="dflow.op_template.OPTemplate"><span class="pre">OPTemplate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.Slices" title="dflow.python.python_op_template.Slices"><span class="pre">Slices</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.add_slices" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -1794,7 +1794,7 @@ entrypoint of the workflow</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.steps.Steps.add_slices">
-<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_artifact_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.steps.Steps.add_slices" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.steps.Steps.add_slices" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1959,11 +1959,6 @@ generated parallel tasks greater than certain number</p></li>
 <dd></dd></dl>
 
 </dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="dflow.utils.add_prefix_to_slice">
-<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">add_prefix_to_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.add_prefix_to_slice" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="dflow.utils.assemble_path_dict">
@@ -2674,7 +2669,7 @@ self in this method to make the executor reusable</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.DAG.add_slices">
-<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_artifact_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.DAG.add_slices" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.DAG.add_slices" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -3478,7 +3473,7 @@ entrypoint of the workflow</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.Steps.add_slices">
-<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_artifact_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Steps.add_slices" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">add_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Steps.add_slices" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -4436,7 +4431,6 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.utils.StorageClient.upload"><code class="docutils literal notranslate"><span class="pre">StorageClient.upload()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#dflow.utils.add_prefix_to_slice"><code class="docutils literal notranslate"><span class="pre">add_prefix_to_slice()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.assemble_path_dict"><code class="docutils literal notranslate"><span class="pre">assemble_path_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.assemble_path_list"><code class="docutils literal notranslate"><span class="pre">assemble_path_list()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.assemble_path_nested_dict"><code class="docutils literal notranslate"><span class="pre">assemble_path_nested_dict()</span></code></a></li>
