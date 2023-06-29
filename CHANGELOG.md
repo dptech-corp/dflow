@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.10](https://github.com/deepmodeling/dflow/compare/v1.7.9...v1.7.10) (2023-06-29)
+
+
+### Bug Fixes
+
+* support for steps + slices + list of artifact ([49b0318](https://github.com/deepmodeling/dflow/commit/49b0318a5e3343d2939422050d0d28a27c25e8bf))
+
 ## [1.7.9](https://github.com/deepmodeling/dflow/compare/v1.7.8...v1.7.9) (2023-06-29)
 
 
