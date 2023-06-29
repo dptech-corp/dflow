@@ -1,3 +1,7 @@
+import jsonpickle
+import typeguard
+
+from . import __path__
 from .common import S3Artifact
 from .config import config
 from .io import (InputArtifact, InputParameter, Inputs, OutputArtifact,
@@ -8,7 +12,7 @@ from .op_template import PythonScriptOPTemplate, ShellOPTemplate
 class InitArtifactForSlices(PythonScriptOPTemplate):
     def __init__(self, template, image, command, image_pull_policy, key,
                  sliced_output_artifact, sliced_input_artifact, sum_var,
-                 concat_var, tmp_root="/tmp"):
+                 concat_var, auto_loop_artifacts, tmp_root="/tmp"):
         name = template.name
         super().__init__(name="%s-init-artifact" % name, image=image,
                          command=command, image_pull_policy=image_pull_policy)
@@ -18,6 +22,7 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
         self.sliced_input_artifact = sliced_input_artifact
         self.sum_var = sum_var
         self.concat_var = concat_var
+        self.auto_loop_artifacts = auto_loop_artifacts
         self.tmp_root = tmp_root
 
         if self.key is not None:
@@ -71,6 +76,26 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
             self.outputs.parameters["concat_%s" % name] = OutputParameter(
                 value_from_path="%s/outputs/parameters/concat_%s" %
                 (self.tmp_root, name), type=list)
+
+        if self.auto_loop_artifacts:
+            python_packages = []
+            python_packages += __path__
+            python_packages += jsonpickle.__path__
+            python_packages += typeguard.__path__
+            self.python_packages = set(python_packages)
+            self.inputs.artifacts["dflow_python_packages"] = InputArtifact(
+                path="%s/inputs/artifacts/dflow_python_packages"
+                % self.tmp_root)
+            for name in self.origin.inputs.artifacts:
+                if name in self.auto_loop_artifacts or (name.startswith(
+                        "dflow_") and name[6:name.rfind("_")] in
+                        self.auto_loop_artifacts):
+                    self.inputs.artifacts[name] = InputArtifact(
+                        path="%s/inputs/artifacts/%s" % (self.tmp_root, name),
+                        optional=True)
+            self.outputs.parameters["dflow_nslices"] = OutputParameter(
+                value_from_path="%s/outputs/parameters/dflow_nslices" %
+                self.tmp_root, type=int)
 
         self.render_script()
 
@@ -154,6 +179,37 @@ os.makedirs(r'%s/outputs/parameters', exist_ok=True)
 with open(r'%s/outputs/parameters/concat_%s', 'w') as f:
     f.write(json.dumps(var))\n""" % (
                 name, self.tmp_root, self.tmp_root, name)
+
+        if self.auto_loop_artifacts:
+            from .python.python_op_template import handle_packages_script
+            script += handle_packages_script(
+                "%s/inputs/artifacts/dflow_python_packages" % self.tmp_root)
+            script += "from dflow.python import Artifact\n"
+            script += "from dflow.python.utils import handle_input_artifact\n"
+            script += "from pathlib import Path\n"
+            script += "from typing import List\n"
+            script += "input = {}\n"
+            required = []
+            for name in self.auto_loop_artifacts:
+                script += "input['%s'] = handle_input_artifact('%s', "\
+                    "Artifact(List[Path]), None, r'%s', None, n_parts=%s, "\
+                    "keys_of_parts=%s, prefix=%s)\n" % (
+                        name, name, self.tmp_root,
+                        self.origin.n_parts.get(name, None),
+                        self.origin.keys_of_parts.get(name, None),
+                        self.origin.input_artifact_prefix.get(name, None))
+                if not self.origin.input_sign[name].optional:
+                    required.append(name)
+
+            if len(required) > 1:
+                script += "assert " + " == ".join(
+                    ["len(input['%s'])" % name for name in required]) + "\n"
+
+            script += "os.makedirs(r'%s/outputs/parameters', "\
+                "exist_ok=True)\n" % self.tmp_root
+            script += "with open(r'%s/outputs/parameters/dflow_nslices', 'w')"\
+                " as f:\n" % self.tmp_root
+            script += "    f.write(str(len(input['%s'])))\n" % required[0]
 
         self.script = script
 
