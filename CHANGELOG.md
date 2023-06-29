@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.8](https://github.com/deepmodeling/dflow/compare/v1.7.7...v1.7.8) (2023-06-29)
+
+
+### Bug Fixes
+
+* make a random directory when output artifact path equals to input artifact path ([ce8cb7d](https://github.com/deepmodeling/dflow/commit/ce8cb7da807b2701af868e96c478c69d2faa07b1))
+
 ## [1.7.7](https://github.com/deepmodeling/dflow/compare/v1.7.6...v1.7.7) (2023-06-28)
 
 
