@@ -2168,15 +2168,24 @@ def add_slices(templ: OPTemplate, slices: Slices):
         for step in steps:
             for art in list(step.inputs.artifacts.values()):
                 # input artifact referring to sliced input artifact
-                if art.source is templ.inputs.artifacts[name] or getattr(
-                    art.source, "parent", None) is \
-                        templ.inputs.artifacts[name]:
+                if name in templ.inputs.artifacts:
+                    source_slice = art.source is templ.inputs.artifacts[
+                        name] or getattr(art.source, "parent", None) is \
+                        templ.inputs.artifacts[name]
+                    art_name = art.name
+                else:
+                    source_slice = any([art.source is a or getattr(
+                        art.source, "parent", None) is a for n, a in
+                        templ.inputs.artifacts.items() if n.startswith(
+                        "dflow_%s_" % name)])
+                    art_name = art.name[6:art.name.rfind("_")]
+                if source_slice:
                     pattern = "{{inputs.parameters.dflow_slice}}"
                     step.template.inputs.parameters["dflow_slice"] = \
                         InputParameter()
                     step.template.add_slices(Slices(
                         pattern,
-                        input_artifact=[art.name],
+                        input_artifact=[art_name],
                         sub_path=slices.sub_path,
                         pool_size=slices.pool_size))
                     step.inputs.parameters["dflow_slice"] = InputParameter(
