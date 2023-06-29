@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.9](https://github.com/deepmodeling/dflow/compare/v1.7.8...v1.7.9) (2023-06-29)
+
+
+### Bug Fixes
+
+* add auto loop ([68c5d84](https://github.com/deepmodeling/dflow/commit/68c5d84adea808f4229c83664755b1c22d25f972))
+* bug in add slices to python op template ([68c5d84](https://github.com/deepmodeling/dflow/commit/68c5d84adea808f4229c83664755b1c22d25f972))
+
 ## [1.7.8](https://github.com/deepmodeling/dflow/compare/v1.7.7...v1.7.8) (2023-06-29)
 
 
