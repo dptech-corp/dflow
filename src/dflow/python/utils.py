@@ -9,7 +9,7 @@ import jsonpickle
 from ..config import config
 from ..utils import (assemble_path_list, assemble_path_nested_dict,
                      convert_dflow_list, copy_file, expand, flatten, link,
-                     remove_empty_dir_tag)
+                     randstr, remove_empty_dir_tag)
 from .opio import Artifact, BigParameter, NestedDict, Parameter
 
 
@@ -271,12 +271,9 @@ def copy_results(source, name, data_root="/tmp"):
         # retain original directory structure
         i = source.find("/", len(data_root + "/inputs/artifacts/"))
         if i == -1:
-            target = data_root + "/outputs/artifacts/%s" % name
-            if os.path.isdir(target):
-                shutil.rmtree(target)
-            copy_file(source, target, shutil.copy)
-            return None
-        rel_path = source[i+1:]
+            rel_path = randstr()
+        else:
+            rel_path = source[i+1:]
         target = data_root + "/outputs/artifacts/%s/%s" % (name, rel_path)
         copy_file(source, target, shutil.copy)
         if rel_path[:1] == "/":
