@@ -679,7 +679,7 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.dag.DAG.resolve">
-<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.dag.DAG.resolve" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">futures</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.dag.DAG.resolve" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1575,8 +1575,8 @@ step-xxxxx
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="dflow.step.Step.exec_with_queue">
-<span class="sig-name descname"><span class="pre">exec_with_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s3_conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.exec_with_queue" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dflow.step.Step.exec_with_config">
+<span class="sig-name descname"><span class="pre">exec_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s3_conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.exec_with_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1630,8 +1630,8 @@ step-xxxxx
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="dflow.step.Step.run_with_queue">
-<span class="sig-name descname"><span class="pre">run_with_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s3_conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.run_with_queue" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dflow.step.Step.run_with_config">
+<span class="sig-name descname"><span class="pre">run_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s3_conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.run_with_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2684,7 +2684,7 @@ self in this method to make the executor reusable</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.DAG.resolve">
-<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.DAG.resolve" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">resolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">futures</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.DAG.resolve" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -3371,8 +3371,8 @@ step-xxxxx
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="dflow.Step.exec_with_queue">
-<span class="sig-name descname"><span class="pre">exec_with_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s3_conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.exec_with_queue" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dflow.Step.exec_with_config">
+<span class="sig-name descname"><span class="pre">exec_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s3_conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.exec_with_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -3426,8 +3426,8 @@ step-xxxxx
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="dflow.Step.run_with_queue">
-<span class="sig-name descname"><span class="pre">run_with_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s3_conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.run_with_queue" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="dflow.Step.run_with_config">
+<span class="sig-name descname"><span class="pre">run_with_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s3_conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.run_with_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -4352,7 +4352,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.step.Step"><code class="docutils literal notranslate"><span class="pre">Step</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.step.Step.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Step.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.exec"><code class="docutils literal notranslate"><span class="pre">Step.exec()</span></code></a></li>
-<li><a class="reference internal" href="#dflow.step.Step.exec_with_queue"><code class="docutils literal notranslate"><span class="pre">Step.exec_with_queue()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.exec_with_config"><code class="docutils literal notranslate"><span class="pre">Step.exec_with_config()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.from_dict"><code class="docutils literal notranslate"><span class="pre">Step.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.load_output_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.load_output_artifacts()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.load_output_parameters"><code class="docutils literal notranslate"><span class="pre">Step.load_output_parameters()</span></code></a></li>
@@ -4363,7 +4363,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.step.Step.record_output_parameters"><code class="docutils literal notranslate"><span class="pre">Step.record_output_parameters()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.render_by_executor"><code class="docutils literal notranslate"><span class="pre">Step.render_by_executor()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.run"><code class="docutils literal notranslate"><span class="pre">Step.run()</span></code></a></li>
-<li><a class="reference internal" href="#dflow.step.Step.run_with_queue"><code class="docutils literal notranslate"><span class="pre">Step.run_with_queue()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.run_with_config"><code class="docutils literal notranslate"><span class="pre">Step.run_with_config()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.set_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.set_artifacts()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.set_parameters"><code class="docutils literal notranslate"><span class="pre">Step.set_parameters()</span></code></a></li>
 </ul>
@@ -4656,7 +4656,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.Step"><code class="docutils literal notranslate"><span class="pre">Step</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.Step.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Step.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.exec"><code class="docutils literal notranslate"><span class="pre">Step.exec()</span></code></a></li>
-<li><a class="reference internal" href="#dflow.Step.exec_with_queue"><code class="docutils literal notranslate"><span class="pre">Step.exec_with_queue()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.exec_with_config"><code class="docutils literal notranslate"><span class="pre">Step.exec_with_config()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.from_dict"><code class="docutils literal notranslate"><span class="pre">Step.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.load_output_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.load_output_artifacts()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.load_output_parameters"><code class="docutils literal notranslate"><span class="pre">Step.load_output_parameters()</span></code></a></li>
@@ -4667,7 +4667,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.Step.record_output_parameters"><code class="docutils literal notranslate"><span class="pre">Step.record_output_parameters()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.render_by_executor"><code class="docutils literal notranslate"><span class="pre">Step.render_by_executor()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.run"><code class="docutils literal notranslate"><span class="pre">Step.run()</span></code></a></li>
-<li><a class="reference internal" href="#dflow.Step.run_with_queue"><code class="docutils literal notranslate"><span class="pre">Step.run_with_queue()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.run_with_config"><code class="docutils literal notranslate"><span class="pre">Step.run_with_config()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.set_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.set_artifacts()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.set_parameters"><code class="docutils literal notranslate"><span class="pre">Step.set_parameters()</span></code></a></li>
 </ul>
