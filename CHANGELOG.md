@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.11](https://github.com/deepmodeling/dflow/compare/v1.7.10...v1.7.11) (2023-06-30)
+
+
+### Bug Fixes
+
+* use ProcessPoolExecutor instead of Process in debug mode ([a692bad](https://github.com/deepmodeling/dflow/commit/a692bad23ffc2d043aad0ac8ac9aa8f93497525b))
+* validate workflow/template/parameter/artifact/key name ([a692bad](https://github.com/deepmodeling/dflow/commit/a692bad23ffc2d043aad0ac8ac9aa8f93497525b))
+
 ## [1.7.10](https://github.com/deepmodeling/dflow/compare/v1.7.9...v1.7.10) (2023-06-29)
 
 
