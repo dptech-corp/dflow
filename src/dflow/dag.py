@@ -109,8 +109,7 @@ class DAG(OPTemplate):
                              parallelism=self.parallelism)
         return argo_template, templates
 
-    def resolve(self):
-        from multiprocessing import Process
+    def resolve(self, pool, futures):
         for task in self.waiting:
             ready = True
             for dep in task.dependencies:
@@ -120,9 +119,9 @@ class DAG(OPTemplate):
             if ready:
                 task.phase = "Pending"
                 i = self.tasks.index(task)
-                proc = Process(target=task.run_with_queue, args=(
-                    self, self.context, i, self.queue, config, s3_config))
-                proc.start()
+                future = pool.submit(task.run_with_config, self,
+                                     self.context, config, s3_config)
+                futures[future] = i
                 self.waiting.remove(task)
                 self.running.append(task)
 
@@ -130,17 +129,23 @@ class DAG(OPTemplate):
         self.workflow_id = workflow_id
         self.context = context
         from copy import deepcopy
-        from multiprocessing import Queue
-        self.queue = Queue()
+        import concurrent.futures
+        pool = concurrent.futures.ProcessPoolExecutor(
+            config["debug_pool_workers"])
+        futures = {}
         self.waiting = [task for task in self]
         self.running = []
         self.finished = []
-        self.resolve()
+        self.resolve(pool, futures)
 
         while len(self.running) > 0:
-            # TODO: if the process is killed, this will be blocked forever
-            j, t = self.queue.get()
-            if t is None:
+            future = next(concurrent.futures.as_completed(futures))
+            j = futures.pop(future)
+            try:
+                t = future.result()
+            except Exception:
+                import traceback
+                traceback.print_exc()
                 self.tasks[j].phase = "Failed"
                 if not self.tasks[j].continue_on_failed:
                     raise RuntimeError("Task %s failed" % self.tasks[j])
@@ -148,8 +153,9 @@ class DAG(OPTemplate):
                 self.tasks[j].outputs = deepcopy(t.outputs)
             self.running.remove(self.tasks[j])
             self.finished.append(self.tasks[j])
-            self.resolve()
+            self.resolve(pool, futures)
 
+        pool.shutdown()
         assert len(self.finished) == len(self.tasks), "cyclic graph"
 
     def add_slices(self, slices):

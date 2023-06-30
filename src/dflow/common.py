@@ -1,6 +1,7 @@
 import abc
 import logging
 import os
+import re
 import shutil
 from abc import ABC
 from copy import copy, deepcopy
@@ -14,6 +15,18 @@ try:
     from argo.workflows.client.configuration import Configuration
 except Exception:
     V1alpha1S3Artifact = object
+
+field_regex = re.compile("^[a-zA-Z0-9][-a-zA-Z0-9]*$")
+field_errmsg = "name must consist of alpha-numeric characters or '-', and "\
+    "must start with an alpha-numeric character (e.g. My-name1-2, 123-NAME)"
+subdomain_regex = re.compile(
+    "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
+subdomain_errmsg = "a lowercase RFC 1123 subdomain must consist of lower case"\
+    " alphanumeric characters, '-' or '.', and must start and end with an "\
+    "alphanumeric character (e.g. 'example.com')"
+param_regex = re.compile("^[-a-zA-Z0-9_]+[-a-zA-Z0-9_]*$")
+param_errmsg = "Parameter/Artifact name must consist of alpha-numeric "\
+    "characters, '_' or '-' e.g. my_param_1, MY-PARAM-1"
 
 
 class S3Artifact(V1alpha1S3Artifact):

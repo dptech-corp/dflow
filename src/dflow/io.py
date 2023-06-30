@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import jsonpickle
 
-from .common import CustomArtifact, S3Artifact
+from .common import CustomArtifact, S3Artifact, param_errmsg, param_regex
 from .config import config
 from .utils import randstr, s3_config, upload_s3
 
@@ -87,6 +87,8 @@ class AutonamedDict(UserDict):
         super().__init__(*args)
 
     def __setitem__(self, key, value):
+        assert param_regex.match(key), "Invalid parameter/artifact name '%s':"\
+            " %s" % (key, param_errmsg)
         value.name = key
         value.step = self.step
         value.template = self.template
