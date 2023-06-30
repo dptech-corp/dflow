@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional, Union
 import jsonpickle
 
 from .argo_objects import ArgoStep, ArgoWorkflow
+from .common import subdomain_errmsg, subdomain_regex
 from .config import config, s3_config
 from .context import Context
 from .context_syntax import GLOBAL_CONTEXT
@@ -143,6 +144,8 @@ class Workflow:
         if uid is None:
             uid = id
         self.uid = uid
+        assert subdomain_regex.match(name), "Invalid workflow name '%s': %s"\
+            % (name, subdomain_errmsg)
         self.name = name
         if steps is not None:
             assert isinstance(steps, Steps)
@@ -285,6 +288,7 @@ class Workflow:
             if config["detach"]:
                 pid = os.fork()
                 if pid != 0:
+                    print("Workflow process ID: %s" % pid)
                     os.chdir(cwd)
                     return ArgoWorkflow({"id": self.id})
                 flog = open(os.path.join(wfdir, "log.txt"), "w")

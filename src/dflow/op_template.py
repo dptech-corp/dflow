@@ -2,6 +2,7 @@ import json
 from copy import deepcopy
 from typing import Dict, List, Optional, Union
 
+from .common import field_errmsg, field_regex
 from .config import config as global_config
 from .config import s3_config
 from .io import PVC, InputParameter, Inputs, OutputParameter, Outputs
@@ -86,7 +87,10 @@ class OPTemplate:
         if name is None:
             name = randstr()
         # force lowercase to fix RFC 1123
-        self.name = name.lower()
+        name = name.lower()
+        assert field_regex.match(name), "Invalid OP template name '%s': %s" % (
+            name, field_errmsg)
+        self.name = name
         if inputs is not None:
             self.inputs = inputs
         else:

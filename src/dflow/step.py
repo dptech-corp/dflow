@@ -10,7 +10,9 @@ from typing import Any, Dict, List, Optional, Union
 
 import jsonpickle
 
-from .common import CustomArtifact, HTTPArtifact, LocalArtifact, S3Artifact
+from .common import (CustomArtifact, HTTPArtifact, LocalArtifact, S3Artifact,
+                     field_errmsg, field_regex, subdomain_errmsg,
+                     subdomain_regex)
 from .config import config, s3_config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
@@ -307,6 +309,8 @@ class Step:
             parallelism: Optional[int] = None,
             slices: Optional[Slices] = None,
     ) -> None:
+        assert field_regex.match(name), "Invalid step name '%s': %s" % (
+            name, field_errmsg)
         self.name = name
         self.id = self.name
         self.template = template
@@ -330,6 +334,10 @@ class Step:
         self.when = when
         self.with_param = with_param
         self.with_sequence = with_sequence
+        if key is not None:
+            clean_key = re.sub("{{[^}]*}}", "a", key)
+            assert subdomain_regex.match(clean_key), "Invalid key '%s': %s" % (
+                key, subdomain_errmsg)
         self.key = key
         self.executor = executor
         self.use_resource = use_resource
@@ -1610,32 +1618,34 @@ class Step:
             else:
                 raise RuntimeError("Not supported")
 
-            procs = []
             self.parallel_steps = []
             assert isinstance(item_list, list)
-            from multiprocessing import Process, Queue
-            queue = Queue()
-            for i, item in enumerate(item_list):
-                ps = deepcopy(self)
-                ps.phase = "Pending"
-                self.parallel_steps.append(ps)
-                proc = Process(target=ps.exec_with_queue,
-                               args=(scope, parameters, i, queue, item,
-                                     config, s3_config))
-                proc.start()
-                procs.append(proc)
+            import concurrent.futures
+            with concurrent.futures.ProcessPoolExecutor(
+                    config["debug_pool_workers"]) as pool:
+                futures = []
+                for item in item_list:
+                    ps = deepcopy(self)
+                    ps.phase = "Pending"
+                    self.parallel_steps.append(ps)
+                    future = pool.submit(ps.exec_with_config, scope,
+                                         parameters, item, config, s3_config)
+                    futures.append(future)
 
-            for i in range(len(item_list)):
-                # TODO: if the process is killed, this will be blocked forever
-                j, ps = queue.get()
-                if ps is None:
-                    self.parallel_steps[j].phase = "Failed"
-                    if not self.continue_on_failed:
-                        self.phase = "Failed"
-                        raise RuntimeError("Step %s failed" %
-                                           self.parallel_steps[j])
-                else:
-                    self.parallel_steps[j].outputs = deepcopy(ps.outputs)
+                for future in concurrent.futures.as_completed(futures):
+                    j = futures.index(future)
+                    try:
+                        ps = future.result()
+                    except Exception:
+                        import traceback
+                        traceback.print_exc()
+                        self.parallel_steps[j].phase = "Failed"
+                        if not self.continue_on_failed:
+                            self.phase = "Failed"
+                            raise RuntimeError("Step %s failed" %
+                                               self.parallel_steps[j])
+                    else:
+                        self.parallel_steps[j].outputs = deepcopy(ps.outputs)
 
             for name, par in self.outputs.parameters.items():
                 par.value = []
@@ -1665,16 +1675,11 @@ class Step:
                 if not self.continue_on_failed:
                     raise RuntimeError("Step %s failed" % self)
 
-    def run_with_queue(self, scope, context, order, queue, conf, s3_conf):
-        try:
-            config.update(conf)
-            s3_config.update(s3_conf)
-            self.run(scope, context)
-            queue.put((order, self))
-        except Exception:
-            import traceback
-            traceback.print_exc()
-            queue.put((order, None))
+    def run_with_config(self, scope, context, conf, s3_conf):
+        config.update(conf)
+        s3_config.update(s3_conf)
+        self.run(scope, context)
+        return self
 
     def record_input_parameters(self, stepdir, parameters):
         os.makedirs(os.path.join(stepdir, "inputs/parameters"), exist_ok=True)
@@ -1970,17 +1975,11 @@ class Step:
         with open(os.path.join(stepdir, "phase"), "w") as f:
             f.write("Succeeded")
 
-    def exec_with_queue(self, scope, parameters, order, queue, item, conf,
-                        s3_conf):
-        try:
-            config.update(conf)
-            s3_config.update(s3_conf)
-            self.exec(scope, parameters, item)
-            queue.put((order, self))
-        except Exception:
-            import traceback
-            traceback.print_exc()
-            queue.put((order, None))
+    def exec_with_config(self, scope, parameters, item, conf, s3_conf):
+        config.update(conf)
+        s3_config.update(s3_conf)
+        self.exec(scope, parameters, item)
+        return self
 
 
 def render_item(expr, item):

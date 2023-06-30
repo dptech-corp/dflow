@@ -124,27 +124,28 @@ class Steps(OPTemplate):
         self.workflow_id = workflow_id
         for step in self:
             if isinstance(step, list):
-                from multiprocessing import Process, Queue
-                queue = Queue()
-                procs = []
-                for i, ps in enumerate(step):
-                    ps.phase = "Pending"
-                    proc = Process(
-                        target=ps.run_with_queue,
-                        args=(self, context, i, queue, config, s3_config))
-                    proc.start()
-                    procs.append(proc)
+                import concurrent.futures
+                with concurrent.futures.ProcessPoolExecutor(
+                        config["debug_pool_workers"]) as pool:
+                    futures = []
+                    for ps in step:
+                        ps.phase = "Pending"
+                        future = pool.submit(ps.run_with_config, self, context,
+                                             config, s3_config)
+                        futures.append(future)
 
-                for i in range(len(step)):
-                    # TODO: if the process is killed, this will be blocked
-                    # forever
-                    j, ps = queue.get()
-                    if ps is None:
-                        step[j].phase = "Failed"
-                        if not step[j].continue_on_failed:
-                            raise RuntimeError("Step %s failed" % step[j])
-                    else:
-                        step[j].outputs = deepcopy(ps.outputs)
+                    for future in concurrent.futures.as_completed(futures):
+                        j = futures.index(future)
+                        try:
+                            ps = future.result()
+                        except Exception:
+                            import traceback
+                            traceback.print_exc()
+                            step[j].phase = "Failed"
+                            if not step[j].continue_on_failed:
+                                raise RuntimeError("Step %s failed" % step[j])
+                        else:
+                            step[j].outputs = deepcopy(ps.outputs)
             else:
                 step.run(self, context)
 
