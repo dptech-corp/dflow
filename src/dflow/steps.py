@@ -5,6 +5,7 @@ from .config import config, s3_config
 from .io import Inputs, Outputs
 from .op_template import OPTemplate
 from .step import Step, add_slices
+from .utils import randstr
 
 try:
     from argo.workflows.client import V1alpha1Metadata, V1alpha1Template
@@ -151,3 +152,14 @@ class Steps(OPTemplate):
 
     def add_slices(self, slices):
         add_slices(self, slices)
+
+    def copy(self):
+        new_template = deepcopy(self)
+        new_template.name += "-" + randstr()
+        for step, new_step in zip(self.steps, new_template.steps):
+            if isinstance(new_step, list):
+                for ps, new_ps in zip(step, new_step):
+                    new_ps.template = ps.template
+            else:
+                new_step.template = step.template
+        return new_template

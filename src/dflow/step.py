@@ -158,7 +158,7 @@ class ArgoLen(ArgoVar):
         else:
             if isinstance(param, OutputParameter) and param.save_as_artifact:
                 step = param.step
-                step.template = step.template.copy()
+                step.template = step.template.deepcopy()
                 step.template.outputs.parameters[param.name].save_both = True
                 param.save_both = True
                 super().__init__("len(sprig.fromJson(%s))" %
@@ -371,7 +371,7 @@ class Step:
                 value=str(self.key))
 
         if slices is not None:
-            self.template = self.template.copy()
+            self.template = self.template.deepcopy()
             self.template.slices = slices
             self.template.add_slices(slices)
             for name, par in self.template.inputs.parameters.items():
@@ -429,7 +429,7 @@ class Step:
         if sliced_output_artifact or sliced_input_artifact or \
                 sum_var is not None or concat_var is not None or \
                 auto_loop_artifacts:
-            self.template = self.template.copy()
+            self.template = self.template.deepcopy()
             init_template = InitArtifactForSlices(
                 self.template, self.util_image, self.util_command,
                 self.util_image_pull_policy, self.key, sliced_output_artifact,
@@ -607,7 +607,7 @@ class Step:
 
         if hasattr(self.template, "slices") and self.template.slices is not \
                 None and self.template.slices.group_size is not None:
-            self.template = self.template.copy()
+            self.template = self.template.deepcopy()
             group_size = self.template.slices.group_size
             self.template.inputs.parameters["dflow_nslices"] = InputParameter()
             if self.template.slices.shuffle:
@@ -733,7 +733,7 @@ class Step:
         if config["register_tasks"] and hasattr(self.template, "slices") and \
                 self.template.slices and \
                 self.template.slices.register_first_only:
-            self.template = self.template.copy()
+            self.template = self.template.deepcopy()
             if self.with_param is not None:
                 if isinstance(self.with_param, ArgoVar):
                     par = self.with_param.expr
@@ -761,7 +761,7 @@ class Step:
                 pvc_arts.append((art.source, art))
 
         if len(pvc_arts) > 0:
-            self.template = self.template.copy()
+            self.template = self.template.deepcopy()
             if (isinstance(self.template, ShellOPTemplate)):
                 for pvc, art in pvc_arts:
                     del self.template.inputs.artifacts[art.name]
@@ -791,7 +791,7 @@ class Step:
                     pvc_arts.append((save, art))
 
         if len(pvc_arts) > 0:
-            self.template = self.template.copy()
+            self.template = self.template.deepcopy()
             if (isinstance(self.template, ShellOPTemplate)):
                 self.template.script += "\n"
                 for pvc, art in pvc_arts:
@@ -816,7 +816,7 @@ class Step:
         if self.continue_on_num_success or self.continue_on_success_ratio is \
                 not None:
             self.continue_on_failed = True
-            self.template = self.template.copy()
+            self.template = self.template.deepcopy()
             from .steps import Steps
             if isinstance(self.template, ScriptOPTemplate):
                 self.template.outputs.parameters["dflow_success_tag"] = \
@@ -1133,7 +1133,7 @@ class Step:
             elif isinstance(v, CustomArtifact):
                 self.inputs.artifacts[k].source = v
                 self.inputs.artifacts[k].save_as_parameter = True
-                self.template = deepcopy(self.template)
+                self.template = self.template.copy()
                 self.template.inputs.artifacts[k].source = v
                 self.template.inputs.artifacts[k].save_as_parameter = True
                 from .python import PythonOPTemplate
@@ -1147,7 +1147,7 @@ class Step:
                             if art.source is self.template.inputs.artifacts[k]:
                                 step.set_artifacts({name: v})
             elif isinstance(v, (list, tuple)):
-                self.template = self.template.copy()
+                self.template = self.template.deepcopy()
                 slices = []
                 for i, a in enumerate(v):
                     vn = "dflow_%s_%s" % (k, i)
@@ -1186,7 +1186,7 @@ class Step:
                 del self.template.inputs.artifacts[k]
                 del self.inputs.artifacts[k]
             elif isinstance(v, dict):
-                self.template = self.template.copy()
+                self.template = self.template.deepcopy()
                 slices = {}
                 flat_v = flatten(v)
                 for i, a in flat_v.items():
@@ -1228,7 +1228,7 @@ class Step:
             else:
                 self.inputs.artifacts[k].source = v
                 if hasattr(v, "slice") and v.slice is not None:
-                    self.template = self.template.copy()
+                    self.template = self.template.deepcopy()
                     if isinstance(v.slice, (InputParameter, OutputParameter)):
                         self.template.inputs.parameters[
                             "dflow_%s" % v.slice.name] = InputParameter()
