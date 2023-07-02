@@ -673,6 +673,11 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dflow.dag.DAG.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.dag.DAG.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dflow.dag.DAG.from_dict">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.dag.DAG.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1209,6 +1214,11 @@ None takes arguments from sys.argv</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.op_template.OPTemplate.copy">
 <span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.OPTemplate.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.op_template.OPTemplate.deepcopy">
+<span class="sig-name descname"><span class="pre">deepcopy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.op_template.OPTemplate.deepcopy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1803,6 +1813,11 @@ entrypoint of the workflow</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dflow.steps.Steps.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.steps.Steps.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dflow.steps.Steps.from_dict">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.steps.Steps.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -2276,6 +2291,11 @@ must be one of the following:</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dflow.workflow.Workflow.deduplicate_templates">
+<span class="sig-name descname"><span class="pre">deduplicate_templates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.workflow.Workflow.deduplicate_templates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dflow.workflow.Workflow.delete">
 <span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dflow.workflow.Workflow.delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delete the workflow</p>
@@ -2678,6 +2698,11 @@ self in this method to make the executor reusable</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dflow.DAG.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.DAG.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dflow.DAG.from_dict">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.DAG.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -2863,6 +2888,11 @@ self in this method to make the executor reusable</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.OPTemplate.copy">
 <span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.OPTemplate.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.OPTemplate.deepcopy">
+<span class="sig-name descname"><span class="pre">deepcopy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.OPTemplate.deepcopy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -3482,6 +3512,11 @@ entrypoint of the workflow</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dflow.Steps.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Steps.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dflow.Steps.from_dict">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Steps.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -3606,6 +3641,11 @@ must be one of the following:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.Workflow.convert_to_argo">
 <span class="sig-name descname"><span class="pre">convert_to_argo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reuse_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Workflow.convert_to_argo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.Workflow.deduplicate_templates">
+<span class="sig-name descname"><span class="pre">deduplicate_templates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Workflow.deduplicate_templates" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -4173,6 +4213,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.dag.DAG.add"><code class="docutils literal notranslate"><span class="pre">DAG.add()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.dag.DAG.add_slices"><code class="docutils literal notranslate"><span class="pre">DAG.add_slices()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.dag.DAG.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">DAG.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.dag.DAG.copy"><code class="docutils literal notranslate"><span class="pre">DAG.copy()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.dag.DAG.from_dict"><code class="docutils literal notranslate"><span class="pre">DAG.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.dag.DAG.resolve"><code class="docutils literal notranslate"><span class="pre">DAG.resolve()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.dag.DAG.run"><code class="docutils literal notranslate"><span class="pre">DAG.run()</span></code></a></li>
@@ -4297,6 +4338,7 @@ parameters</p></li>
 </li>
 <li><a class="reference internal" href="#dflow.op_template.OPTemplate"><code class="docutils literal notranslate"><span class="pre">OPTemplate</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.op_template.OPTemplate.copy"><code class="docutils literal notranslate"><span class="pre">OPTemplate.copy()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.op_template.OPTemplate.deepcopy"><code class="docutils literal notranslate"><span class="pre">OPTemplate.deepcopy()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.op_template.OPTemplate.from_dict"><code class="docutils literal notranslate"><span class="pre">OPTemplate.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.op_template.OPTemplate.handle_key"><code class="docutils literal notranslate"><span class="pre">OPTemplate.handle_key()</span></code></a></li>
 </ul>
@@ -4389,6 +4431,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.steps.Steps.add"><code class="docutils literal notranslate"><span class="pre">Steps.add()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.steps.Steps.add_slices"><code class="docutils literal notranslate"><span class="pre">Steps.add_slices()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.steps.Steps.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Steps.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.steps.Steps.copy"><code class="docutils literal notranslate"><span class="pre">Steps.copy()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.steps.Steps.from_dict"><code class="docutils literal notranslate"><span class="pre">Steps.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.steps.Steps.run"><code class="docutils literal notranslate"><span class="pre">Steps.run()</span></code></a></li>
 </ul>
@@ -4468,6 +4511,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.workflow.Workflow"><code class="docutils literal notranslate"><span class="pre">Workflow</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.workflow.Workflow.add"><code class="docutils literal notranslate"><span class="pre">Workflow.add()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.workflow.Workflow.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Workflow.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.workflow.Workflow.deduplicate_templates"><code class="docutils literal notranslate"><span class="pre">Workflow.deduplicate_templates()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.workflow.Workflow.delete"><code class="docutils literal notranslate"><span class="pre">Workflow.delete()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.workflow.Workflow.from_dict"><code class="docutils literal notranslate"><span class="pre">Workflow.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.workflow.Workflow.from_json"><code class="docutils literal notranslate"><span class="pre">Workflow.from_json()</span></code></a></li>
@@ -4537,6 +4581,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.DAG.add"><code class="docutils literal notranslate"><span class="pre">DAG.add()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.DAG.add_slices"><code class="docutils literal notranslate"><span class="pre">DAG.add_slices()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.DAG.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">DAG.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.DAG.copy"><code class="docutils literal notranslate"><span class="pre">DAG.copy()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.DAG.from_dict"><code class="docutils literal notranslate"><span class="pre">DAG.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.DAG.resolve"><code class="docutils literal notranslate"><span class="pre">DAG.resolve()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.DAG.run"><code class="docutils literal notranslate"><span class="pre">DAG.run()</span></code></a></li>
@@ -4578,6 +4623,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.LocalArtifact"><code class="docutils literal notranslate"><span class="pre">LocalArtifact</span></code></a></li>
 <li><a class="reference internal" href="#dflow.OPTemplate"><code class="docutils literal notranslate"><span class="pre">OPTemplate</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.OPTemplate.copy"><code class="docutils literal notranslate"><span class="pre">OPTemplate.copy()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.OPTemplate.deepcopy"><code class="docutils literal notranslate"><span class="pre">OPTemplate.deepcopy()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.OPTemplate.from_dict"><code class="docutils literal notranslate"><span class="pre">OPTemplate.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.OPTemplate.handle_key"><code class="docutils literal notranslate"><span class="pre">OPTemplate.handle_key()</span></code></a></li>
 </ul>
@@ -4676,6 +4722,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.Steps.add"><code class="docutils literal notranslate"><span class="pre">Steps.add()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Steps.add_slices"><code class="docutils literal notranslate"><span class="pre">Steps.add_slices()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Steps.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Steps.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Steps.copy"><code class="docutils literal notranslate"><span class="pre">Steps.copy()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Steps.from_dict"><code class="docutils literal notranslate"><span class="pre">Steps.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Steps.run"><code class="docutils literal notranslate"><span class="pre">Steps.run()</span></code></a></li>
 </ul>
@@ -4690,6 +4737,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.Workflow"><code class="docutils literal notranslate"><span class="pre">Workflow</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.Workflow.add"><code class="docutils literal notranslate"><span class="pre">Workflow.add()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Workflow.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Workflow.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Workflow.deduplicate_templates"><code class="docutils literal notranslate"><span class="pre">Workflow.deduplicate_templates()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Workflow.delete"><code class="docutils literal notranslate"><span class="pre">Workflow.delete()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Workflow.from_dict"><code class="docutils literal notranslate"><span class="pre">Workflow.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Workflow.from_json"><code class="docutils literal notranslate"><span class="pre">Workflow.from_json()</span></code></a></li>
