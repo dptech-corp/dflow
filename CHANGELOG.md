@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.12](https://github.com/deepmodeling/dflow/compare/v1.7.11...v1.7.12) (2023-07-02)
+
+
+### Bug Fixes
+
+* deduplicate argo templates ([23f88bf](https://github.com/deepmodeling/dflow/commit/23f88bf094b856e86546fa67f0eb8caa51916312))
+* shallow copy super op ([23f88bf](https://github.com/deepmodeling/dflow/commit/23f88bf094b856e86546fa67f0eb8caa51916312))
+
 ## [1.7.11](https://github.com/deepmodeling/dflow/compare/v1.7.10...v1.7.11) (2023-06-30)
 
 
