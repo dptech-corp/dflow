@@ -425,6 +425,7 @@ class Workflow:
             self.copied_keys.append(old_key)
 
     def convert_to_argo(self, reuse_step=None):
+        self.parents = {}
         if self.context is not None:
             assert isinstance(self.context, (Context, Executor))
             self = self.context.render(self)
@@ -509,6 +510,7 @@ class Workflow:
             workflow_urn = config["lineage"].register_workflow(self.name)
             self.parameters["dflow_workflow_urn"] = workflow_urn
 
+        self.deduplicate_templates()
         return V1alpha1Workflow(
             metadata=metadata,
             spec=V1alpha1WorkflowSpec(
@@ -529,6 +531,38 @@ class Workflow:
                 else V1alpha1ArtifactRepositoryRef(key=self.artifact_repo_key)
             ),
             status=status)
+
+    def deduplicate_templates(self):
+        logger.debug("before deduplication", len(self.argo_templates))
+        modified = True
+        while modified:
+            modified = False
+            deduplicated = {}
+            for n1, t1 in self.argo_templates.items():
+                duplicate = False
+                for n2, t2 in deduplicated.items():
+                    t1.name = n2
+                    if t1 == t2:
+                        duplicate = True
+                        for parent in self.parents.get(n1, []):
+                            if parent.steps:
+                                for step in parent.steps:
+                                    for ps in step:
+                                        if ps.template == n1:
+                                            ps.template = n2
+                            elif parent.dag:
+                                for task in parent.dag.tasks:
+                                    if task.template == n1:
+                                        task.template = n2
+                            self.parents[n2] = self.parents.get(n2, []) + [
+                                parent]
+                            modified = True
+                        break
+                if not duplicate:
+                    t1.name = n1
+                    deduplicated[n1] = t1
+            self.argo_templates = deduplicated
+        logger.debug("after deduplication", len(self.argo_templates))
 
     def to_dict(self):
         return self.api_instance.api_client.sanitize_for_serialization(
@@ -650,9 +684,10 @@ class Workflow:
                 argo_template, templates = template.convert_to_argo(
                     memoize_prefix, memoize_configmap, self.context)
                 self.argo_templates[template.name] = argo_template
-                for template in templates:
-                    self.handle_template(
-                        template, memoize_prefix, memoize_configmap)
+                for t in templates:
+                    self.parents[t.name] = self.parents.get(t.name, []) + [
+                        argo_template]
+                    self.handle_template(t, memoize_prefix, memoize_configmap)
             else:
                 self.argo_templates[template.name] = template.convert_to_argo(
                     memoize_prefix, memoize_configmap)

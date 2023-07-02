@@ -177,6 +177,14 @@ class OPTemplate:
         new_template.modified = True
         return new_template
 
+    def deepcopy(self):
+        if self.modified:
+            return self
+        new_template = deepcopy(self)
+        new_template.name += "-" + randstr()
+        new_template.modified = True
+        return new_template
+
 
 class ScriptOPTemplate(OPTemplate):
     """
