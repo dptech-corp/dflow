@@ -15,44 +15,45 @@ cookiecutter https://github.com/deepmodeling/dflow-op-cutter.git
 Dflow provides a debug mode for running workflows bare-metally whose backend is implemented in dflow in pure Python, independent of Argo/Kubernetes. The debug mode uses local environment to execute OPs instead of containers. It implements most APIs of the default mode in order to provide an identical user experience. The debug mode offer convenience for debugging or testing without container. For the clusters having problem deploying docker and Kubernetes and difficult to access from outside, the debug mode may also be used for production, despite less robustness and observability.
 
 <!-- vscode-markdown-toc -->
-* 1. [ Overview](#Overview)
-	* 1.1. [ Architecture](#Architecture)
-	* 1.2. [ Basics](#Basics)
-		* 1.2.1. [ Parameters and artifacts](#Parametersandartifacts)
-		* 1.2.2. [ OP template](#OPtemplate)
-		* 1.2.3. [ Step](#Step)
-		* 1.2.4. [ Workflow](#Workflow)
-* 2. [ Quick Start](#QuickStart)
-	* 2.1. [ Setup Argo Server](#SetupArgoServer)
-	* 2.2. [ Install dflow](#Installdflow)
-	* 2.3. [ Run an example](#Runanexample)
-* 3. [ User Guide](#UserGuide)
-	* 3.1. [ Common layer](#Commonlayer)
-		* 3.1.1. [ Workflow management](#Workflowmanagement)
-		* 3.1.2. [ Upload/download artifact](#Uploaddownloadartifact)
-		* 3.1.3. [ Steps](#Steps)
-		* 3.1.4. [ DAG](#DAG)
-		* 3.1.5. [ Conditional step, parameters and artifacts](#Conditionalstepparametersandartifacts)
-		* 3.1.6. [ Produce parallel steps using loop](#Produceparallelstepsusingloop)
-		* 3.1.7. [ Timeout](#Timeout)
-		* 3.1.8. [ Continue on failed](#Continueonfailed)
-		* 3.1.9. [ Continue on success number/ratio of parallel steps](#Continueonsuccessnumberratioofparallelsteps)
-		* 3.1.10. [ Optional input artifacts](#Optionalinputartifacts)
-		* 3.1.11. [ Default value for output parameters](#Defaultvalueforoutputparameters)
-		* 3.1.12. [ Key of a step](#Keyofastep)
-		* 3.1.13. [ Resubmit a workflow](#Resubmitaworkflow)
-		* 3.1.14. [ Executor](#Executor)
-		* 3.1.15. [ Submit HPC/Bohrium job via dispatcher plugin](#SubmitHPCBohriumjobviadispatcherplugin)
-		* 3.1.16. [ Submit Slurm job via virtual node](#SubmitSlurmjobviavirtualnode)
-		* 3.1.17. [ Use resources in Kubernetes](#UseresourcesinKubernetes)
-		* 3.1.18. [ Important note: variable names](#Importantnotevariablenames)
-		* 3.1.19. [ Debug mode: dflow independent of Kubernetes](#DebugmodedflowindependentofKubernetes)
-		* 3.1.20. [Artifact storage plugins](#Artifactstorageplugins)
-	* 3.2. [ Interface layer](#Interfacelayer)
-		* 3.2.1. [ Slices](#Slices)
-		* 3.2.2. [ Retry and error handling](#Retryanderrorhandling)
-		* 3.2.3. [ Progress](#Progress)
-		* 3.2.4. [ Upload python packages for development](#Uploadpythonpackagesfordevelopment)
+* 1. [Overview](#1-overview)
+	* 1.1. [Architecture](#11-architecture)
+	* 1.2. [Basics](#12-basics)
+		* 1.2.1. [Parameters and artifacts](#121-parameters-and-artifacts)
+		* 1.2.2. [OP template](#122-op-template)
+		* 1.2.3. [Step](#123-step)
+		* 1.2.4. [Workflow](#124-workflow)
+* 2. [Quick Start](#2-quick-start)
+	* 2.1. [Setup Argo Server](#21-setup-argo-server)
+	* 2.2. [Install dflow](#22-install-dflow)
+	* 2.3. [Run an example](#23-run-an-example)
+* 3. [User Guide](#3-user-guide)
+	* 3.1. [Common layer](#31-common-layer)
+		* 3.1.1. [Workflow management](#311-workflow-management)
+		* 3.1.2. [Upload/download artifact](#312-upload-download-artifact)
+		* 3.1.3. [Steps](#313-steps)
+		* 3.1.4. [DAG](#314-dag)
+		* 3.1.5. [Conditional step, parameters and artifacts](#315-conditional-step-parameters-and-artifacts)
+		* 3.1.6. [Produce parallel steps using loop](#316-produce-parallel-steps-using-loop)
+		* 3.1.7. [Timeout](#317-timeout)
+		* 3.1.8. [Continue on failed](#318-continue-on-failed)
+		* 3.1.9. [Continue on success number/ratio of parallel steps](#319-continue-on-success-number-ratio-of-parallel-steps)
+		* 3.1.10. [Optional input artifacts](#3110-optional-input-artifacts)
+		* 3.1.11. [Default value for output parameters](#3111-default-value-for-output-parameters)
+		* 3.1.12. [Key of a step](#3112-key-of-a-step)
+		* 3.1.13. [Resubmit a workflow](#3113-resubmit-a-workflow)
+		* 3.1.14. [Executor](#3114-executor)
+		* 3.1.15. [Submit HPC/Bohrium job via dispatcher plugin](#3115-submit-hpc-bohrium-job-via-dispatcher-plugin)
+		* 3.1.16. [Submit Slurm job via virtual node](#3116-submit-slurm-job-via-virtual-node)
+		* 3.1.17. [Use resources in Kubernetes](#3117-use-resources-in-kubernetes)
+		* 3.1.18. [Important note: variable names](#3118-important-note-variable-names)
+		* 3.1.19. [Debug mode: dflow independent of Kubernetes](#3119-debug-mode-dflow-independent-of-kubernetes)
+		* 3.1.20. [Artifact storage plugins](#3120-artifact-storage-plugins)
+	* 3.2. [Interface layer](#32-interface-layer)
+		* 3.2.1. [Slices](#321-slices)
+		* 3.2.2. [Retry and error handling](#322-retry-and-error-handling)
+		* 3.2.3. [Progress](#323-progress)
+		* 3.2.4. [Upload python packages for development](#324-upload-python-packages-for-development)
+
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -60,8 +61,8 @@ Dflow provides a debug mode for running workflows bare-metally whose backend is 
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-##  1. <a name='Overview'></a> Overview
-###  1.1. <a name='Architecture'></a> Architecture
+## 1. Overview
+###  1.1. Architecture
 The dflow consists of a **common layer** and an **interface layer**.  Interface layer takes various OP templates from users, usually in the form of python classes or functions, and transforms them into base OP templates that common layer can handle.
 
 <p align="center">
@@ -75,12 +76,12 @@ img {
 }
 </style> -->
 
-###  1.2. <a name='Basics'></a> Basics
+###  1.2. Basics
 
-####  1.2.1. <a name='Parametersandartifacts'></a> Parameters and artifacts
+####  1.2.1.  Parameters and artifacts
 Parameters and artifacts are data stored by the workflow and passed within the workflow. Parameters are saved as text which can be displayed in the UI, while artifacts are saved as files. Parameters are passed to an OP with their values, while artifacts are passed as paths.
 
-####  1.2.2. <a name='OPtemplate'></a> OP template
+####  1.2.2.  OP template
 OP template (abbr. OP) is a fundamental building block of a workflow. It defines a particular operation to be executed given the input and the expected output. Both the input and output can be parameters and/or artifacts. The most common OP template is the container OP template. Two types of container OP templates are supported: `ShellOPTemplate`, `PythonScriptOPTemplate`. `ShellOPTemplate` defines an operation by shell script and a container image where the script runs. `PythonScriptOPTemplate` defines an operation by Python script and a container image.
 
 As a more Python-native category of OP templates, `PythonOPTemplate` defines OPs in the form of Python classes or Python functions (called class OP or function OP correspondingly). As Python is a weak typed
@@ -162,7 +163,7 @@ simple_example_templ = PythonOPTemplate(SimpleExample, image="python:3.8")
 An example is here
 - [Python OP example](examples/test_python.py)
 
-####  1.2.3. <a name='Step'></a> Step
+####  1.2.3. Step
 `Step` is the central block for formulating rules of data flows. A step is the result of instantiating an OP template, where values of all input parameters and sources of all input artifacts declared in the OP template must be specified here. The input parameters/artifacts of a step may be either static at the time of submission, or dynamically from outputs of another step.
 
 ```python
@@ -179,7 +180,7 @@ simple_example_step = Step(
 Note that `foo` here is an artifact either uploaded from local or output of another step.
 
 
-####  1.2.4. <a name='Workflow'></a> Workflow
+####  1.2.4.  Workflow
 `Workflow` connects blocks together to build a workflow. A simple serial workflow is created by adding steps in sequence. Adding a list of steps to a workflow means these steps running in parallel.
 
 ```python
@@ -199,20 +200,20 @@ An example is here
 - [Workflow example](examples/test_steps.py)
 
 
-##  2. <a name='QuickStart'></a> Quick Start
+##  2. Quick Start
 
-###  2.1. <a name='SetupArgoServer'></a> Setup Argo Server
+###  2.1. Setup Argo Server
 
 If you have an Argo server already, you can skip this step. Otherwise you can follow the [installation guide](tutorials/readme.md).
 
-###  2.2. <a name='Installdflow'></a> Install dflow
+###  2.2. Install dflow
 Make sure your Python version is not less than 3.6 and install dflow
 
 ```
 pip install pydflow
 ```
 
-###  2.3. <a name='Runanexample'></a> Run an example
+###  2.3. Run an example
 There are several [notebook tutorials](tutorials/readme.md) that can help you start to use dflow. Besides, you can submit a simple workflow from the terminal
 
 ```
@@ -221,10 +222,10 @@ python examples/test_python.py
 
 Then you can check the submitted workflow through [argo's UI](https://127.0.0.1:2746).
 
-##  3. <a name='UserGuide'></a> User Guide ([dflow-doc](https://deepmodeling.com/dflow/dflow.html))
-###  3.1. <a name='Commonlayer'></a> Common layer
+##  3. User Guide ([dflow-doc](https://deepmodeling.com/dflow/dflow.html))
+###  3.1. Common layer
 
-####  3.1.1. <a name='Workflowmanagement'></a> Workflow management
+####  3.1.1. Workflow management
 After submitting a workflow by `wf.submit()`, or getting a history workflow by `wf = Workflow(id="xxx")`, one can track its real-time status with APIs
 
 - `wf.id`: workflow ID in argo
@@ -234,7 +235,7 @@ After submitting a workflow by `wf.submit()`, or getting a history workflow by `
     - `step.outputs.parameters`: a dictionary of output parameters
     - `step.outputs.artifacts`: a dictionary of output artifacts
 
-####  3.1.2. <a name='Uploaddownloadartifact'></a> Upload/download artifact
+####  3.1.2. Upload/download artifact
 Dflow offers tools for uploading files to the artifact repository and downloading files from it (default artifact repository is Minio set up in the quick start). User can upload a file/directory, a list of files/directories or a dictionary of files/directories and get an artifact object, which can be used as argument of a step
 
 ```python
@@ -256,7 +257,7 @@ Modify `dflow.s3_config` to configure artifact repository settings globally.
 
 Note: dflow retains the relative path of the uploaded file/directory with respect to the current directory during uploading. If file/directory outside current directory is uploaded, its absolute path is used as the relative path in the artifact. If you want a different directory structure in the artifact with the local one, you can make soft links and then upload.
 
-####  3.1.3. <a name='Steps'></a> Steps
+####  3.1.3. Steps
 `Steps` is another kind of OP template which is defined by its constituent steps instead of a container. It can be seen as a sub-workflow or a super OP template consisting of some smaller OPs. A `steps` includes an array of arrays of `step`s, e.g. `[[s00,s01],[s10,s11,s12]]`, where inner array represent concurrent steps while outer array is sequential. One can declare input/output parameters/artifacts for a steps by
 
 ```python
@@ -289,7 +290,7 @@ steps.outputs.artifacts["foo"]._from = step.outputs.parameters["foo"]
 
 - [Recursive example](examples/test_recurse.py)
 
-####  3.1.4. <a name='DAG'></a> DAG
+####  3.1.4. DAG
 `DAG` is another kind of OP template which is defined by its constituent tasks and their dependencies. The usage of `DAG` is similar to that of `Steps`. To add a `task` to a `dag`, use
 
 ```python
@@ -304,7 +305,7 @@ task_3 = Task(..., dependencies=[task_1, task_2])
 
 - [DAG example](examples/test_dag.py)
 
-####  3.1.5. <a name='Conditionalstepparametersandartifacts'></a> Conditional step, parameters and artifacts
+####  3.1.5. Conditional step, parameters and artifacts
 Set a step to be conditional by `Step(..., when=expr)` where `expr` is an boolean expression in string format. Such as `"%s < %s" % (par1, par2)`. The step will be performed if the expression is evalutated to be true, otherwise skipped. The `when` argument is often used as the breaking condition of recursive steps. The output parameter of a `steps` (similar to `dag`) can be assigned as conditional by
 
 ```python
@@ -327,7 +328,7 @@ steps.outputs.artifacts["foo"].from_expression = if_expression(
 
 - [Conditional outputs example](examples/test_conditional_outputs.py)
 
-####  3.1.6. <a name='Produceparallelstepsusingloop'></a> Produce parallel steps using loop
+####  3.1.6. Produce parallel steps using loop
 In scientific computing, it is often required to produce a list of parallel steps which share a common OP template, and only differ in the input parameters. `with_param` and `with_sequence` are 2 arguments of `Step` for automatically generating a list of parallel steps. These steps share a common OP template, and only differ in the input parameters.
 
 A step using `with_param` option generates parallel steps on a list (either a constant list or referring to another parameter, e.g. an output parameter of another step or an input parameter of the `steps` or `DAG` context), the parallelism equals to the length of the list. Each parallel step picks an item from the list by `"{{item}}"`, such as
@@ -350,38 +351,38 @@ step = Step(
 )
 ```
 
-####  3.1.7. <a name='Timeout'></a> Timeout
+####  3.1.7. Timeout
 Set the timeout of a step by `Step(..., timeout=t)`. The unit is second.
 
 - [Timeout example](examples/test_error_handling.py)
 
-####  3.1.8. <a name='Continueonfailed'></a> Continue on failed
+####  3.1.8. Continue on failed
 Set the workflow to continue when a step fails by `Step(..., continue_on_failed=True)`.
 
 - [Continue on failed example](examples/test_error_handling.py)
 
-####  3.1.9. <a name='Continueonsuccessnumberratioofparallelsteps'></a> Continue on success number/ratio of parallel steps
+####  3.1.9. Continue on success number/ratio of parallel steps
 For a group of parallel steps generated by `with_param` or `with_sequence`, set the workflow to continue when certain number/ratio of parallel steps succeed by `Step(..., continue_on_num_success=n)` or `Step(..., continue_on_success_ratio=r)`.
 
 - [Continue on success ratio example](examples/test_success_ratio.py)
 
-####  3.1.10. <a name='Optionalinputartifacts'></a> Optional input artifacts
+####  3.1.10. Optional input artifacts
 Set an input artifact to be optional by `op_template.inputs.artifacts["foo"].optional = True`.
 
-####  3.1.11. <a name='Defaultvalueforoutputparameters'></a> Default value for output parameters
+####  3.1.11. Default value for output parameters
 Set default value for an output parameter by `op_template.outputs.parameters["msg"].default = default_value`. The default value will be used when the expression in `value_from_expression` fails or the step is skipped.
 
-####  3.1.12. <a name='Keyofastep'></a> Key of a step
+####  3.1.12. Key of a step
 One can assign a key for a step by `Step(..., key="some-key")` for the convenience of locating the step. The key can be regarded as an input parameter which may contain reference of other parameters. For instance, the key of a step can change with iterations of a dynamic loop. Once key is assigned to a step, the step can be query by `wf.query_step(key="some-key")`. If the key is unique within the workflow, the `query_step` method returns a list consist of only one element.
 
 - [Key of step example](examples/test_reuse.py)
 
-####  3.1.13. <a name='Resubmitaworkflow'></a> Resubmit a workflow
+####  3.1.13. Resubmit a workflow
 Workflows often have some steps that are expensive to compute. The outputs of previously run steps can be reused for submitting a new workflow. E.g. a failed workflow can be restarted from a certain point after some modification of the workflow template or even outputs of completed steps. For example, submit a workflow with reused steps by `wf.submit(reuse_step=[step0, step1])`. Here, `step0` and `step1` are previously run steps returned by `query_step` method. Before the new workflow runs a step, it will detect if there exists a reused step whose key matches that of the step about to run. If hit, the workflow will skip the step and set its outputs as those of the reused step. To modify outputs of a step before reusing, use `step0.modify_output_parameter(par_name, value)` for parameters and `step0.modify_output_artifact(art_name, artifact)` for artifacts.
 
 - [Reuse step example](examples/test_reuse.py)
 
-####  3.1.14. <a name='Executor'></a> Executor
+####  3.1.14. Executor
 For a "script step" (a step whose template is a script OP template), by default the Shell script or Python script runs in the container directly. Alternatively, one can modify the executor to run the script. Dflow offers an extension point for "script step" `Step(..., executor=my_executor)`. Here, `my_executor` should be an instance of class derived from the abstract class `Executor`. An implementation class of `Executor` should implement a method `render` which converts original template to a new template.
 
 ```python
@@ -393,7 +394,7 @@ class Executor(ABC):
 
 A context is similar to an executor, but assigned to a workflow `Workflow(context=...)` and affect every step.
 
-####  3.1.15. <a name='SubmitHPCBohriumjobviadispatcherplugin'></a> Submit HPC/Bohrium job via dispatcher plugin
+####  3.1.15. Submit HPC/Bohrium job via dispatcher plugin
 
 [DPDispatcher](https://github.com/deepmodeling/dpdispatcher) is a python package used to generate HPC scheduler systems (Slurm/PBS/LSF) or [Bohrium](https://bohrium.dp.tech) jobs input scripts and submit these scripts and poke until they finish. Dflow provides simple interface to invoke dispatcher as executor to complete script steps. E.g.
 
@@ -411,7 +412,7 @@ For SSH authentication, one can either specify path of private key file locally,
 
 - [Dispatcher executor example](examples/test_dispatcher.py)
 
-####  3.1.16. <a name='SubmitSlurmjobviavirtualnode'></a> Submit Slurm job via virtual node
+####  3.1.16. Submit Slurm job via virtual node
 
 Following the installation steps in the [wlm-operator](https://github.com/dptech-corp/wlm-operator) project to add Slurm partitions as virtual nodes to Kubernetes (use manifests [configurator.yaml](manifests/configurator.yaml), [operator-rbac.yaml](manifests/operator-rbac.yaml), [operator.yaml](manifests/operator.yaml) in this project which modified some RBAC configurations)
 ```
@@ -434,7 +435,7 @@ step = Step(
 )
 ```
 
-####  3.1.17. <a name='UseresourcesinKubernetes'></a> Use resources in Kubernetes
+####  3.1.17. Use resources in Kubernetes
 
 A step can also be completed by a Kubernetes resource (e.g. Job or custom resources). At the beginning, a manifest is applied to Kubernetes. Then the status of the resource is monitered until the success condition or the failure condition is satisfied.
 
@@ -449,7 +450,7 @@ class Resource(ABC):
 
 - [Wlm example](examples/test_wlm.py)
 
-####  3.1.18. <a name='Importantnotevariablenames'></a> Important note: variable names
+####  3.1.18. Important note: variable names
 
 Dflow has following restrictions on variable names.
 
@@ -460,7 +461,7 @@ Dflow has following restrictions on variable names.
 | Parameter/Artifact name | Static | Must consist of alpha-numeric characters, '_' or '-' | my_param_1, MY-PARAM-1 |
 | Key name | Dynamic | Lowercase RFC 1123 subdomain (must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character | my-name |
 
-####  3.1.19. <a name='DebugmodedflowindependentofKubernetes'></a> Debug mode: dflow independent of Kubernetes
+####  3.1.19. Debug mode: dflow independent of Kubernetes
 
 The debug mode is enabled by setting
 
@@ -499,7 +500,7 @@ The top level contains the status and all steps of the workflow. The directory n
 
 - [Debug mode examples](examples/debug)
 
-####  3.1.20. <a name='Artifactstorageplugins'></a>Artifact storage plugins
+####  3.1.20. Artifact storage plugins
 
 The default storage for artifacts in dflow is a Minio deployment in the Kubernetes cluster. While other artifact storages are supported (e.g. Aliyun OSS, Azure blob storage (ABS), Google cloud storage(GCS)). Dflow provides an extension point to use customized storage in the artifact management. A storage client is a class implementing 5 abstract methods, `upload`, `download`, `list`, `copy` and `get_md5` (optional), which offer the functionality of uploading file, downloading file, listing files with a particular prefix, copying file on the server side and getting the MD5 sum of file, respectively. Use a custom storage client object by configuring s3_config["storage_client"].
 
@@ -522,9 +523,9 @@ class StorageClient(ABC):
         pass
 ```
 
-###  3.2. <a name='Interfacelayer'></a> Interface layer
+###  3.2. Interface layer
 
-####  3.2.1. <a name='Slices'></a> Slices
+####  3.2.1. Slices
 In coordination with [parallel steps](#Produceparallelstepsusingloop), `Slices` helps user to slice input parameters/artifacts (which must be lists) to feed parallel steps and stack their output parameters/artifacts to lists in the same pattern. The Python OP only need to handle one slice. For example,
 
 ```python
@@ -573,12 +574,12 @@ Here, the slice pattern (`{{item}}`) of `PythonOPTemplate` and the `with_param` 
 
 - [Subpath mode of slices example](examples/test_subpath_slices.py)
 
-####  3.2.2. <a name='Retryanderrorhandling'></a> Retry and error handling
+####  3.2.2. Retry and error handling
 Dflow catches `TransientError` and `FatalError` thrown from `OP`. User can set maximum number of retries on `TransientError` by `PythonOPTemplate(..., retry_on_transient_error=n)`. Timeout error is regarded as fatal error for default. To treat timeout error as transient error, set `PythonOPTemplate(..., timeout_as_transient_error=True)`. When a fatal error is raised or the retries on transient error reaches maximum retries, the step is considered as failed.
 
 - [Retry example](examples/test_error_handling.py)
 
-####  3.2.3. <a name='Progress'></a> Progress
+####  3.2.3. Progress
 A `OP` can update progress in the runtime so that user can track its real-time progress
 
 ```python
@@ -593,7 +594,7 @@ class Progress(OP):
 
 - [Progress example](examples/test_progress.py)
 
-####  3.2.4. <a name='Uploadpythonpackagesfordevelopment'></a> Upload python packages for development
+####  3.2.4. Upload python packages for development
 To avoid frequently making image during development, dflow offers an interface to upload local packages into container and add them to `$PYTHONPATH`, such as `PythonOPTemplate(..., python_packages=["/opt/anaconda3/lib/python3.9/site-packages/numpy"])`. One can also globally specify packages to be uploaded, which will affect all `OP`s
 
 ```python
