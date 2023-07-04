@@ -65,6 +65,8 @@ config = {
     "debug_copy_method": os.environ.get("DFLOW_DEBUG_COPY_METHOD", "symlink"),
     "debug_pool_workers": (lambda s: None if s is None else int(s))(
         os.environ.get("DFLOW_DEBUG_POOL_WORKERS", None)),
+    "detect_empty_dir": boolize(os.environ.get("DFLOW_DETECT_EMPTY_DIR",
+                                               True)),
 }
 
 

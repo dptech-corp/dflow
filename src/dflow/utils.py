@@ -103,7 +103,8 @@ def download_artifact(
         download_s3(key=key, recursive=True, path=path, keep_dir=True,
                     **kwargs)
         path = os.path.join(path, os.path.basename(sub_path))
-        remove_empty_dir_tag(path)
+        if config["detect_empty_dir"]:
+            remove_empty_dir_tag(path)
         return path
 
     path = download_s3(key=key, recursive=True, path=path, **kwargs)
@@ -125,7 +126,8 @@ def download_artifact(
             else:
                 merge_dir(tmpdir, path)
 
-    remove_empty_dir_tag(path)
+    if config["detect_empty_dir"]:
+        remove_empty_dir_tag(path)
     return assemble_path_list(path, remove=remove_catalog)
 
 

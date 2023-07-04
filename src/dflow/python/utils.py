@@ -56,7 +56,8 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
         path_dict = []
         for i in range(n_parts):
             art_path = '%s/inputs/artifacts/dflow_%s_%s' % (data_root, name, i)
-            remove_empty_dir_tag(art_path)
+            if config["detect_empty_dir"]:
+                remove_empty_dir_tag(art_path)
             pl = assemble_path_list(art_path)
             if require_dict:
                 pd = assemble_path_nested_dict(art_path)
@@ -75,7 +76,8 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
         path_dict = {}
         for i in keys_of_parts:
             art_path = '%s/inputs/artifacts/dflow_%s_%s' % (data_root, name, i)
-            remove_empty_dir_tag(art_path)
+            if config["detect_empty_dir"]:
+                remove_empty_dir_tag(art_path)
             pl = assemble_path_list(art_path)
             pd = assemble_path_nested_dict(art_path)
             if prefix is not None:
@@ -96,7 +98,8 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
             art_path = os.path.join(art_path, sub_path)
         if not os.path.exists(art_path):  # for optional artifact
             return None
-        remove_empty_dir_tag(art_path)
+        if config["detect_empty_dir"]:
+            remove_empty_dir_tag(art_path)
         path_list = assemble_path_list(art_path)
         path_dict = {}
         if require_dict:
@@ -225,7 +228,8 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp"):
     with open(data_root + "/outputs/artifacts/%s/%s/%s" % (name, config[
             "catalog_dir_name"], uuid.uuid4()), "w") as f:
         f.write(jsonpickle.dumps({"path_list": path_list}))
-    handle_empty_dir(data_root + "/outputs/artifacts/%s" % name)
+    if config["detect_empty_dir"]:
+        handle_empty_dir(data_root + "/outputs/artifacts/%s" % name)
     if config["save_path_as_parameter"]:
         with open(data_root + '/outputs/parameters/dflow_%s_path_list'
                   % name, 'w') as f:
