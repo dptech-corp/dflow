@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.13](https://github.com/deepmodeling/dflow/compare/v1.7.12...v1.7.13) (2023-07-04)
+
+
+### Bug Fixes
+
+* make template reusable when use datasets artifact ([6405062](https://github.com/deepmodeling/dflow/commit/6405062afc41764d84bd5765e8e7b246da9a201f))
+* terminate in debug mode ([6405062](https://github.com/deepmodeling/dflow/commit/6405062afc41764d84bd5765e8e7b246da9a201f))
+
 ## [1.7.12](https://github.com/deepmodeling/dflow/compare/v1.7.11...v1.7.12) (2023-07-02)
 
 
