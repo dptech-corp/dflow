@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.14](https://github.com/deepmodeling/dflow/compare/v1.7.13...v1.7.14) (2023-07-04)
+
+
+### Bug Fixes
+
+* add detect_empty_dir to config ([4504cad](https://github.com/deepmodeling/dflow/commit/4504cad7a8868a506a4459007c18322e0dfffbd3))
+
 ## [1.7.13](https://github.com/deepmodeling/dflow/compare/v1.7.12...v1.7.13) (2023-07-04)
 
 
