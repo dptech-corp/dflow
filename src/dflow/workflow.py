@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import signal
 import sys
 import time
 from copy import deepcopy
@@ -295,6 +296,8 @@ class Workflow:
                 os.dup2(flog.fileno(), sys.stdout.fileno())
                 os.dup2(flog.fileno(), sys.stderr.fileno())
             try:
+                with open(os.path.join(wfdir, "pid"), "w") as f:
+                    f.write(str(os.getpid()))
                 entrypoint = deepcopy(self.entrypoint)
                 entrypoint.orig_template = self.entrypoint
                 entrypoint.run(self.id, self.context)
@@ -533,17 +536,19 @@ class Workflow:
             status=status)
 
     def deduplicate_templates(self):
-        logger.debug("before deduplication", len(self.argo_templates))
-        modified = True
+        logger.debug("before deduplication: %s" % len(self.argo_templates))
+        modified = self.argo_templates
+        deduplicated = {}
         while modified:
-            modified = False
-            deduplicated = {}
-            for n1, t1 in self.argo_templates.items():
+            modified_name = set()
+            for n1, t1 in modified.items():
                 duplicate = False
                 for n2, t2 in deduplicated.items():
                     t1.name = n2
                     if t1 == t2:
                         duplicate = True
+                        logger.debug("template %s == %s, remove %s" % (
+                            n1, n2, n1))
                         for parent in self.parents.get(n1, []):
                             if parent.steps:
                                 for step in parent.steps:
@@ -556,13 +561,17 @@ class Workflow:
                                         task.template = n2
                             self.parents[n2] = self.parents.get(n2, []) + [
                                 parent]
-                            modified = True
+                            modified_name.add(parent.name)
                         break
                 if not duplicate:
                     t1.name = n1
                     deduplicated[n1] = t1
             self.argo_templates = deduplicated
-        logger.debug("after deduplication", len(self.argo_templates))
+            modified = {k: v for k, v in self.argo_templates.items()
+                        if k in modified_name}
+            deduplicated = {k: v for k, v in self.argo_templates.items()
+                            if k not in modified_name}
+        logger.debug("after deduplication: %s" % len(self.argo_templates))
 
     def to_dict(self):
         return self.api_instance.api_client.sanitize_for_serialization(
@@ -947,6 +956,11 @@ class Workflow:
         """
         if self.id is None:
             raise RuntimeError("Workflow ID is None")
+        if config["mode"] == "debug":
+            with open(os.path.join(self.id, "pid"), "r") as f:
+                pid = int(f.read())
+            os.killpg(os.getpgid(pid), signal.SIGTERM)
+            return
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/terminate' % (self.namespace, self.id),
             'PUT', header_params=config["http_headers"])

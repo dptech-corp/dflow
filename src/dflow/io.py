@@ -630,9 +630,9 @@ class InputArtifact(ArgoVar):
                         return "{{tasks.%s.inputs.parameters.dflow_art_%s}}"\
                             % (self.step.id, self.name)
                     else:
-                        return "{{steps.%s.inputs.artifacts.dflow_art_%s}}"\
+                        return "{{steps.%s.inputs.parameters.dflow_art_%s}}"\
                             % (self.step.id, self.name)
-                return "{{inputs.artifacts.dflow_art_%s}}" % self.name
+                return "{{inputs.parameters.dflow_art_%s}}" % self.name
             return ""
         if self.name is not None:
             if self.step is not None:

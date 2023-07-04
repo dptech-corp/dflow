@@ -1134,7 +1134,6 @@ class Step:
                 self.inputs.artifacts[k].source = v
                 self.inputs.artifacts[k].save_as_parameter = True
                 self.template = self.template.copy()
-                self.template.inputs.artifacts[k].source = v
                 self.template.inputs.artifacts[k].save_as_parameter = True
                 from .python import PythonOPTemplate
                 if isinstance(self.template, PythonOPTemplate):
@@ -1146,6 +1145,7 @@ class Step:
                         for name, art in step.inputs.artifacts.items():
                             if art.source is self.template.inputs.artifacts[k]:
                                 step.set_artifacts({name: v})
+                                art.source = self.template.inputs.artifacts[k]
             elif isinstance(v, (list, tuple)):
                 self.template = self.template.deepcopy()
                 slices = []
