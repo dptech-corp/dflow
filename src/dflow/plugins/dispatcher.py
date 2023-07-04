@@ -12,6 +12,7 @@ from ..executor import Executor, render_script_with_tmp_root, run_script
 from ..io import InputArtifact, InputParameter
 from ..op_template import ScriptOPTemplate
 from ..python import PythonOPTemplate
+from ..python.python_op_template import handle_packages_script
 from ..utils import randstr, upload_s3
 from . import bohrium
 
@@ -282,6 +283,9 @@ class DispatcherExecutor(Executor):
                                    if m.name != "launching"]
             new_template.sidecars = [s for s in new_template.sidecars
                                      if not s.name.startswith("rclone-")]
+            if self.machine_dict["context_type"] == "Bohrium":
+                new_template.script += handle_packages_script(
+                    "./tmp/inputs/artifacts/dflow_python_packages")
 
         new_template.script += "with open('script', 'w') as f:\n"
         new_template.script += "    f.write(r\"\"\"\n"
@@ -309,9 +313,13 @@ class DispatcherExecutor(Executor):
         for name, art in template.inputs.artifacts.items():
             if self.machine_dict["context_type"] == "Bohrium" and \
                     art.save_as_parameter:
+                new_template.script += "import jsonpickle\n"
+                new_template.script += "bohrium_urn = jsonpickle.loads('{{"\
+                    "inputs.parameters.dflow_art_%s}}').get_bohrium_urn("\
+                    "'%s')\n" % (name, name)
                 new_template.script += "machine.input_data['job_resources']"\
-                    " = machine.input_data.get('job_resources', []) + ['%s']"\
-                    "\n" % art.source.get_bohrium_urn(name)
+                    " = machine.input_data.get('job_resources', []) + "\
+                    "[bohrium_urn]\n"
 
         new_template.script += "resources = Resources.load_from_dict(json."\
             "loads(r'%s'))\n" % json.dumps(self.resources_dict)
