@@ -11,8 +11,7 @@ from typing import Any, Dict, List, Optional, Union
 import jsonpickle
 
 from .common import (CustomArtifact, HTTPArtifact, LocalArtifact, S3Artifact,
-                     field_errmsg, field_regex, subdomain_errmsg,
-                     subdomain_regex)
+                     field_errmsg, field_regex, key_errmsg, key_regex)
 from .config import config, s3_config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
@@ -336,8 +335,8 @@ class Step:
         self.with_sequence = with_sequence
         if key is not None:
             clean_key = re.sub("{{[^}]*}}", "a", key)
-            assert subdomain_regex.match(clean_key), "Invalid key '%s': %s" % (
-                key, subdomain_errmsg)
+            assert key_regex.match(clean_key), "Invalid key '%s': %s" % (
+                key, key_errmsg)
         self.key = key
         self.executor = executor
         self.use_resource = use_resource

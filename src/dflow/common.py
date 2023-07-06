@@ -22,11 +22,14 @@ field_errmsg = "name must consist of alpha-numeric characters or '-', and "\
 subdomain_regex = re.compile(
     "^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$")
 subdomain_errmsg = "a lowercase RFC 1123 subdomain must consist of lower case"\
-    " alphanumeric characters, '-' or '.', and must start and end with an "\
-    "alphanumeric character (e.g. 'example.com')"
+    " alpha-numeric characters, '-' or '.', and must start and end with an "\
+    "alpha-numeric character (e.g. 'example.com')"
 param_regex = re.compile("^[-a-zA-Z0-9_]+[-a-zA-Z0-9_]*$")
-param_errmsg = "Parameter/Artifact name must consist of alpha-numeric "\
+param_errmsg = "parameter/artifact name must consist of alpha-numeric "\
     "characters, '_' or '-' e.g. my_param_1, MY-PARAM-1"
+key_regex = re.compile("^[a-z0-9][-a-z0-9]*$")
+key_errmsg = "key must consist of lower case alpha-numeric characters or '-',"\
+    "and must start with an alpha-numeric character (e.g. 'my-key')"
 
 
 class S3Artifact(V1alpha1S3Artifact):
