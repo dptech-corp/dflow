@@ -8,8 +8,8 @@ import jsonpickle
 
 from ..config import config
 from ..utils import (assemble_path_list, assemble_path_nested_dict,
-                     convert_dflow_list, copy_file, expand, flatten, link,
-                     randstr, remove_empty_dir_tag)
+                     convert_dflow_list, copy_file, expand, flatten, randstr,
+                     remove_empty_dir_tag)
 from .opio import Artifact, BigParameter, NestedDict, Parameter
 
 
@@ -285,10 +285,7 @@ def copy_results(source, name, data_root="/tmp"):
         return rel_path
     else:
         target = data_root + "/outputs/artifacts/%s/%s" % (name, source)
-        try:
-            copy_file(source, target, link)
-        except Exception:
-            copy_file(source, target, shutil.copy)
+        copy_file(source, target)
         if source[:1] == "/":
             source = source[1:]
         return source
