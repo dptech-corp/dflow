@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.15](https://github.com/deepmodeling/dflow/compare/v1.7.14...v1.7.15) (2023-07-06)
+
+
+### Bug Fixes
+
+* . not allowed in key ([6063ddd](https://github.com/deepmodeling/dflow/commit/6063dddcb26aa2ded667702c564aef093213f2a1))
+* avoid recursive symlink; ([6063ddd](https://github.com/deepmodeling/dflow/commit/6063dddcb26aa2ded667702c564aef093213f2a1))
+
 ## [1.7.14](https://github.com/deepmodeling/dflow/compare/v1.7.13...v1.7.14) (2023-07-04)
 
 
