@@ -235,10 +235,7 @@ def upload_artifact(
             os.makedirs(os.path.dirname(target), exist_ok=True)
             if config["mode"] == "debug" and cwd.startswith(p):
                 # To avoid recursive symlink
-                try:
-                    copy_file(abspath, target, link)
-                except Exception:
-                    copy_file(abspath, target, shutil.copy)
+                copy_file(abspath, target)
             else:
                 os.symlink(abspath, target)
             path_list.append({"dflow_list_item": relpath.replace("\\", "/"),
@@ -484,6 +481,13 @@ def merge_dir(src, dst, func=force_move):
             func(src_file, dst_file)
 
 
+def try_link(src, dst):
+    try:
+        link(src, dst)
+    except Exception:
+        shutil.copy(src, dst)
+
+
 def link(src, dst):
     # follow_symlinks=True of os.link not work on Linux
     if os.path.islink(src):
@@ -492,7 +496,7 @@ def link(src, dst):
         os.link(src, dst)
 
 
-def copy_file(src, dst, func=link):
+def copy_file(src, dst, func=try_link):
     os.makedirs(os.path.abspath(os.path.dirname(dst)), exist_ok=True)
     if os.path.isdir(src):
         try:
