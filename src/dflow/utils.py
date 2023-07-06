@@ -233,7 +233,11 @@ def upload_artifact(
                     relpath = abspath[abspath.find(":")+2:]
             target = os.path.join(tmpdir, relpath)
             os.makedirs(os.path.dirname(target), exist_ok=True)
-            os.symlink(abspath, target)
+            if config["mode"] == "debug" and cwd.startswith(p):
+                # To avoid recursive symlink
+                copy_file(abspath, target)
+            else:
+                os.symlink(abspath, target)
             path_list.append({"dflow_list_item": relpath.replace("\\", "/"),
                               "order": i})
 
