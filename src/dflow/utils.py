@@ -235,7 +235,10 @@ def upload_artifact(
             os.makedirs(os.path.dirname(target), exist_ok=True)
             if config["mode"] == "debug" and cwd.startswith(p):
                 # To avoid recursive symlink
-                copy_file(abspath, target)
+                try:
+                    copy_file(abspath, target, link)
+                except Exception:
+                    copy_file(abspath, target, shutil.copy)
             else:
                 os.symlink(abspath, target)
             path_list.append({"dflow_list_item": relpath.replace("\\", "/"),
