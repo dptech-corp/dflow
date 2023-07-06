@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.17](https://github.com/deepmodeling/dflow/compare/v1.7.16...v1.7.17) (2023-07-06)
+
+
+### Bug Fixes
+
+* try link except copy ([a7b4f46](https://github.com/deepmodeling/dflow/commit/a7b4f4608eee7bccb54c93ba110b6f54640d91e6))
+
 ## [1.7.16](https://github.com/deepmodeling/dflow/compare/v1.7.15...v1.7.16) (2023-07-06)
 
 
