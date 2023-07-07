@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.18](https://github.com/deepmodeling/dflow/compare/v1.7.17...v1.7.18) (2023-07-07)
+
+
+### Bug Fixes
+
+* query step by name in debug mode ([1b90b67](https://github.com/deepmodeling/dflow/commit/1b90b67a35a4d6dc09c49579eb5276372cff7f0a))
+
 ## [1.7.17](https://github.com/deepmodeling/dflow/compare/v1.7.16...v1.7.17) (2023-07-06)
 
 
