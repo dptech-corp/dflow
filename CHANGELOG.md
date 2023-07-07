@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.22](https://github.com/deepmodeling/dflow/compare/v1.7.21...v1.7.22) (2023-07-07)
+
+
+### Bug Fixes
+
+* add python packages to env PYTHONPATH ([e5977a2](https://github.com/deepmodeling/dflow/commit/e5977a265de07855e82bca27d383a90f1e4b1a9c))
+
 ## [1.7.21](https://github.com/deepmodeling/dflow/compare/v1.7.20...v1.7.21) (2023-07-07)
 
 
