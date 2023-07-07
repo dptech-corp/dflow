@@ -791,7 +791,11 @@ class Workflow:
                 stepdir = os.path.join(self.id, s)
                 if not os.path.isdir(stepdir):
                     continue
-                if name is not None and not s.startswith(self.id + "-" + name):
+                if not os.path.exists(os.path.join(stepdir, "name")):
+                    continue
+                with open(os.path.join(stepdir, "name"), "r") as f:
+                    _name = f.read()
+                if name is not None and name != _name:
                     continue
                 if key is not None and s not in key:
                     continue
@@ -810,7 +814,7 @@ class Workflow:
                     continue
                 step = {
                     "workflow": self.id,
-                    "displayName": s,
+                    "displayName": _name,
                     "key": s,
                     "startedAt": os.path.getmtime(stepdir),
                     "phase": _phase,
