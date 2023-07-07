@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.20](https://github.com/deepmodeling/dflow/compare/v1.7.19...v1.7.20) (2023-07-07)
+
+
+### Bug Fixes
+
+* copy on write ([a2c9a0e](https://github.com/deepmodeling/dflow/commit/a2c9a0ed20ca70b90fd539871225200ec3c4884c))
+* support for list of datasets artifacts ([a2c9a0e](https://github.com/deepmodeling/dflow/commit/a2c9a0ed20ca70b90fd539871225200ec3c4884c))
+
 ## [1.7.19](https://github.com/deepmodeling/dflow/compare/v1.7.18...v1.7.19) (2023-07-07)
 
 
