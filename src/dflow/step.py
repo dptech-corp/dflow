@@ -1146,7 +1146,7 @@ class Step:
                                 step.set_artifacts({name: v})
                                 art.source = self.template.inputs.artifacts[k]
             elif isinstance(v, (list, tuple)):
-                self.template = self.template.deepcopy()
+                self.template = self.template.copy()
                 slices = []
                 for i, a in enumerate(v):
                     vn = "dflow_%s_%s" % (k, i)
@@ -1154,7 +1154,7 @@ class Step:
                         self.template.inputs.artifacts[k])
                     self.inputs.artifacts[vn] = deepcopy(
                         self.template.inputs.artifacts[vn])
-                    self.inputs.artifacts[vn].source = a
+                    self.set_artifacts({vn: a})
                     if hasattr(a, "slice") and a.slice is not None:
                         slices.append(a.slice)
                     else:
@@ -1185,7 +1185,7 @@ class Step:
                 del self.template.inputs.artifacts[k]
                 del self.inputs.artifacts[k]
             elif isinstance(v, dict):
-                self.template = self.template.deepcopy()
+                self.template = self.template.copy()
                 slices = {}
                 flat_v = flatten(v)
                 for i, a in flat_v.items():
@@ -1194,7 +1194,7 @@ class Step:
                         self.template.inputs.artifacts[k])
                     self.inputs.artifacts[vn] = deepcopy(
                         self.template.inputs.artifacts[vn])
-                    self.inputs.artifacts[vn].source = a
+                    self.set_artifacts({vn: a})
                     if hasattr(a, "slice") and a.slice is not None:
                         slices[i] = a.slice
                     else:
@@ -1227,7 +1227,7 @@ class Step:
             else:
                 self.inputs.artifacts[k].source = v
                 if hasattr(v, "slice") and v.slice is not None:
-                    self.template = self.template.deepcopy()
+                    self.template = self.template.copy()
                     if isinstance(v.slice, (InputParameter, OutputParameter)):
                         self.template.inputs.parameters[
                             "dflow_%s" % v.slice.name] = InputParameter()

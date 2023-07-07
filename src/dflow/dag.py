@@ -1,4 +1,3 @@
-from copy import deepcopy
 from typing import Optional, Dict, List, Union
 
 from .config import config, s3_config
@@ -6,7 +5,6 @@ from .io import Inputs, Outputs
 from .op_template import OPTemplate
 from .step import add_slices
 from .task import Task
-from .utils import randstr
 
 try:
     from argo.workflows.client import (V1alpha1DAGTemplate, V1alpha1Metadata,
@@ -164,8 +162,7 @@ class DAG(OPTemplate):
         add_slices(self, slices)
 
     def copy(self):
-        new_template = deepcopy(self)
-        new_template.name += "-" + randstr()
+        new_template = self.deepcopy()
         for task, new_task in zip(self.tasks, new_template.tasks):
             new_task.template = task.template
         return new_template
