@@ -1528,6 +1528,8 @@ class Step:
                     f.write("DAG")
             with open(os.path.join(stepdir, "phase"), "w") as f:
                 f.write("Running")
+            with open(os.path.join(stepdir, "name"), "w") as f:
+                f.write(self.name)
             self.record_input_parameters(stepdir, steps.inputs.parameters)
             self.record_input_artifacts(stepdir, steps.inputs.artifacts, None,
                                         scope, True)
@@ -1862,6 +1864,8 @@ class Step:
             f.write("Pod")
         with open(os.path.join(stepdir, "phase"), "w") as f:
             f.write("Running")
+        with open(os.path.join(stepdir, "name"), "w") as f:
+            f.write(self.name)
         workdir = os.path.join(stepdir, "workdir")
         os.makedirs(workdir, exist_ok=True)
         os.chdir(workdir)
