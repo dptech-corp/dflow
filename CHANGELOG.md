@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.21](https://github.com/deepmodeling/dflow/compare/v1.7.20...v1.7.21) (2023-07-07)
+
+
+### Bug Fixes
+
+* pass list of datasets artifacts to steps ([8e4cd62](https://github.com/deepmodeling/dflow/commit/8e4cd62e737a0d7192bb54e18ce388c122c8fa4a))
+
 ## [1.7.20](https://github.com/deepmodeling/dflow/compare/v1.7.19...v1.7.20) (2023-07-07)
 
 
