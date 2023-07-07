@@ -107,8 +107,11 @@ def handle_packages_script(package_root):
     script += "        with open(os.path.join(catalog_dir, f), 'r')"\
         " as fd:\n"
     script += "            for item in json.load(fd)['path_list']:\n"
-    script += "                sys.path.insert(0, os.path.join("\
-        "package_root, os.path.dirname(item['dflow_list_item'])))\n"
+    script += "                path = os.path.join(package_root, "\
+        "os.path.dirname(item['dflow_list_item']))\n"
+    script += "                sys.path.insert(0, path)\n"
+    script += "                os.environ['PYTHONPATH'] = path + ':' + "\
+        "os.environ.get('PYTHONPATH', '')\n"
     return script
 
 
