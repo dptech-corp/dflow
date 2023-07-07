@@ -1154,7 +1154,6 @@ class Step:
                         self.template.inputs.artifacts[k])
                     self.inputs.artifacts[vn] = deepcopy(
                         self.template.inputs.artifacts[vn])
-                    self.set_artifacts({vn: a})
                     if hasattr(a, "slice") and a.slice is not None:
                         slices.append(a.slice)
                     else:
@@ -1182,6 +1181,9 @@ class Step:
                         self.template.input_artifact_prefix[k] = slices
                     self.template.n_parts[k] = len(v)
                     self.template.render_script()
+                for i, a in enumerate(v):
+                    vn = "dflow_%s_%s" % (k, i)
+                    self.set_artifacts({vn: a})
                 del self.template.inputs.artifacts[k]
                 del self.inputs.artifacts[k]
             elif isinstance(v, dict):
@@ -1194,7 +1196,6 @@ class Step:
                         self.template.inputs.artifacts[k])
                     self.inputs.artifacts[vn] = deepcopy(
                         self.template.inputs.artifacts[vn])
-                    self.set_artifacts({vn: a})
                     if hasattr(a, "slice") and a.slice is not None:
                         slices[i] = a.slice
                     else:
@@ -1222,6 +1223,9 @@ class Step:
                         self.template.input_artifact_prefix[k] = slices
                     self.template.keys_of_parts[k] = list(v.keys())
                     self.template.render_script()
+                for i, a in flat_v.items():
+                    vn = "dflow_%s_%s" % (k, i)
+                    self.set_artifacts({vn: a})
                 del self.template.inputs.artifacts[k]
                 del self.inputs.artifacts[k]
             else:
