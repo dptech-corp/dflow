@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.19](https://github.com/deepmodeling/dflow/compare/v1.7.18...v1.7.19) (2023-07-07)
+
+
+### Bug Fixes
+
+* download artifact with specified copy method ([09fe23a](https://github.com/deepmodeling/dflow/commit/09fe23aa87e04eea63dd7f8a4498f5e368139d36))
+
 ## [1.7.18](https://github.com/deepmodeling/dflow/compare/v1.7.17...v1.7.18) (2023-07-07)
 
 
