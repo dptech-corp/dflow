@@ -471,14 +471,14 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         if any([art.save_as_parameter
                 for art in self.inputs.artifacts.values()]):
             script += "    pids = []\n"
-        for name, sign in input_sign.items():
-            if isinstance(sign, Artifact):
-                if name in self.inputs.artifacts and self.inputs.artifacts[
-                        name].save_as_parameter:
+            for name in self.inputs.artifacts:
+                if self.inputs.artifacts[name].save_as_parameter:
                     script += "    pids.append(jsonpickle.loads('{{inputs."\
                         "parameters.dflow_art_%s}}').%s('%s', '%s/inputs/"\
                         "artifacts/%s'))\n" % (name, self.download_method,
                                                name, self.tmp_root, name)
+        for name, sign in input_sign.items():
+            if isinstance(sign, Artifact):
                 slices = self.get_slices(input_artifact_slices, name)
                 if self.slices is not None and self.slices.sub_path and \
                         name in self.slices.input_artifact:
