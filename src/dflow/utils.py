@@ -89,7 +89,12 @@ def download_artifact(
         skip_exists: skip files with the same MD5
     """
     if config["mode"] == "debug" and not debug_download:
-        linktree(artifact.local_path, path)
+        if config["debug_copy_method"] == "symlink":
+            linktree(artifact.local_path, path)
+        elif config["debug_copy_method"] == "link":
+            merge_dir(artifact.local_path, path, try_link)
+        elif config["debug_copy_method"] == "copy":
+            merge_dir(artifact.local_path, path, shutil.copy)
         return assemble_path_list(path, remove=remove_catalog)
 
     key = get_key(artifact)
@@ -483,6 +488,8 @@ def merge_dir(src, dst, func=force_move):
 
 def try_link(src, dst):
     try:
+        if os.path.isfile(dst):
+            os.remove(dst)
         link(src, dst)
     except Exception:
         shutil.copy(src, dst)
