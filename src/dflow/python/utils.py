@@ -17,9 +17,11 @@ def get_slices(path_list, path_dict, slices):
     if slices is not None:
         slices = slices if isinstance(slices, list) else [slices]
         new_path_list = []
+        new_path_dict = []
         for i in slices:
             if isinstance(i, int):
                 new_path_list.append(path_list[i])
+                new_path_dict.append(path_dict[i])
             elif isinstance(i, str):
                 tmp = path_dict
                 for f in i.split("."):
@@ -28,28 +30,25 @@ def get_slices(path_list, path_dict, slices):
                     elif isinstance(tmp, list):
                         tmp = tmp[int(f)]
                 new_path_list.append(tmp)
+                new_path_dict.append(tmp)
         if len(new_path_list) == 1:
             if isinstance(new_path_list[0], list):
                 path_list = new_path_list[0]
             else:
                 path_list = new_path_list
-            path_dict = new_path_list[0]
+            path_dict = new_path_dict[0]
         else:
             path_list = new_path_list
-            path_dict = path_list
+            path_dict = new_path_dict
     return path_list, path_dict
 
 
 def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
                           sub_path=None, n_parts=None, keys_of_parts=None,
                           path=None, prefix=None):
-    def has_str(s):
-        return isinstance(s, str) or (
-            isinstance(s, list) and any(map(lambda x: isinstance(x, str), s)))
-
     require_dict = sign.type in [
         Dict[str, str], Dict[str, Path], NestedDict[str], NestedDict[Path]] \
-        or has_str(prefix) or has_str(slices)
+        or prefix is not None or slices is not None
 
     if n_parts is not None:
         path_list = []

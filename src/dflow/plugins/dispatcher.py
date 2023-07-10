@@ -159,14 +159,19 @@ class DispatcherExecutor(Executor):
         if self.machine_dict["context_type"] == "Bohrium":
             if "batch_type" not in self.machine_dict:
                 self.machine_dict["batch_type"] = "Bohrium"
-            if "email" not in self.machine_dict["remote_profile"]:
+            self.bohrium_ticket = bohrium.config["ticket"]
+            if self.bohrium_ticket is not None:
+                self.machine_dict["remote_profile"]["email"] = ""
+            elif "email" not in self.machine_dict["remote_profile"]:
                 if bohrium.config["username"] is not None:
                     self.machine_dict["remote_profile"]["email"] = \
                         bohrium.config["username"]
                 else:
                     self.machine_dict["remote_profile"]["email"] = input(
                         "Bohrium email: ")
-            if "password" not in self.machine_dict["remote_profile"]:
+            if self.bohrium_ticket is not None:
+                self.machine_dict["remote_profile"]["password"] = ""
+            elif "password" not in self.machine_dict["remote_profile"]:
                 if bohrium.config["password"] is not None:
                     self.machine_dict["remote_profile"]["password"] = \
                         bohrium.config["password"]
@@ -299,6 +304,10 @@ class DispatcherExecutor(Executor):
         new_template.script += "\"\"\")\n"
 
         if self.machine_dict["context_type"] == "Bohrium":
+            if self.bohrium_ticket is not None:
+                if new_template.envs is None:
+                    new_template.envs = {}
+                new_template.envs["BOHR_TICKET"] = self.bohrium_ticket
             if "image_name" not in self.machine_dict["remote_profile"][
                     "input_data"]:
                 self.machine_dict["remote_profile"]["input_data"][
