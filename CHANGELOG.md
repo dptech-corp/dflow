@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.23](https://github.com/deepmodeling/dflow/compare/v1.7.22...v1.7.23) (2023-07-10)
+
+
+### Bug Fixes
+
+* support for bohrium ticket ([eba6998](https://github.com/deepmodeling/dflow/commit/eba69986b6102eaefc3e5c01f429799b44bca8d4))
+* support for list of lists of path and list of duplicated path ([eba6998](https://github.com/deepmodeling/dflow/commit/eba69986b6102eaefc3e5c01f429799b44bca8d4))
+
 ## [1.7.22](https://github.com/deepmodeling/dflow/compare/v1.7.21...v1.7.22) (2023-07-07)
 
 
