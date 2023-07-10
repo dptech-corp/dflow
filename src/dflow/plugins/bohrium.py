@@ -23,6 +23,7 @@ config = {
     "project_id": os.environ.get("BOHRIUM_PROJECT_ID", None),
     "tiefblue_url": os.environ.get("BOHRIUM_TIEFBLUE_URL",
                                    "https://tiefblue.dp.tech"),
+    "ticket": os.environ.get("BOHRIUM_TICKET", None),
 }
 
 
@@ -48,14 +49,22 @@ def login(username=None, phone=None, password=None, bohrium_url=None):
     if config["authorization"] is None:
         config["authorization"] = _login(
             bohrium_url + "/account/login", username, phone, password)
+        update_headers()
+    return config["authorization"]
+
+
+def update_headers():
     headers = dflow_config["http_headers"]
-    if "Cookie" not in headers:
-        headers["Cookie"] = "brmToken=" + config["authorization"]
-    else:
-        headers["Cookie"] += "; brmToken=" + config["authorization"]
+    if config["ticket"] is not None:
+        headers["Brm-Ticket"] = config["ticket"]
+    elif config["authorization"] is not None:
+        cookie = "brmToken=" + config["authorization"]
+        if "Cookie" not in headers:
+            headers["Cookie"] = cookie
+        else:
+            headers["Cookie"] += "; " + cookie
     if config["project_id"]:
         headers["Bohrium-Project-ID"] = config["project_id"]
-    return config["authorization"]
 
 
 def _login(login_url=None, username=None, phone=None, password=None):
@@ -81,20 +90,21 @@ def _login(login_url=None, username=None, phone=None, password=None):
 
 def create_job_group(job_group_name):
     import requests
-    if config["authorization"] is None:
-        config["authorization"] = _login(
-            config["bohrium_url"] + "/account/login",
-            config["username"], config["phone"], config["password"])
     data = {
         "name": job_group_name,
         "project_id": config["project_id"],
     }
-    rsp = requests.post(
-        config["bohrium_url"] + "/brm/v1/job_group/add",
-        headers={
-            "Content-type": "application/json",
-            "Authorization": "jwt " + config["authorization"]
-        }, json=data)
+    headers = {
+        "Content-type": "application/json",
+    }
+    url = config["bohrium_url"] + "/brm/v1/job_group/add"
+    if config["ticket"] is not None:
+        headers["Brm-Ticket"] = config["ticket"]
+        update_headers()
+    else:
+        authorization = login()
+        headers["Authorization"] = "Bearer " + authorization
+    rsp = requests.post(url, headers=headers, json=data)
     res = json.loads(rsp.text)
     _raise_error(res, "get job group id")
     return res["data"]["groupId"]
@@ -228,6 +238,7 @@ class TiefblueClient(StorageClient):
             sharePath: Optional[str] = None,
             userSharePath: Optional[str] = None,
             tiefblue_url: Optional[str] = None,
+            ticket: Optional[str] = None,
     ) -> None:
         # only set s3_config["storage_client"] once
         if isinstance(s3_config["storage_client"], self.__class__):
@@ -243,6 +254,7 @@ class TiefblueClient(StorageClient):
             config["password"]
         self.authorization = authorization if authorization is not None else \
             config["authorization"]
+        self.ticket = ticket if ticket is not None else config["ticket"]
         self.project_id = project_id if project_id is not None else \
             config["project_id"]
         self.tiefblue_url = tiefblue_url if tiefblue_url is not None else \
@@ -275,16 +287,22 @@ class TiefblueClient(StorageClient):
 
     def get_token(self):
         import requests
-        if self.authorization is None:
-            self.authorization = login(
-                self.username, self.phone, self.password, self.bohrium_url)
-            config["authorization"] = self.authorization
-        rsp = requests.get(
-            self.bohrium_url + "/brm/v1/storage/token",
-            headers={
-                "Content-type": "application/json",
-                "Authorization": "jwt " + self.authorization},
-            params={"projectId": self.project_id})
+        url = self.bohrium_url + "/brm/v1/storage/token"
+        headers = {
+            "Content-type": "application/json",
+        }
+        params = {
+            "projectId": self.project_id,
+        }
+        if self.ticket is not None:
+            headers["Brm-Ticket"] = config["ticket"]
+            update_headers()
+        else:
+            if self.authorization is None:
+                self.authorization = login(
+                    self.username, self.phone, self.password, self.bohrium_url)
+            headers["Authorization"] = "Bearer " + self.authorization
+        rsp = requests.get(url, headers=headers, params=params)
         res = json.loads(rsp.text)
         _raise_error(res, "get storage token")
         self.token = res["data"]["token"]

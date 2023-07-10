@@ -213,7 +213,8 @@ def upload_artifact(
         archive = config["archive_mode"]
     cwd = os.getcwd()
     with tempfile.TemporaryDirectory() as tmpdir:
-        if isinstance(path, dict):
+        if isinstance(path, dict) or (isinstance(path, list) and any(
+                [isinstance(p, (list, dict)) for p in path])):
             pairs = flatten(path).items()
         elif isinstance(path, (list, set)):
             pairs = enumerate(path)
@@ -242,7 +243,9 @@ def upload_artifact(
                 # To avoid recursive symlink
                 copy_file(abspath, target)
             else:
-                os.symlink(abspath, target)
+                if not (os.path.exists(target) and
+                        os.path.samefile(abspath, target)):
+                    os.symlink(abspath, target)
             path_list.append({"dflow_list_item": relpath.replace("\\", "/"),
                               "order": i})
 
