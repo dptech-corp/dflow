@@ -95,12 +95,12 @@ def download_artifact(
             merge_dir(artifact.local_path, path, try_link)
         elif config["debug_copy_method"] == "copy":
             merge_dir(artifact.local_path, path, shutil.copy)
-        return assemble_path_list(path, remove=remove_catalog)
+        return assemble_path_object(path, remove=remove_catalog)
 
     key = get_key(artifact)
 
     if slice is not None:
-        sub_path = path_list_of_artifact(artifact)[slice]
+        sub_path = path_object_of_artifact(artifact)[slice]
 
     if sub_path is not None:
         key = key + "/" + sub_path
@@ -133,7 +133,7 @@ def download_artifact(
 
     if config["detect_empty_dir"]:
         remove_empty_dir_tag(path)
-    return assemble_path_list(path, remove=remove_catalog)
+    return assemble_path_object(path, remove=remove_catalog)
 
 
 def flatten(d: Union[list, dict]) -> dict:
@@ -458,12 +458,19 @@ def catalog_of_artifact(art, **kwargs) -> List[dict]:
             fname = obj[len(prefix):]
             client.download(key=obj, path=os.path.join(tmpdir, fname))
             with open(os.path.join(tmpdir, fname), "r") as f:
-                catalog += jsonpickle.loads(f.read())['path_list']
+                for item in jsonpickle.loads(f.read())['path_list']:
+                    if item not in catalog:
+                        catalog.append(item)  # remove duplicate
     return catalog
 
 
 def path_list_of_artifact(art, **kwargs) -> List[str]:
     return convert_dflow_list(catalog_of_artifact(art, **kwargs))
+
+
+def path_object_of_artifact(art, **kwargs) -> Union[list, dict]:
+    return assemble_path_object_from_catalog(
+        catalog_of_artifact(art, **kwargs))
 
 
 def force_move(src, dst):
@@ -519,56 +526,44 @@ def copy_file(src, dst, func=try_link):
         raise RuntimeError("File %s not found" % src)
 
 
-def assemble_path_list(art_path, remove=False):
-    path_list = []
+def catalog_of_local_artifact(art_path, remove=False):
+    catalog = []
     if os.path.isdir(art_path):
-        dflow_list = []
         catalog_dir = os.path.join(art_path, config["catalog_dir_name"])
         if os.path.exists(catalog_dir):
             for f in os.listdir(catalog_dir):
                 with open(os.path.join(catalog_dir, f), 'r') as fd:
                     for item in jsonpickle.loads(fd.read())['path_list']:
-                        if item not in dflow_list:
-                            dflow_list.append(item)  # remove duplicate
+                        if item not in catalog:
+                            catalog.append(item)  # remove duplicate
             if remove:
                 shutil.rmtree(catalog_dir)
-        if len(dflow_list) > 0:
-            path_list = list(map(lambda x: os.path.join(
-                art_path, x) if x is not None else None,
-                convert_dflow_list(dflow_list)))
-    return path_list
+    return catalog
+
+
+def assemble_path_object_from_catalog(catalog, art_path=None):
+    if len(catalog) == 0:
+        return catalog
+    elif all([isinstance(x["order"], int) for x in catalog]):
+        # old fashion
+        return [os.path.join(art_path, x) if art_path is not None and
+                x is not None else x for x in convert_dflow_list(catalog)]
+    else:
+        # new fashion
+        path_dict = {item["order"]: item["dflow_list_item"]
+                     for item in catalog}
+        return expand({k: os.path.join(art_path, v) if art_path is not None and
+                       v is not None else v for k, v in path_dict.items()})
+
+
+def assemble_path_object(art_path, remove=False):
+    catalog = catalog_of_local_artifact(art_path, remove=remove)
+    return assemble_path_object_from_catalog(catalog, art_path=art_path)
 
 
 def convert_dflow_list(dflow_list):
     dflow_list.sort(key=lambda x: x['order'])
     return list(map(lambda x: x['dflow_list_item'], dflow_list))
-
-
-def assemble_path_dict(art_path, remove=False):
-    path_dict = {}
-    if os.path.isdir(art_path):
-        dflow_list = []
-        catalog_dir = os.path.join(art_path, config["catalog_dir_name"])
-        if os.path.exists(catalog_dir):
-            for f in os.listdir(catalog_dir):
-                with open(os.path.join(catalog_dir, f), 'r') as fd:
-                    for item in jsonpickle.loads(fd.read())['path_list']:
-                        if item not in dflow_list:
-                            dflow_list.append(item)  # remove duplicate
-            if remove:
-                shutil.rmtree(catalog_dir)
-        if len(dflow_list) > 0:
-            for item in dflow_list:
-                if item["dflow_list_item"] is None:
-                    path_dict[item["order"]] = None
-                else:
-                    path_dict[item["order"]] = os.path.join(
-                        art_path, item["dflow_list_item"])
-    return path_dict
-
-
-def assemble_path_nested_dict(art_path, remove=False):
-    return expand(assemble_path_dict(art_path, remove))
 
 
 def remove_empty_dir_tag(path):
