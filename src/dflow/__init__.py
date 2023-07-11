@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 from importlib import import_module
 
 from .argo_objects import ArgoStep, ArgoWorkflow
@@ -20,7 +20,8 @@ from .step import (Step, argo_concat, argo_enumerate, argo_len, argo_range,
 from .steps import Steps
 from .task import Task
 from .utils import (copy_artifact, copy_s3, download_artifact, download_s3,
-                    path_list_of_artifact, randstr, upload_artifact, upload_s3)
+                    path_list_of_artifact, path_object_of_artifact, randstr,
+                    upload_artifact, upload_s3)
 from .workflow import (DockerSecret, Workflow, parse_repo,
                        query_archived_workflows, query_workflows)
 
@@ -41,7 +42,7 @@ __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "set_s3_config", "DockerSecret", "argo_sum", "argo_concat",
            "LineageClient", "Secret", "query_workflows",
            "query_archived_workflows", "ContainerExecutor", "ArgoStep",
-           "ArgoWorkflow", "argo_enumerate"]
+           "ArgoWorkflow", "argo_enumerate", "path_object_of_artifact"]
 
 
 def import_func(s):
