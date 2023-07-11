@@ -2,6 +2,7 @@ import os
 import re
 import subprocess
 import time
+from copy import deepcopy
 
 from ..python import PythonOPTemplate
 from .dispatcher import DispatcherArtifact
@@ -43,7 +44,7 @@ class DatasetsArtifact(DispatcherArtifact):
     def __init__(self, element, version, type="datasets",
                  rclone_image=None, rclone_image_pull_policy=None,
                  rclone_type=None, ftp_host=None, webdav_host=None,
-                 user=None, password=None, rclone_kwargs=None):
+                 user=None, password=None, rclone_kwargs=None, sub_path=None):
         self.element = element
         self.version = version
         self.type = type
@@ -83,6 +84,7 @@ class DatasetsArtifact(DispatcherArtifact):
             }
         if rclone_kwargs is not None:
             self.rclone_kwargs.update(rclone_kwargs)
+        self._sub_path = sub_path
 
     @classmethod
     def from_urn(cls, urn: str):
@@ -92,7 +94,12 @@ class DatasetsArtifact(DispatcherArtifact):
         element = matched.group("element")
         version = matched.group("version")
         type = matched.group("type")
-        return cls(element, version, type)
+        i = version.find("/")
+        if i != -1:
+            sub_path = version[i+1:]
+        else:
+            sub_path = None
+        return cls(element, version, type, sub_path=sub_path)
 
     @classmethod
     def from_rclone_config(cls, config: str):
@@ -115,8 +122,21 @@ class DatasetsArtifact(DispatcherArtifact):
         return cls(element, version, rclone_type=rclone_type,
                    rclone_kwargs=rclone_kwargs)
 
+    def sub_path(self, path: str):
+        artifact = deepcopy(self)
+        if artifact._sub_path is None:
+            artifact._sub_path = path
+        else:
+            artifact._sub_path += "/" + path
+        return artifact
+
     def get_urn(self) -> str:
-        return "launching+%s://%s@%s" % (self.type, self.element, self.version)
+        if self._sub_path is not None:
+            return "launching+%s://%s@%s/%s" % (
+                self.type, self.element, self.version, self._sub_path)
+        else:
+            return "launching+%s://%s@%s" % (
+                self.type, self.element, self.version)
 
     def get_bohrium_urn(self, name: str) -> str:
         mount_type = "rw" if self.version == "draft" else "ro"
@@ -125,16 +145,26 @@ class DatasetsArtifact(DispatcherArtifact):
 
     def download(self, name: str, path: str):
         wait_for_mount("/launching/%s" % name)
-        os.symlink("/launching/%s" % name, path)
+        if self._sub_path is not None:
+            os.symlink("/launching/%s/%s" % (name, self._sub_path), path)
+        else:
+            os.symlink("/launching/%s" % name, path)
 
     def remote_download(self, name: str, path: str):
-        cmd = self.get_mount_script(path)
+        cmd = self.get_mount_script("/launching/%s" % name)
         p = subprocess.Popen(cmd, shell=True, start_new_session=True)
-        wait_for_mount(path)
+        wait_for_mount("/launching/%s" % name)
+        if self._sub_path is not None:
+            os.symlink("/launching/%s/%s" % (name, self._sub_path), path)
+        else:
+            os.symlink("/launching/%s" % name, path)
         return p.pid
 
     def bohrium_download(self, name: str, path: str):
-        os.symlink("/launching/%s" % name, path)
+        if self._sub_path is not None:
+            os.symlink("/launching/%s/%s" % (name, self._sub_path), path)
+        else:
+            os.symlink("/launching/%s" % name, path)
 
     def get_mount_script(self, path):
         script = "rclone config create %s@%s %s %s" % (
