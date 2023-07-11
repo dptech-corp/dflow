@@ -97,6 +97,7 @@ class DatasetsArtifact(DispatcherArtifact):
         i = version.find("/")
         if i != -1:
             sub_path = version[i+1:]
+            version = version[:i]
         else:
             sub_path = None
         return cls(element, version, type, sub_path=sub_path)
