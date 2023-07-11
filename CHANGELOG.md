@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.25](https://github.com/deepmodeling/dflow/compare/v1.7.24...v1.7.25) (2023-07-11)
+
+
+### Bug Fixes
+
+* merge path list and path dict to path object ([56efbde](https://github.com/deepmodeling/dflow/commit/56efbde8791da879267824136d73a337d35db1aa))
+
 ## [1.7.24](https://github.com/deepmodeling/dflow/compare/v1.7.23...v1.7.24) (2023-07-11)
 
 
