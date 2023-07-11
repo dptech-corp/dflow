@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.24](https://github.com/deepmodeling/dflow/compare/v1.7.23...v1.7.24) (2023-07-11)
+
+
+### Bug Fixes
+
+* support for sub_path of datasets artifact ([56b6444](https://github.com/deepmodeling/dflow/commit/56b64448b96e5b6f3d22ced459036a4b7b0a6b00))
+* version of sub_path of datasets artifact ([e14d663](https://github.com/deepmodeling/dflow/commit/e14d663b146790cfb110045aef04b14e838f709e))
+
 ## [1.7.23](https://github.com/deepmodeling/dflow/compare/v1.7.22...v1.7.23) (2023-07-10)
 
 
