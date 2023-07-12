@@ -665,6 +665,9 @@ class InputArtifact(ArgoVar):
             if self.source is None:
                 return V1alpha1Parameter(name="dflow_art_%s" % self.name)
             elif isinstance(self.source, CustomArtifact):
+                if self.source.redirect is not None:
+                    return V1alpha1Parameter(name="dflow_art_%s" % self.name,
+                                             value=self.source.redirect)
                 return V1alpha1Parameter(name="dflow_art_%s" % self.name,
                                          value=jsonpickle.dumps(self.source))
             else:
