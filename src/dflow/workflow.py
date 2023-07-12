@@ -155,7 +155,7 @@ class Workflow:
             assert isinstance(dag, DAG)
             self.entrypoint = dag
         else:
-            self.entrypoint = Steps(self.name + "-steps")
+            self.entrypoint = None
         self.templates = {}
         self.argo_templates = {}
         self.pvcs = {}
@@ -180,6 +180,7 @@ class Workflow:
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         GLOBAL_CONTEXT.in_context = False
+        self.submit()
 
     def add(
             self,
@@ -192,6 +193,12 @@ class Workflow:
             step: a step or a list of parallel steps to be added to the
             entrypoint of the workflow
         """
+        if self.entrypoint is None:
+            if isinstance(step, Task) or (isinstance(step, list) and all(
+                    [isinstance(s, Task) for s in step])):
+                self.entrypoint = DAG(self.name + "-dag")
+            else:
+                self.entrypoint = Steps(self.name + "-steps")
         self.entrypoint.add(step)
 
     def submit(

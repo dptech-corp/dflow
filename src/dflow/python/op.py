@@ -6,6 +6,7 @@ import json
 import logging
 import os
 from abc import ABC
+from functools import partial
 from pathlib import Path
 from typing import Dict, List, Set, Union
 
@@ -13,7 +14,8 @@ from typeguard import check_type
 
 from ..argo_objects import ArgoObjectDict
 from ..config import config
-from ..utils import get_key, s3_config
+from ..context_syntax import GLOBAL_CONTEXT
+from ..utils import get_key, randstr, s3_config
 from .opio import (OPIO, Artifact, BigParameter, OPIOSign, Parameter,
                    type_to_str)
 
@@ -181,7 +183,9 @@ class OP(ABC):
                 check_type(ii, io, ss)
 
     @classmethod
-    def function(cls, func):
+    def function(cls, func=None, **kwargs):
+        if func is None:
+            return partial(cls.function, **kwargs)
         signature = func.__annotations__
         return_type = signature.get('return', None)
 
@@ -220,6 +224,22 @@ class OP(ABC):
                 return op_out
 
             def __call__(self, **op_in):
+                if GLOBAL_CONTEXT.in_context:
+                    from .python_op_template import PythonOPTemplate
+                    from ..task import Task
+                    input_sign = self.get_input_sign()
+                    parameters = {k: v for k, v in op_in.items()
+                                  if not isinstance(input_sign[k], Artifact)}
+                    artifacts = {k: v for k, v in op_in.items()
+                                 if isinstance(input_sign[k], Artifact)}
+                    name = func.__name__.lower().replace("_", "-") + "-" + \
+                        randstr()
+                    task = Task(name,
+                                template=PythonOPTemplate(self, **kwargs),
+                                parameters=parameters, artifacts=artifacts)
+                    op_out = {**task.outputs.parameters,
+                              **task.outputs.artifacts}
+                    return op_out
                 return self.execute(op_in)
 
         subclass.func = func
