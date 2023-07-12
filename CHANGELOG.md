@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.26](https://github.com/deepmodeling/dflow/compare/v1.7.25...v1.7.26) (2023-07-12)
+
+
+### Bug Fixes
+
+* sub-path slices of artifact list ([955db41](https://github.com/deepmodeling/dflow/commit/955db418f9c5eccf984be8ee87d4257415b37143))
+
 ## [1.7.25](https://github.com/deepmodeling/dflow/compare/v1.7.24...v1.7.25) (2023-07-11)
 
 
