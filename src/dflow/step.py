@@ -191,7 +191,7 @@ class ArgoEnumerate(ArgoVar):
         for k, v in kwargs.items():
             values += ", '%s': jsonpath(%s, '$')[#]" % (
                 k, v.expr if isinstance(v, ArgoVar)
-                else shlex.quote(json.dumps(v)))
+                else shlex.quote(json.dumps(v)).replace("\\", "\\\\"))
         super().__init__(
             "toJson(map(sprig.untilStep(0, %s, 1), "
             "{ {'order': #%s} }))" % (length, values))
@@ -313,6 +313,20 @@ class Step:
         self.name = name
         self.id = self.name
         self.template = template
+        self.with_param = with_param
+        self.with_sequence = with_sequence
+        if slices is not None and slices.sub_path and all([isinstance(
+                artifacts[n], list) for n in slices.input_artifact]):
+            self.handle_sub_path_slices_of_artifact_list(slices, artifacts)
+        elif getattr(self.template, "slices", None) is not None and \
+            self.template.slices.sub_path and all([isinstance(
+                artifacts[n], list) for n in
+                self.template.slices.input_artifact]):
+            self.template = self.template.copy()
+            self.handle_sub_path_slices_of_artifact_list(self.template.slices,
+                                                         artifacts)
+            self.template.set_slices(self.template.slices)
+
         self.inputs = deepcopy(self.template.inputs)
         self.outputs = deepcopy(self.template.outputs)
         self.inputs.set_step(self)
@@ -331,8 +345,6 @@ class Step:
             self.set_artifacts(artifacts)
 
         self.when = when
-        self.with_param = with_param
-        self.with_sequence = with_sequence
         if key is not None:
             clean_key = re.sub("{{[^}]*}}", "a", key)
             assert key_regex.match(clean_key), "Invalid key '%s': %s" % (
@@ -1088,6 +1100,26 @@ class Step:
 
     def __repr__(self):
         return self.id
+
+    def handle_sub_path_slices_of_artifact_list(self, slices, artifacts):
+        n = len(artifacts[slices.input_artifact[0]])
+        param = {}
+        for name in slices.input_artifact:
+            assert len(artifacts[name]) == n
+            if all([isinstance(art, S3Artifact)
+                    for art in artifacts[name]]):
+                param[name] = [art.key for art in artifacts[name]]
+                artifacts[name] = S3Artifact(key="{{item.%s}}" % name)
+            elif all(isinstance(art, CustomArtifact)
+                     for art in artifacts[name]):
+                param[name] = [jsonpickle.dumps(art)
+                               for art in artifacts[name]]
+                artifacts[name] = artifacts[name][0]
+                artifacts[name].redirect = "{{item.%s}}" % name
+        self.with_param = argo_enumerate(**param)
+        slices.slices = "{{item.order}}"
+        slices.sub_path = False
+        slices.input_artifact = []
 
     def set_parameters(self, parameters):
         for k, v in parameters.items():

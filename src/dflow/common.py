@@ -172,6 +172,8 @@ class LineageClient(ABC):
 
 
 class CustomArtifact(ABC):
+    redirect = None
+
     @abc.abstractmethod
     def get_urn(self) -> str:
         pass

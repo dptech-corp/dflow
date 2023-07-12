@@ -355,6 +355,15 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         self.input_parameter_slices = {}
         self.output_artifact_slices = {}
         self.output_parameter_slices = {}
+        # undo add slices
+        for name, sign in self.input_sign.items():
+            if isinstance(sign, Artifact):
+                if "dflow_%s_sub_path" % name in self.inputs.parameters:
+                    del self.inputs.parameters["dflow_%s_sub_path" % name]
+                self.inputs.artifacts[name] = InputArtifact(
+                    path="%s/inputs/artifacts/" % self.tmp_root + name,
+                    optional=sign.optional, type=sign.type,
+                    archive=sign.archive)
         if slices is not None:
             self.add_slices(slices)
         else:
