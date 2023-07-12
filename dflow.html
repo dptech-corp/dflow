@@ -420,6 +420,11 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_urn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#dflow.common.CustomArtifact.get_urn" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dflow.common.CustomArtifact.redirect">
+<span class="sig-name descname"><span class="pre">redirect</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dflow.common.CustomArtifact.redirect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.common.CustomArtifact.render">
 <span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.common.CustomArtifact.render" title="Permalink to this definition">¶</a></dt>
@@ -1594,6 +1599,11 @@ step-xxxxx
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.step.Step.from_dict">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">templates</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.step.Step.handle_sub_path_slices_of_artifact_list">
+<span class="sig-name descname"><span class="pre">handle_sub_path_slices_of_artifact_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifacts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.handle_sub_path_slices_of_artifact_list" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -3423,6 +3433,11 @@ step-xxxxx
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dflow.Step.handle_sub_path_slices_of_artifact_list">
+<span class="sig-name descname"><span class="pre">handle_sub_path_slices_of_artifact_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifacts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.handle_sub_path_slices_of_artifact_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dflow.Step.load_output_artifacts">
 <span class="sig-name descname"><span class="pre">load_output_artifacts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">artifacts</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.load_output_artifacts" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -4175,6 +4190,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.common.CustomArtifact"><code class="docutils literal notranslate"><span class="pre">CustomArtifact</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.common.CustomArtifact.download"><code class="docutils literal notranslate"><span class="pre">CustomArtifact.download()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.common.CustomArtifact.get_urn"><code class="docutils literal notranslate"><span class="pre">CustomArtifact.get_urn()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.common.CustomArtifact.redirect"><code class="docutils literal notranslate"><span class="pre">CustomArtifact.redirect</span></code></a></li>
 <li><a class="reference internal" href="#dflow.common.CustomArtifact.render"><code class="docutils literal notranslate"><span class="pre">CustomArtifact.render()</span></code></a></li>
 </ul>
 </li>
@@ -4413,6 +4429,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.step.Step.exec"><code class="docutils literal notranslate"><span class="pre">Step.exec()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.exec_with_config"><code class="docutils literal notranslate"><span class="pre">Step.exec_with_config()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.from_dict"><code class="docutils literal notranslate"><span class="pre">Step.from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.handle_sub_path_slices_of_artifact_list"><code class="docutils literal notranslate"><span class="pre">Step.handle_sub_path_slices_of_artifact_list()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.load_output_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.load_output_artifacts()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.load_output_parameters"><code class="docutils literal notranslate"><span class="pre">Step.load_output_parameters()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.prepare_argo_arguments"><code class="docutils literal notranslate"><span class="pre">Step.prepare_argo_arguments()</span></code></a></li>
@@ -4723,6 +4740,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.Step.exec"><code class="docutils literal notranslate"><span class="pre">Step.exec()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.exec_with_config"><code class="docutils literal notranslate"><span class="pre">Step.exec_with_config()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.from_dict"><code class="docutils literal notranslate"><span class="pre">Step.from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.handle_sub_path_slices_of_artifact_list"><code class="docutils literal notranslate"><span class="pre">Step.handle_sub_path_slices_of_artifact_list()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.load_output_artifacts"><code class="docutils literal notranslate"><span class="pre">Step.load_output_artifacts()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.load_output_parameters"><code class="docutils literal notranslate"><span class="pre">Step.load_output_parameters()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.prepare_argo_arguments"><code class="docutils literal notranslate"><span class="pre">Step.prepare_argo_arguments()</span></code></a></li>
