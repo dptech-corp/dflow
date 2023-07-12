@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.27](https://github.com/deepmodeling/dflow/compare/v1.7.26...v1.7.27) (2023-07-12)
+
+
+### Bug Fixes
+
+* syntax sugar for python op template and task ([5521eef](https://github.com/deepmodeling/dflow/commit/5521eefdcf99050f8cf918d39411d7c3ccb13e33))
+
 ## [1.7.26](https://github.com/deepmodeling/dflow/compare/v1.7.25...v1.7.26) (2023-07-12)
 
 
