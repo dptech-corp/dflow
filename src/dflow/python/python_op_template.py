@@ -212,8 +212,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             for name, global_name in output_artifact_global_name.items():
                 output_sign[name].global_name = global_name
         super().__init__(
-            name="%s-%s" % (class_name, randstr()), inputs=Inputs(),
-            outputs=Outputs(), volumes=volumes, mounts=mounts,
+            name="%s-%s" % (class_name.replace("_", "-"), randstr()),
+            inputs=Inputs(), outputs=Outputs(), volumes=volumes, mounts=mounts,
             requests=requests, limits=limits, envs=envs,
             init_containers=init_containers, sidecars=sidecars)
         self.pre_script = pre_script

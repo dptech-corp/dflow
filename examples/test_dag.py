@@ -1,4 +1,4 @@
-from dflow import (DAG, InputArtifact, InputParameter, OutputArtifact,
+from dflow import (InputArtifact, InputParameter, OutputArtifact,
                    OutputParameter, ShellOPTemplate, Task, Workflow)
 
 if __name__ == "__main__":
@@ -21,14 +21,12 @@ if __name__ == "__main__":
     duplicate.inputs.artifacts = {"foo": InputArtifact(path="/tmp/foo.txt")}
     duplicate.outputs.artifacts = {"bar": OutputArtifact(path="/tmp/bar.txt")}
 
-    dag = DAG()
+    wf = Workflow(name="dag")
     hello0 = Task(name="hello0", template=hello)
-    dag.add(hello0)
+    wf.add(hello0)
     hello1 = Task(name="hello1",
                   template=duplicate,
                   parameters={"msg": hello0.outputs.parameters["msg"]},
                   artifacts={"foo": hello0.outputs.artifacts["bar"]})
-    dag.add(hello1)
-
-    wf = Workflow(name="dag", dag=dag)
+    wf.add(hello1)
     wf.submit()

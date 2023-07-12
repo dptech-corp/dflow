@@ -200,7 +200,7 @@ class DatasetsArtifact(DispatcherArtifact):
         script += " && rclone mount %s@%s: /launching/%s" % (
             self.element, self.version, name)
         template.sidecars.append(V1alpha1UserContainer(
-            name="rclone-%s" % name,
+            name="rclone-%s" % name.replace("_", "-"),
             image=self.rclone_image,
             image_pull_policy=self.rclone_image_pull_policy,
             command=["sh", "-c"],
