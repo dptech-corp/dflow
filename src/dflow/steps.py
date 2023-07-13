@@ -149,8 +149,8 @@ class Steps(OPTemplate):
             else:
                 step.run(self, context)
 
-    def add_slices(self, slices):
-        add_slices(self, slices)
+    def add_slices(self, slices, layer=0):
+        add_slices(self, slices, layer=layer)
 
     def copy(self):
         new_template = self.deepcopy()

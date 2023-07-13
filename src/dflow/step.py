@@ -2175,8 +2175,10 @@ def replace_argo_func(expr):
     return expr
 
 
-def add_slices(templ: OPTemplate, slices: Slices):
-    templ.inputs.parameters["dflow_slice"] = InputParameter(
+def add_slices(templ: OPTemplate, slices: Slices, layer=0):
+    slice_par = "dflow_slice" if layer == 0 else "dflow_slice_%s" % layer
+    slice_par_1 = "dflow_slice_%s" % (layer + 1)
+    templ.inputs.parameters[slice_par] = InputParameter(
         value=slices.slices)
 
     steps = []
@@ -2192,15 +2194,15 @@ def add_slices(templ: OPTemplate, slices: Slices):
                 # input parameter referring to sliced input parameter
                 if getattr(par, "value", None) is \
                         templ.inputs.parameters[name]:
-                    step.template.inputs.parameters["dflow_slice"] = \
+                    step.template.inputs.parameters[slice_par_1] = \
                         InputParameter()
                     step.template.add_slices(Slices(
-                        "{{inputs.parameters.dflow_slice}}",
+                        "{{inputs.parameters.%s}}" % slice_par_1,
                         input_parameter=[par.name],
                         sub_path=slices.sub_path,
-                        pool_size=slices.pool_size))
-                    step.inputs.parameters["dflow_slice"] = InputParameter(
-                        value="{{inputs.parameters.dflow_slice}}")
+                        pool_size=slices.pool_size), layer=layer+1)
+                    step.inputs.parameters[slice_par_1] = InputParameter(
+                        value="{{inputs.parameters.%s}}" % slice_par)
 
     for name in slices.input_artifact:
         for step in steps:
@@ -2218,28 +2220,27 @@ def add_slices(templ: OPTemplate, slices: Slices):
                         "dflow_%s_" % name)])
                     art_name = art.name[6:art.name.rfind("_")]
                 if source_slice:
-                    pattern = "{{inputs.parameters.dflow_slice}}"
-                    step.template.inputs.parameters["dflow_slice"] = \
+                    step.template.inputs.parameters[slice_par_1] = \
                         InputParameter()
                     step.template.add_slices(Slices(
-                        pattern,
+                        "{{inputs.parameters.%s}}" % slice_par_1,
                         input_artifact=[art_name],
                         sub_path=slices.sub_path,
-                        pool_size=slices.pool_size))
-                    step.inputs.parameters["dflow_slice"] = InputParameter(
-                        value="{{inputs.parameters.dflow_slice}}")
+                        pool_size=slices.pool_size), layer=layer+1)
+                    step.inputs.parameters[slice_par_1] = InputParameter(
+                        value="{{inputs.parameters.%s}}" % slice_par)
 
     def stack_output_parameter(par):
         if isinstance(par, OutputParameter):
             step = par.step
-            step.template.inputs.parameters["dflow_slice"] = InputParameter()
+            step.template.inputs.parameters[slice_par_1] = InputParameter()
             step.template.add_slices(Slices(
-                "{{inputs.parameters.dflow_slice}}",
+                "{{inputs.parameters.%s}}" % slice_par_1,
                 output_parameter=[par.name],
                 sub_path=slices.sub_path,
-                pool_size=slices.pool_size))
-            step.inputs.parameters["dflow_slice"] = InputParameter(
-                value="{{inputs.parameters.dflow_slice}}")
+                pool_size=slices.pool_size), layer=layer+1)
+            step.inputs.parameters[slice_par_1] = InputParameter(
+                value="{{inputs.parameters.%s}}" % slice_par)
 
     for name in slices.output_parameter:
         # sliced output parameter from
@@ -2255,14 +2256,14 @@ def add_slices(templ: OPTemplate, slices: Slices):
     def stack_output_artifact(art):
         if isinstance(art, OutputArtifact):
             step = art.step
-            step.template.inputs.parameters["dflow_slice"] = InputParameter()
+            step.template.inputs.parameters[slice_par_1] = InputParameter()
             step.template.add_slices(Slices(
-                "{{inputs.parameters.dflow_slice}}",
+                "{{inputs.parameters.%s}}" % slice_par_1,
                 output_artifact=[art.name],
                 sub_path=slices.sub_path,
-                pool_size=slices.pool_size))
-            step.inputs.parameters["dflow_slice"] = InputParameter(
-                value="{{inputs.parameters.dflow_slice}}")
+                pool_size=slices.pool_size), layer=layer+1)
+            step.inputs.parameters[slice_par_1] = InputParameter(
+                value="{{inputs.parameters.%s}}" % slice_par)
 
     for name in slices.output_artifact:
         # sliced output artifact from

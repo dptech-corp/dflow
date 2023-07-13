@@ -369,7 +369,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         else:
             self.render_script()
 
-    def add_slices(self, slices: Slices):
+    def add_slices(self, slices: Slices, layer=0):
         if slices.input_artifact and not slices.sub_path:
             for name in slices.input_artifact:
                 self.input_artifact_slices[name] = slices.slices
