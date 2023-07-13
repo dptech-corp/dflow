@@ -158,8 +158,8 @@ class DAG(OPTemplate):
         pool.shutdown()
         assert len(self.finished) == len(self.tasks), "cyclic graph"
 
-    def add_slices(self, slices):
-        add_slices(self, slices)
+    def add_slices(self, slices, layer=0):
+        add_slices(self, slices, layer=layer)
 
     def copy(self):
         new_template = self.deepcopy()
