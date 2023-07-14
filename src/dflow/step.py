@@ -1108,12 +1108,12 @@ class Step:
             assert len(artifacts[name]) == n
             if all([isinstance(art, S3Artifact)
                     for art in artifacts[name]]):
-                param[name] = [art.key for art in artifacts[name]]
+                param[name] = [art.key.removeprefix(s3_config["prefix"])
+                               for art in artifacts[name]]
                 artifacts[name] = S3Artifact(key="{{item.%s}}" % name)
             elif all(isinstance(art, CustomArtifact)
                      for art in artifacts[name]):
-                param[name] = [jsonpickle.dumps(art)
-                               for art in artifacts[name]]
+                param[name] = [art.get_urn() for art in artifacts[name]]
                 artifacts[name] = artifacts[name][0]
                 artifacts[name].redirect = "{{item.%s}}" % name
         self.with_param = argo_enumerate(**param)
@@ -1174,9 +1174,14 @@ class Step:
                 if isinstance(self.template, (Steps, DAG)):
                     for step in self.template:
                         for name, art in step.inputs.artifacts.items():
-                            if art.source is self.template.inputs.artifacts[k]:
+                            if art.source is self.template.inputs.artifacts[k]\
+                                or getattr(art.source, "parent", None) is \
+                                    self.template.inputs.artifacts[k]:
+                                source_bk = art.source
+                                # for sub_path object
+                                art.source.save_as_parameter = True
                                 step.set_artifacts({name: v})
-                                art.source = self.template.inputs.artifacts[k]
+                                art.source = source_bk
             elif isinstance(v, (list, tuple)):
                 self.template = self.template.copy()
                 slices = []
@@ -1195,14 +1200,23 @@ class Step:
                 if isinstance(self.template, (Steps, DAG)):
                     for step in self.template:
                         for name, art in list(step.inputs.artifacts.items()):
-                            if art.source is self.template.inputs.artifacts[k]:
-                                step.set_artifacts({name: [
-                                    self.template.inputs.artifacts[
+                            if art.source is self.template.inputs.artifacts[k]\
+                                or getattr(art.source, "parent", None) is \
+                                    self.template.inputs.artifacts[k]:
+                                art = []
+                                for i, s in enumerate(slices):
+                                    source = self.template.inputs.artifacts[
                                         "dflow_%s_%s" % (k, i)]
-                                    if slice is None else
-                                    self.template.inputs.artifacts[
-                                        "dflow_%s_%s" % (k, i)][slice]
-                                    for i, slice in enumerate(slices)]})
+                                    s2 = getattr(art.source, "slice", None)
+                                    if s is not None and s2 is not None:
+                                        art.append(source["%s.%s" % (s, s2)])
+                                    elif s is not None:
+                                        art.append(source[s])
+                                    elif s2 is not None:
+                                        art.append(source[s2])
+                                    else:
+                                        art.append(source)
+                                step.set_artifacts({name: art})
                 else:
                     for i, a in enumerate(v):
                         vn = "dflow_%s_%s" % (k, i)
@@ -1237,14 +1251,23 @@ class Step:
                 if isinstance(self.template, (Steps, DAG)):
                     for step in self.template:
                         for name, art in list(step.inputs.artifacts.items()):
-                            if art.source is self.template.inputs.artifacts[k]:
-                                step.set_artifacts({name: {
-                                    i: self.template.inputs.artifacts[
+                            if art.source is self.template.inputs.artifacts[k]\
+                                or getattr(art.source, "parent", None) is \
+                                    self.template.inputs.artifacts[k]:
+                                art = {}
+                                for i, s in slices.items():
+                                    source = self.template.inputs.artifacts[
                                         "dflow_%s_%s" % (k, i)]
-                                    if slice is None else
-                                    self.template.inputs.artifacts[
-                                        "dflow_%s_%s" % (k, i)][slice]
-                                    for i, slice in slices.items()}})
+                                    s2 = getattr(art.source, "slice", None)
+                                    if s is not None and s2 is not None:
+                                        art[i] = source["%s.%s" % (s, s2)]
+                                    elif s is not None:
+                                        art[i] = source[s]
+                                    elif s2 is not None:
+                                        art[i] = source[s2]
+                                    else:
+                                        art[i] = source
+                                step.set_artifacts({name: art})
                 else:
                     for i, a in flat_v.items():
                         vn = "dflow_%s_%s" % (k, i)
@@ -1262,7 +1285,7 @@ class Step:
                 del self.inputs.artifacts[k]
             else:
                 self.inputs.artifacts[k].source = v
-                if hasattr(v, "slice") and v.slice is not None:
+                if getattr(v, "slice", None) is not None:
                     self.template = self.template.copy()
                     if isinstance(v.slice, (InputParameter, OutputParameter)):
                         self.template.inputs.parameters[
@@ -1278,11 +1301,10 @@ class Step:
                             for name, art in step.inputs.artifacts.items():
                                 if art.source is \
                                         self.template.inputs.artifacts[k] or \
-                                        hasattr(art.source, "parent") and \
-                                        art.source.parent is \
+                                        getattr(art.source, "parent", None) is\
                                         self.template.inputs.artifacts[k]:
-                                    if hasattr(art.source, "slice") and \
-                                            art.source.slice is not None:
+                                    if getattr(art.source, "slice", None) \
+                                            is not None:
                                         slice = "%s.%s" % (v.slice,
                                                            art.source.slice)
                                     else:

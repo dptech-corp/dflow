@@ -625,14 +625,17 @@ class InputArtifact(ArgoVar):
         from .task import Task
         if self.save_as_parameter:
             if self.name is not None:
+                suffix = "" if self._sub_path is None else \
+                    "/%s" % self._sub_path
                 if self.step is not None:
                     if isinstance(self.step, Task):
-                        return "{{tasks.%s.inputs.parameters.dflow_art_%s}}"\
-                            % (self.step.id, self.name)
+                        return "{{tasks.%s.inputs.parameters.dflow_art_%s}}%s"\
+                            % (self.step.id, self.name, suffix)
                     else:
-                        return "{{steps.%s.inputs.parameters.dflow_art_%s}}"\
-                            % (self.step.id, self.name)
-                return "{{inputs.parameters.dflow_art_%s}}" % self.name
+                        return "{{steps.%s.inputs.parameters.dflow_art_%s}}%s"\
+                            % (self.step.id, self.name, suffix)
+                return "{{inputs.parameters.dflow_art_%s}}%s" % (self.name,
+                                                                 suffix)
             return ""
         if self.name is not None:
             if self.step is not None:
@@ -647,6 +650,7 @@ class InputArtifact(ArgoVar):
 
     def sub_path(self, path):
         artifact = deepcopy(self)
+        artifact.parent = self
         if artifact._sub_path is None:
             artifact._sub_path = path
         else:
@@ -669,7 +673,7 @@ class InputArtifact(ArgoVar):
                     return V1alpha1Parameter(name="dflow_art_%s" % self.name,
                                              value=self.source.redirect)
                 return V1alpha1Parameter(name="dflow_art_%s" % self.name,
-                                         value=jsonpickle.dumps(self.source))
+                                         value=self.source.get_urn())
             else:
                 return V1alpha1Parameter(name="dflow_art_%s" % self.name,
                                          value=str(self.source))
@@ -1034,6 +1038,7 @@ class OutputArtifact(ArgoVar):
 
     def sub_path(self, path):
         artifact = deepcopy(self)
+        artifact.parent = self
         if artifact._sub_path is None:
             artifact._sub_path = path
         else:

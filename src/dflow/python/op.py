@@ -6,6 +6,7 @@ import json
 import logging
 import os
 from abc import ABC
+from copy import deepcopy
 from functools import partial
 from pathlib import Path
 from typing import Dict, List, Set, Union
@@ -210,6 +211,8 @@ class OP(ABC):
                 f'got {type(return_type)}.')
 
         class subclass(cls):
+            task_kwargs = {}
+
             @classmethod
             def get_input_sign(cls):
                 return input_sign
@@ -222,6 +225,11 @@ class OP(ABC):
             def execute(self, op_in):
                 op_out = func(**op_in)
                 return op_out
+
+            def use(self, **kwargs):
+                op = deepcopy(self)
+                op.task_kwargs = kwargs
+                return op
 
             def __call__(self, **op_in):
                 if GLOBAL_CONTEXT.in_context:
@@ -236,7 +244,8 @@ class OP(ABC):
                         randstr()
                     task = Task(name,
                                 template=PythonOPTemplate(self, **kwargs),
-                                parameters=parameters, artifacts=artifacts)
+                                parameters=parameters, artifacts=artifacts,
+                                **self.task_kwargs)
                     op_out = {**task.outputs.parameters,
                               **task.outputs.artifacts}
                     return op_out

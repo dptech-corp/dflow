@@ -303,6 +303,8 @@ class TiefblueClient(StorageClient):
                     self.username, self.phone, self.password, self.bohrium_url)
             headers["Authorization"] = "Bearer " + self.authorization
         rsp = requests.get(url, headers=headers, params=params)
+        if not rsp.text:
+            raise RuntimeError("Bohrium unauthorized")
         res = json.loads(rsp.text)
         _raise_error(res, "get storage token")
         self.token = res["data"]["token"]

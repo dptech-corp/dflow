@@ -4,6 +4,7 @@ import subprocess
 import time
 from copy import deepcopy
 
+from ..config import config as global_config
 from ..python import PythonOPTemplate
 from .dispatcher import DispatcherArtifact
 
@@ -15,6 +16,9 @@ try:
                                        V1VolumeMount)
 except Exception:
     pass
+
+global_config["artifact_register"]["launching+datasets"] = \
+    "dflow.plugins.datasets.DatasetsArtifact"
 
 
 def wait_for_mount(point, timeout=60):

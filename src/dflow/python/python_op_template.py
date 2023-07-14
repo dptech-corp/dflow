@@ -482,13 +482,15 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                             name
         if any([art.save_as_parameter
                 for art in self.inputs.artifacts.values()]):
+            script += "    from dflow import CustomArtifact\n"
             script += "    pids = []\n"
             for name in self.inputs.artifacts:
                 if self.inputs.artifacts[name].save_as_parameter:
-                    script += "    pids.append(jsonpickle.loads('{{inputs."\
-                        "parameters.dflow_art_%s}}').%s('%s', '%s/inputs/"\
-                        "artifacts/%s'))\n" % (name, self.download_method,
-                                               name, self.tmp_root, name)
+                    script += "    pids.append(CustomArtifact.from_urn('{{"\
+                        "inputs.parameters.dflow_art_%s}}').%s('%s', '%s/"\
+                        "inputs/artifacts/%s'))\n" % (
+                            name, self.download_method, name, self.tmp_root,
+                            name)
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(input_artifact_slices, name)

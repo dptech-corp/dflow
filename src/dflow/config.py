@@ -67,6 +67,7 @@ config = {
         os.environ.get("DFLOW_DEBUG_POOL_WORKERS", None)),
     "detect_empty_dir": boolize(os.environ.get("DFLOW_DETECT_EMPTY_DIR",
                                                True)),
+    "artifact_register": {},
 }
 
 
