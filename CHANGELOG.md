@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.7.29](https://github.com/deepmodeling/dflow/compare/v1.7.28...v1.7.29) (2023-07-14)
+
+
+### Bug Fixes
+
+* concat ArgoVar to str ([c84efb6](https://github.com/deepmodeling/dflow/commit/c84efb6813915fada014de2d99f9503169f2ac54))
+* support for sub_path syntax in steps/dag context for custom artifacts ([f84fb09](https://github.com/deepmodeling/dflow/commit/f84fb09c02cb66569a064277cb6d4476cc1e37a5))
+* support for task kwargs in syntax sugar ([f84fb09](https://github.com/deepmodeling/dflow/commit/f84fb09c02cb66569a064277cb6d4476cc1e37a5))
+* use urn to record custom artifacts instead of jsonpickle ([f84fb09](https://github.com/deepmodeling/dflow/commit/f84fb09c02cb66569a064277cb6d4476cc1e37a5))
+
 ## [1.7.28](https://github.com/deepmodeling/dflow/compare/v1.7.27...v1.7.28) (2023-07-13)
 
 
