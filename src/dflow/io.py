@@ -625,7 +625,8 @@ class InputArtifact(ArgoVar):
         from .task import Task
         if self.save_as_parameter:
             if self.name is not None:
-                suffix = "" if self._sub_path is None else "/" + self._sub_path
+                suffix = "" if self._sub_path is None else \
+                    "/%s" % self._sub_path
                 if self.step is not None:
                     if isinstance(self.step, Task):
                         return "{{tasks.%s.inputs.parameters.dflow_art_%s}}%s"\
