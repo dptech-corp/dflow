@@ -5,6 +5,7 @@ import re
 import shutil
 from abc import ABC
 from copy import copy, deepcopy
+from importlib import import_module
 from typing import Any, Dict, List, Union
 
 from .config import config as global_config
@@ -171,12 +172,29 @@ class LineageClient(ABC):
         pass
 
 
+def import_func(s):
+    fields = s.split(".")
+    if fields[0] == __name__ or fields[0] == "":
+        fields[0] = ""
+        mod = import_module(".".join(fields[:-1]), package=__name__)
+    else:
+        mod = import_module(".".join(fields[:-1]))
+    return getattr(mod, fields[-1])
+
+
 class CustomArtifact(ABC):
     redirect = None
 
     @abc.abstractmethod
     def get_urn(self) -> str:
         pass
+
+    @staticmethod
+    def from_urn(urn):
+        protocol = urn.split("://")[0]
+        name = global_config["artifact_register"][protocol]
+        custom = import_func(name)
+        return custom.from_urn(urn)
 
     def __repr__(self):
         return self.get_urn()

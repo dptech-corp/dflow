@@ -288,10 +288,12 @@ class DispatcherExecutor(Executor):
                                    if m.name != "launching"]
             new_template.sidecars = [s for s in new_template.sidecars
                                      if not s.name.startswith("rclone-")]
-            if self.machine_dict["context_type"] == "Bohrium":
-                new_template.script += handle_packages_script(
-                    "./tmp/inputs/artifacts/dflow_python_packages")
-
+            new_template.script += handle_packages_script(
+                "./tmp/inputs/artifacts/dflow_python_packages")
+            new_template.script += "import jsonpickle\n"
+            new_template.script += "from dflow import config\n"
+            new_template.script += "config['artifact_register'] = %s\n" % \
+                json.dumps(config["artifact_register"])
         new_template.script += "with open('script', 'w') as f:\n"
         new_template.script += "    f.write(r\"\"\"\n"
         if self.map_tmp_dir:
@@ -323,8 +325,9 @@ class DispatcherExecutor(Executor):
             if self.machine_dict["context_type"] == "Bohrium" and \
                     art.save_as_parameter:
                 new_template.script += "import jsonpickle\n"
-                new_template.script += "bohrium_urn = jsonpickle.loads('{{"\
-                    "inputs.parameters.dflow_art_%s}}').get_bohrium_urn("\
+                new_template.script += "from dflow import CustomArtifact\n"
+                new_template.script += "bohrium_urn = CustomArtifact.from_urn"\
+                    "('{{inputs.parameters.dflow_art_%s}}').get_bohrium_urn("\
                     "'%s')\n" % (name, name)
                 new_template.script += "machine.input_data['job_resources']"\
                     " = machine.input_data.get('job_resources', []) + "\

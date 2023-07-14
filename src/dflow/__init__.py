@@ -1,9 +1,9 @@
 import logging
 import os
-from importlib import import_module
 
 from .argo_objects import ArgoStep, ArgoWorkflow
-from .common import LineageClient, LocalArtifact, S3Artifact
+from .common import (CustomArtifact, LineageClient, LocalArtifact, S3Artifact,
+                     import_func)
 from .config import config, s3_config, set_config, set_s3_config
 from .context import Context
 from .dag import DAG
@@ -42,17 +42,8 @@ __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "set_s3_config", "DockerSecret", "argo_sum", "argo_concat",
            "LineageClient", "Secret", "query_workflows",
            "query_archived_workflows", "ContainerExecutor", "ArgoStep",
-           "ArgoWorkflow", "argo_enumerate", "path_object_of_artifact"]
-
-
-def import_func(s):
-    fields = s.split(".")
-    if fields[0] == __name__ or fields[0] == "":
-        fields[0] = ""
-        mod = import_module(".".join(fields[:-1]), package=__name__)
-    else:
-        mod = import_module(".".join(fields[:-1]))
-    return getattr(mod, fields[-1])
+           "ArgoWorkflow", "argo_enumerate", "path_object_of_artifact",
+           "CustomArtifact"]
 
 
 if os.environ.get("DFLOW_LINEAGE"):
