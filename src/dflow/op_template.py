@@ -33,22 +33,28 @@ except Exception:
 
 
 class Secret:
-    def __init__(self, value):
+    def __init__(self, value=None, name=None, key="secret"):
+        self.secret_name = "dflow-" + randstr(15) if name is None else name
+        self.secret_key = key
         self.value = value
-        self.secret_name = "dflow-" + randstr(15)
-        self.secret_key = "secret"
-        data = {self.secret_key: value}
-        secret = kubernetes.client.V1Secret(
-            string_data=data,
-            metadata=kubernetes.client.V1ObjectMeta(name=self.secret_name),
-            type="Opaque")
-        with get_k8s_client() as k8s_client:
-            core_v1_api = kubernetes.client.CoreV1Api(k8s_client)
-            core_v1_api.api_client.call_api(
-                '/api/v1/namespaces/%s/secrets' % global_config["namespace"],
-                'POST', body=secret, response_type='V1Secret',
-                header_params=global_config["http_headers"],
-                _return_http_data_only=True)
+        if value is not None:
+            data = {self.secret_key: value}
+            secret = kubernetes.client.V1Secret(
+                string_data=data,
+                metadata=kubernetes.client.V1ObjectMeta(name=self.secret_name),
+                type="Opaque")
+            with get_k8s_client() as k8s_client:
+                core_v1_api = kubernetes.client.CoreV1Api(k8s_client)
+                core_v1_api.api_client.call_api(
+                    '/api/v1/namespaces/%s/secrets' %
+                    global_config["namespace"],
+                    'POST', body=secret, response_type='V1Secret',
+                    header_params=global_config["http_headers"],
+                    _return_http_data_only=True)
+
+    def __repr__(self):
+        return "Secret(name='%s', key='%s')" % (self.secret_name,
+                                                self.secret_key)
 
 
 def get_k8s_client(k8s_api_server=None, token=None, k8s_config_file=None):
