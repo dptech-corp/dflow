@@ -130,9 +130,9 @@ class DatasetsArtifact(DispatcherArtifact):
     def sub_path(self, path: str):
         artifact = deepcopy(self)
         if artifact._sub_path is None:
-            artifact._sub_path = path
+            artifact._sub_path = str(path)
         else:
-            artifact._sub_path += "/" + path
+            artifact._sub_path += "/%s" % path
         return artifact
 
     def get_urn(self) -> str:
@@ -166,6 +166,7 @@ class DatasetsArtifact(DispatcherArtifact):
         return p.pid
 
     def bohrium_download(self, name: str, path: str):
+        os.stat("/launching/%s" % name)
         if self._sub_path is not None:
             os.symlink("/launching/%s/%s" % (name, self._sub_path), path)
         else:

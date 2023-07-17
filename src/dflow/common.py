@@ -96,7 +96,7 @@ class S3Artifact(V1alpha1S3Artifact):
         artifact = deepcopy(self)
         if artifact.key[-1:] != "/":
             artifact.key += "/"
-        artifact.key += path
+        artifact.key += str(path)
         return artifact
 
     def download(self, **kwargs):

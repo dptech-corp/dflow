@@ -239,7 +239,7 @@ def upload_artifact(
                     relpath = abspath[abspath.find(":")+2:]
             target = os.path.join(tmpdir, relpath)
             os.makedirs(os.path.dirname(target), exist_ok=True)
-            if config["mode"] == "debug" and cwd.startswith(p):
+            if config["mode"] == "debug" and cwd.startswith(str(p)):
                 # To avoid recursive symlink
                 copy_file(abspath, target)
             else:

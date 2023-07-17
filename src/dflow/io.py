@@ -652,9 +652,9 @@ class InputArtifact(ArgoVar):
         artifact = deepcopy(self)
         artifact.parent = self
         if artifact._sub_path is None:
-            artifact._sub_path = path
+            artifact._sub_path = str(path)
         else:
-            artifact._sub_path += "/" + path
+            artifact._sub_path += "/%s" % path
         return artifact
 
     def get_path_list_parameter(self):
@@ -1040,9 +1040,9 @@ class OutputArtifact(ArgoVar):
         artifact = deepcopy(self)
         artifact.parent = self
         if artifact._sub_path is None:
-            artifact._sub_path = path
+            artifact._sub_path = str(path)
         else:
-            artifact._sub_path += "/" + path
+            artifact._sub_path += "/%s" % path
         return artifact
 
     def __getattr__(self, key):
