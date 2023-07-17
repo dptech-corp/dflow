@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.30](https://github.com/deepmodeling/dflow/compare/v1.7.29...v1.7.30) (2023-07-17)
+
+
+### Bug Fixes
+
+* convert Path/ArgoVar to str ([c64f230](https://github.com/deepmodeling/dflow/commit/c64f230891a6a13dfd7acb7c98b745e9f3b4783a))
+* make secret reusable ([c64f230](https://github.com/deepmodeling/dflow/commit/c64f230891a6a13dfd7acb7c98b745e9f3b4783a))
+
 ## [1.7.29](https://github.com/deepmodeling/dflow/compare/v1.7.28...v1.7.29) (2023-07-14)
 
 
