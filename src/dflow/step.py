@@ -182,6 +182,7 @@ def argo_len(
 
 class ArgoEnumerate(ArgoVar):
     def __init__(self, **kwargs):
+        self.kwargs = kwargs
         param = list(kwargs.values())[0]
         if isinstance(param, ArgoVar):
             length = "len(sprig.fromJson(%s))" % param.expr
@@ -1116,7 +1117,11 @@ class Step:
                 param[name] = [art.get_urn() for art in artifacts[name]]
                 artifacts[name] = artifacts[name][0]
                 artifacts[name].redirect = "{{item.%s}}" % name
-        self.with_param = argo_enumerate(**param)
+        if isinstance(self.with_param, ArgoEnumerate):
+            self.with_param = argo_enumerate(**{**self.with_param.kwargs,
+                                                **param})
+        else:
+            self.with_param = argo_enumerate(**param)
         slices.slices = "{{item.order}}"
         slices.sub_path = False
         slices.input_artifact = []
