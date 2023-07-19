@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.32](https://github.com/deepmodeling/dflow/compare/v1.7.31...v1.7.32) (2023-07-19)
+
+
+### Bug Fixes
+
+* merge with_param from sub-path slices of artifact list with original argo_enumerate ([11b5b5d](https://github.com/deepmodeling/dflow/commit/11b5b5d411275d47184a1474b0745e907f55f280))
+
 ## [1.7.31](https://github.com/deepmodeling/dflow/compare/v1.7.30...v1.7.31) (2023-07-19)
 
 
