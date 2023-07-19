@@ -1203,20 +1203,21 @@ class Step:
                             if art.source is self.template.inputs.artifacts[k]\
                                 or getattr(art.source, "parent", None) is \
                                     self.template.inputs.artifacts[k]:
-                                art = []
+                                artifact = []
                                 for i, s in enumerate(slices):
                                     source = self.template.inputs.artifacts[
                                         "dflow_%s_%s" % (k, i)]
                                     s2 = getattr(art.source, "slice", None)
                                     if s is not None and s2 is not None:
-                                        art.append(source["%s.%s" % (s, s2)])
+                                        artifact.append(
+                                            source["%s.%s" % (s, s2)])
                                     elif s is not None:
-                                        art.append(source[s])
+                                        artifact.append(source[s])
                                     elif s2 is not None:
-                                        art.append(source[s2])
+                                        artifact.append(source[s2])
                                     else:
-                                        art.append(source)
-                                step.set_artifacts({name: art})
+                                        artifact.append(source)
+                                step.set_artifacts({name: artifact})
                 else:
                     for i, a in enumerate(v):
                         vn = "dflow_%s_%s" % (k, i)
@@ -1254,20 +1255,20 @@ class Step:
                             if art.source is self.template.inputs.artifacts[k]\
                                 or getattr(art.source, "parent", None) is \
                                     self.template.inputs.artifacts[k]:
-                                art = {}
+                                artifact = {}
                                 for i, s in slices.items():
                                     source = self.template.inputs.artifacts[
                                         "dflow_%s_%s" % (k, i)]
                                     s2 = getattr(art.source, "slice", None)
                                     if s is not None and s2 is not None:
-                                        art[i] = source["%s.%s" % (s, s2)]
+                                        artifact[i] = source["%s.%s" % (s, s2)]
                                     elif s is not None:
-                                        art[i] = source[s]
+                                        artifact[i] = source[s]
                                     elif s2 is not None:
-                                        art[i] = source[s2]
+                                        artifact[i] = source[s2]
                                     else:
-                                        art[i] = source
-                                step.set_artifacts({name: art})
+                                        artifact[i] = source
+                                step.set_artifacts({name: artifact})
                 else:
                     for i, a in flat_v.items():
                         vn = "dflow_%s_%s" % (k, i)
