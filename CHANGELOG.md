@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.31](https://github.com/deepmodeling/dflow/compare/v1.7.30...v1.7.31) (2023-07-19)
+
+
+### Bug Fixes
+
+* 'list' object has no attribute 'source' ([b59d5b6](https://github.com/deepmodeling/dflow/commit/b59d5b6dd9eea01e9e884b220743ed4da32c6ee8))
+
 ## [1.7.30](https://github.com/deepmodeling/dflow/compare/v1.7.29...v1.7.30) (2023-07-17)
 
 
