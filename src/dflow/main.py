@@ -2,7 +2,7 @@ import argparse
 import datetime
 from typing import List, Optional
 
-from dflow import (S3Artifact, Workflow, config, download_artifact,
+from dflow import (S3Artifact, Secret, Workflow, config, download_artifact,
                    query_workflows, upload_artifact)
 
 
@@ -234,6 +234,33 @@ def main_parser():
         action="store_true",
         help="detach mode for running workflow",
     )
+
+    parser_create = subparsers.add_parser(
+        "create",
+        help="Create a resource",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    create_subparsers = parser_create.add_subparsers(
+        title="Valid resources", dest="resource")
+    parser_secret = create_subparsers.add_parser(
+        "secret",
+        help="Create a secret",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser_secret.add_argument("value", help="secret value")
+    parser_secret.add_argument(
+        "-n",
+        "--name",
+        type=str,
+        help="name of the secret",
+    )
+    parser_secret.add_argument(
+        "-k",
+        "--key",
+        type=str,
+        default="secret",
+        help="key in the secret",
+    )
     return parser
 
 
@@ -446,6 +473,11 @@ def main():
         if args.detach:
             config["detach"] = True
         wf.submit()
+    elif args.command == "create":
+        if args.resource == "secret":
+            s = Secret(args.value, args.name, args.key)
+            print("Secret (name: %s, key: %s) created" % (s.secret_name,
+                                                          s.secret_key))
 
 
 if __name__ == "__main__":
