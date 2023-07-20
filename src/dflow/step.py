@@ -1118,8 +1118,7 @@ class Step:
                 artifacts[name] = artifacts[name][0]
                 artifacts[name].redirect = "{{item.%s}}" % name
         if isinstance(self.with_param, ArgoEnumerate):
-            self.with_param = argo_enumerate(**{**self.with_param.kwargs,
-                                                **param})
+            self.with_param = argo_enumerate(**self.with_param.kwargs, **param)
         else:
             self.with_param = argo_enumerate(**param)
         slices.slices = "{{item.order}}"
