@@ -135,12 +135,22 @@
 <span class="sig-name descname"><span class="pre">register_output_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.op.OP.register_output_artifact" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.python.op.OP.superfunction">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">superfunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.op.OP.superfunction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dflow.python.op.OP.workflow_name">
 <span class="sig-name descname"><span class="pre">workflow_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dflow.python.op.OP.workflow_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.python.op.type2opiosign">
+<span class="sig-prename descclassname"><span class="pre">dflow.python.op.</span></span><span class="sig-name descname"><span class="pre">type2opiosign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.op.type2opiosign" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </section>
 <section id="module-dflow.python.opio">
@@ -556,6 +566,11 @@ can be a list</p></li>
 <span class="sig-name descname"><span class="pre">register_output_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.OP.register_output_artifact" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.python.OP.superfunction">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">superfunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.OP.superfunction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="dflow.python.OP.workflow_name">
 <span class="sig-name descname"><span class="pre">workflow_name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#dflow.python.OP.workflow_name" title="Permalink to this definition">¶</a></dt>
@@ -737,9 +752,11 @@ the number of slices)</p></li>
 <li><a class="reference internal" href="#dflow.python.op.OP.progress_current"><code class="docutils literal notranslate"><span class="pre">OP.progress_current</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.op.OP.progress_total"><code class="docutils literal notranslate"><span class="pre">OP.progress_total</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.op.OP.register_output_artifact"><code class="docutils literal notranslate"><span class="pre">OP.register_output_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.op.OP.superfunction"><code class="docutils literal notranslate"><span class="pre">OP.superfunction()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.op.OP.workflow_name"><code class="docutils literal notranslate"><span class="pre">OP.workflow_name</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#dflow.python.op.type2opiosign"><code class="docutils literal notranslate"><span class="pre">type2opiosign()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-dflow.python.opio">dflow.python.opio module</a><ul>
@@ -817,6 +834,7 @@ the number of slices)</p></li>
 <li><a class="reference internal" href="#dflow.python.OP.progress_current"><code class="docutils literal notranslate"><span class="pre">OP.progress_current</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.OP.progress_total"><code class="docutils literal notranslate"><span class="pre">OP.progress_total</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.OP.register_output_artifact"><code class="docutils literal notranslate"><span class="pre">OP.register_output_artifact()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.OP.superfunction"><code class="docutils literal notranslate"><span class="pre">OP.superfunction()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.OP.workflow_name"><code class="docutils literal notranslate"><span class="pre">OP.workflow_name</span></code></a></li>
 </ul>
 </li>
