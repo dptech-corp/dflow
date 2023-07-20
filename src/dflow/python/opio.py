@@ -89,6 +89,9 @@ class Artifact:
         return "Artifact(type=%s, optional=%s, sub_path=%s)" % (
             type_to_str(self.type), self.optional, self.sub_path)
 
+    def __call__(self, *args, **kwargs):
+        self.type(*args, **kwargs)
+
 
 class Parameter:
     """

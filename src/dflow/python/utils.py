@@ -31,6 +31,7 @@ def get_slices(path_object, slices):
 def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
                           sub_path=None, n_parts=None, keys_of_parts=None,
                           path=None, prefix=None):
+    root = None
     if n_parts is not None:
         path_object = []
         for i in range(n_parts):
@@ -65,6 +66,7 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
             if path is None else path
         if sub_path is not None:
             art_path = os.path.join(art_path, sub_path)
+        root = art_path
         if not os.path.exists(art_path):  # for optional artifact
             return None
         if config["detect_empty_dir"]:
@@ -83,10 +85,10 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
             res = path_object[0]
         else:
             res = art_path
-        return path_or_none(res) if sign.type == Path else res
+        res = path_or_none(res) if sign.type == Path else res
     elif sign.type in [List[str], List[Path], Set[str], Set[Path]]:
         if path_object is None:
-            res = None
+            return None
         elif isinstance(path_object, str):
             res = [path_object]
         elif isinstance(path_object, list) and all([
@@ -96,17 +98,26 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
             res = list(flatten(path_object).values())
 
         if sign.type == List[str]:
-            return res
+            pass
         elif sign.type == List[Path]:
-            return path_or_none(res)
+            res = path_or_none(res)
         elif sign.type == Set[str]:
-            return set(res)
+            res = set(res)
         else:
-            return set(path_or_none(res))
+            res = set(path_or_none(res))
     elif sign.type in [Dict[str, str], NestedDict[str]]:
-        return path_object
+        res = path_object
     elif sign.type in [Dict[str, Path], NestedDict[Path]]:
-        return path_or_none(path_object)
+        res = path_or_none(path_object)
+
+    if res is None:
+        return None
+
+    _cls = res.__class__
+
+    class Artifact(_cls):
+        art_root = root
+    return Artifact(res)
 
 
 def path_or_none(p):

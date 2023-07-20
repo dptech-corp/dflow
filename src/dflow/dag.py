@@ -1,6 +1,8 @@
-from typing import Optional, Dict, List, Union
+from copy import deepcopy
+from typing import Dict, List, Optional, Union
 
 from .config import config, s3_config
+from .context_syntax import GLOBAL_CONTEXT
 from .io import Inputs, Outputs
 from .op_template import OPTemplate
 from .step import add_slices
@@ -128,7 +130,6 @@ class DAG(OPTemplate):
     def run(self, workflow_id=None, context=None):
         self.workflow_id = workflow_id
         self.context = context
-        from copy import deepcopy
         import concurrent.futures
         pool = concurrent.futures.ProcessPoolExecutor(
             config["debug_pool_workers"])
@@ -166,3 +167,11 @@ class DAG(OPTemplate):
         for task, new_task in zip(self.tasks, new_template.tasks):
             new_task.template = task.template
         return new_template
+
+    def __enter__(self) -> 'DAG':
+        GLOBAL_CONTEXT.in_context = True
+        GLOBAL_CONTEXT.current_workflow = self
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        GLOBAL_CONTEXT.in_context = False

@@ -2,6 +2,7 @@ from copy import deepcopy
 from typing import Dict, List, Optional, Union
 
 from .config import config, s3_config
+from .context_syntax import GLOBAL_CONTEXT
 from .io import Inputs, Outputs
 from .op_template import OPTemplate
 from .step import Step, add_slices
@@ -161,3 +162,11 @@ class Steps(OPTemplate):
             else:
                 new_step.template = step.template
         return new_template
+
+    def __enter__(self) -> 'Steps':
+        GLOBAL_CONTEXT.in_context = True
+        GLOBAL_CONTEXT.current_workflow = self
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        GLOBAL_CONTEXT.in_context = False

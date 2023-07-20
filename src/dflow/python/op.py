@@ -16,7 +16,8 @@ from typeguard import check_type
 from ..argo_objects import ArgoObjectDict
 from ..config import config
 from ..context_syntax import GLOBAL_CONTEXT
-from ..utils import get_key, randstr, s3_config
+from ..io import InputArtifact, InputParameter, OutputArtifact, OutputParameter
+from ..utils import dict2list, get_key, randstr, s3_config
 from .opio import (OPIO, Artifact, BigParameter, OPIOSign, Parameter,
                    type_to_str)
 
@@ -187,28 +188,12 @@ class OP(ABC):
     def function(cls, func=None, **kwargs):
         if func is None:
             return partial(cls.function, **kwargs)
+
         signature = func.__annotations__
         return_type = signature.get('return', None)
-
         input_sign = OPIOSign(
             {k: v for k, v in signature.items() if k != 'return'})
-
-        if isinstance(return_type, dict):
-            output_sign = OPIOSign({k: v for k, v in return_type.items()})
-        elif return_type.hasattr('__annotations__'):
-            output_sign = OPIOSign(
-                {k: v for k, v in return_type.__annotations__.items()})
-        elif not return_type:
-            logging.warn(
-                'We recommended using return type signature like:'
-                '\n'
-                "def func()->TypedDict('op', {'x': int, 'y': str})")
-            output_sign = {}
-        else:
-            raise ValueError(
-                'Unknown return value annotation, '
-                f'Expected class dict or typing.TypedDict, '
-                f'got {type(return_type)}.')
+        output_sign, ret2opio, opio2ret = type2opiosign(return_type)
 
         class subclass(cls):
             task_kwargs = {}
@@ -224,18 +209,24 @@ class OP(ABC):
             @OP.exec_sign_check
             def execute(self, op_in):
                 op_out = func(**op_in)
-                return op_out
+                return ret2opio(op_out)
 
             def use(self, **kwargs):
                 op = deepcopy(self)
                 op.task_kwargs = kwargs
                 return op
 
-            def __call__(self, **op_in):
+            def __call__(self, *args, **op_in):
+                input_sign = self.get_input_sign()
+                for i, v in enumerate(args):
+                    k = list(input_sign)[i]
+                    if k in op_in:
+                        raise TypeError("%s() got multiple values for argument"
+                                        " '%s'" % (func.__name__, k))
+                    op_in[k] = v
                 if GLOBAL_CONTEXT.in_context:
-                    from .python_op_template import PythonOPTemplate
                     from ..task import Task
-                    input_sign = self.get_input_sign()
+                    from .python_op_template import PythonOPTemplate
                     parameters = {k: v for k, v in op_in.items()
                                   if not isinstance(input_sign[k], Artifact)}
                     artifacts = {k: v for k, v in op_in.items()
@@ -248,13 +239,92 @@ class OP(ABC):
                                 **self.task_kwargs)
                     op_out = {**task.outputs.parameters,
                               **task.outputs.artifacts}
-                    return op_out
+                    return opio2ret(op_out)
                 return self.execute(op_in)
 
         subclass.func = func
         subclass.__name__ = func.__name__
         subclass.__module__ = func.__module__
         return subclass()
+
+    @classmethod
+    def superfunction(cls, func=None, **kwargs):
+        if func is None:
+            return partial(cls.superfunction, **kwargs)
+
+        signature = func.__annotations__
+        return_type = signature.get('return', None)
+        input_sign = OPIOSign(
+            {k: v for k, v in signature.items() if k != 'return'})
+        output_sign, ret2opio, opio2ret = type2opiosign(return_type)
+
+        from ..dag import DAG
+        from ..task import Task
+
+        class subclass(DAG):
+            task_kwargs = {}
+
+            def use(self, **kwargs):
+                op = deepcopy(self)
+                op.task_kwargs = kwargs
+                return op
+
+            def __call__(self, *args, **op_in):
+                for i, v in enumerate(args):
+                    k = list(input_sign)[i]
+                    if k in op_in:
+                        raise TypeError("%s() got multiple values for argument"
+                                        " '%s'" % (func.__name__, k))
+                    op_in[k] = v
+                assert GLOBAL_CONTEXT.in_context
+                parameters = {k: op_in[k] for k in self.inputs.parameters
+                              if k in op_in}
+                artifacts = {k: op_in[k] for k in self.inputs.artifacts
+                             if k in op_in}
+                name = self.name + "-" + randstr()
+                task = Task(name, template=self, parameters=parameters,
+                            artifacts=artifacts, **self.task_kwargs)
+                op_out = {**task.outputs.parameters, **task.outputs.artifacts}
+                return opio2ret(op_out)
+
+        name = func.__name__.lower().replace("_", "-")
+        with subclass(name=name, **kwargs) as dag:
+            for n, s in input_sign.items():
+                if isinstance(s, Artifact):
+                    dag.inputs.artifacts[n] = InputArtifact(
+                        type=s.type, optional=s.optional)
+                else:
+                    kw = {}
+                    if isinstance(s, (Parameter, BigParameter)):
+                        kw["type"] = s.type
+                        if hasattr(s, "default"):
+                            kw["value"] = s.default
+                        if isinstance(s, BigParameter):
+                            kw["save_as_artifact"] = (
+                                config["mode"] != "debug")
+                    else:
+                        kw["type"] = s
+                    dag.inputs.parameters[n] = InputParameter(**kw)
+            outputs = func(**dag.inputs.parameters, **dag.inputs.artifacts)
+            outputs = ret2opio(outputs)
+            for n, s in output_sign.items():
+                if isinstance(s, Artifact):
+                    dag.outputs.artifacts[n] = OutputArtifact(
+                        type=s.type, _from=outputs.get(n))
+                else:
+                    kw = {}
+                    if isinstance(s, (Parameter, BigParameter)):
+                        kw["type"] = s.type
+                        if hasattr(s, "default"):
+                            kw["default"] = s.default
+                        if isinstance(s, BigParameter):
+                            kw["save_as_artifact"] = (
+                                config["mode"] != "debug")
+                    else:
+                        kw["type"] = s
+                    kw["value_from_parameter"] = outputs.get(n)
+                    dag.outputs.parameters[n] = OutputParameter(**kw)
+        return dag
 
     @classmethod
     def get_opio_info(cls, opio_sign):
@@ -278,3 +348,36 @@ class OP(ABC):
         else:
             res["execute"] = "".join(inspect.getsourcelines(cls.execute)[0])
         return res
+
+
+def type2opiosign(t):
+    from typing import _GenericAlias
+    if isinstance(t, dict):
+        return OPIOSign({k: v for k, v in t.items()}), lambda x: x, lambda x: x
+    elif hasattr(t, "__annotations__") and issubclass(t, dict):
+        return OPIOSign(
+            {k: v for k, v in t.__annotations__.items()}), lambda x: x, \
+            lambda x: x
+    elif hasattr(t, "__annotations__") and issubclass(t, tuple):
+        return OPIOSign(
+            {k: v for k, v in t.__annotations__.items()}), \
+            lambda x: {k: v for k, v in zip(t.__annotations__, x)}, \
+            lambda x: tuple(dict2list({list(t.__annotations__).index(k): v
+                                       for k, v in x.items()}))
+    elif isinstance(t, _GenericAlias) and t.__origin__ == tuple:
+        return OPIOSign(
+            {"dflow_output_%s" % i: v for i, v in enumerate(t.__args__)}), \
+            lambda x: {"dflow_output_%s" % i: v for i, v in enumerate(x)}, \
+            lambda x: tuple(dict2list({int(k.removeprefix("dflow_output_")): v
+                                      for k, v in x.items()}))
+    elif t is not None:
+        return OPIOSign({"dflow_output": t}), lambda x: {"dflow_output": x}, \
+            lambda x: x["dflow_output"]
+    else:
+        logging.warn(
+            'We recommended using return type signature like:'
+            '\n'
+            "def func()->TypedDict('op', {'x': int, 'y': str})"
+            '\nor\n'
+            "def func()->NamedTuple('op', [('x', int), ('y', str)])")
+        return OPIOSign({}), lambda x: {}, lambda x: None
