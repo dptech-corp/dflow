@@ -116,8 +116,10 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
     _cls = res.__class__
 
     class Artifact(_cls):
-        art_root = root
-    return Artifact(res)
+        pass
+    res = Artifact(res)
+    res.art_root = root
+    return res
 
 
 def path_or_none(p):
