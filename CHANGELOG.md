@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.7.33](https://github.com/deepmodeling/dflow/compare/v1.7.32...v1.7.33) (2023-07-20)
+
+
+### Bug Fixes
+
+* add art_root attribute to input artifact ([225a664](https://github.com/deepmodeling/dflow/commit/225a664b869e9a26811cef9b77ac9d2988d15c02))
+* add syntax sugar for super OP ([d33f2f7](https://github.com/deepmodeling/dflow/commit/d33f2f75d11dc0b819e97527287a54df4657e3d9))
+* set object attribute instead of class attribute ([a94f8e8](https://github.com/deepmodeling/dflow/commit/a94f8e8730a06c17af4bcf70419db7d4326ca1ba))
+* support for tuple and single type for OP returns ([d33f2f7](https://github.com/deepmodeling/dflow/commit/d33f2f75d11dc0b819e97527287a54df4657e3d9))
+
 ## [1.7.32](https://github.com/deepmodeling/dflow/compare/v1.7.31...v1.7.32) (2023-07-19)
 
 
