@@ -40,6 +40,7 @@ setup(
         "cloudpickle==2.2.0",
         "requests",
         "tqdm",
+        "psutil",
     ],
     entry_points={
         'console_scripts': ['dflow=dflow.main:main'],
