@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.34](https://github.com/deepmodeling/dflow/compare/v1.7.33...v1.7.34) (2023-07-21)
+
+
+### Bug Fixes
+
+* add error message when lbg not installed ([9c41e12](https://github.com/deepmodeling/dflow/commit/9c41e125c951328d4c75f5d69a4768829704f62b))
+* enhance restart mechanism in debug mode ([9c41e12](https://github.com/deepmodeling/dflow/commit/9c41e125c951328d4c75f5d69a4768829704f62b))
+
 ## [1.7.33](https://github.com/deepmodeling/dflow/compare/v1.7.32...v1.7.33) (2023-07-20)
 
 
