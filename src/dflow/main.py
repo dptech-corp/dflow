@@ -234,6 +234,13 @@ def main_parser():
         action="store_true",
         help="detach mode for running workflow",
     )
+    parser_submit.add_argument(
+        "-n",
+        "--name",
+        type=str,
+        default=None,
+        help="workflow ID",
+    )
 
     parser_create = subparsers.add_parser(
         "create",
@@ -470,6 +477,8 @@ def main():
     elif args.command == "submit":
         with open(args.FILE, "r") as f:
             wf = Workflow.from_yaml(f.read())
+        if args.name is not None:
+            wf.id = args.name
         if args.detach:
             config["detach"] = True
         wf.submit()

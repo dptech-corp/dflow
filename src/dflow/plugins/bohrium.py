@@ -313,7 +313,11 @@ class TiefblueClient(StorageClient):
         self.userSharePath = res["data"]["userSharePath"]
 
     def upload(self, key, path):
-        import tiefblue
+        try:
+            import tiefblue
+        except Exception:
+            raise RuntimeError("Please install lbg utility by "
+                               "`pip install -U lbg`")
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
         try:
             client.upload_from_file(key, path)
@@ -327,7 +331,11 @@ class TiefblueClient(StorageClient):
                 raise e
 
     def download(self, key, path):
-        import tiefblue
+        try:
+            import tiefblue
+        except Exception:
+            raise RuntimeError("Please install lbg utility by "
+                               "`pip install -U lbg`")
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         try:
@@ -342,7 +350,11 @@ class TiefblueClient(StorageClient):
                 raise e
 
     def list(self, prefix, recursive=False):
-        import tiefblue
+        try:
+            import tiefblue
+        except Exception:
+            raise RuntimeError("Please install lbg utility by "
+                               "`pip install -U lbg`")
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
         keys = []
         next_token = ""
@@ -370,7 +382,11 @@ class TiefblueClient(StorageClient):
         return keys
 
     def copy(self, src, dst):
-        import tiefblue
+        try:
+            import tiefblue
+        except Exception:
+            raise RuntimeError("Please install lbg utility by "
+                               "`pip install -U lbg`")
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
         try:
             client.copy(src, dst)
@@ -384,7 +400,11 @@ class TiefblueClient(StorageClient):
                 raise e
 
     def get_md5(self, key):
-        import tiefblue
+        try:
+            import tiefblue
+        except Exception:
+            raise RuntimeError("Please install lbg utility by "
+                               "`pip install -U lbg`")
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
         try:
             meta = client.meta(key)

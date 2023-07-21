@@ -225,6 +225,26 @@ class Workflow:
                         break
             else:
                 wfdir = os.path.abspath(self.id)
+                if os.path.exists(wfdir):
+                    with open(os.path.join(wfdir, "status"), "r") as f:
+                        status = f.read()
+                    if status == "Succeeded":
+                        logger.warn("Workflow %s has been succeeded" % self.id)
+                        return
+                    with open(os.path.join(wfdir, "pid"), "r") as f:
+                        pid = int(f.read())
+                    import psutil
+                    try:
+                        p = psutil.Process(pid)
+                        ps = p.status()
+                    except psutil.NoSuchProcess:
+                        ps = None
+                    logger.warn("Workflow %s process %s is %s" % (
+                            self.id, pid, ps))
+                    if ps == psutil.STATUS_RUNNING:
+                        logger.warn("Do nothing")
+                        return
+                    logger.warn("Restart workflow %s" % self.id)
                 os.makedirs(wfdir, exist_ok=True)
 
             if reuse_step is not None:
@@ -336,6 +356,8 @@ class Workflow:
         self.uid = workflow.metadata.uid
         print("Workflow has been submitted (ID: %s, UID: %s)" % (self.id,
                                                                  self.uid))
+        print("Workflow link: %s/workflows/%s/%s" % (self.host, self.namespace,
+                                                     self.id))
         return workflow
 
     def wait(self, interval=1):

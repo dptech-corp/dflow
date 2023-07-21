@@ -1562,19 +1562,25 @@ class Step:
                     continue
                 steps.inputs.artifacts[name].local_path = art.source.local_path
 
+            restart = False
             if "dflow_key" in steps.inputs.parameters and \
                     steps.inputs.parameters["dflow_key"].value:
                 step_id = steps.inputs.parameters["dflow_key"].value
                 stepdir = os.path.abspath(step_id)
                 if os.path.exists(stepdir):
-                    self.load_output_parameters(stepdir,
-                                                self.outputs.parameters)
-                    self.load_output_artifacts(stepdir,
-                                               self.outputs.artifacts)
                     with open(os.path.join(stepdir, "phase"), "r") as f:
                         self.phase = f.read()
-                    return
-                os.makedirs(stepdir)
+                    if self.phase == "Succeeded":
+                        logging.warn("step (key: %s) skipped" % step_id)
+                        self.load_output_parameters(stepdir,
+                                                    self.outputs.parameters)
+                        self.load_output_artifacts(stepdir,
+                                                   self.outputs.artifacts)
+                        return
+                    logging.warn("step (key: %s) restarting" % step_id)
+                    restart = True
+                else:
+                    os.makedirs(stepdir)
             else:
                 while True:
                     step_id = "%s-%s-%s" % (scope.workflow_id, self.name,
@@ -1584,18 +1590,19 @@ class Step:
                         os.makedirs(stepdir)
                         break
 
-            with open(os.path.join(stepdir, "type"), "w") as f:
-                if isinstance(self.template, Steps):
-                    f.write("Steps")
-                elif isinstance(self.template, DAG):
-                    f.write("DAG")
-            with open(os.path.join(stepdir, "phase"), "w") as f:
-                f.write("Running")
-            with open(os.path.join(stepdir, "name"), "w") as f:
-                f.write(self.name)
-            self.record_input_parameters(stepdir, steps.inputs.parameters)
-            self.record_input_artifacts(stepdir, steps.inputs.artifacts, None,
-                                        scope, True)
+            if not restart:
+                with open(os.path.join(stepdir, "type"), "w") as f:
+                    if isinstance(self.template, Steps):
+                        f.write("Steps")
+                    elif isinstance(self.template, DAG):
+                        f.write("DAG")
+                with open(os.path.join(stepdir, "phase"), "w") as f:
+                    f.write("Running")
+                with open(os.path.join(stepdir, "name"), "w") as f:
+                    f.write(self.name)
+                self.record_input_parameters(stepdir, steps.inputs.parameters)
+                self.record_input_artifacts(stepdir, steps.inputs.artifacts,
+                                            None, scope, True)
 
             try:
                 steps.run(scope.workflow_id)
@@ -1899,20 +1906,25 @@ class Step:
 
         import os
         cwd = os.getcwd()
+        restart = False
         if "dflow_key" in parameters:
             step_id = parameters["dflow_key"].value
             stepdir = os.path.abspath(step_id)
             if os.path.exists(stepdir):
-                self.load_output_parameters(stepdir,
-                                            self.outputs.parameters)
-                self.load_output_artifacts(stepdir,
-                                           self.outputs.artifacts)
-
-                os.chdir(cwd)
                 with open(os.path.join(stepdir, "phase"), "r") as f:
                     self.phase = f.read()
-                return
-            os.makedirs(stepdir)
+                if self.phase == "Succeeded":
+                    logging.warn("step (key: %s) skipped" % step_id)
+                    self.load_output_parameters(stepdir,
+                                                self.outputs.parameters)
+                    self.load_output_artifacts(stepdir,
+                                               self.outputs.artifacts)
+                    os.chdir(cwd)
+                    return
+                logging.warn("step (key: %s) restarting" % step_id)
+                restart = True
+            else:
+                os.makedirs(stepdir)
         else:
             while True:
                 step_id = "%s-%s-%s" % (scope.workflow_id, self.name,
@@ -1923,60 +1935,65 @@ class Step:
                     break
 
         self.stepdir = stepdir
-        with open(os.path.join(stepdir, "type"), "w") as f:
-            f.write("Pod")
-        with open(os.path.join(stepdir, "phase"), "w") as f:
-            f.write("Running")
-        with open(os.path.join(stepdir, "name"), "w") as f:
-            f.write(self.name)
+        if not restart:
+            with open(os.path.join(stepdir, "type"), "w") as f:
+                f.write("Pod")
+            with open(os.path.join(stepdir, "phase"), "w") as f:
+                f.write("Running")
+            with open(os.path.join(stepdir, "name"), "w") as f:
+                f.write(self.name)
+
         workdir = os.path.join(stepdir, "workdir")
         os.makedirs(workdir, exist_ok=True)
         os.chdir(workdir)
 
-        self.record_input_parameters(stepdir, parameters)
+        if not restart:
+            self.record_input_parameters(stepdir, parameters)
 
-        self.record_input_artifacts(stepdir, self.inputs.artifacts, item,
-                                    scope)
+            self.record_input_artifacts(stepdir, self.inputs.artifacts, item,
+                                        scope)
 
-        # prepare inputs artifacts
-        for name, art in self.inputs.artifacts.items():
-            art_path = os.path.join(stepdir, "inputs/artifacts/%s" % name)
-            path = self.template.inputs.artifacts[name].path
-            path = "%s/%s" % (workdir, path)
-            path = render_script(path, parameters,
-                                 scope.workflow_id, step_id)
-            os.makedirs(os.path.dirname(
-                os.path.abspath(path)), exist_ok=True)
-            backup(path)
-            if isinstance(
-                    art.source,
-                    InputArtifact) and art.source is None and art.optional:
-                pass
-            elif config["debug_copy_method"] == "symlink":
-                os.symlink(art_path, path)
-            elif config["debug_copy_method"] == "link":
-                copy_file(art_path, path)
-            elif config["debug_copy_method"] == "copy":
-                copy_file(art_path, path, func=shutil.copy2)
-            else:
-                raise ValueError("Unsupported copy method for debug mode.")
+            # prepare inputs artifacts
+            for name, art in self.inputs.artifacts.items():
+                art_path = os.path.join(stepdir, "inputs/artifacts/%s" % name)
+                path = self.template.inputs.artifacts[name].path
+                path = "%s/%s" % (workdir, path)
+                path = render_script(path, parameters,
+                                     scope.workflow_id, step_id)
+                os.makedirs(os.path.dirname(
+                    os.path.abspath(path)), exist_ok=True)
+                backup(path)
+                if isinstance(
+                        art.source,
+                        InputArtifact) and art.source is None and art.optional:
+                    pass
+                elif config["debug_copy_method"] == "symlink":
+                    os.symlink(art_path, path)
+                elif config["debug_copy_method"] == "link":
+                    copy_file(art_path, path)
+                elif config["debug_copy_method"] == "copy":
+                    copy_file(art_path, path, func=shutil.copy2)
+                else:
+                    raise ValueError("Unsupported copy method for debug mode.")
 
-        # render variables in the script
-        script = self.template.script
-        if not self.template.script_rendered:
-            if hasattr(self.template, "tmp_root"):
-                # do not modify self.template
-                template = deepcopy(self.template)
-                template.tmp_root = "%s%s" % (workdir, template.tmp_root)
-                template.render_script()
-                script = template.script
-            else:
-                script = script.replace("/tmp", "%s/tmp" % workdir)
-        os.makedirs("%s/tmp" % workdir, exist_ok=True)
-        script = render_script(script, parameters, scope.workflow_id, step_id)
         script_path = os.path.join(stepdir, "script")
-        with open(script_path, "w") as f:
-            f.write(script)
+        if not restart:
+            # render variables in the script
+            script = self.template.script
+            if not self.template.script_rendered:
+                if hasattr(self.template, "tmp_root"):
+                    # do not modify self.template
+                    template = deepcopy(self.template)
+                    template.tmp_root = "%s%s" % (workdir, template.tmp_root)
+                    template.render_script()
+                    script = template.script
+                else:
+                    script = script.replace("/tmp", "%s/tmp" % workdir)
+            os.makedirs("%s/tmp" % workdir, exist_ok=True)
+            script = render_script(script, parameters, scope.workflow_id,
+                                   step_id)
+            with open(script_path, "w") as f:
+                f.write(script)
 
         import subprocess
         args = self.template.command + [script_path]
