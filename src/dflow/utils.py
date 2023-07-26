@@ -573,8 +573,8 @@ def remove_empty_dir_tag(path):
 
 
 def randstr(length: int = 5) -> str:
-    return "".join(random.sample(string.digits + string.ascii_lowercase,
-                                 length))
+    return "".join(random.choices(string.digits + string.ascii_lowercase,
+                                  k=length))
 
 
 @contextlib.contextmanager

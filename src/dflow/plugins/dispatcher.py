@@ -230,6 +230,8 @@ class DispatcherExecutor(Executor):
         if not isinstance(template, ScriptOPTemplate):
             return template
 
+        machine_dict = deepcopy(self.machine_dict)
+        task_dict = deepcopy(self.task_dict)
         new_template = deepcopy(template)
         new_template.name += "-" + randstr()
         new_template.image = self.image
@@ -245,29 +247,29 @@ class DispatcherExecutor(Executor):
         cmd += run_script(template.image, remote_command,
                           self.docker_executable, self.singularity_executable,
                           self.podman_executable)
-        self.task_dict["command"] = cmd
-        self.task_dict["forward_files"] = ["script"]
+        task_dict["command"] = cmd
+        task_dict["forward_files"] = ["script"]
         for art in template.inputs.artifacts.values():
-            self.task_dict["forward_files"].append("./" + art.path)
+            task_dict["forward_files"].append("./" + art.path)
         for par in template.inputs.parameters.values():
             if par.save_as_artifact:
-                self.task_dict["forward_files"].append("./" + par.path)
+                task_dict["forward_files"].append("./" + par.path)
         merge = self.merge_sliced_step and hasattr(template, "slices") and\
             template.slices is not None
         if merge:
             sliced_output_parameters = template.slices.output_parameter.copy()
             if "dflow_success_tag" in template.outputs.parameters:
                 sliced_output_parameters.append("dflow_success_tag")
-        self.task_dict["backward_files"] = []
+        task_dict["backward_files"] = []
         for art in template.outputs.artifacts.values():
-            self.task_dict["backward_files"].append("./" + art.path)
+            task_dict["backward_files"].append("./" + art.path)
         for name, par in template.outputs.parameters.items():
             if par.save_as_artifact:
-                self.task_dict["backward_files"].append(
+                task_dict["backward_files"].append(
                     "./" + par.value_from_path)
             elif par.value_from_path is not None and not (
                     merge and sliced_output_parameters):
-                self.task_dict["backward_files"].append(
+                task_dict["backward_files"].append(
                     "./" + par.value_from_path)
 
         new_template.script = self.pre_script
@@ -277,9 +279,9 @@ class DispatcherExecutor(Executor):
                 template.inputs.artifacts.values()]) and \
                 isinstance(template, PythonOPTemplate):
             template = deepcopy(template)
-            if self.machine_dict["context_type"] == "Bohrium":
+            if machine_dict["context_type"] == "Bohrium":
                 template.download_method = "bohrium_download"
-            elif self.machine_dict["context_type"] == "SSHContext":
+            elif machine_dict["context_type"] == "SSHContext":
                 template.download_method = "remote_download"
             template.render_script()
             new_template.volumes = [v for v in new_template.volumes
@@ -305,24 +307,24 @@ class DispatcherExecutor(Executor):
         new_template.script += script
         new_template.script += "\"\"\")\n"
 
-        if self.machine_dict["context_type"] == "Bohrium":
+        if machine_dict["context_type"] == "Bohrium":
             if self.bohrium_ticket is not None:
                 if new_template.envs is None:
                     new_template.envs = {}
                 new_template.envs["BOHR_TICKET"] = self.bohrium_ticket
-            if "image_name" not in self.machine_dict["remote_profile"][
+            if "image_name" not in machine_dict["remote_profile"][
                     "input_data"]:
-                self.machine_dict["remote_profile"]["input_data"][
+                machine_dict["remote_profile"]["input_data"][
                     "image_name"] = template.image
 
-        self.machine_dict["local_root"] = self.work_root
+        machine_dict["local_root"] = self.work_root
         new_template.script += "import json, shlex\n"
         new_template.script += "from dpdispatcher import Machine, Resources,"\
             " Task, Submission\n"
         new_template.script += "machine = Machine.load_from_dict(json.loads("\
-            "r'%s'))\n" % json.dumps(self.machine_dict)
+            "r'%s'))\n" % json.dumps(machine_dict)
         for name, art in template.inputs.artifacts.items():
-            if self.machine_dict["context_type"] == "Bohrium" and \
+            if machine_dict["context_type"] == "Bohrium" and \
                     art.save_as_parameter:
                 new_template.script += "import jsonpickle\n"
                 new_template.script += "from dflow import CustomArtifact\n"
@@ -342,7 +344,7 @@ class DispatcherExecutor(Executor):
         new_template.script += "resources.envs['ARGO_TEMPLATE'] = "\
             "shlex.quote(os.environ.get('ARGO_TEMPLATE'))\n"
         new_template.script += "task = Task.load_from_dict(json.loads(r'%s'))"\
-            "\n" % json.dumps(self.task_dict)
+            "\n" % json.dumps(task_dict)
         new_template.script += "task.forward_files = list(filter("\
             "os.path.exists, task.forward_files))\n"
         new_template.script += "for f in task.backward_files:\n"
