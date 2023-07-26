@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.35](https://github.com/deepmodeling/dflow/compare/v1.7.34...v1.7.35) (2023-07-26)
+
+
+### Bug Fixes
+
+* dispatcher executor modified after render ([08d545d](https://github.com/deepmodeling/dflow/commit/08d545d92edca18c9242b08aad60db0f2d23617d))
+
 ## [1.7.34](https://github.com/deepmodeling/dflow/compare/v1.7.33...v1.7.34) (2023-07-21)
 
 
