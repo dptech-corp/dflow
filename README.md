@@ -548,6 +548,13 @@ step = Step(name="parallel-tasks",
 ```
 
 In this example, each item in `msg_list` is passed to a parallel step as the input parameter `msg`, each part in `data_list` is passed to a parallel step as the input artifact `data`. Finally, the output artifacts `log` of all parallel steps are collected to one artifact `step.outputs.artifacts["log"]`.
+This example is analogous to the following pseudocode
+```python
+log = [None] * 5
+for item in range(5):
+    log[item] = my_op(msg=msg_list[item], data=data_list[item])
+```
+where `with_param` and `slices` corresponds to the `for` loop and the statement in loop in the pseudocode, respectively.
 
 - [Slices example](examples/test_slices.py)
 
