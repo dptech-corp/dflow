@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.36](https://github.com/deepmodeling/dflow/compare/v1.7.35...v1.7.36) (2023-07-27)
+
+
+### Bug Fixes
+
+* prepare inputs again in restarting if the step failed at pending ([6705d90](https://github.com/deepmodeling/dflow/commit/6705d904feb52c87316bba85af408a397fec9117))
+* retrieve exception of subprocess when pool.submit fails ([6705d90](https://github.com/deepmodeling/dflow/commit/6705d904feb52c87316bba85af408a397fec9117))
+
 ## [1.7.35](https://github.com/deepmodeling/dflow/compare/v1.7.34...v1.7.35) (2023-07-26)
 
 
