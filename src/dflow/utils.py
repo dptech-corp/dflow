@@ -736,9 +736,7 @@ def linktree(src, dst, func=os.symlink):
 
 
 def force_link(src, dst, func=os.symlink):
-    if os.path.exists(dst):
-        if os.path.samefile(src, dst):
-            return
+    if os.path.islink(dst):
         os.remove(dst)
     func(src, dst)
 
