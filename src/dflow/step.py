@@ -22,8 +22,8 @@ from .op_template import (OPTemplate, PythonScriptOPTemplate, ScriptOPTemplate,
 from .python import Slices
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
-from .utils import (catalog_of_artifact, copy_file, flatten, merge_dir,
-                    randstr, upload_artifact)
+from .utils import (catalog_of_artifact, copy_file, flatten, force_link,
+                    merge_dir, randstr, upload_artifact)
 
 try:
     from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
@@ -1458,7 +1458,7 @@ class Step:
         )
 
     def run(self, scope, context=None):
-        self.phase = "Running"
+        self.phase = "Pending"
         self.render_by_executor(context)
 
         import os
@@ -1562,7 +1562,6 @@ class Step:
                     continue
                 steps.inputs.artifacts[name].local_path = art.source.local_path
 
-            restart = False
             if "dflow_key" in steps.inputs.parameters and \
                     steps.inputs.parameters["dflow_key"].value:
                 step_id = steps.inputs.parameters["dflow_key"].value
@@ -1578,7 +1577,6 @@ class Step:
                                                    self.outputs.artifacts)
                         return
                     logging.warn("step (key: %s) restarting" % step_id)
-                    restart = True
                 else:
                     os.makedirs(stepdir)
             else:
@@ -1590,20 +1588,23 @@ class Step:
                         os.makedirs(stepdir)
                         break
 
-            if not restart:
+            if self.phase == "Pending":
                 with open(os.path.join(stepdir, "type"), "w") as f:
                     if isinstance(self.template, Steps):
                         f.write("Steps")
                     elif isinstance(self.template, DAG):
                         f.write("DAG")
                 with open(os.path.join(stepdir, "phase"), "w") as f:
-                    f.write("Running")
+                    f.write("Pending")
                 with open(os.path.join(stepdir, "name"), "w") as f:
                     f.write(self.name)
                 self.record_input_parameters(stepdir, steps.inputs.parameters)
                 self.record_input_artifacts(stepdir, steps.inputs.artifacts,
                                             None, scope, True)
 
+            self.phase = "Running"
+            with open(os.path.join(stepdir, "phase"), "w") as f:
+                f.write("Running")
             try:
                 steps.run(scope.workflow_id)
             except Exception:
@@ -1699,8 +1700,15 @@ class Step:
                     ps = deepcopy(self)
                     ps.phase = "Pending"
                     self.parallel_steps.append(ps)
-                    future = pool.submit(ps.exec_with_config, scope,
-                                         parameters, item, config, s3_config)
+                    try:
+                        future = pool.submit(
+                            ps.exec_with_config, scope, parameters, item,
+                            config, s3_config)
+                    except concurrent.futures.process.BrokenProcessPool as e:
+                        # retrieve exception of subprocess before exit
+                        for future in concurrent.futures.as_completed(futures):
+                            future.result()
+                        raise e
                     futures.append(future)
 
                 for future in concurrent.futures.as_completed(futures):
@@ -1803,7 +1811,7 @@ class Step:
                     sub_path = art.sp
                     if item is not None:
                         sub_path = render_item(sub_path, item)
-                    os.symlink(os.path.join(art.source.local_path, sub_path),
+                    force_link(os.path.join(art.source.local_path, sub_path),
                                art_path)
                 elif isinstance(
                         art.source,
@@ -1811,7 +1819,7 @@ class Step:
                             art.source, 'local_path'):
                     pass
                 else:
-                    os.symlink(art.source.local_path, art_path)
+                    force_link(art.source.local_path, art_path)
             elif isinstance(art.source, str):
                 with open(art_path, "w") as f:
                     f.write(art.source)
@@ -1849,7 +1857,7 @@ class Step:
         os.makedirs(os.path.join(stepdir, "outputs/artifacts"), exist_ok=True)
         for name, art in artifacts.items():
             art_path = os.path.join(stepdir, "outputs/artifacts/%s" % name)
-            os.symlink(art.local_path, art_path)
+            force_link(art.local_path, art_path)
             if art.global_name is not None:
                 os.makedirs(os.path.join(stepdir, "../outputs/artifacts"),
                             exist_ok=True)
@@ -1891,7 +1899,7 @@ class Step:
         |- script
         |- workdir
         """
-        self.phase = "Running"
+        self.phase = "Pending"
 
         # render item
         if item is not None:
@@ -1906,7 +1914,6 @@ class Step:
 
         import os
         cwd = os.getcwd()
-        restart = False
         if "dflow_key" in parameters:
             step_id = parameters["dflow_key"].value
             stepdir = os.path.abspath(step_id)
@@ -1922,7 +1929,6 @@ class Step:
                     os.chdir(cwd)
                     return
                 logging.warn("step (key: %s) restarting" % step_id)
-                restart = True
             else:
                 os.makedirs(stepdir)
         else:
@@ -1935,11 +1941,11 @@ class Step:
                     break
 
         self.stepdir = stepdir
-        if not restart:
+        if self.phase == "Pending":
             with open(os.path.join(stepdir, "type"), "w") as f:
                 f.write("Pod")
             with open(os.path.join(stepdir, "phase"), "w") as f:
-                f.write("Running")
+                f.write("Pending")
             with open(os.path.join(stepdir, "name"), "w") as f:
                 f.write(self.name)
 
@@ -1947,7 +1953,7 @@ class Step:
         os.makedirs(workdir, exist_ok=True)
         os.chdir(workdir)
 
-        if not restart:
+        if self.phase == "Pending":
             self.record_input_parameters(stepdir, parameters)
 
             self.record_input_artifacts(stepdir, self.inputs.artifacts, item,
@@ -1977,7 +1983,7 @@ class Step:
                     raise ValueError("Unsupported copy method for debug mode.")
 
         script_path = os.path.join(stepdir, "script")
-        if not restart:
+        if self.phase == "Pending":
             # render variables in the script
             script = self.template.script
             if not self.template.script_rendered:
@@ -1995,6 +2001,9 @@ class Step:
             with open(script_path, "w") as f:
                 f.write(script)
 
+        self.phase = "Running"
+        with open(os.path.join(stepdir, "phase"), "w") as f:
+            f.write("Running")
         import subprocess
         args = self.template.command + [script_path]
         with subprocess.Popen(
