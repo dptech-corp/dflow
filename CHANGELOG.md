@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.38](https://github.com/deepmodeling/dflow/compare/v1.7.37...v1.7.38) (2023-07-28)
+
+
+### Bug Fixes
+
+* avoid exponentially increase of memory ([000e40c](https://github.com/deepmodeling/dflow/commit/000e40c1aab641c1d97f3ffc4a9287415daef020))
+
 ## [1.7.37](https://github.com/deepmodeling/dflow/compare/v1.7.36...v1.7.37) (2023-07-28)
 
 
