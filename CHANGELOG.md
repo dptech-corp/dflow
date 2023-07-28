@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.7.37](https://github.com/deepmodeling/dflow/compare/v1.7.36...v1.7.37) (2023-07-28)
+
+
+### Bug Fixes
+
+* add support for datasets+models ([ff90d6c](https://github.com/deepmodeling/dflow/commit/ff90d6cdcfba4e7b436db115e484c40cc864a941))
+* cannot pickle &lt;local&gt;.Artifact ([ff90d6c](https://github.com/deepmodeling/dflow/commit/ff90d6cdcfba4e7b436db115e484c40cc864a941))
+* cross link ([ff90d6c](https://github.com/deepmodeling/dflow/commit/ff90d6cdcfba4e7b436db115e484c40cc864a941))
+* logging.warning ([ff90d6c](https://github.com/deepmodeling/dflow/commit/ff90d6cdcfba4e7b436db115e484c40cc864a941))
+
 ## [1.7.36](https://github.com/deepmodeling/dflow/compare/v1.7.35...v1.7.36) (2023-07-27)
 
 
