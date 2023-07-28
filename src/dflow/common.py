@@ -56,7 +56,7 @@ class S3Artifact(V1alpha1S3Artifact):
                 meta = global_config["lineage"].get_artifact_metadata(urn)
                 self.key = meta.uri
             else:
-                logging.warn("Lineage client not provided")
+                logging.warning("Lineage client not provided")
         assert isinstance(self.key, str)
         if not self.key.startswith(s3_config["prefix"]) and not any(
                 [self.key.startswith(p) for p in s3_config["extra_prefixes"]]):

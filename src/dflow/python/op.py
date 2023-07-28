@@ -105,7 +105,7 @@ class OP(ABC):
             config["lineage"].register_artifact(
                 namespace=namespace, name=dataset_name, uri=uri, **kwargs)
         else:
-            logging.warn("Lineage client not provided")
+            logging.warning("Lineage client not provided")
 
     @abc.abstractmethod
     def execute(
@@ -374,7 +374,7 @@ def type2opiosign(t):
         return OPIOSign({"dflow_output": t}), lambda x: {"dflow_output": x}, \
             lambda x: x["dflow_output"]
     else:
-        logging.warn(
+        logging.warning(
             'We recommended using return type signature like:'
             '\n'
             "def func()->TypedDict('op', {'x': int, 'y': str})"

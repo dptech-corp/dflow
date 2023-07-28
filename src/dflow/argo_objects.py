@@ -269,7 +269,7 @@ class ArgoStep(ArgoObjectDict):
                     _return_http_data_only=True)
                 logger.info("Delete old pod")
             except Exception as e:
-                logging.warn("Failed to delete pod", e)
+                logging.warning("Failed to delete pod: %s" % e)
             try:
                 while True:
                     core_v1_api.api_client.call_api(

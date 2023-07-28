@@ -37,14 +37,15 @@ class _Context(object):
     def to_in_context(self):
         """Switch to be in context environment."""
         if self.in_context:
-            warnings.warn(
+            warnings.warning(
                 'Already in context. But call `to_in_context()` again.')
         self._in_context = True
 
     def to_out_context(self):
         """Switch to be not in context environment."""
         if not self.in_context:
-            warnings.warn('Not in context. But call `to_out_context()` again.')
+            warnings.warning(
+                'Not in context. But call `to_out_context()` again.')
         self._in_context = False
 
     def registry_step(self,
@@ -98,14 +99,15 @@ class Range_Context(object):
     def to_in_context(self):
         """Switch to be in context environment."""
         if self.in_context:
-            warnings.warn(
+            warnings.warning(
                 'Already in context. But call `to_in_context()` again.')
         self._in_context = True
 
     def to_out_context(self):
         """Switch to be not in context environment."""
         if not self.in_context:
-            warnings.warn('Not in context. But call `to_out_context()` again.')
+            warnings.warning(
+                'Not in context. But call `to_out_context()` again.')
         self._in_context = False
 
     def get_current_range_param_name(self):

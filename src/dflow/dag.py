@@ -112,6 +112,7 @@ class DAG(OPTemplate):
         return argo_template, templates
 
     def resolve(self, pool, futures):
+        import concurrent.futures
         for task in self.waiting:
             ready = True
             for dep in task.dependencies:
@@ -121,8 +122,14 @@ class DAG(OPTemplate):
             if ready:
                 task.phase = "Pending"
                 i = self.tasks.index(task)
-                future = pool.submit(task.run_with_config, self,
-                                     self.context, config, s3_config)
+                try:
+                    future = pool.submit(task.run_with_config, self,
+                                         self.context, config, s3_config)
+                except concurrent.futures.process.BrokenProcessPool as e:
+                    # retrieve exception of subprocess before exit
+                    for future in concurrent.futures.as_completed(futures):
+                        future.result()
+                    raise e
                 futures[future] = i
                 self.waiting.remove(task)
                 self.running.append(task)
