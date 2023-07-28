@@ -1690,16 +1690,15 @@ class Step:
             else:
                 raise RuntimeError("Not supported")
 
-            self.parallel_steps = []
+            # avoid exponentially increase of memory
+            self.parallel_steps = [deepcopy(self) for _ in item_list]
             assert isinstance(item_list, list)
             import concurrent.futures
             with concurrent.futures.ProcessPoolExecutor(
                     config["debug_pool_workers"]) as pool:
                 futures = []
-                for item in item_list:
-                    ps = deepcopy(self)
+                for item, ps in zip(item_list, self.parallel_steps):
                     ps.phase = "Pending"
-                    self.parallel_steps.append(ps)
                     try:
                         future = pool.submit(
                             ps.exec_with_config, scope, parameters, item,
