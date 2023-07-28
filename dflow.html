@@ -1939,6 +1939,42 @@ generated parallel tasks greater than certain number</p></li>
 <section id="module-dflow.utils">
 <span id="dflow-utils-module"></span><h2>dflow.utils module<a class="headerlink" href="#module-dflow.utils" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="dflow.utils.ArtifactDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">ArtifactDict</span></span><a class="headerlink" href="#dflow.utils.ArtifactDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.utils.ArtifactList">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">ArtifactList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.ArtifactList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.utils.ArtifactPosixPath">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">ArtifactPosixPath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.ArtifactPosixPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PosixPath</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.utils.ArtifactSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">ArtifactSet</span></span><a class="headerlink" href="#dflow.utils.ArtifactSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.utils.ArtifactStr">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">ArtifactStr</span></span><a class="headerlink" href="#dflow.utils.ArtifactStr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.utils.ArtifactWindowsPath">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">ArtifactWindowsPath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.ArtifactWindowsPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">WindowsPath</span></code></p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="dflow.utils.MinioClient">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">MinioClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secret_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.MinioClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dflow.utils.StorageClient" title="dflow.utils.StorageClient"><code class="xref py py-class docutils literal notranslate"><span class="pre">StorageClient</span></code></a></p>
@@ -4538,6 +4574,12 @@ parameters</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-dflow.utils">dflow.utils module</a><ul>
+<li><a class="reference internal" href="#dflow.utils.ArtifactDict"><code class="docutils literal notranslate"><span class="pre">ArtifactDict</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.ArtifactList"><code class="docutils literal notranslate"><span class="pre">ArtifactList</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.ArtifactPosixPath"><code class="docutils literal notranslate"><span class="pre">ArtifactPosixPath</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.ArtifactSet"><code class="docutils literal notranslate"><span class="pre">ArtifactSet</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.ArtifactStr"><code class="docutils literal notranslate"><span class="pre">ArtifactStr</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.ArtifactWindowsPath"><code class="docutils literal notranslate"><span class="pre">ArtifactWindowsPath</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.MinioClient"><code class="docutils literal notranslate"><span class="pre">MinioClient</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.utils.MinioClient.copy"><code class="docutils literal notranslate"><span class="pre">MinioClient.copy()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.MinioClient.download"><code class="docutils literal notranslate"><span class="pre">MinioClient.download()</span></code></a></li>
@@ -4921,7 +4963,7 @@ parameters</p></li>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2022, zjgemi.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.1.
     </div>
   </body>
 </html>
