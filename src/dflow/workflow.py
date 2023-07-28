@@ -229,7 +229,8 @@ class Workflow:
                     with open(os.path.join(wfdir, "status"), "r") as f:
                         status = f.read()
                     if status == "Succeeded":
-                        logger.warn("Workflow %s has been succeeded" % self.id)
+                        logger.warning(
+                            "Workflow %s has been succeeded" % self.id)
                         return
                     with open(os.path.join(wfdir, "pid"), "r") as f:
                         pid = int(f.read())
@@ -239,12 +240,12 @@ class Workflow:
                         ps = p.status()
                     except psutil.NoSuchProcess:
                         ps = None
-                    logger.warn("Workflow %s process %s is %s" % (
+                    logger.warning("Workflow %s process %s is %s" % (
                             self.id, pid, ps))
                     if ps == psutil.STATUS_RUNNING:
-                        logger.warn("Do nothing")
+                        logger.warning("Do nothing")
                         return
-                    logger.warn("Restart workflow %s" % self.id)
+                    logger.warning("Restart workflow %s" % self.id)
                 os.makedirs(wfdir, exist_ok=True)
 
             if reuse_step is not None:
@@ -921,8 +922,8 @@ class Workflow:
             return [par["name"] for par in
                     response["status"]["outputs"]["parameters"]]
         except Exception:
-            logger.warn("Key-ID map not found in the global outputs, downgrade"
-                        " to full query")
+            logger.warning("Key-ID map not found in the global outputs, "
+                           "downgrade to full query")
             return [step.key for step in self.query_step()
                     if step.key is not None]
 
@@ -961,8 +962,8 @@ class Workflow:
                     'status.nodes.' + key2id[k] for k in key])
             return workflow.get_step(name=name, phase=phase, id=id, type=type)
         except Exception:
-            logger.warn("Key-ID map not found in the global outputs, downgrade"
-                        " to full query")
+            logger.warning("Key-ID map not found in the global outputs, "
+                           "downgrade to full query")
             return self.query_step(key=key, name=name, phase=phase, id=id,
                                    type=type)
 

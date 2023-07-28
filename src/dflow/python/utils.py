@@ -7,8 +7,9 @@ from typing import Dict, List, Set
 import jsonpickle
 
 from ..config import config
-from ..utils import (assemble_path_object, convert_dflow_list, copy_file,
-                     expand, flatten, randstr, remove_empty_dir_tag)
+from ..utils import (artifact_classes, assemble_path_object,
+                     convert_dflow_list, copy_file, expand, flatten, randstr,
+                     remove_empty_dir_tag)
 from .opio import Artifact, BigParameter, NestedDict, Parameter
 
 
@@ -114,10 +115,7 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
         return None
 
     _cls = res.__class__
-
-    class Artifact(_cls):
-        pass
-    res = Artifact(res)
+    res = artifact_classes[_cls](res)
     res.art_root = root
     return res
 

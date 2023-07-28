@@ -131,8 +131,16 @@ class Steps(OPTemplate):
                     futures = []
                     for ps in step:
                         ps.phase = "Pending"
-                        future = pool.submit(ps.run_with_config, self, context,
-                                             config, s3_config)
+                        try:
+                            future = pool.submit(ps.run_with_config, self,
+                                                 context, config, s3_config)
+                        except concurrent.futures.process.BrokenProcessPool \
+                                as e:
+                            # retrieve exception of subprocess before exit
+                            for future in concurrent.futures.as_completed(
+                                    futures):
+                                future.result()
+                            raise e
                         futures.append(future)
 
                     for future in concurrent.futures.as_completed(futures):

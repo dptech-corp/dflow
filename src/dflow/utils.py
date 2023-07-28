@@ -17,7 +17,7 @@ import tempfile
 import uuid
 from abc import ABC
 from functools import partial
-from pathlib import Path
+from pathlib import Path, PosixPath, WindowsPath
 from typing import Dict, List, Optional, Set, Tuple, Union
 
 import jsonpickle
@@ -281,7 +281,7 @@ def upload_artifact(
             urn = config["lineage"].register_artifact(
                 namespace, dataset_name, key, **kwargs)
         else:
-            logging.warn("Lineage client not provided")
+            logging.warning("Lineage client not provided")
 
     return S3Artifact(key=key, path_list=path_list, urn=urn)
 
@@ -736,6 +736,9 @@ def linktree(src, dst, func=os.symlink):
 
 
 def force_link(src, dst, func=os.symlink):
+    # avoid cross link
+    if os.path.exists(dst) and os.path.samefile(src, dst):
+        return
     if os.path.islink(dst):
         os.remove(dst)
     func(src, dst)
@@ -803,3 +806,37 @@ class MinioClient(StorageClient):
     def get_md5(self, key: str) -> str:
         return self.client.stat_object(bucket_name=self.bucket_name,
                                        object_name=key).etag
+
+
+class ArtifactStr(str):
+    pass
+
+
+class ArtifactPosixPath(PosixPath):
+    pass
+
+
+class ArtifactWindowsPath(WindowsPath):
+    pass
+
+
+class ArtifactList(list):
+    pass
+
+
+class ArtifactSet(set):
+    pass
+
+
+class ArtifactDict(dict):
+    pass
+
+
+artifact_classes = {
+    str: ArtifactStr,
+    PosixPath: ArtifactPosixPath,
+    WindowsPath: ArtifactWindowsPath,
+    list: ArtifactList,
+    set: ArtifactSet,
+    dict: ArtifactDict,
+}

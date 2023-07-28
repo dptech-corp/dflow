@@ -1519,8 +1519,8 @@ class Step:
                 try:
                     handle_expr(par.value, scope)
                 except Exception as e:
-                    logging.warn("Failed to handle expressions in parameter"
-                                 " value: ", e)
+                    logging.warning("Failed to handle expressions in parameter"
+                                    " value: %s" % e)
 
         # source input artifacts
         for name, art in self.inputs.artifacts.items():
@@ -1570,13 +1570,13 @@ class Step:
                     with open(os.path.join(stepdir, "phase"), "r") as f:
                         self.phase = f.read()
                     if self.phase == "Succeeded":
-                        logging.warn("step (key: %s) skipped" % step_id)
+                        logging.warning("step (key: %s) skipped" % step_id)
                         self.load_output_parameters(stepdir,
                                                     self.outputs.parameters)
                         self.load_output_artifacts(stepdir,
                                                    self.outputs.artifacts)
                         return
-                    logging.warn("step (key: %s) restarting" % step_id)
+                    logging.warning("step (key: %s) restarting" % step_id)
                 else:
                     os.makedirs(stepdir)
             else:
@@ -1921,14 +1921,14 @@ class Step:
                 with open(os.path.join(stepdir, "phase"), "r") as f:
                     self.phase = f.read()
                 if self.phase == "Succeeded":
-                    logging.warn("step (key: %s) skipped" % step_id)
+                    logging.warning("step (key: %s) skipped" % step_id)
                     self.load_output_parameters(stepdir,
                                                 self.outputs.parameters)
                     self.load_output_artifacts(stepdir,
                                                self.outputs.artifacts)
                     os.chdir(cwd)
                     return
-                logging.warn("step (key: %s) restarting" % step_id)
+                logging.warning("step (key: %s) restarting" % step_id)
             else:
                 os.makedirs(stepdir)
         else:

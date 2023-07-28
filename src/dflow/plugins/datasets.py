@@ -19,6 +19,8 @@ except Exception:
 
 global_config["artifact_register"]["launching+datasets"] = \
     "dflow.plugins.datasets.DatasetsArtifact"
+global_config["artifact_register"]["launching+models"] = \
+    "dflow.plugins.datasets.DatasetsArtifact"
 
 
 def wait_for_mount(point, timeout=60):
