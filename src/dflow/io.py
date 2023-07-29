@@ -189,6 +189,8 @@ class OutputArtifacts(AutonamedDict):
 
 
 class ArgoVar:
+    is_str = True
+
     def __init__(self, expr=None, is_str=True):
         self.expr = expr
         self.is_str = is_str
