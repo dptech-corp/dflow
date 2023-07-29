@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.39](https://github.com/deepmodeling/dflow/compare/v1.7.38...v1.7.39) (2023-07-29)
+
+
+### Bug Fixes
+
+* convert item of ArgoVar correctly ([0f51882](https://github.com/deepmodeling/dflow/commit/0f518825ed775f2c3bae22784182cab4717f9b1e))
+
 ## [1.7.38](https://github.com/deepmodeling/dflow/compare/v1.7.37...v1.7.38) (2023-07-28)
 
 
