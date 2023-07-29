@@ -189,8 +189,9 @@ class OutputArtifacts(AutonamedDict):
 
 
 class ArgoVar:
-    def __init__(self, expr=None):
+    def __init__(self, expr=None, is_str=True):
         self.expr = expr
+        self.is_str = is_str
 
     def __repr__(self):
         return self.expr
@@ -205,8 +206,7 @@ class ArgoVar:
             item = "jsonpath(%s, '$')['%s']" % (self.expr, i)
         else:
             item = "jsonpath(%s, '$')[%s]" % (self.expr, i)
-        return ArgoVar("string(%s) == %s ? %s : toJson(%s)" % (
-            item, item, item, item))
+        return ArgoVar(item, is_str=False)
 
     def __iter__(self):
         raise TypeError("'ArgoVar' object is not iterable")
@@ -375,8 +375,10 @@ def convert_value_to_str(value):
                     if (hasattr(v, "type") and v.type == str) or (
                             hasattr(v, "value") and isinstance(v.value, str)):
                         vars.append("\"{{=%s}}\"" % v.expr)
-                    else:
+                    elif v.is_str:
                         vars.append("{{=%s}}" % v.expr)
+                    else:
+                        vars.append("{{=toJson(%s)}}" % v.expr)
                 elif isinstance(v, (dict, list)):
                     handle(v)
 
@@ -526,8 +528,14 @@ class InputParameter(ArgoVar):
         if not hasattr(self, "value"):
             return V1alpha1Parameter(name=self.name, description=description)
         elif isinstance(self.value, ArgoVar):
+            if self.value.is_str:
+                value = "{{=%s}}" % self.value.expr
+            else:
+                value = "{{=string(%s) == %s ? %s : toJson(%s)}}" % (
+                    self.value.expr, self.value.expr, self.value.expr,
+                    self.value.expr)
             return V1alpha1Parameter(name=self.name,
-                                     value="{{=%s}}" % self.value.expr,
+                                     value=value,
                                      description=description)
         else:
             return V1alpha1Parameter(name=self.name,
