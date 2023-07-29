@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.40](https://github.com/deepmodeling/dflow/compare/v1.7.39...v1.7.40) (2023-07-29)
+
+
+### Bug Fixes
+
+* InputParameter/OutputParameter has no attribute is_str ([65c3782](https://github.com/deepmodeling/dflow/commit/65c3782ee7ef4e03418c473dcf056fdf129564a3))
+
 ## [1.7.39](https://github.com/deepmodeling/dflow/compare/v1.7.38...v1.7.39) (2023-07-29)
 
 
