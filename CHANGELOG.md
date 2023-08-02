@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.41](https://github.com/deepmodeling/dflow/compare/v1.7.40...v1.7.41) (2023-08-02)
+
+
+### Bug Fixes
+
+* interactive bash causes process suspended ([41999a2](https://github.com/deepmodeling/dflow/commit/41999a220a1039398d35799852dfe0f441ca8b8b))
+
 ## [1.7.40](https://github.com/deepmodeling/dflow/compare/v1.7.39...v1.7.40) (2023-07-29)
 
 
