@@ -653,7 +653,7 @@ def run_command(
         cmd = [str(x) for x in cmd]
 
     if try_bash:
-        arg = "-ic" if interactive else "-c"
+        arg = "-lc" if interactive else "-c"
         script = "if command -v bash 2>&1 >/dev/null; then bash %s " % arg + \
             shlex.quote(" ".join(cmd)) + "; else " + " ".join(cmd) + "; fi"
         cmd = [script]
