@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.42](https://github.com/deepmodeling/dflow/compare/v1.7.41...v1.7.42) (2023-08-03)
+
+
+### Bug Fixes
+
+* multi-merge ([6eb661d](https://github.com/deepmodeling/dflow/commit/6eb661d7460fe3820ffe8e2d5e7dfa431f22f605))
+
 ## [1.7.41](https://github.com/deepmodeling/dflow/compare/v1.7.40...v1.7.41) (2023-08-02)
 
 
