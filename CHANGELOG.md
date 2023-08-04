@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.43](https://github.com/deepmodeling/dflow/compare/v1.7.42...v1.7.43) (2023-08-04)
+
+
+### Bug Fixes
+
+* support local path in dflow yaml ([ba32a39](https://github.com/deepmodeling/dflow/commit/ba32a395751ae8e7cf7ace97ec6cc9e256bfd961))
+
 ## [1.7.42](https://github.com/deepmodeling/dflow/compare/v1.7.41...v1.7.42) (2023-08-03)
 
 
