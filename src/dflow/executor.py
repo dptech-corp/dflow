@@ -34,21 +34,9 @@ class Executor(ABC):
 
 
 def run_script(image, cmd, docker=None, singularity=None, podman=None,
-               image_pull_policy=None, mounts=None, volumes=None):
-    host_mounts = {}
-    for mount in mounts:
-        name = getattr(mount, "name", mount["name"])
-        volume = next(filter(lambda v: getattr(v, "name", v["name"]) == name,
-                             volumes))
-        host_path = getattr(volume, "host_path", volume["hostPath"])
-        host_path = getattr(host_path, "path", host_path["path"])
-        mount_path = getattr(mount, "mount_path", mount["mountPath"])
-        sub_path = getattr(mount, "sub_path", mount.get("subPath"))
-        if sub_path:
-            host_mounts[mount_path] = os.path.join(host_path, sub_path)
-        else:
-            host_mounts[mount_path] = host_path
-
+               image_pull_policy=None, host_mounts=None):
+    if host_mounts is None:
+        host_mounts = {}
     if docker is not None:
         if image_pull_policy is None:
             if image.split(":")[-1] == "latest":
@@ -130,10 +118,35 @@ class ContainerExecutor(Executor):
         prep_script += "            os.remove(f)\n"
         prep_script += "            os.link(src, f)\n"
         script += "cat <<'EOF' | python3\n" + prep_script + "\nEOF\n"
+        host_mounts = {}
+        for mount in template.mounts:
+            name = getattr(mount, "name", mount["name"])
+            volume = next(filter(lambda v: getattr(
+                v, "name", v["name"]) == name, template.volumes))
+            host_path = getattr(volume, "host_path", volume["hostPath"])
+            host_path = getattr(host_path, "path", host_path["path"])
+            mount_path = getattr(mount, "mount_path", mount["mountPath"])
+            sub_path = getattr(mount, "sub_path", mount.get("subPath"))
+            if sub_path:
+                host_mounts[mount_path] = os.path.join(host_path, sub_path)
+            else:
+                host_mounts[mount_path] = host_path
+        for art in template.inputs.artifacts.values():
+            if not art.path.startswith("/tmp"):
+                host_mounts[art.path] = "$(pwd)/%s" % art.path
+        for art in template.outputs.artifacts.values():
+            if not art.path.startswith("/tmp"):
+                dir_path = os.path.dirname(art.path)
+                assert dir_path != "/", "Output path in '/' is not allowed"
+                host_mounts[dir_path] = "$(pwd)/%s" % dir_path
+        for par in template.outputs.parameters.values():
+            if not par.value_from_path.startswith("/tmp"):
+                dir_path = os.path.dirname(par.value_from_path)
+                assert dir_path != "/", "Output path in '/' is not allowed"
+                host_mounts[dir_path] = "$(pwd)/%s" % dir_path
         script += run_script(template.image, template.command, self.docker,
                              self.singularity, self.podman,
-                             self.image_pull_policy, template.mounts,
-                             template.volumes)
+                             self.image_pull_policy, host_mounts)
         new_template.command = ["sh"]
         new_template.script = script
         new_template.script_rendered = True
