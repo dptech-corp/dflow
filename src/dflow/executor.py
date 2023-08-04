@@ -34,13 +34,29 @@ class Executor(ABC):
 
 
 def run_script(image, cmd, docker=None, singularity=None, podman=None,
-               image_pull_policy=None):
+               image_pull_policy=None, mounts=None, volumes=None):
+    host_mounts = {}
+    for mount in mounts:
+        name = getattr(mount, "name", mount["name"])
+        volume = next(filter(lambda v: getattr(v, "name", v["name"]) == name,
+                             volumes))
+        host_path = getattr(volume, "host_path", volume["hostPath"])
+        host_path = getattr(host_path, "path", host_path["path"])
+        mount_path = getattr(mount, "mount_path", mount["mountPath"])
+        sub_path = getattr(mount, "sub_path", mount.get("subPath"))
+        if sub_path:
+            host_mounts[mount_path] = os.path.join(host_path, sub_path)
+        else:
+            host_mounts[mount_path] = host_path
+
     if docker is not None:
         if image_pull_policy is None:
             if image.split(":")[-1] == "latest":
                 image_pull_policy = "Always"
             else:
                 image_pull_policy = "IfNotPresent"
+        mount_arg = " ".join(["-v%s:%s" % (v, k) for k, v in
+                              host_mounts.items()])
         script = ""
         if image_pull_policy == "Always":
             script += "%s pull %s && " % (docker, image)
@@ -48,17 +64,22 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None,
             script += "if [ $(docker images %s | wc -l) -lt 2 ]; " % image
             script += "then %s pull %s; fi && " % (docker, image)
         return script + "%s run -v$(pwd)/tmp:/tmp "\
-            "-v$(pwd)/script:/script %s %s /script" % (
-                docker, image, " ".join(cmd))
+            "-v$(pwd)/script:/script %s %s %s /script" % (
+                docker, mount_arg, image, " ".join(cmd))
     elif singularity is not None:
+        mount_arg = " ".join(["-B%s:%s" % (v, k) for k, v in
+                              host_mounts.items()])
         return "if [ -f %s ]; then rm -f image.sif && ln -s %s image.sif; "\
             "else %s pull image.sif %s; fi && %s run -B$(pwd)/tmp:/tmp "\
-            "-B$(pwd)/script:/script image.sif %s /script && rm image.sif" % (
-                image, image, singularity, image, singularity, " ".join(cmd))
+            "-B$(pwd)/script:/script %s image.sif %s /script && rm "\
+            "image.sif" % (image, image, singularity, image, singularity,
+                           mount_arg, " ".join(cmd))
     elif podman is not None:
+        mount_arg = " ".join(["-v%s:%s" % (v, k) for k, v in
+                              host_mounts.items()])
         return "%s pull %s && %s run -v$(pwd)/tmp:/tmp "\
-            "-v$(pwd)/script:/script %s %s /script" % (
-                podman, image, podman, image, " ".join(cmd))
+            "-v$(pwd)/script:/script %s %s %s /script" % (
+                podman, image, podman, mount_arg, image, " ".join(cmd))
     else:
         return "%s script" % " ".join(cmd)
 
@@ -111,7 +132,8 @@ class ContainerExecutor(Executor):
         script += "cat <<'EOF' | python3\n" + prep_script + "\nEOF\n"
         script += run_script(template.image, template.command, self.docker,
                              self.singularity, self.podman,
-                             self.image_pull_policy)
+                             self.image_pull_policy, template.mounts,
+                             template.volumes)
         new_template.command = ["sh"]
         new_template.script = script
         new_template.script_rendered = True
