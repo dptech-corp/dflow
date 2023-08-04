@@ -1109,6 +1109,9 @@ class Step:
             elif "http" in art:
                 kwargs["artifacts"][name] = HTTPArtifact(
                     url=art["http"]["url"])
+            elif "local" in art:
+                kwargs["artifacts"][name] = LocalArtifact(
+                    local_path=art["local"]["path"])
         kwargs["key"] = kwargs["parameters"].get("dflow_key", None)
         return cls(**kwargs)
 
