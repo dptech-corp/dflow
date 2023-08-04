@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.44](https://github.com/deepmodeling/dflow/compare/v1.7.43...v1.7.44) (2023-08-04)
+
+
+### Bug Fixes
+
+* support input/output path not begining with /tmp in container executor ([de2b36b](https://github.com/deepmodeling/dflow/commit/de2b36bcca5a9d46768e75617f8ff4b9a3a551fb))
+* support volume mounts for container executor ([f00c18b](https://github.com/deepmodeling/dflow/commit/f00c18bb4aede54d63ff6a368dbb51077a7fa198))
+
 ## [1.7.43](https://github.com/deepmodeling/dflow/compare/v1.7.42...v1.7.43) (2023-08-04)
 
 
