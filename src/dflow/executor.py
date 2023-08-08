@@ -34,7 +34,8 @@ class Executor(ABC):
 
 
 def run_script(image, cmd, docker=None, singularity=None, podman=None,
-               image_pull_policy=None, host_mounts=None):
+               image_pull_policy=None, host_mounts=None, cpu=None,
+               memory=None):
     if host_mounts is None:
         host_mounts = {}
     if docker is not None:
@@ -43,8 +44,12 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None,
                 image_pull_policy = "Always"
             else:
                 image_pull_policy = "IfNotPresent"
-        mount_arg = " ".join(["-v%s:%s" % (v, k) for k, v in
-                              host_mounts.items()])
+        args = " ".join(["-v%s:%s" % (v, k) for k, v in
+                         host_mounts.items()])
+        if cpu is not None:
+            args += " --cpus %s" % cpu
+        if memory is not None:
+            args += " --memory %s" % memory
         script = ""
         if image_pull_policy == "Always":
             script += "%s pull %s && " % (docker, image)
@@ -53,21 +58,25 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None,
             script += "then %s pull %s; fi && " % (docker, image)
         return script + "%s run -v$(pwd)/tmp:/tmp "\
             "-v$(pwd)/script:/script %s %s %s /script" % (
-                docker, mount_arg, image, " ".join(cmd))
+                docker, args, image, " ".join(cmd))
     elif singularity is not None:
-        mount_arg = " ".join(["-B%s:%s" % (v, k) for k, v in
-                              host_mounts.items()])
+        args = " ".join(["-B%s:%s" % (v, k) for k, v in
+                         host_mounts.items()])
         return "if [ -f %s ]; then rm -f image.sif && ln -s %s image.sif; "\
             "else %s pull image.sif %s; fi && %s run -B$(pwd)/tmp:/tmp "\
             "-B$(pwd)/script:/script %s image.sif %s /script && rm "\
             "image.sif" % (image, image, singularity, image, singularity,
-                           mount_arg, " ".join(cmd))
+                           args, " ".join(cmd))
     elif podman is not None:
-        mount_arg = " ".join(["-v%s:%s" % (v, k) for k, v in
-                              host_mounts.items()])
+        args = " ".join(["-v%s:%s" % (v, k) for k, v in
+                         host_mounts.items()])
+        if cpu is not None:
+            args += " --cpus %s" % cpu
+        if memory is not None:
+            args += " --memory %s" % memory
         return "%s pull %s && %s run -v$(pwd)/tmp:/tmp "\
             "-v$(pwd)/script:/script %s %s %s /script" % (
-                podman, image, podman, mount_arg, image, " ".join(cmd))
+                podman, image, podman, args, image, " ".join(cmd))
     else:
         return "%s script" % " ".join(cmd)
 
@@ -144,9 +153,21 @@ class ContainerExecutor(Executor):
                 dir_path = os.path.dirname(par.value_from_path)
                 assert dir_path != "/", "Output path in '/' is not allowed"
                 host_mounts[dir_path] = "$(pwd)/%s" % dir_path
+        cpu = None
+        if template.requests is not None and "cpu" in template.requests:
+            cpu = template.requests["cpu"]
+            if isinstance(cpu, str) and cpu.endswith("m"):
+                cpu = int(cpu[:-1]) / 1000
+        memory = None
+        if template.requests is not None and "memory" in template.requests:
+            memory = template.requests["memory"]
+            if isinstance(memory, str) and memory.endswith("Mi"):
+                memory = memory[:-2] + "m"
+            elif isinstance(memory, str) and memory.endswith("Gi"):
+                memory = memory[:-2] + "g"
         script += run_script(template.image, template.command, self.docker,
                              self.singularity, self.podman,
-                             self.image_pull_policy, host_mounts)
+                             self.image_pull_policy, host_mounts, cpu, memory)
         new_template.command = ["sh"]
         new_template.script = script
         new_template.script_rendered = True
