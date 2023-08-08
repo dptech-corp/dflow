@@ -89,6 +89,7 @@ class OPTemplate:
             memoize_key: Optional[str] = None,
             pvcs: Optional[List[PVC]] = None,
             annotations: Dict[str, str] = None,
+            labels: Dict[str, str] = None,
     ) -> None:
         if name is None:
             name = randstr()
@@ -113,6 +114,7 @@ class OPTemplate:
         if annotations is None:
             annotations = {}
         self.annotations = annotations
+        self.labels = labels if labels is not None else {}
         self.modified = False
 
     @classmethod
@@ -212,6 +214,8 @@ class ScriptOPTemplate(OPTemplate):
         pvcs: PVCs need to be declared
         image_pull_policy: Always, IfNotPresent, Never
         annotations: annotations for the OP template
+        labels: labels for the OP template
+        node_selector: node selector when scheduling the pod
         requests: a dict of resource requests
         limits: a dict of resource limits
         envs: environment variables
@@ -225,6 +229,8 @@ class ScriptOPTemplate(OPTemplate):
             memoize_key: Optional[str] = None,
             pvcs: Optional[List[PVC]] = None,
             annotations: Dict[str, str] = None,
+            labels: Dict[str, str] = None,
+            node_selector: Dict[str, str] = None,
             image: Optional[str] = None,
             command: Union[str, List[str]] = None,
             script: Optional[str] = None,
@@ -243,7 +249,7 @@ class ScriptOPTemplate(OPTemplate):
     ) -> None:
         super().__init__(name=name, inputs=inputs, outputs=outputs,
                          memoize_key=memoize_key, pvcs=pvcs,
-                         annotations=annotations)
+                         annotations=annotations, labels=labels)
         self.image = image
         if isinstance(command, str):
             command = [command]
@@ -269,6 +275,7 @@ class ScriptOPTemplate(OPTemplate):
         if sidecars is None:
             sidecars = []
         self.sidecars = sidecars
+        self.node_selector = node_selector if node_selector is not None else {}
         self.script_rendered = False
 
     @classmethod
@@ -376,7 +383,9 @@ class ScriptOPTemplate(OPTemplate):
             return \
                 V1alpha1Template(name=self.name,
                                  metadata=V1alpha1Metadata(
-                                     annotations=self.annotations),
+                                     annotations=self.annotations,
+                                     labels=self.labels),
+                                 node_selector=self.node_selector,
                                  inputs=self.inputs.convert_to_argo(),
                                  outputs=self.outputs.convert_to_argo(),
                                  timeout=self.timeout,
@@ -418,6 +427,8 @@ class ShellOPTemplate(ScriptOPTemplate):
         pvcs: PVCs need to be declared
         image_pull_policy: Always, IfNotPresent, Never
         annotations: annotations for the OP template
+        labels: labels for the OP template
+        node_selector: node selector when scheduling the pod
         requests: a dict of resource requests
         limits: a dict of resource limits
         envs: environment variables
@@ -433,6 +444,8 @@ class ShellOPTemplate(ScriptOPTemplate):
         memoize_key: Optional[str] = None,
         pvcs: Optional[List[PVC]] = None,
         annotations: Dict[str, str] = None,
+        labels: Dict[str, str] = None,
+        node_selector: Dict[str, str] = None,
         image: Optional[str] = None,
         command: Union[str, List[str]] = None,
         script: Optional[str] = None,
@@ -456,6 +469,7 @@ class ShellOPTemplate(ScriptOPTemplate):
             init_progress=init_progress, timeout=timeout,
             retry_strategy=retry_strategy, memoize_key=memoize_key, pvcs=pvcs,
             image_pull_policy=image_pull_policy, annotations=annotations,
+            labels=labels, node_selector=node_selector,
             requests=requests, limits=limits, envs=envs,
             init_containers=init_containers, sidecars=sidecars,
         )
@@ -481,6 +495,8 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         pvcs: PVCs need to be declared
         image_pull_policy: Always, IfNotPresent, Never
         annotations: annotations for the OP template
+        labels: labels for the OP template
+        node_selector: node selector when scheduling the pod
         requests: a dict of resource requests
         limits: a dict of resource limits
         envs: environment variables
@@ -496,6 +512,8 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         memoize_key: Optional[str] = None,
         pvcs: Optional[List[PVC]] = None,
         annotations: Dict[str, str] = None,
+        labels: Dict[str, str] = None,
+        node_selector: Dict[str, str] = None,
         image: Optional[str] = None,
         command: Union[str, List[str]] = None,
         script: Optional[str] = None,
@@ -519,6 +537,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
             init_progress=init_progress, timeout=timeout,
             retry_strategy=retry_strategy, memoize_key=memoize_key, pvcs=pvcs,
             image_pull_policy=image_pull_policy, annotations=annotations,
+            labels=labels, node_selector=node_selector,
             requests=requests, limits=limits, envs=envs,
             init_containers=init_containers, sidecars=sidecars,
         )
