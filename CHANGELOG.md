@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.46](https://github.com/deepmodeling/dflow/compare/v1.7.45...v1.7.46) (2023-08-08)
+
+
+### Bug Fixes
+
+* add labels, node_selector to OP template ([d8f35dc](https://github.com/deepmodeling/dflow/commit/d8f35dcd2fb523c66589cfb4e16902cc8906e40e))
+
 ## [1.7.45](https://github.com/deepmodeling/dflow/compare/v1.7.44...v1.7.45) (2023-08-08)
 
 
