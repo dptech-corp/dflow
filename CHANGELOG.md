@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.45](https://github.com/deepmodeling/dflow/compare/v1.7.44...v1.7.45) (2023-08-08)
+
+
+### Bug Fixes
+
+* add cpu and memory to container executor ([101fb96](https://github.com/deepmodeling/dflow/commit/101fb96d3bebe1ba994b10a5a23702b6017c337c))
+
 ## [1.7.44](https://github.com/deepmodeling/dflow/compare/v1.7.43...v1.7.44) (2023-08-04)
 
 
