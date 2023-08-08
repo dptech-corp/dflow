@@ -123,6 +123,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         op_class: Python class OP
         image: image of the OP template
         command: python executable
+        annotations: annotations for the OP template
+        labels: labels for the OP template
+        node_selector: node selector when scheduling the pod
         input_artifact_slices: a dict specifying input artifacts to use slices
         output_artifact_save: a dict specifying storage of output artifacts
             overriding default storage
@@ -161,6 +164,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  op_class: Union[Type[OP], OP],
                  image: Optional[str] = None,
                  command: Union[str, List[str]] = None,
+                 annotations: Dict[str, str] = None,
+                 labels: Dict[str, str] = None,
+                 node_selector: Dict[str, str] = None,
                  output_artifact_save: Dict[str,
                                             List[Union[PVC, S3Artifact]]]
                  = None,
@@ -215,7 +221,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             name="%s-%s" % (class_name.replace("_", "-"), randstr()),
             inputs=Inputs(), outputs=Outputs(), volumes=volumes, mounts=mounts,
             requests=requests, limits=limits, envs=envs,
-            init_containers=init_containers, sidecars=sidecars)
+            init_containers=init_containers, sidecars=sidecars, labels=labels,
+            annotations=annotations, node_selector=node_selector)
         self.pre_script = pre_script
         self.post_script = post_script
         if timeout is not None:
