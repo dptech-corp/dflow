@@ -384,7 +384,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             for name in slices.input_parameter:
                 self.input_parameter_slices[name] = slices.slices
         if slices.output_artifact:
-            self.output_artifact_slices = {}
             for name in slices.output_artifact:
                 self.output_artifact_slices[name] = slices.slices
                 self.outputs.artifacts[name].archive = None  # no archive
