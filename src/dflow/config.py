@@ -35,7 +35,7 @@ config = {
     "k8s_config_file": os.environ.get("DFLOW_K8S_CONFIG_FILE", None),
     "k8s_api_server": os.environ.get("DFLOW_K8S_API_SERVER", None),
     "private_key_host_path": os.environ.get("DFLOW_PRIVATE_KEY_HOST_PATH",
-                                            "/home/docker/.ssh"),
+                                            None),
     "save_path_as_parameter": boolize(os.environ.get(
         "DFLOW_SAVE_PATH_AS_PARAMETER", False)),
     "catalog_dir_name": os.environ.get("DFLOW_CATALOG_DIR_NAME", ".dflow"),

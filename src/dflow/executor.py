@@ -334,7 +334,7 @@ download() {
             new_template.inputs.artifacts["dflow_private_key"] = InputArtifact(
                 path="/root/.ssh/" + os.path.basename(self.private_key_file),
                 source=private_key_artifact, mode=0o600)
-        else:
+        elif config["private_key_host_path"] is not None:
             new_template.volumes.append(V1Volume(
                 name="dflow-private-key", host_path=V1HostPathVolumeSource(
                     path=config["private_key_host_path"])))
