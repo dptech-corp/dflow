@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.48](https://github.com/deepmodeling/dflow/compare/v1.7.47...v1.7.48) (2023-08-09)
+
+
+### Bug Fixes
+
+* add_slices of PythonOPTemplate ([d1a73d0](https://github.com/deepmodeling/dflow/commit/d1a73d0baf842a3cfb26546a799b7c9b7ebdcd31))
+
 ## [1.7.47](https://github.com/deepmodeling/dflow/compare/v1.7.46...v1.7.47) (2023-08-09)
 
 
