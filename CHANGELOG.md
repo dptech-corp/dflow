@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.49](https://github.com/deepmodeling/dflow/compare/v1.7.48...v1.7.49) (2023-08-09)
+
+
+### Bug Fixes
+
+* support wf.to_yaml() in debug mode ([3e2954f](https://github.com/deepmodeling/dflow/commit/3e2954f9bc03152ded849a9fbe9343b3bc0e0030))
+
 ## [1.7.48](https://github.com/deepmodeling/dflow/compare/v1.7.47...v1.7.48) (2023-08-09)
 
 
