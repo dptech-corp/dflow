@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.47](https://github.com/deepmodeling/dflow/compare/v1.7.46...v1.7.47) (2023-08-09)
+
+
+### Bug Fixes
+
+* _from -&gt; raw when submit from yaml to argo ([f970e44](https://github.com/deepmodeling/dflow/commit/f970e4442295c15be5cd1ad54a78d5781ade55ec))
+* do not reuse keys in global outputs when save_keys_in_global_outputs=False ([1ffdad3](https://github.com/deepmodeling/dflow/commit/1ffdad3343e08c8b72d27b31df55b5b5bcb46f1e))
+
 ## [1.7.46](https://github.com/deepmodeling/dflow/compare/v1.7.45...v1.7.46) (2023-08-08)
 
 
