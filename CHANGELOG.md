@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.50](https://github.com/deepmodeling/dflow/compare/v1.7.49...v1.7.50) (2023-08-09)
+
+
+### Bug Fixes
+
+* set private_key_host_path to None by default ([af8a612](https://github.com/deepmodeling/dflow/commit/af8a612921fd0eed4cff2ccb53a9aeb869d78099))
+
 ## [1.7.49](https://github.com/deepmodeling/dflow/compare/v1.7.48...v1.7.49) (2023-08-09)
 
 
