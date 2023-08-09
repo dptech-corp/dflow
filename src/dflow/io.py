@@ -719,6 +719,10 @@ class InputArtifact(ArgoVar):
                                         oss=self.source.oss(),
                                         sub_path=self.sp, mode=self.mode,
                                         archive=archive)
+        elif isinstance(self.source, str) and self.source.find("{{") != -1:
+            return V1alpha1Artifact(name=self.name, path=self.path,
+                                    optional=self.optional, _from=self.source,
+                                    mode=self.mode, archive=archive)
         elif isinstance(self.source, str):
             return V1alpha1Artifact(name=self.name, path=self.path,
                                     optional=self.optional,
