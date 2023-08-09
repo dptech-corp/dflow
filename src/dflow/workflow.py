@@ -495,8 +495,9 @@ class Workflow:
 
             self.handle_template(self.entrypoint, memoize_prefix=self.id,
                                  memoize_configmap="dflow")
-            status = {"outputs": {"parameters": [
-                {"name": key, "value": id} for key, id in key2id.items()]}}
+            if config["save_keys_in_global_outputs"]:
+                status = {"outputs": {"parameters": [
+                    {"name": key, "value": id} for key, id in key2id.items()]}}
         else:
             self.handle_template(self.entrypoint)
 
