@@ -7,7 +7,8 @@ from typing import Any, Dict, List, Optional, Union
 
 import jsonpickle
 
-from .common import CustomArtifact, S3Artifact, param_errmsg, param_regex
+from .common import (CustomArtifact, LocalArtifact, S3Artifact, param_errmsg,
+                     param_regex)
 from .config import config
 from .utils import randstr, s3_config, upload_s3
 
@@ -728,6 +729,10 @@ class InputArtifact(ArgoVar):
                                     optional=self.optional,
                                     raw=V1alpha1RawArtifact(data=self.source),
                                     mode=self.mode, archive=archive)
+        elif isinstance(self.source, LocalArtifact):
+            return {"name": self.name, "path": self.path,
+                    "optional": self.optional, "local": {
+                        "path": self.source.local_path}}
         else:
             raise RuntimeError(
                 "Cannot pass an object of type %s to artifact %s" %
