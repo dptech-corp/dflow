@@ -68,6 +68,7 @@ config = {
     "detect_empty_dir": boolize(os.environ.get("DFLOW_DETECT_EMPTY_DIR",
                                                True)),
     "artifact_register": {},
+    "debug_s3": boolize(os.environ.get("DFLOW_DEBUG_S3", False)),
 }
 
 
