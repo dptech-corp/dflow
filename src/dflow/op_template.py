@@ -246,6 +246,7 @@ class ScriptOPTemplate(OPTemplate):
             envs: Dict[str, Union[str, Secret, V1EnvVarSource]] = None,
             init_containers: Optional[List[V1alpha1UserContainer]] = None,
             sidecars: Optional[List[V1alpha1UserContainer]] = None,
+            script_rendered: bool = False,
     ) -> None:
         super().__init__(name=name, inputs=inputs, outputs=outputs,
                          memoize_key=memoize_key, pvcs=pvcs,
@@ -276,7 +277,7 @@ class ScriptOPTemplate(OPTemplate):
             sidecars = []
         self.sidecars = sidecars
         self.node_selector = node_selector if node_selector is not None else {}
-        self.script_rendered = False
+        self.script_rendered = script_rendered
 
     @classmethod
     def from_dict(cls, d):
@@ -312,6 +313,9 @@ class ScriptOPTemplate(OPTemplate):
         docker = "docker" if engine == "docker" else None
         singularity = "singularity" if engine == "singularity" else None
         podman = "podman" if engine == "podman" else None
+        if kwargs["annotations"].get("workflow.dp.tech/script_rendered") == \
+                "true":
+            kwargs["script_rendered"] = True
         if d.get("metadata", {}).get("annotations", {}).get(
                 "workflow.dp.tech/executor") == "dispatcher":
             host = kwargs["annotations"].get("workflow.dp.tech/host")
@@ -345,6 +349,8 @@ class ScriptOPTemplate(OPTemplate):
                         memoize_configmap="dflow"):
         self.handle_key(memoize_prefix, memoize_configmap)
         self.annotations["workflows.argoproj.io/progress"] = self.init_progress
+        if self.script_rendered:
+            self.annotations["workflow.dp.tech/script_rendered"] = "true"
         if self.resource is not None:
             return V1alpha1Template(name=self.name,
                                     metadata=V1alpha1Metadata(

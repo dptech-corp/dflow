@@ -88,7 +88,7 @@ def download_artifact(
         bucket_name: bucket name for Minio
         skip_exists: skip files with the same MD5
     """
-    if config["mode"] == "debug" and not debug_download:
+    if hasattr(artifact, "local_path") and not debug_download:
         if config["debug_copy_method"] == "symlink":
             linktree(artifact.local_path, path)
         elif config["debug_copy_method"] == "link":
@@ -239,7 +239,8 @@ def upload_artifact(
                     relpath = abspath[abspath.find(":")+2:]
             target = os.path.join(tmpdir, relpath)
             os.makedirs(os.path.dirname(target), exist_ok=True)
-            if config["mode"] == "debug" and cwd.startswith(str(p)):
+            if config["mode"] == "debug" and not config["debug_s3"] and \
+                    cwd.startswith(str(p)):
                 # To avoid recursive symlink
                 copy_file(abspath, target)
             else:
@@ -260,7 +261,7 @@ def upload_artifact(
         with open(os.path.join(catalog_dir, str(uuid.uuid4())), "w") as f:
             f.write(jsonpickle.dumps({"path_list": path_list}))
 
-        if config["mode"] == "debug":
+        if config["mode"] == "debug" and not config["debug_s3"]:
             os.makedirs("upload", exist_ok=True)
             resdir = shutil.move(tmpdir, "upload")
             # To prevent exception in destruction
