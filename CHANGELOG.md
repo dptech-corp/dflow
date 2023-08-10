@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.51](https://github.com/deepmodeling/dflow/compare/v1.7.50...v1.7.51) (2023-08-10)
+
+
+### Bug Fixes
+
+* solve overlap between pathes in upload_artifact ([0042297](https://github.com/deepmodeling/dflow/commit/0042297d1245a1c8e93420140537be61cb59977f))
+* support query_global_outputs in debug mode ([0042297](https://github.com/deepmodeling/dflow/commit/0042297d1245a1c8e93420140537be61cb59977f))
+
 ## [1.7.50](https://github.com/deepmodeling/dflow/compare/v1.7.49...v1.7.50) (2023-08-09)
 
 
