@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.52](https://github.com/deepmodeling/dflow/compare/v1.7.51...v1.7.52) (2023-08-10)
+
+
+### Bug Fixes
+
+* add debug_s3 option ([8f778c8](https://github.com/deepmodeling/dflow/commit/8f778c8ed09f445b048a31d440d4e5b40d5e69eb))
+* record script_rendered in yaml ([8f778c8](https://github.com/deepmodeling/dflow/commit/8f778c8ed09f445b048a31d440d4e5b40d5e69eb))
+
 ## [1.7.51](https://github.com/deepmodeling/dflow/compare/v1.7.50...v1.7.51) (2023-08-10)
 
 
