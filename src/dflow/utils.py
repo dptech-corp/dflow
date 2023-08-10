@@ -243,8 +243,14 @@ def upload_artifact(
                 # To avoid recursive symlink
                 copy_file(abspath, target)
             else:
-                if not (os.path.exists(target) and
-                        os.path.samefile(abspath, target)):
+                if os.path.exists(target) and os.path.samefile(
+                        abspath, target):
+                    pass
+                elif os.path.isdir(target):
+                    # there is overlap between pathes, keep parent only
+                    shutil.rmtree(target)
+                    os.symlink(abspath, target)
+                else:
                     os.symlink(abspath, target)
             path_list.append({"dflow_list_item": relpath.replace("\\", "/"),
                               "order": i})

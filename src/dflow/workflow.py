@@ -978,6 +978,33 @@ class Workflow:
         Returns:
             a list of steps
         """
+        if config["mode"] == "debug":
+            if not os.path.exists(os.path.join(self.id, "outputs")):
+                return None
+            outputs = {"parameters": [], "artifacts": []}
+            pars = os.path.join(self.id, "outputs", "parameters")
+            if os.path.exists(pars):
+                for p in os.listdir(pars):
+                    if p == ".dflow":
+                        continue
+                    with open(os.path.join(pars, p), "r") as f:
+                        val = f.read()
+                    _type = None
+                    if os.path.exists(os.path.join(pars, ".dflow", p)):
+                        with open(os.path.join(pars, ".dflow", p), "r") as f:
+                            _type = json.load(f)["type"]
+                        if _type != str(str):
+                            val = jsonpickle.loads(val)
+                    outputs["parameters"].append({
+                        "name": p, "value": val, "type": _type})
+            arts = os.path.join(self.id, "outputs", "artifacts")
+            if os.path.exists(arts):
+                for a in os.listdir(arts):
+                    outputs["artifacts"].append({
+                        "name": a,
+                        "local_path": os.path.abspath(os.path.join(arts, a))})
+            step = ArgoStep({"outputs": outputs}, self.id)
+            return step.outputs
         workflow = self.query(fields=['metadata.name', 'status.outputs'])
         step = ArgoStep(workflow.status, workflow.metadata.name)
         if hasattr(step, "outputs"):
