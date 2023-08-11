@@ -62,7 +62,7 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None,
         if host_mounts is not None:
             args += " " + " ".join(["-B%s:%s" % (v, k) for k, v in
                                     host_mounts.items()])
-        return "if [ -f %s ]; then rm -f image.sif && ln -s %s image.sif; "\
+        return "if [ -f %s ]; then rm -f image.sif && cp %s image.sif; "\
             "else %s pull image.sif %s; fi && %s run -B$(pwd)/tmp:/tmp "\
             "-B$(pwd)/script:/script %s image.sif %s /script && rm "\
             "image.sif" % (image, image, singularity, image, singularity,
