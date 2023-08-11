@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.7.53](https://github.com/deepmodeling/dflow/compare/v1.7.52...v1.7.53) (2023-08-11)
+
+
+### Bug Fixes
+
+* kill jobs on sigterm in dispatcher executor ([01e9a4d](https://github.com/deepmodeling/dflow/commit/01e9a4dcb85a802ce1a1b53a7850f9adb40c73af))
+* make dispatcher executor consistent in debug mode and default mode ([01e9a4d](https://github.com/deepmodeling/dflow/commit/01e9a4dcb85a802ce1a1b53a7850f9adb40c73af))
+* remove workaround for unavailable exit code of Bohrium job ([01e9a4d](https://github.com/deepmodeling/dflow/commit/01e9a4dcb85a802ce1a1b53a7850f9adb40c73af))
+* retry on network error in dispatcher executor ([01e9a4d](https://github.com/deepmodeling/dflow/commit/01e9a4dcb85a802ce1a1b53a7850f9adb40c73af))
+
 ## [1.7.52](https://github.com/deepmodeling/dflow/compare/v1.7.51...v1.7.52) (2023-08-10)
 
 
