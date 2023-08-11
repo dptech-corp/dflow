@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.55](https://github.com/deepmodeling/dflow/compare/v1.7.54...v1.7.55) (2023-08-11)
+
+
+### Bug Fixes
+
+* copy singularity instead of symlink ([9187833](https://github.com/deepmodeling/dflow/commit/918783337d720b41e8e2fbeb136a24ffac3db164))
+* fix typeguard version ([9187833](https://github.com/deepmodeling/dflow/commit/918783337d720b41e8e2fbeb136a24ffac3db164))
+
 ## [1.7.54](https://github.com/deepmodeling/dflow/compare/v1.7.53...v1.7.54) (2023-08-11)
 
 
