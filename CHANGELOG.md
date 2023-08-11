@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.54](https://github.com/deepmodeling/dflow/compare/v1.7.53...v1.7.54) (2023-08-11)
+
+
+### Bug Fixes
+
+* add container_args to DispatcherExecutor ([582c4e9](https://github.com/deepmodeling/dflow/commit/582c4e9336b39e84761b2170025c42bd080981b4))
+
 ## [1.7.53](https://github.com/deepmodeling/dflow/compare/v1.7.52...v1.7.53) (2023-08-11)
 
 
