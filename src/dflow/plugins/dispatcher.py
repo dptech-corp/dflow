@@ -77,6 +77,7 @@ class DispatcherExecutor(Executor):
                  json_file: Optional[os.PathLike] = None,
                  docker_executable: Optional[str] = None,
                  singularity_executable: Optional[str] = None,
+                 container_args: str = "",
                  podman_executable: Optional[str] = None,
                  remote_root: Optional[str] = None,
                  retry_on_submission_error: Optional[int] = None,
@@ -111,6 +112,7 @@ class DispatcherExecutor(Executor):
                 self.singularity_executable is not None or \
                 self.podman_executable is not None:
             self.map_tmp_dir = False
+        self.container_args = container_args
         self.work_root = "."
         self.remote_root = remote_root
         self.retry_on_submission_error = retry_on_submission_error
@@ -243,7 +245,7 @@ class DispatcherExecutor(Executor):
 
         cmd += run_script(template.image, remote_command,
                           self.docker_executable, self.singularity_executable,
-                          self.podman_executable)
+                          self.podman_executable, args=self.container_args)
         task_dict["command"] = cmd
         task_dict["forward_files"] = ["script"]
         for art in template.inputs.artifacts.values():

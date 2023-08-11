@@ -35,17 +35,16 @@ class Executor(ABC):
 
 def run_script(image, cmd, docker=None, singularity=None, podman=None,
                image_pull_policy=None, host_mounts=None, cpu=None,
-               memory=None):
-    if host_mounts is None:
-        host_mounts = {}
+               memory=None, args=""):
     if docker is not None:
         if image_pull_policy is None:
             if image.split(":")[-1] == "latest":
                 image_pull_policy = "Always"
             else:
                 image_pull_policy = "IfNotPresent"
-        args = " ".join(["-v%s:%s" % (v, k) for k, v in
-                         host_mounts.items()])
+        if host_mounts is not None:
+            args += " " + " ".join(["-v%s:%s" % (v, k) for k, v in
+                                    host_mounts.items()])
         if cpu is not None:
             args += " --cpus %s" % cpu
         if memory is not None:
@@ -60,16 +59,18 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None,
             "-v$(pwd)/script:/script %s %s %s /script" % (
                 docker, args, image, " ".join(cmd))
     elif singularity is not None:
-        args = " ".join(["-B%s:%s" % (v, k) for k, v in
-                         host_mounts.items()])
+        if host_mounts is not None:
+            args += " " + " ".join(["-B%s:%s" % (v, k) for k, v in
+                                    host_mounts.items()])
         return "if [ -f %s ]; then rm -f image.sif && ln -s %s image.sif; "\
             "else %s pull image.sif %s; fi && %s run -B$(pwd)/tmp:/tmp "\
             "-B$(pwd)/script:/script %s image.sif %s /script && rm "\
             "image.sif" % (image, image, singularity, image, singularity,
                            args, " ".join(cmd))
     elif podman is not None:
-        args = " ".join(["-v%s:%s" % (v, k) for k, v in
-                         host_mounts.items()])
+        if host_mounts is not None:
+            args += " " + " ".join(["-v%s:%s" % (v, k) for k, v in
+                                    host_mounts.items()])
         if cpu is not None:
             args += " --cpus %s" % cpu
         if memory is not None:
