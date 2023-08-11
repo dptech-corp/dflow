@@ -111,10 +111,7 @@ class DispatcherExecutor(Executor):
                 self.singularity_executable is not None or \
                 self.podman_executable is not None:
             self.map_tmp_dir = False
-        if config["mode"] == "debug":
-            self.work_root = "."
-        else:
-            self.work_root = "/"
+        self.work_root = "."
         self.remote_root = remote_root
         self.retry_on_submission_error = retry_on_submission_error
         self.merge_sliced_step = merge_sliced_step
@@ -274,7 +271,9 @@ class DispatcherExecutor(Executor):
 
         new_template.script = self.pre_script
         new_template.script += "import os\n"
-        new_template.script += "os.chdir('%s')\n" % self.work_root
+        # compatible for debug mode
+        new_template.script += "if not os.getcwd().endswith('workdir'):\n"
+        new_template.script += "    os.chdir('/')\n"
         if any([art.save_as_parameter for art in
                 template.inputs.artifacts.values()]) and \
                 isinstance(template, PythonOPTemplate):
@@ -433,7 +432,16 @@ class DispatcherExecutor(Executor):
         else:
             new_template.script += "submission = Submission(work_base='.', "\
                 "machine=machine, resources=resources, task_list=[task])\n"
+        new_template.script += "def sigterm_handler(signum, frame):\n"
+        new_template.script += "    print('Got SIGTERM, kill unfinished tasks"\
+            "!')\n"
+        new_template.script += "    submission.remove_unfinished_tasks()\n"
+        new_template.script += "import signal\n"
+        new_template.script += "signal.signal(signal.SIGTERM, sigterm_handler"\
+            ")\n"
         if self.retry_on_submission_error:
+            new_template.script += "from dpdispatcher.dpcloudserver.client "\
+                "import RequestInfoException\n"
             new_template.script += "for retry in range(%s):\n" % \
                 self.retry_on_submission_error
             new_template.script += "    try:\n"
@@ -441,7 +449,7 @@ class DispatcherExecutor(Executor):
             new_template.script += "        submission.run_submission(clean="\
                 "%s)\n" % self.clean
             new_template.script += "        break\n"
-            new_template.script += "    except Exception:\n"
+            new_template.script += "    except RequestInfoException:\n"
             new_template.script += "        import traceback\n"
             new_template.script += "        traceback.print_exc()\n"
             new_template.script += "        import time\n"
@@ -461,16 +469,6 @@ class DispatcherExecutor(Executor):
                 new_template.script += "with open('./%s', 'w') as f:\n" % path
                 new_template.script += "    f.write(json.dumps(res))\n"
         new_template.script_rendered = True
-
-        # workaround for unavailable exit code of Bohrium job
-        # check output files explicitly
-        for art in template.outputs.artifacts.values():
-            new_template.script += "assert os.path.exists('./%s')\n" % art.path
-        for par in template.outputs.parameters.values():
-            if par.save_as_artifact or (par.value_from_path is not None and
-                                        not hasattr(par, "default")):
-                new_template.script += "assert os.path.exists('./%s')\n" % \
-                    par.value_from_path
 
         new_template.script += self.post_script
         if self.private_key_file is not None:
