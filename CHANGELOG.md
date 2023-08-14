@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.57](https://github.com/deepmodeling/dflow/compare/v1.7.56...v1.7.57) (2023-08-14)
+
+
+### Bug Fixes
+
+* add env to container executor ([bb56a1b](https://github.com/deepmodeling/dflow/commit/bb56a1bc5423a5767ceb08110e069fffd9884637))
+
 ## [1.7.56](https://github.com/deepmodeling/dflow/compare/v1.7.55...v1.7.56) (2023-08-14)
 
 
