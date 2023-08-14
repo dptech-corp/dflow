@@ -538,7 +538,7 @@ class Workflow:
                         'POST', body=secret, response_type='V1Secret',
                         header_params=config["http_headers"],
                         _return_http_data_only=True)
-                    self.image_pull_secrets[i] = s.name
+                    self.image_pull_secrets[i] = V1LocalObjectReference(s.name)
 
         if config["register_tasks"]:
             workflow_urn = config["lineage"].register_workflow(self.name)
@@ -559,8 +559,7 @@ class Workflow:
                 parallelism=self.parallelism,
                 volume_claim_templates=argo_pvcs,
                 pod_gc=V1alpha1PodGC(strategy=self.pod_gc_strategy),
-                image_pull_secrets=None if self.image_pull_secrets is None else
-                [V1LocalObjectReference(s) for s in self.image_pull_secrets],
+                image_pull_secrets=self.image_pull_secrets,
                 artifact_repository_ref=None if self.artifact_repo_key is None
                 else V1alpha1ArtifactRepositoryRef(key=self.artifact_repo_key)
             ),
