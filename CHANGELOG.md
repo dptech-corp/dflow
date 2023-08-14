@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.56](https://github.com/deepmodeling/dflow/compare/v1.7.55...v1.7.56) (2023-08-14)
+
+
+### Bug Fixes
+
+* support env var in debug mode ([2a56614](https://github.com/deepmodeling/dflow/commit/2a566140004aa498af434dd5f058d31458f2c979))
+
 ## [1.7.55](https://github.com/deepmodeling/dflow/compare/v1.7.54...v1.7.55) (2023-08-11)
 
 
