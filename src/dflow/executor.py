@@ -1,5 +1,6 @@
 import abc
 import os
+import shlex
 from abc import ABC
 from copy import deepcopy
 from typing import List, Optional, Union
@@ -35,7 +36,7 @@ class Executor(ABC):
 
 def run_script(image, cmd, docker=None, singularity=None, podman=None,
                image_pull_policy=None, host_mounts=None, cpu=None,
-               memory=None, args=""):
+               memory=None, args="", envs=None):
     if docker is not None:
         if image_pull_policy is None:
             if image.split(":")[-1] == "latest":
@@ -49,6 +50,9 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None,
             args += " --cpus %s" % cpu
         if memory is not None:
             args += " --memory %s" % memory
+        if envs is not None:
+            args += " " + " ".join(["-e %s=%s" % (k, shlex.quote(v))
+                                    for k, v in envs.items()])
         script = ""
         if image_pull_policy == "Always":
             script += "%s pull %s && " % (docker, image)
@@ -62,6 +66,9 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None,
         if host_mounts is not None:
             args += " " + " ".join(["-B%s:%s" % (v, k) for k, v in
                                     host_mounts.items()])
+        if envs is not None:
+            args += " " + " ".join(["--env %s=%s" % (k, shlex.quote(v))
+                                    for k, v in envs.items()])
         return "if [ -f %s ]; then rm -f image.sif && ln -s %s image.sif; "\
             "else %s pull image.sif %s; fi && %s run -B$(pwd)/tmp:/tmp "\
             "-B$(pwd)/script:/script %s image.sif %s /script && rm "\
@@ -75,6 +82,9 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None,
             args += " --cpus %s" % cpu
         if memory is not None:
             args += " --memory %s" % memory
+        if envs is not None:
+            args += " " + " ".join(["-e %s=%s" % (k, shlex.quote(v))
+                                    for k, v in envs.items()])
         return "%s pull %s && %s run -v$(pwd)/tmp:/tmp "\
             "-v$(pwd)/script:/script %s %s %s /script" % (
                 podman, image, podman, args, image, " ".join(cmd))
@@ -168,7 +178,8 @@ class ContainerExecutor(Executor):
                 memory = memory[:-2] + "g"
         script += run_script(template.image, template.command, self.docker,
                              self.singularity, self.podman,
-                             self.image_pull_policy, host_mounts, cpu, memory)
+                             self.image_pull_policy, host_mounts=host_mounts,
+                             cpu=cpu, memory=memory, envs=template.envs)
         new_template.command = ["sh"]
         new_template.script = script
         new_template.script_rendered = True
