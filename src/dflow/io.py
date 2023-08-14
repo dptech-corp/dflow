@@ -796,7 +796,7 @@ class OutputParameter(ArgoVar):
             "global_name": d.get("globalName", None),
             "value_from_expression": d.get("valueFrom", {}).get("expression",
                                                                 None),
-            "value_from_parameter": d.get("valueFrom", {}).get("parameters",
+            "value_from_parameter": d.get("valueFrom", {}).get("parameter",
                                                                None),
         }
         if "valueFrom" in d and "default" in d["valueFrom"]:

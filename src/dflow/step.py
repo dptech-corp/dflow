@@ -2023,6 +2023,7 @@ class Step:
         args = self.template.command + [script_path]
         with subprocess.Popen(
             args=args,
+            env=self.template.envs,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         ) as p:

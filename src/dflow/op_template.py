@@ -303,8 +303,8 @@ class ScriptOPTemplate(OPTemplate):
                 "requests", None),
             "limits": d.get("script", {}).get("resources", {}).get(
                 "limits", None),
-            "envs": {env.name: env.value for env in d.get("script", {}).get(
-                "env", [])},
+            "envs": {env["name"]: env["value"] for env in d.get(
+                "script", {}).get("env", [])},
             "init_containers": d.get("initContainers", None),
             "sidecars": d.get("sidecars", None),
         }
@@ -588,8 +588,8 @@ class ContainerOPTemplate(ScriptOPTemplate):
                 "requests", None),
             "limits": d.get("container", {}).get("resources", {}).get(
                 "limits", None),
-            "envs": {env.name: env.value for env in d.get("container", {}).get(
-                "env", [])},
+            "envs": {env["name"]: env["value"] for env in d.get(
+                "container", {}).get("env", [])},
             "init_containers": d.get("initContainers", None),
             "sidecars": d.get("sidecars", None),
         }
