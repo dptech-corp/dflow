@@ -113,10 +113,16 @@ class DAG(OPTemplate):
 
     def resolve(self, pool, futures):
         import concurrent.futures
-        for task in self.waiting:
+        for task in self.waiting.copy():
             ready = True
             for dep in task.dependencies:
-                if dep not in self.finished:
+                if dep in self.finished:
+                    if not dep.phase == "Succeeded":
+                        self.waiting.remove(task)
+                        self.finished.append(task)
+                        ready = False
+                        break
+                else:
                     ready = False
                     break
             if ready:
@@ -159,6 +165,7 @@ class DAG(OPTemplate):
                     raise RuntimeError("Task %s failed" % self.tasks[j])
             else:
                 self.tasks[j].outputs = deepcopy(t.outputs)
+                self.tasks[j].phase = t.phase
             self.running.remove(self.tasks[j])
             self.finished.append(self.tasks[j])
             self.resolve(pool, futures)
