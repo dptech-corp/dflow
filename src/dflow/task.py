@@ -57,6 +57,10 @@ class Task(Step):
     def from_dict(cls, d, templates):
         task = super().from_dict(d, templates)
         task.dependencies = d.get("dependencies", [])
+        if d.get("depends"):
+            task.dependencies += [
+                dep.strip().removeprefix("(").removesuffix(")").removesuffix(
+                    ".Succeeded") for dep in d["depends"].split("&&")]
         return task
 
     def set_parameters(self, parameters):
