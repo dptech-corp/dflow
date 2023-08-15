@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.61](https://github.com/deepmodeling/dflow/compare/v1.7.60...v1.7.61) (2023-08-15)
+
+
+### Bug Fixes
+
+* input artifacts of steps ([bf138de](https://github.com/deepmodeling/dflow/commit/bf138dead7ad5cd1d4b6744de6ed394b81d6169b))
+* source global output artifacts ([bf138de](https://github.com/deepmodeling/dflow/commit/bf138dead7ad5cd1d4b6744de6ed394b81d6169b))
+
 ## [1.7.60](https://github.com/deepmodeling/dflow/compare/v1.7.59...v1.7.60) (2023-08-15)
 
 
