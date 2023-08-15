@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.58](https://github.com/deepmodeling/dflow/compare/v1.7.57...v1.7.58) (2023-08-15)
+
+
+### Bug Fixes
+
+* subprocess does not inherit envs ([1cb109d](https://github.com/deepmodeling/dflow/commit/1cb109d6163034b4631c38d3ed6190c937410fa4))
+
 ## [1.7.57](https://github.com/deepmodeling/dflow/compare/v1.7.56...v1.7.57) (2023-08-14)
 
 
