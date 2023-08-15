@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.60](https://github.com/deepmodeling/dflow/compare/v1.7.59...v1.7.60) (2023-08-15)
+
+
+### Bug Fixes
+
+* dep has no attribute phase ([011f22b](https://github.com/deepmodeling/dflow/commit/011f22bdb0276d9d0e83062d8525b021b33f1b47))
+
 ## [1.7.59](https://github.com/deepmodeling/dflow/compare/v1.7.58...v1.7.59) (2023-08-15)
 
 
