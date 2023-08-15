@@ -117,7 +117,7 @@ class DAG(OPTemplate):
             ready = True
             for dep in task.dependencies:
                 if dep in self.finished:
-                    if not dep.phase == "Succeeded":
+                    if getattr(dep, "phase", None) != "Succeeded":
                         self.waiting.remove(task)
                         self.finished.append(task)
                         ready = False
