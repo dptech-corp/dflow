@@ -1556,27 +1556,7 @@ class Step:
                 steps.inputs.parameters[name].value = par.value
 
             for name, art in self.inputs.artifacts.items():
-                if isinstance(art.source, S3Artifact) and not hasattr(
-                        art.source, "local_path"):
-                    path = os.path.abspath("download/%s" % randstr())
-                    art.source.download(path=path, debug_download=True,
-                                        remove_catalog=False)
-                    assert os.path.exists(path), "S3 key of the input art"\
-                        "ifact %s: %s does not exist" % (name, art.source.key)
-                    fs = os.listdir(path)
-                    if len(fs) == 1 and os.path.isfile(os.path.join(path,
-                                                                    fs[0])):
-                        os.rename(os.path.join(path, fs[0]), path + ".bk")
-                        os.rmdir(path)
-                        os.rename(path + ".bk", path)
-                    art.source.local_path = path
-                elif isinstance(art.source, HTTPArtifact) and not hasattr(
-                        art.source, "local_path"):
-                    path = os.path.abspath("download/%s" % randstr())
-                    art.source.local_path = art.source.download(path=path)
-                if not hasattr(art.source, "local_path") and art.optional:
-                    continue
-                steps.inputs.artifacts[name].local_path = art.source.local_path
+                steps.inputs.artifacts[name].source = art.source
 
             if "dflow_key" in steps.inputs.parameters and \
                     steps.inputs.parameters["dflow_key"].value:
@@ -1800,7 +1780,11 @@ class Step:
                     i = art.source.find("}}")
                     art.sp = art.source[i+3:]
                     art.source = art.source[:i+2]
-                art.source = get_var(art.source, scope)
+                if art.source.startswith("{{workflow.outputs.artifacts."):
+                    art.source = LocalArtifact("%s/../outputs/artifacts/%s" % (
+                        stepdir, art.source[29:-2]))
+                else:
+                    art.source = get_var(art.source, scope)
             if isinstance(art.source, S3Artifact) and not hasattr(
                     art.source, "local_path"):
                 path = os.path.abspath("download/%s" % randstr())
