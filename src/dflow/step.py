@@ -1816,7 +1816,7 @@ class Step:
                         art.source,
                         InputArtifact) and art.optional and not hasattr(
                             art.source, 'local_path'):
-                    pass
+                    continue
                 else:
                     force_link(art.source.local_path, art_path)
             elif isinstance(art.source, str):
@@ -1824,6 +1824,7 @@ class Step:
                     f.write(art.source)
             elif not ignore_nonexist:
                 raise RuntimeError("Not supported: ", art.source)
+            art.local_path = art_path
 
     def record_output_parameters(self, stepdir, parameters):
         os.makedirs(os.path.join(stepdir, "outputs/parameters"), exist_ok=True)
