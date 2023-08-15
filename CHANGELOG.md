@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.62](https://github.com/deepmodeling/dflow/compare/v1.7.61...v1.7.62) (2023-08-15)
+
+
+### Bug Fixes
+
+* set local path in record_input_artifacts ([62f67b5](https://github.com/deepmodeling/dflow/commit/62f67b5c9a795cd52438db13caf148af0a448bcc))
+
 ## [1.7.61](https://github.com/deepmodeling/dflow/compare/v1.7.60...v1.7.61) (2023-08-15)
 
 
