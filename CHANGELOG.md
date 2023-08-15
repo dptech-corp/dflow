@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.59](https://github.com/deepmodeling/dflow/compare/v1.7.58...v1.7.59) (2023-08-15)
+
+
+### Bug Fixes
+
+* support depends in debug mode ([f7f50e8](https://github.com/deepmodeling/dflow/commit/f7f50e8d7f9bf10a4236478a5e817f9a2e47eaef))
+
 ## [1.7.58](https://github.com/deepmodeling/dflow/compare/v1.7.57...v1.7.58) (2023-08-15)
 
 
