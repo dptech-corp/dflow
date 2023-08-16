@@ -241,7 +241,7 @@ class Workflow:
                     except psutil.NoSuchProcess:
                         ps = None
                     logger.warning("Workflow %s process %s is %s" % (
-                            self.id, pid, ps))
+                        self.id, pid, ps))
                     if ps == psutil.STATUS_RUNNING:
                         logger.warning("Do nothing")
                         return
@@ -281,7 +281,9 @@ class Workflow:
                         if "dflow_group_key" in step.inputs.parameters:
                             key = step.inputs.parameters[
                                 "dflow_group_key"].value
-                            if not os.path.exists(os.path.join(wfdir, key)):
+                            if not os.path.exists(os.path.join(wfdir, key)) \
+                                and not os.path.islink(os.path.join(
+                                    wfdir, key)):
                                 os.symlink(
                                     os.path.join(
                                         os.path.abspath(step.workflow), key),

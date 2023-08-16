@@ -11,6 +11,7 @@ from ..executor import Executor, render_script_with_tmp_root
 from ..op_template import PythonScriptOPTemplate, ShellOPTemplate
 from ..utils import StorageClient, randstr
 from ..workflow import Workflow
+from .dispatcher import DispatcherArtifact
 
 succ_code = [0, "0000"]
 config = {
@@ -417,3 +418,57 @@ class TiefblueClient(StorageClient):
             else:
                 raise e
         return meta["entityTag"] if "entityTag" in meta else ""
+
+
+dflow_config["artifact_register"]["bohrium+datasets"] = \
+    "dflow.plugins.bohrium.BohriumDatasetsArtifact"
+
+
+class BohriumDatasetsArtifact(DispatcherArtifact):
+    def __init__(self, path, sub_path=None):
+        self.path = path
+        self._sub_path = sub_path
+
+    @classmethod
+    def from_urn(cls, urn: str):
+        path = urn
+        if path.startswith("bohrium+datasets://"):
+            path = path[19:]
+        sub_path = None
+        fields = path.split("/")
+        if len(fields) > 4:
+            path = "/".join(fields[:4])
+            sub_path = "/".join(fields[4:])
+        return cls(path=path, sub_path=sub_path)
+
+    def get_urn(self) -> str:
+        urn = "bohrium+datasets://%s" % self.path
+        if self._sub_path is not None:
+            urn += "/%s" % self._sub_path
+        return urn
+
+    def sub_path(self, path: str):
+        artifact = deepcopy(self)
+        if artifact._sub_path is None:
+            artifact._sub_path = str(path)
+        else:
+            artifact._sub_path += "/%s" % path
+        return artifact
+
+    def modify_config(self, name: str, machine) -> str:
+        if "dataset_path" not in machine.input_data:
+            machine.input_data["dataset_path"] = []
+        machine.input_data["dataset_path"].append(self.path)
+
+    def bohrium_download(self, name: str, path: str):
+        os.stat(self.path)
+        if self._sub_path is not None:
+            os.symlink("%s/%s" % (self.path, self._sub_path), path)
+        else:
+            os.symlink(self.path, path)
+
+    def download(self, name: str, path: str):
+        raise NotImplementedError()
+
+    def remote_download(self, name: str, path: str):
+        return NotImplementedError()
