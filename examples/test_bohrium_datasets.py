@@ -39,7 +39,7 @@ if __name__ == "__main__":
     )
 
     wf = Workflow(name="datasets")
-    art = BohriumDatasetsArtifact("/bohr/dpa2-model-a4op/v1")
+    art = BohriumDatasetsArtifact("/bohr/water-example-m7kb/v1")
     step = Step(
         name="step",
         template=PythonOPTemplate(Hello, image="python:3.8"),
