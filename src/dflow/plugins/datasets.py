@@ -150,6 +150,11 @@ class DatasetsArtifact(DispatcherArtifact):
         return "launching://%s/%s@%s?alias=%s&action=%s" % (
             self.type, self.element, self.version, name, mount_type)
 
+    def modify_config(self, name: str, machine) -> str:
+        if "job_resources" not in machine.input_data:
+            machine.input_data["job_resources"] = []
+        machine.input_data["job_resources"].append(self.get_bohrium_urn(name))
+
     def download(self, name: str, path: str):
         wait_for_mount("/launching/%s" % name)
         if self._sub_path is not None:

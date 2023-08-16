@@ -14,7 +14,6 @@ from ..op_template import ScriptOPTemplate
 from ..python import PythonOPTemplate
 from ..python.python_op_template import handle_packages_script
 from ..utils import randstr, upload_s3
-from . import bohrium
 
 try:
     from argo.workflows.client import (V1HostPathVolumeSource, V1Volume,
@@ -156,6 +155,7 @@ class DispatcherExecutor(Executor):
             update_dict(self.machine_dict, machine_dict)
 
         if self.machine_dict["context_type"] == "Bohrium":
+            from . import bohrium
             if "batch_type" not in self.machine_dict:
                 self.machine_dict["batch_type"] = "Bohrium"
             self.bohrium_ticket = bohrium.config["ticket"]
@@ -293,7 +293,6 @@ class DispatcherExecutor(Executor):
                                      if not s.name.startswith("rclone-")]
             new_template.script += handle_packages_script(
                 "./tmp/inputs/artifacts/dflow_python_packages")
-            new_template.script += "import jsonpickle\n"
             new_template.script += "from dflow import config\n"
             new_template.script += "config['artifact_register'] = %s\n" % \
                 json.dumps(config["artifact_register"])
@@ -327,14 +326,10 @@ class DispatcherExecutor(Executor):
         for name, art in template.inputs.artifacts.items():
             if machine_dict["context_type"] == "Bohrium" and \
                     art.save_as_parameter:
-                new_template.script += "import jsonpickle\n"
                 new_template.script += "from dflow import CustomArtifact\n"
-                new_template.script += "bohrium_urn = CustomArtifact.from_urn"\
-                    "('{{inputs.parameters.dflow_art_%s}}').get_bohrium_urn("\
-                    "'%s')\n" % (name, name)
-                new_template.script += "machine.input_data['job_resources']"\
-                    " = machine.input_data.get('job_resources', []) + "\
-                    "[bohrium_urn]\n"
+                new_template.script += "CustomArtifact.from_urn"\
+                    "('{{inputs.parameters.dflow_art_%s}}').modify_config("\
+                    "'%s', machine)\n" % (name, name)
 
         new_template.script += "resources = Resources.load_from_dict(json."\
             "loads(r'%s'))\n" % json.dumps(self.resources_dict)
@@ -490,7 +485,7 @@ class DispatcherExecutor(Executor):
 
 class DispatcherArtifact(CustomArtifact, ABC):
     @abc.abstractmethod
-    def get_bohrium_urn(self, name: str) -> str:
+    def modify_config(self, name: str, machine) -> str:
         pass
 
     @abc.abstractmethod
