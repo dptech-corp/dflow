@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.63](https://github.com/deepmodeling/dflow/compare/v1.7.62...v1.7.63) (2023-08-16)
+
+
+### Bug Fixes
+
+* modify example bohrium dataset ([0bf6ce0](https://github.com/deepmodeling/dflow/commit/0bf6ce094de22c561eef8288a0a3f7894431d65a))
+
 ## [1.7.62](https://github.com/deepmodeling/dflow/compare/v1.7.61...v1.7.62) (2023-08-15)
 
 
