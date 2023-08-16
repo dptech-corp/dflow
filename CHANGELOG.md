@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.64](https://github.com/deepmodeling/dflow/compare/v1.7.63...v1.7.64) (2023-08-16)
+
+
+### Bug Fixes
+
+* output artifact from global outputs in debug mode ([a14f86b](https://github.com/deepmodeling/dflow/commit/a14f86ba7ca345565c3fde2f1862d169256e5cab))
+
 ## [1.7.63](https://github.com/deepmodeling/dflow/compare/v1.7.62...v1.7.63) (2023-08-16)
 
 
