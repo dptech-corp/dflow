@@ -1622,7 +1622,12 @@ class Step:
             for name, art in self.outputs.artifacts.items():
                 art1 = self.template.outputs.artifacts[name]
                 if art1._from is not None:
-                    art.local_path = get_var(art1._from, steps).local_path
+                    if isinstance(art1._from, str) and art1._from.startswith(
+                            "{{workflow.outputs.artifacts."):
+                        art.local_path = "%s/../outputs/artifacts/%s" % (
+                            stepdir, art1._from[29:-2])
+                    else:
+                        art.local_path = get_var(art1._from, steps).local_path
                 elif art1.from_expression is not None:
                     if isinstance(art1.from_expression, str):
                         expr = replace_argo_func(art1.from_expression)
