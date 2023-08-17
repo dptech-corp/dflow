@@ -144,8 +144,10 @@ class DAG(OPTemplate):
         self.workflow_id = workflow_id
         self.context = context
         import concurrent.futures
-        pool = concurrent.futures.ProcessPoolExecutor(
-            config["debug_pool_workers"])
+        max_workers = config["debug_pool_workers"]
+        if max_workers == -1:
+            max_workers = len(self.tasks)
+        pool = concurrent.futures.ProcessPoolExecutor(max_workers)
         futures = {}
         self.waiting = [task for task in self]
         self.running = []

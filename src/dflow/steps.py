@@ -1,3 +1,5 @@
+import logging
+import time
 from copy import deepcopy
 from typing import Dict, List, Optional, Union
 
@@ -126,10 +128,13 @@ class Steps(OPTemplate):
         for step in self:
             if isinstance(step, list):
                 import concurrent.futures
+                max_workers = config["debug_pool_workers"]
+                if max_workers == -1:
+                    max_workers = len(step)
                 with concurrent.futures.ProcessPoolExecutor(
-                        config["debug_pool_workers"]) as pool:
+                        max_workers) as pool:
                     futures = []
-                    for ps in step:
+                    for i, ps in enumerate(step):
                         ps.phase = "Pending"
                         try:
                             future = pool.submit(ps.run_with_config, self,
@@ -142,6 +147,12 @@ class Steps(OPTemplate):
                                 future.result()
                             raise e
                         futures.append(future)
+                        if config["debug_batch_size"] and i != len(step) - 1 \
+                                and (i+1) % config["debug_batch_size"] == 0:
+                            logging.info(
+                                "Wait %s seconds before submitting next "
+                                "batch" % config["debug_batch_interval"])
+                            time.sleep(config["debug_batch_interval"])
 
                     for future in concurrent.futures.as_completed(futures):
                         j = futures.index(future)
