@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.7.65](https://github.com/deepmodeling/dflow/compare/v1.7.64...v1.7.65) (2023-08-17)
+
+
+### Bug Fixes
+
+* add batch size and batch interval for debug mode ([e066c50](https://github.com/deepmodeling/dflow/commit/e066c50f3ddebab6b74a5c5ce40b9ea9dbc714ac))
+* add workaround for unavailable exit code of dispatcher back ([a429b8c](https://github.com/deepmodeling/dflow/commit/a429b8c2546e71582b3a8ec73286ef782baaab87))
+* support pool_workers = -1 ([e066c50](https://github.com/deepmodeling/dflow/commit/e066c50f3ddebab6b74a5c5ce40b9ea9dbc714ac))
+
 ## [1.7.64](https://github.com/deepmodeling/dflow/compare/v1.7.63...v1.7.64) (2023-08-16)
 
 
