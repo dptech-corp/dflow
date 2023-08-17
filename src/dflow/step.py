@@ -5,6 +5,7 @@ import re
 import shlex
 import shutil
 import sys
+import time
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Union
 
@@ -1695,10 +1696,13 @@ class Step:
             self.parallel_steps = [deepcopy(self) for _ in item_list]
             assert isinstance(item_list, list)
             import concurrent.futures
-            with concurrent.futures.ProcessPoolExecutor(
-                    config["debug_pool_workers"]) as pool:
+            max_workers = config["debug_pool_workers"]
+            if max_workers == -1:
+                max_workers = len(item_list)
+            with concurrent.futures.ProcessPoolExecutor(max_workers) as pool:
                 futures = []
-                for item, ps in zip(item_list, self.parallel_steps):
+                for i, item in enumerate(item_list):
+                    ps = self.parallel_steps[i]
                     ps.phase = "Pending"
                     try:
                         future = pool.submit(
@@ -1710,6 +1714,11 @@ class Step:
                             future.result()
                         raise e
                     futures.append(future)
+                    if config["debug_batch_size"] and i != len(item_list) - 1 \
+                            and (i+1) % config["debug_batch_size"] == 0:
+                        logging.info("Wait %s seconds before submitting next "
+                                     "batch" % config["debug_batch_interval"])
+                        time.sleep(config["debug_batch_interval"])
 
                 for future in concurrent.futures.as_completed(futures):
                     j = futures.index(future)
