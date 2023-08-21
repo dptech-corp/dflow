@@ -1556,9 +1556,6 @@ class Step:
             for name, par in parameters.items():
                 steps.inputs.parameters[name].value = par.value
 
-            for name, art in self.inputs.artifacts.items():
-                steps.inputs.artifacts[name].source = art.source
-
             if "dflow_key" in steps.inputs.parameters and \
                     steps.inputs.parameters["dflow_key"].value:
                 step_id = steps.inputs.parameters["dflow_key"].value
@@ -1596,8 +1593,13 @@ class Step:
                 with open(os.path.join(stepdir, "name"), "w") as f:
                     f.write(self.name)
                 self.record_input_parameters(stepdir, steps.inputs.parameters)
-                self.record_input_artifacts(stepdir, steps.inputs.artifacts,
+                self.record_input_artifacts(stepdir, self.inputs.artifacts,
                                             None, scope, True)
+
+            for name, art in self.inputs.artifacts.items():
+                art_path = os.path.join(stepdir, "inputs/artifacts/%s" % name)
+                if os.path.exists(art_path):
+                    steps.inputs.artifacts[name].local_path = art_path
 
             self.phase = "Running"
             with open(os.path.join(stepdir, "phase"), "w") as f:
@@ -1838,7 +1840,6 @@ class Step:
                     f.write(art.source)
             elif not ignore_nonexist:
                 raise RuntimeError("Not supported: ", art.source)
-            art.local_path = art_path
 
     def record_output_parameters(self, stepdir, parameters):
         os.makedirs(os.path.join(stepdir, "outputs/parameters"), exist_ok=True)

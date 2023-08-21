@@ -118,7 +118,7 @@ s3_config = {
     "secure": boolize(os.environ.get("DFLOW_S3_SECURE", False)),
     "bucket_name": os.environ.get("DFLOW_S3_BUCKET_NAME", "my-bucket"),
     "repo_key": os.environ.get("DFLOW_S3_REPO_KEY", None),
-    "repo": os.environ.get("DFLOW_S3_REPO", None),
+    "repo": json.loads(os.environ.get("DFLOW_S3_REPO", "null")),
     "repo_type": os.environ.get("DFLOW_S3_REPO_TYPE", "s3"),
     "repo_prefix": os.environ.get("DFLOW_S3_REPO_PREFIX", ""),
     "prefix": os.environ.get("DFLOW_S3_PREFIX", ""),
