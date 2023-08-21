@@ -6,7 +6,7 @@ import shlex
 import shutil
 import sys
 import time
-from copy import deepcopy
+from copy import copy, deepcopy
 from typing import Any, Dict, List, Optional, Union
 
 import jsonpickle
@@ -17,7 +17,8 @@ from .config import config, s3_config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
 from .io import (PVC, ArgoVar, Expression, InputArtifact, InputParameter,
-                 OutputArtifact, OutputParameter, if_expression, to_expr)
+                 InputParameters, OutputArtifact, OutputParameter,
+                 if_expression, to_expr)
 from .op_template import (OPTemplate, PythonScriptOPTemplate, ScriptOPTemplate,
                           ShellOPTemplate)
 from .python import Slices
@@ -1497,7 +1498,8 @@ class Step:
                 return
 
         # source input parameters
-        parameters = deepcopy(self.inputs.parameters)
+        parameters = InputParameters({k: copy(v) for k, v in
+                                      self.inputs.parameters.items()})
         for k, v in self.template.outputs.parameters.items():
             if hasattr(v, "value"):
                 self.outputs.parameters[k].value = v.value
