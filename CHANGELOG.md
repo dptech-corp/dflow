@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.7.66](https://github.com/deepmodeling/dflow/compare/v1.7.65...v1.7.66) (2023-08-21)
+
+
+### Bug Fixes
+
+* s3_config['repo'] is str ([cf01616](https://github.com/deepmodeling/dflow/commit/cf016168abb34d2397a6d4002f5812b61bcb30e3))
+* s3_config['repo'] is str ([8cf05cb](https://github.com/deepmodeling/dflow/commit/8cf05cbeb621b36bc76ba698b2928bb11dba506c))
+* steps.inputs.artifacts[name].source = self.inputs.artifacts[name].source causes large memory usage ([cf01616](https://github.com/deepmodeling/dflow/commit/cf016168abb34d2397a6d4002f5812b61bcb30e3))
+* steps.inputs.artifacts[name].source = self.inputs.artifacts[name].source causes large memory usage ([8cf05cb](https://github.com/deepmodeling/dflow/commit/8cf05cbeb621b36bc76ba698b2928bb11dba506c))
+
 ## [1.7.65](https://github.com/deepmodeling/dflow/compare/v1.7.64...v1.7.65) (2023-08-17)
 
 
