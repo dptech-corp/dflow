@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.67](https://github.com/deepmodeling/dflow/compare/v1.7.66...v1.7.67) (2023-08-21)
+
+
+### Bug Fixes
+
+* optimize deepcopy in debug mode ([a055814](https://github.com/deepmodeling/dflow/commit/a0558140055827ac100c6ca14fa3ac087bc62e7f))
+
 ## [1.7.66](https://github.com/deepmodeling/dflow/compare/v1.7.65...v1.7.66) (2023-08-21)
 
 
