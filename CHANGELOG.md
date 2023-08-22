@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.68](https://github.com/deepmodeling/dflow/compare/v1.7.67...v1.7.68) (2023-08-22)
+
+
+### Bug Fixes
+
+* add retry policies to python op template ([a61d63e](https://github.com/deepmodeling/dflow/commit/a61d63e5572b5b421e81f578c3d692479f7376df))
+* work dir bug caused by process pool executor ([a61d63e](https://github.com/deepmodeling/dflow/commit/a61d63e5572b5b421e81f578c3d692479f7376df))
+
 ## [1.7.67](https://github.com/deepmodeling/dflow/compare/v1.7.66...v1.7.67) (2023-08-21)
 
 
