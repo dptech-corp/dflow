@@ -1700,6 +1700,7 @@ class Step:
             self.parallel_steps = [deepcopy(self) for _ in item_list]
             assert isinstance(item_list, list)
             import concurrent.futures
+            cwd = os.getcwd()
             max_workers = config["debug_pool_workers"]
             if max_workers == -1:
                 max_workers = len(item_list)
@@ -1711,7 +1712,7 @@ class Step:
                     try:
                         future = pool.submit(
                             ps.exec_with_config, scope, parameters, item,
-                            config, s3_config)
+                            config, s3_config, cwd)
                     except concurrent.futures.process.BrokenProcessPool as e:
                         # retrieve exception of subprocess before exit
                         for future in concurrent.futures.as_completed(futures):
@@ -1767,9 +1768,10 @@ class Step:
                 if not self.continue_on_failed:
                     raise RuntimeError("Step %s failed" % self)
 
-    def run_with_config(self, scope, context, conf, s3_conf):
+    def run_with_config(self, scope, context, conf, s3_conf, cwd):
         config.update(conf)
         s3_config.update(s3_conf)
+        os.chdir(cwd)
         self.run(scope, context)
         return self
 
@@ -2086,9 +2088,10 @@ class Step:
         with open(os.path.join(stepdir, "phase"), "w") as f:
             f.write("Succeeded")
 
-    def exec_with_config(self, scope, parameters, item, conf, s3_conf):
+    def exec_with_config(self, scope, parameters, item, conf, s3_conf, cwd):
         config.update(conf)
         s3_config.update(s3_conf)
+        os.chdir(cwd)
         self.exec(scope, parameters, item)
         return self
 

@@ -1,3 +1,4 @@
+import os
 from copy import deepcopy
 from typing import Dict, List, Optional, Union
 
@@ -129,8 +130,9 @@ class DAG(OPTemplate):
                 task.phase = "Pending"
                 i = self.tasks.index(task)
                 try:
-                    future = pool.submit(task.run_with_config, self,
-                                         self.context, config, s3_config)
+                    future = pool.submit(
+                        task.run_with_config, self, self.context, config,
+                        s3_config, self.cwd)
                 except concurrent.futures.process.BrokenProcessPool as e:
                     # retrieve exception of subprocess before exit
                     for future in concurrent.futures.as_completed(futures):
@@ -144,6 +146,7 @@ class DAG(OPTemplate):
         self.workflow_id = workflow_id
         self.context = context
         import concurrent.futures
+        self.cwd = os.getcwd()
         max_workers = config["debug_pool_workers"]
         if max_workers == -1:
             max_workers = len(self.tasks)
