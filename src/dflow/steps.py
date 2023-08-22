@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 from copy import deepcopy
 from typing import Dict, List, Optional, Union
@@ -128,6 +129,7 @@ class Steps(OPTemplate):
         for step in self:
             if isinstance(step, list):
                 import concurrent.futures
+                cwd = os.getcwd()
                 max_workers = config["debug_pool_workers"]
                 if max_workers == -1:
                     max_workers = len(step)
@@ -137,8 +139,9 @@ class Steps(OPTemplate):
                     for i, ps in enumerate(step):
                         ps.phase = "Pending"
                         try:
-                            future = pool.submit(ps.run_with_config, self,
-                                                 context, config, s3_config)
+                            future = pool.submit(
+                                ps.run_with_config, self, context, config,
+                                s3_config, cwd)
                         except concurrent.futures.process.BrokenProcessPool \
                                 as e:
                             # retrieve exception of subprocess before exit

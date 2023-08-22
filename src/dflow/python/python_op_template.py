@@ -183,6 +183,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  python_packages: Optional[List[os.PathLike]] = None,
                  timeout: Optional[int] = None,
                  retry_on_transient_error: Optional[int] = None,
+                 retry_on_failure: Optional[int] = None,
+                 retry_on_error: Optional[int] = None,
+                 retry_on_failure_and_error: Optional[int] = None,
                  timeout_as_transient_error: bool = False,
                  memoize_key: Optional[str] = None,
                  volumes: Optional[List[V1Volume]] = None,
@@ -228,6 +231,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         if timeout is not None:
             self.timeout = "%ss" % timeout
         self.retry_on_transient_error = retry_on_transient_error
+        self.retry_on_failure = retry_on_failure
+        self.retry_on_error = retry_on_error
+        self.retry_on_failure_and_error = retry_on_failure_and_error
         self.timeout_as_transient_error = timeout_as_transient_error
         self.dflow_vars = {}
         self.tmp_root = tmp_root
@@ -679,6 +685,15 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 expr = "asInt(lastRetry.exitCode) == 1"
             self.retry_strategy = V1alpha1RetryStrategy(
                 limit=self.retry_on_transient_error, expression=expr)
+        elif self.retry_on_failure is not None:
+            self.retry_strategy = V1alpha1RetryStrategy(
+                limit=self.retry_on_failure, retry_policy="OnFailure")
+        elif self.retry_on_error is not None:
+            self.retry_strategy = V1alpha1RetryStrategy(
+                limit=self.retry_on_error, retry_policy="OnError")
+        elif self.retry_on_failure_and_error is not None:
+            self.retry_strategy = V1alpha1RetryStrategy(
+                limit=self.retry_on_failure_and_error, retry_policy="Always")
         return super().convert_to_argo(memoize_prefix, memoize_configmap)
 
 
