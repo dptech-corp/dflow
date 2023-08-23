@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.69](https://github.com/deepmodeling/dflow/compare/v1.7.68...v1.7.69) (2023-08-23)
+
+
+### Bug Fixes
+
+* support retry a step in a running workflow (experimental) ([f308438](https://github.com/deepmodeling/dflow/commit/f308438bd05c85376b4a944343ef64a5d562ad00))
+
 ## [1.7.68](https://github.com/deepmodeling/dflow/compare/v1.7.67...v1.7.68) (2023-08-22)
 
 
