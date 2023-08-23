@@ -111,6 +111,13 @@ def main_parser():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_retry.add_argument("ID", help="the workflow ID.")
+    parser_retry.add_argument(
+        "-s",
+        "--step",
+        type=str,
+        default=None,
+        help="retry a step in a running workflow with step ID (experimental)",
+    )
 
     parser_stop = subparsers.add_parser(
         "stop",
@@ -428,7 +435,11 @@ def main():
     elif args.command == "retry":
         wf_id = args.ID
         wf = Workflow(id=wf_id)
-        wf.retry()
+        if args.step is not None:
+            step = wf.query_step(id=args.step)[0]
+            step.retry()
+        else:
+            wf.retry()
     elif args.command == "stop":
         wf_id = args.ID
         wf = Workflow(id=wf_id)

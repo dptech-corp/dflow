@@ -205,6 +205,38 @@ class ArgoStep(ArgoObjectDict):
             self.outputs.artifacts[name]["archive"] = {"none": {}}
         self.outputs.artifacts[name].modified = {"old_key": old_key}
 
+    def retry(self):
+        from .workflow import Workflow, get_argo_api_client
+        wf = Workflow(id=self.workflow)
+        assert wf.query_status() == "Running"
+        logger.info("Suspend workflow %s..." % self.workflow)
+        wf.suspend()
+        time.sleep(5)
+
+        logger.info("Query workflow %s..." % self.workflow)
+        wf_info = wf.query().recover()
+        nodes = wf_info["status"]["nodes"]
+        nodes[self.id]["phase"] = "Pending"
+        for node in nodes.values():
+            if self.name.startswith(node["name"]) and \
+                    node["phase"] == "Failed":
+                node["phase"] = "Running"
+
+        logger.info("Delete pod of step %s..." % self.id)
+        self.delete_pod()
+        with get_argo_api_client() as api_client:
+            logger.info("Update workflow %s..." % self.workflow)
+            api_client.call_api(
+                '/api/v1/workflows/%s/%s' % (
+                    config["namespace"], self.workflow),
+                'PUT', response_type='object',
+                header_params=config["http_headers"],
+                body={"workflow": wf_info},
+                _return_http_data_only=True)
+
+        logger.info("Resume workflow %s..." % self.workflow)
+        wf.resume()
+
     def get_pod(self):
         assert self.type == "Pod"
         wf_name = self.workflow
@@ -221,6 +253,38 @@ class ArgoStep(ArgoObjectDict):
                 header_params=config["http_headers"],
                 _return_http_data_only=True)
         return self.pod
+
+    def delete_pod(self):
+        assert self.type == "Pod"
+        wf_name = self.workflow
+        node_name = self.name
+        template_name = self.templateName
+        node_id = self.id
+        pod_name = get_pod_name(wf_name, node_name, template_name, node_id)
+        with get_k8s_client() as k8s_client:
+            core_v1_api = kubernetes.client.CoreV1Api(k8s_client)
+            try:
+                core_v1_api.api_client.call_api(
+                    '/api/v1/namespaces/%s/pods/%s' % (config["namespace"],
+                                                       pod_name),
+                    'DELETE', response_type='V1Pod',
+                    header_params=config["http_headers"],
+                    _return_http_data_only=True)
+                logger.info("Deleted pod %s" % pod_name)
+            except Exception as e:
+                logging.warning("Failed to delete pod %s: %s" % (pod_name, e))
+            try:
+                while True:
+                    core_v1_api.api_client.call_api(
+                        '/api/v1/namespaces/%s/pods/%s' % (
+                            config["namespace"], pod_name),
+                        'GET', response_type='V1Pod',
+                        header_params=config["http_headers"],
+                        _return_http_data_only=True)
+                    logger.info("Waiting pod %s to be deleted..." % pod_name)
+                    time.sleep(1)
+            except Exception:
+                pass
 
     def get_script(self):
         if self.pod is None:
@@ -258,30 +322,9 @@ class ArgoStep(ArgoObjectDict):
             self.get_pod()
         self.pod.metadata.resource_version = None
         self.pod.spec.node_name = None
+        self.delete_pod()
         with get_k8s_client() as k8s_client:
             core_v1_api = kubernetes.client.CoreV1Api(k8s_client)
-            try:
-                core_v1_api.api_client.call_api(
-                    '/api/v1/namespaces/%s/pods/%s' % (config["namespace"],
-                                                       self.pod.metadata.name),
-                    'DELETE', response_type='V1Pod',
-                    header_params=config["http_headers"],
-                    _return_http_data_only=True)
-                logger.info("Delete old pod")
-            except Exception as e:
-                logging.warning("Failed to delete pod: %s" % e)
-            try:
-                while True:
-                    core_v1_api.api_client.call_api(
-                        '/api/v1/namespaces/%s/pods/%s' % (
-                            config["namespace"], self.pod.metadata.name),
-                        'GET', response_type='V1Pod',
-                        header_params=config["http_headers"],
-                        _return_http_data_only=True)
-                    logger.info("Waiting old pod to be deleted...")
-                    time.sleep(1)
-            except Exception:
-                pass
             core_v1_api.api_client.call_api(
                 '/api/v1/namespaces/%s/pods' % config["namespace"],
                 'POST', body=self.pod, response_type='V1Pod',
