@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.70](https://github.com/deepmodeling/dflow/compare/v1.7.69...v1.7.70) (2023-08-25)
+
+
+### Bug Fixes
+
+* sub_path in debug mode ([234f526](https://github.com/deepmodeling/dflow/commit/234f526458292ced3c785b66bf85c2dd99267c3f))
+
 ## [1.7.69](https://github.com/deepmodeling/dflow/compare/v1.7.68...v1.7.69) (2023-08-23)
 
 
