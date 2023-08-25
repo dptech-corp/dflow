@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.73](https://github.com/deepmodeling/dflow/compare/v1.7.72...v1.7.73) (2023-08-25)
+
+
+### Bug Fixes
+
+* merge dir in debug mode ([7129ff2](https://github.com/deepmodeling/dflow/commit/7129ff2daab273f99b955fd61f0f26b0fd540954))
+
 ## [1.7.72](https://github.com/deepmodeling/dflow/compare/v1.7.71...v1.7.72) (2023-08-25)
 
 
