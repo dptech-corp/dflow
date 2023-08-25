@@ -1826,8 +1826,15 @@ class Step:
             if isinstance(
                 art.source, (InputArtifact, OutputArtifact, LocalArtifact,
                              S3Artifact, HTTPArtifact)):
+                sub_path = None
+                if getattr(art.source, "_sub_path", None) is not None:
+                    sub_path = art.source._sub_path
                 if art.sp is not None:
-                    sub_path = art.sp
+                    if sub_path is None:
+                        sub_path = art.sp
+                    else:
+                        sub_path += "/%s" % art.sp
+                if sub_path is not None:
                     if item is not None:
                         sub_path = render_item(sub_path, item)
                     force_link(os.path.join(art.source.local_path, sub_path),
@@ -2138,6 +2145,7 @@ def render_expr(expr, scope):
 
 
 def get_var(expr, scope):
+    sub_path = getattr(expr, "_sub_path", None)
     expr = str(expr)
     assert expr[:2] == "{{" and expr[-2:] == "}}", "Parse failed: %s" % expr
     fields = expr[2:-2].split(".")
@@ -2146,7 +2154,10 @@ def get_var(expr, scope):
         return scope.inputs.parameters[name]
     elif fields[:2] == ["inputs", "artifacts"]:
         name = fields[2]
-        return scope.inputs.artifacts[name]
+        if sub_path is None:
+            return scope.inputs.artifacts[name]
+        else:
+            return scope.inputs.artifacts[name].sub_path(sub_path)
     elif fields[0] in ["steps", "tasks"] and \
             fields[2:4] == ["outputs", "parameters"]:
         step_name = fields[1]
@@ -2167,9 +2178,16 @@ def get_var(expr, scope):
             if isinstance(step, list):
                 for ps in step:
                     if ps.name == step_name:
-                        return ps.outputs.artifacts[name]
+                        if sub_path is None:
+                            return ps.outputs.artifacts[name]
+                        else:
+                            return ps.outputs.artifacts[name].sub_path(
+                                sub_path)
             elif step.name == step_name:
-                return step.outputs.artifacts[name]
+                if sub_path is None:
+                    return step.outputs.artifacts[name]
+                else:
+                    return step.outputs.artifacts[name].sub_path(sub_path)
         raise RuntimeError("Parse failed: %s" % expr)
     elif fields[0] == "item":
         return None  # ignore
