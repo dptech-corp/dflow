@@ -1958,7 +1958,7 @@ class Step:
                     key = render_script(save.key, parameters,
                                         scope.workflow_id, step_id)
                     save_path = os.path.join(cwd, "..", key)
-                    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+                    os.makedirs(save_path, exist_ok=True)
 
                     def try_link(src, dst):
                         try:
