@@ -1916,6 +1916,8 @@ class Step:
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         ) as p:
+            with open("%s/pid" % stepdir, "w") as f:
+                f.write(str(p.pid))
             with open("%s/log.txt" % stepdir, "w") as f:
                 line = p.stdout.readline().decode(sys.stdout.encoding)
                 while line:
