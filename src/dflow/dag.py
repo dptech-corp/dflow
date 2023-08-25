@@ -1,3 +1,4 @@
+import logging
 import os
 from copy import deepcopy
 from typing import Dict, List, Optional, Union
@@ -85,6 +86,13 @@ class DAG(OPTemplate):
             assert isinstance(t, Task)
             if t.prepare_step is not None:
                 self.tasks.append(t.prepare_step)
+            if t.parallelism is not None:
+                if self.parallelism is None:
+                    self.parallelism = t.parallelism
+                else:
+                    self.parallelism = min(self.parallelism, t.parallelism)
+                    logging.warn("Multiple tasks specified parallelism, small"
+                                 "er one %s will be used" % self.parallelism)
             self.tasks.append(t)
             if t.check_step is not None:
                 self.tasks.append(t.check_step)
