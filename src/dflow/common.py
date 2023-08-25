@@ -125,6 +125,14 @@ class LocalArtifact:
             art.slice = "%s.%s" % (art.slice, key)
         return art
 
+    def sub_path(
+            self,
+            path: str,
+    ) -> Any:
+        artifact = deepcopy(self)
+        artifact.local_path += "/%s" % path
+        return artifact
+
 
 class HTTPArtifact:
     def __init__(self, url):
