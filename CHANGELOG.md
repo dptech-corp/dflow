@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.72](https://github.com/deepmodeling/dflow/compare/v1.7.71...v1.7.72) (2023-08-25)
+
+
+### Bug Fixes
+
+* write pid to pod dir in debug mode ([c0b39d1](https://github.com/deepmodeling/dflow/commit/c0b39d1e9c389efed3f2e6921492c028caf52e15))
+
 ## [1.7.71](https://github.com/deepmodeling/dflow/compare/v1.7.70...v1.7.71) (2023-08-25)
 
 
