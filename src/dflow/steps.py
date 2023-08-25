@@ -85,6 +85,14 @@ class Steps(OPTemplate):
                              if ps.prepare_step is not None]
             if prepare_steps:
                 self.steps.append(prepare_steps)
+        for ps in [step] if isinstance(step, Step) else step:
+            if ps.parallelism is not None:
+                if self.parallelism is None:
+                    self.parallelism = ps.parallelism
+                else:
+                    self.parallelism = min(self.parallelism, ps.parallelism)
+                    logging.warn("Multiple steps specified parallelism, small"
+                                 "er one %s will be used" % self.parallelism)
         self.steps.append(step)
         if isinstance(step, Step):
             if step.check_step is not None:
