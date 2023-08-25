@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.71](https://github.com/deepmodeling/dflow/compare/v1.7.70...v1.7.71) (2023-08-25)
+
+
+### Bug Fixes
+
+* deprecate parallelism of Step, pass it to the outer template ([5205bba](https://github.com/deepmodeling/dflow/commit/5205bbaea78350539a0ede98f88ab7caba1a8e58))
+
 ## [1.7.70](https://github.com/deepmodeling/dflow/compare/v1.7.69...v1.7.70) (2023-08-25)
 
 
