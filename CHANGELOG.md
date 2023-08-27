@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.7.74](https://github.com/deepmodeling/dflow/compare/v1.7.73...v1.7.74) (2023-08-27)
+
+
+### Bug Fixes
+
+* add debug_artifact_dir ([7046692](https://github.com/deepmodeling/dflow/commit/70466922599b0ea40c4aa4a9e5a0a863b42ebb83))
+* bug in optional artifact in debug mode ([7046692](https://github.com/deepmodeling/dflow/commit/70466922599b0ea40c4aa4a9e5a0a863b42ebb83))
+* reconstruct download artifact in debug mode ([7046692](https://github.com/deepmodeling/dflow/commit/70466922599b0ea40c4aa4a9e5a0a863b42ebb83))
+* upload_s3 in debug mode ([7046692](https://github.com/deepmodeling/dflow/commit/70466922599b0ea40c4aa4a9e5a0a863b42ebb83))
+
 ## [1.7.73](https://github.com/deepmodeling/dflow/compare/v1.7.72...v1.7.73) (2023-08-25)
 
 
