@@ -5,6 +5,7 @@ import re
 import shlex
 import shutil
 import sys
+import tarfile
 import time
 from copy import copy, deepcopy
 from typing import Any, Dict, List, Optional, Union
@@ -24,8 +25,8 @@ from .op_template import (OPTemplate, PythonScriptOPTemplate, ScriptOPTemplate,
 from .python import Slices
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
-from .utils import (catalog_of_artifact, copy_file, flatten, force_link,
-                    merge_dir, randstr, upload_artifact)
+from .utils import (catalog_of_artifact, copy_file, download_s3, flatten,
+                    force_link, get_key, merge_dir, randstr, upload_artifact)
 
 try:
     from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
@@ -975,13 +976,14 @@ class Step:
                 if "subPath" in art:
                     kwargs["artifacts"][name] += "/" + art["subPath"]
             elif "s3" in art:
-                kwargs["artifacts"][name] = S3Artifact(key=art["s3"]["key"])
+                kwargs["artifacts"][name] = S3Artifact(key=art["s3"]["key"],
+                                                       debug_s3=True)
                 if "subPath" in art:
                     kwargs["artifacts"][name] = kwargs["artifacts"][
                         name].sub_path(art["subPath"])
             elif "oss" in art:
                 kwargs["artifacts"][name] = S3Artifact(
-                    key=art["oss"]["key"])
+                    key=art["oss"]["key"], debug_s3=True)
                 if "subPath" in art:
                     kwargs["artifacts"][name] = kwargs["artifacts"][
                         name].sub_path(art["subPath"])
@@ -1634,8 +1636,8 @@ class Step:
                     if isinstance(save, S3Artifact):
                         key = render_script(save.key, parameters,
                                             scope.workflow_id)
-                        art.local_path = os.path.abspath(os.path.join("..",
-                                                                      key))
+                        art.local_path = os.path.abspath(os.path.join(
+                            "..", config["debug_artifact_dir"], key))
             self.phase = "Succeeded"
         else:
             try:
@@ -1682,23 +1684,18 @@ class Step:
                         stepdir, art.source[29:-2]))
                 else:
                     art.source = get_var(art.source, scope)
-            if isinstance(art.source, S3Artifact) and not hasattr(
-                    art.source, "local_path"):
-                path = os.path.abspath("download/%s" % randstr())
-                art.source.download(path=path, debug_download=True,
-                                    remove_catalog=False)
+            if isinstance(art.source, S3Artifact) and art.source.local_path \
+                    is None:
+                path = os.path.abspath(os.path.join(
+                    config["debug_artifact_dir"], "download/%s" % randstr()))
+                path = download_artifact_debug(art.source, path=path)
                 assert os.path.exists(path), "S3 key of the input art"\
                     "ifact %s: %s does not exist" % (name, art.source.key)
-                fs = os.listdir(path)
-                if len(fs) == 1 and os.path.isfile(os.path.join(path,
-                                                                fs[0])):
-                    os.rename(os.path.join(path, fs[0]), path + ".bk")
-                    os.rmdir(path)
-                    os.rename(path + ".bk", path)
                 art.source.local_path = path
             elif isinstance(art.source, HTTPArtifact) and not hasattr(
                     art.source, "local_path"):
-                path = os.path.abspath("download/%s" % randstr())
+                path = os.path.abspath(os.path.join(
+                    config["debug_artifact_dir"], "download/%s" % randstr()))
                 art.source.local_path = art.source.download(path=path)
             if isinstance(
                 art.source, (InputArtifact, OutputArtifact, LocalArtifact,
@@ -1726,6 +1723,8 @@ class Step:
             elif isinstance(art.source, str):
                 with open(art_path, "w") as f:
                     f.write(art.source)
+            elif art.source is None and art.optional:
+                continue
             elif not ignore_nonexist:
                 raise RuntimeError("Not supported: ", art.source)
 
@@ -1879,9 +1878,15 @@ class Step:
                 elif config["debug_copy_method"] == "symlink":
                     os.symlink(art_path, path)
                 elif config["debug_copy_method"] == "link":
-                    copy_file(art_path, path)
+                    try:
+                        copy_file(art_path, path)
+                    except FileNotFoundError:
+                        pass
                 elif config["debug_copy_method"] == "copy":
-                    copy_file(art_path, path, func=shutil.copy2)
+                    try:
+                        copy_file(art_path, path, func=shutil.copy2)
+                    except FileNotFoundError:
+                        pass
                 else:
                     raise ValueError("Unsupported copy method for debug mode.")
 
@@ -1957,7 +1962,8 @@ class Step:
                 if isinstance(save, S3Artifact):
                     key = render_script(save.key, parameters,
                                         scope.workflow_id, step_id)
-                    save_path = os.path.join(cwd, "..", key)
+                    save_path = os.path.join(
+                        cwd, "..", config["debug_artifact_dir"], key)
                     os.makedirs(save_path, exist_ok=True)
 
                     def try_link(src, dst):
@@ -2246,3 +2252,26 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
                 templ.outputs.artifacts[name].from_expression._then)
             stack_output_artifact(
                 templ.outputs.artifacts[name].from_expression._else)
+
+
+def download_artifact_debug(artifact, path):
+    key = get_key(artifact)
+
+    if key[-4:] == ".tgz":
+        download_s3(key=key, path=path)
+        tf_path = os.path.join(path, os.path.basename(key))
+        tf = tarfile.open(tf_path, "r:gz")
+        path = tf_path[:-4]
+        tf.extractall(path)
+        tf.close()
+        os.remove(tf_path)
+
+        # if the tarball contains only one file or directory,
+        # return its path
+        ld = os.listdir(path)
+        if len(ld) == 1:
+            return os.path.join(path, ld[0])
+        return path
+    else:
+        download_s3(key=key, path=path, keep_dir=True)
+        return os.path.join(path, os.path.basename(key))

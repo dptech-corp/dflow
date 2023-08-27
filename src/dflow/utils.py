@@ -68,7 +68,6 @@ def download_artifact(
         sub_path: Optional[str] = None,
         slice: Optional[int] = None,
         path: os.PathLike = ".",
-        debug_download: bool = False,
         remove_catalog: bool = True,
         **kwargs,
 ) -> List[str]:
@@ -88,7 +87,7 @@ def download_artifact(
         bucket_name: bucket name for Minio
         skip_exists: skip files with the same MD5
     """
-    if hasattr(artifact, "local_path") and not debug_download:
+    if hasattr(artifact, "local_path"):
         if config["debug_copy_method"] == "symlink":
             linktree(artifact.local_path, path)
         elif config["debug_copy_method"] == "link":
@@ -104,6 +103,7 @@ def download_artifact(
 
     if sub_path is not None:
         key = key + "/" + sub_path
+        # subpath may be a file
         path = os.path.join(path, os.path.dirname(sub_path))
         download_s3(key=key, recursive=True, path=path, keep_dir=True,
                     **kwargs)
@@ -262,11 +262,10 @@ def upload_artifact(
             f.write(jsonpickle.dumps({"path_list": path_list}))
 
         if config["mode"] == "debug" and not config["debug_s3"]:
-            os.makedirs("upload", exist_ok=True)
-            resdir = shutil.move(tmpdir, "upload")
+            path = upload_s3(tmpdir, debug_func=shutil.move)
             # To prevent exception in destruction
             os.makedirs(tmpdir, exist_ok=True)
-            return LocalArtifact(local_path=os.path.abspath(resdir))
+            return LocalArtifact(local_path=path)
 
         if archive == "tar":
             os.chdir(os.path.dirname(tmpdir))
@@ -378,8 +377,18 @@ def upload_s3(
         path: os.PathLike,
         key: Optional[str] = None,
         prefix: Optional[str] = None,
+        debug_func=os.symlink,
         **kwargs,
 ) -> str:
+    if config["mode"] == "debug" and not config["debug_s3"]:
+        if key is None:
+            key = "upload/%s/%s" % (uuid.uuid4(), os.path.basename(path))
+        target = os.path.abspath(
+            os.path.join(config["debug_artifact_dir"], key))
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        debug_func(os.path.abspath(path), target)
+        return target
+
     if s3_config["storage_client"] is not None:
         client = s3_config["storage_client"]
     else:
@@ -530,7 +539,7 @@ def copy_file(src, dst, func=try_link):
     elif os.path.isfile(src):
         func(src, dst)
     else:
-        raise RuntimeError("File %s not found" % src)
+        raise FileNotFoundError("File %s not found" % src)
 
 
 def catalog_of_local_artifact(art_path, remove=False):

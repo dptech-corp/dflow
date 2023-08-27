@@ -73,6 +73,7 @@ config = {
                                                True)),
     "artifact_register": {},
     "debug_s3": boolize(os.environ.get("DFLOW_DEBUG_S3", False)),
+    "debug_artifact_dir": os.environ.get("DFLOW_DEBUG_ARTIFACT_DIR", "."),
 }
 
 
