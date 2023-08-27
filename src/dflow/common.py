@@ -43,14 +43,17 @@ class S3Artifact(V1alpha1S3Artifact):
 
     def __init__(
             self,
+            key: str = None,
             path_list: Union[str, list] = None,
             urn: str = "",
+            debug_s3: bool = False,
             *args,
             **kwargs,
     ) -> None:
         config = Configuration()
         config.client_side_validation = False
-        super().__init__(local_vars_configuration=config, *args, **kwargs)
+        super().__init__(local_vars_configuration=config, key=key, *args,
+                         **kwargs)
         if urn:
             if global_config["lineage"]:
                 meta = global_config["lineage"].get_artifact_metadata(urn)
@@ -67,6 +70,10 @@ class S3Artifact(V1alpha1S3Artifact):
         self.urn = urn
         self.slice = None
         self.parent = None
+        self.local_path = None
+        if global_config["mode"] == "debug" and not global_config["debug_s3"] \
+                and not debug_s3:
+            self.local_path = self.key
 
     def __getitem__(self, key):
         art = copy(self)
