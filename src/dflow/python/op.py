@@ -351,7 +351,11 @@ class OP(ABC):
 
 
 def type2opiosign(t):
-    from typing import _GenericAlias
+    from typing import Tuple
+    try:
+        from typing import _GenericAlias as TupleMeta
+    except ImportError:
+        from typing import TupleMeta
     if isinstance(t, dict):
         return OPIOSign({k: v for k, v in t.items()}), lambda x: x, lambda x: x
     elif hasattr(t, "__annotations__") and issubclass(t, dict):
@@ -364,7 +368,7 @@ def type2opiosign(t):
             lambda x: {k: v for k, v in zip(t.__annotations__, x)}, \
             lambda x: tuple(dict2list({list(t.__annotations__).index(k): v
                                        for k, v in x.items()}))
-    elif isinstance(t, _GenericAlias) and t.__origin__ == tuple:
+    elif isinstance(t, TupleMeta) and t.__origin__ in [tuple, Tuple]:
         return OPIOSign(
             {"dflow_output_%s" % i: v for i, v in enumerate(t.__args__)}), \
             lambda x: {"dflow_output_%s" % i: v for i, v in enumerate(x)}, \
