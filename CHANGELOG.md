@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.7.75](https://github.com/deepmodeling/dflow/compare/v1.7.74...v1.7.75) (2023-08-29)
+
+
+### Bug Fixes
+
+* add quick-start-postgres-3.4.1-deepmodeling.yaml ([31c3fc2](https://github.com/deepmodeling/dflow/commit/31c3fc26723c4b168743223568edf1e0fa0739ce))
+* raise FileNotFoundError in upload_s3 ([31c3fc2](https://github.com/deepmodeling/dflow/commit/31c3fc26723c4b168743223568edf1e0fa0739ce))
+* support function OP for python 3.6 ([453e999](https://github.com/deepmodeling/dflow/commit/453e9992ad2d30b9b14670a5a18913e995ff3b55))
+
 ## [1.7.74](https://github.com/deepmodeling/dflow/compare/v1.7.73...v1.7.74) (2023-08-27)
 
 
