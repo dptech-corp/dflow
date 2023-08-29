@@ -71,14 +71,14 @@ dflow is built on [argo-workflow](https://github.com/argoproj/argo-workflows), s
 To get started quickly, we can use the quick start manifest which will install Argo Workflows as well as some commonly used components:
 ```bash
 kubectl create ns argo
-kubectl apply -n argo -f https://raw.githubusercontent.com/deepmodeling/dflow/master/manifests/quick-start-postgres.yaml
+kubectl apply -n argo -f https://raw.githubusercontent.com/deepmodeling/dflow/master/manifests/quick-start-postgres-3.4.1-deepmodeling.yaml
 ```
 #### Install Argo with IP address inside China
 Although you can still use the above method to install Argo, it might lead to a very long wait. To speed up the installation process, you can use another YAML file.
 ```bash
 # download the YAML file to local
-wget https://raw.githubusercontent.com/deepmodeling/dflow/master/manifests/quick-start-postgres-stable-cn.yaml 
-kubectl apply -n argo -f quick-start-postgres-stable-cn.yaml
+wget https://raw.githubusercontent.com/deepmodeling/dflow/master/manifests/quick-start-postgres-3.4.1-deepmodeling.yaml
+kubectl apply -n argo -f quick-start-postgres-3.4.1-deepmodeling.yaml
 # linux user might need to use `minikube kubectl --`
 ```
 

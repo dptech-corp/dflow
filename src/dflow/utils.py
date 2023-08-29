@@ -417,6 +417,8 @@ def upload_s3(
             for f in fs:
                 client.upload(key="%s%s/%s" % (key, rel_path, f),
                               path=os.path.join(dn, f))
+    else:
+        raise FileNotFoundError("No such file or directory: %s" % path)
     return key
 
 
