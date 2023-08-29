@@ -68,7 +68,7 @@ else
 fi
 
 kubectl create ns argo 1>/dev/null 2>/dev/null
-kubectl apply -n argo -f https://raw.githubusercontent.com/deepmodeling/dflow/master/manifests/quick-start-postgres.yaml 1>/dev/null
+kubectl apply -n argo -f https://raw.githubusercontent.com/deepmodeling/dflow/master/manifests/quick-start-postgres-3.4.1-deepmodeling.yaml 1>/dev/null
 if [[ $? != 0 ]]; then
     ERROR "Fail to apply argo yaml"
     exit 1
