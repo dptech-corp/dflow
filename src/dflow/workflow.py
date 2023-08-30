@@ -1022,7 +1022,11 @@ class Workflow:
         if config["mode"] == "debug":
             with open(os.path.join(self.id, "pid"), "r") as f:
                 pid = int(f.read())
-            os.killpg(os.getpgid(pid), signal.SIGTERM)
+            import psutil
+            p = psutil.Process(pid)
+            for c in p.children(recursive=True):
+                c.terminate()
+            p.terminate()
             return
         self.api_instance.api_client.call_api(
             '/api/v1/workflows/%s/%s/terminate' % (self.namespace, self.id),
