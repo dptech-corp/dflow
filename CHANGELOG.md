@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.76](https://github.com/deepmodeling/dflow/compare/v1.7.75...v1.7.76) (2023-08-30)
+
+
+### Bug Fixes
+
+* avoid to terminate parent process in terminating workflow in debug mode ([50b864e](https://github.com/deepmodeling/dflow/commit/50b864e0e9460e2f8d322be484ea8271380b6469))
+
 ## [1.7.75](https://github.com/deepmodeling/dflow/compare/v1.7.74...v1.7.75) (2023-08-29)
 
 
