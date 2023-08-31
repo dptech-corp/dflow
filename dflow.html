@@ -1625,6 +1625,11 @@ generated parallel steps greater than certain number</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.step.Step.exec">
 <span class="sig-name descname"><span class="pre">exec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.exec" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.step.Step.exec_pod">
+<span class="sig-name descname"><span class="pre">exec_pod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.exec_pod" title="Link to this definition">¶</a></dt>
 <dd><p>directory structure:
 step-xxxxx
 <a href="#id1"><span class="problematic" id="id2">|</span></a>- inputs</p>
@@ -1640,6 +1645,11 @@ step-xxxxx
 <p><a href="#id13"><span class="problematic" id="id14">|</span></a>- script
 <a href="#id15"><span class="problematic" id="id16">|</span></a>- workdir</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.step.Step.exec_steps">
+<span class="sig-name descname"><span class="pre">exec_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.Step.exec_steps" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.step.Step.exec_with_config">
@@ -3547,6 +3557,11 @@ generated parallel steps greater than certain number</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.Step.exec">
 <span class="sig-name descname"><span class="pre">exec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.exec" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.Step.exec_pod">
+<span class="sig-name descname"><span class="pre">exec_pod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.exec_pod" title="Link to this definition">¶</a></dt>
 <dd><p>directory structure:
 step-xxxxx
 <a href="#id19"><span class="problematic" id="id20">|</span></a>- inputs</p>
@@ -3562,6 +3577,11 @@ step-xxxxx
 <p><a href="#id31"><span class="problematic" id="id32">|</span></a>- script
 <a href="#id33"><span class="problematic" id="id34">|</span></a>- workdir</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.Step.exec_steps">
+<span class="sig-name descname"><span class="pre">exec_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.Step.exec_steps" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.Step.exec_with_config">
@@ -4578,6 +4598,8 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.step.Step"><code class="docutils literal notranslate"><span class="pre">Step</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.step.Step.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Step.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.exec"><code class="docutils literal notranslate"><span class="pre">Step.exec()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.exec_pod"><code class="docutils literal notranslate"><span class="pre">Step.exec_pod()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.Step.exec_steps"><code class="docutils literal notranslate"><span class="pre">Step.exec_steps()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.exec_with_config"><code class="docutils literal notranslate"><span class="pre">Step.exec_with_config()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.from_dict"><code class="docutils literal notranslate"><span class="pre">Step.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.Step.handle_sub_path_slices_of_artifact_list"><code class="docutils literal notranslate"><span class="pre">Step.handle_sub_path_slices_of_artifact_list()</span></code></a></li>
@@ -4909,6 +4931,8 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.Step"><code class="docutils literal notranslate"><span class="pre">Step</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.Step.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Step.convert_to_argo()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.exec"><code class="docutils literal notranslate"><span class="pre">Step.exec()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.exec_pod"><code class="docutils literal notranslate"><span class="pre">Step.exec_pod()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.Step.exec_steps"><code class="docutils literal notranslate"><span class="pre">Step.exec_steps()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.exec_with_config"><code class="docutils literal notranslate"><span class="pre">Step.exec_with_config()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.from_dict"><code class="docutils literal notranslate"><span class="pre">Step.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.Step.handle_sub_path_slices_of_artifact_list"><code class="docutils literal notranslate"><span class="pre">Step.handle_sub_path_slices_of_artifact_list()</span></code></a></li>
@@ -5038,7 +5062,7 @@ parameters</p></li>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2022, zjgemi.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.5.
     </div>
   </body>
 </html>
