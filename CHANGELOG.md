@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.77](https://github.com/deepmodeling/dflow/compare/v1.7.76...v1.7.77) (2023-08-31)
+
+
+### Bug Fixes
+
+* remove Certificate and Issuer in manifest ([dd4420a](https://github.com/deepmodeling/dflow/commit/dd4420a6ea417516a8b952bd09eb9bee460e7107))
+* support for group of parallel steps/dag in debug mode ([dd4420a](https://github.com/deepmodeling/dflow/commit/dd4420a6ea417516a8b952bd09eb9bee460e7107))
+
 ## [1.7.76](https://github.com/deepmodeling/dflow/compare/v1.7.75...v1.7.76) (2023-08-30)
 
 
