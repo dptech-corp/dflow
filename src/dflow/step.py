@@ -1358,11 +1358,6 @@ class Step:
         self.phase = "Pending"
         self.render_by_executor(context)
 
-        import os
-
-        from .dag import DAG
-        from .steps import Steps
-
         if self.when is not None:
             if isinstance(self.when, Expression):
                 value = self.when.eval(scope)
@@ -1425,114 +1420,17 @@ class Step:
             if isinstance(art.source, (InputArtifact, OutputArtifact)):
                 art.source = get_var(art.source, scope)
 
-        if isinstance(self.template, (Steps, DAG)):
-            if hasattr(self.template, "orig_template"):
-                steps = deepcopy(self.template.orig_template)
-                steps.orig_template = self.template.orig_template
-            else:
-                steps = deepcopy(self.template)
-                steps.orig_template = self.template
-
-            # override default inputs with arguments
-            for name, par in parameters.items():
-                steps.inputs.parameters[name].value = par.value
-
-            if "dflow_key" in steps.inputs.parameters and \
-                    steps.inputs.parameters["dflow_key"].value:
-                step_id = steps.inputs.parameters["dflow_key"].value
-                stepdir = os.path.abspath(step_id)
-                if os.path.exists(stepdir):
-                    with open(os.path.join(stepdir, "phase"), "r") as f:
-                        self.phase = f.read()
-                    if self.phase == "Succeeded":
-                        logging.warning("step (key: %s) skipped" % step_id)
-                        self.load_output_parameters(stepdir,
-                                                    self.outputs.parameters)
-                        self.load_output_artifacts(stepdir,
-                                                   self.outputs.artifacts)
-                        return
-                    logging.warning("step (key: %s) restarting" % step_id)
-                else:
-                    os.makedirs(stepdir)
-            else:
-                while True:
-                    step_id = "%s-%s-%s" % (scope.workflow_id, self.name,
-                                            randstr())
-                    stepdir = os.path.abspath(step_id)
-                    if not os.path.exists(stepdir):
-                        os.makedirs(stepdir)
-                        break
-
-            if self.phase == "Pending":
-                with open(os.path.join(stepdir, "type"), "w") as f:
-                    if isinstance(self.template, Steps):
-                        f.write("Steps")
-                    elif isinstance(self.template, DAG):
-                        f.write("DAG")
-                with open(os.path.join(stepdir, "phase"), "w") as f:
-                    f.write("Pending")
-                with open(os.path.join(stepdir, "name"), "w") as f:
-                    f.write(self.name)
-                self.record_input_parameters(stepdir, steps.inputs.parameters)
-                self.record_input_artifacts(stepdir, self.inputs.artifacts,
-                                            None, scope, True)
-
-            for name, art in self.inputs.artifacts.items():
-                art_path = os.path.join(stepdir, "inputs/artifacts/%s" % name)
-                if os.path.exists(art_path):
-                    steps.inputs.artifacts[name].local_path = art_path
-
-            self.phase = "Running"
-            with open(os.path.join(stepdir, "phase"), "w") as f:
-                f.write("Running")
-            try:
-                steps.run(scope.workflow_id)
-            except Exception:
-                self.phase = "Failed"
-                with open(os.path.join(stepdir, "phase"), "w") as f:
-                    f.write("Failed")
-                raise RuntimeError("Step %s failed" % self)
-
-            for name, par in self.outputs.parameters.items():
-                par1 = self.template.outputs.parameters[name]
-                if par1.value_from_parameter is not None:
-                    par.value = get_var(par1.value_from_parameter, steps).value
-                elif par1.value_from_expression is not None:
-                    if isinstance(par1.value_from_expression, str):
-                        expr = replace_argo_func(par1.value_from_expression)
-                        par1.value_from_expression = Expression(expr)
-                    par.value = par1.value_from_expression.eval(steps)
-
-            for name, art in self.outputs.artifacts.items():
-                art1 = self.template.outputs.artifacts[name]
-                if art1._from is not None:
-                    if isinstance(art1._from, str) and art1._from.startswith(
-                            "{{workflow.outputs.artifacts."):
-                        art.local_path = "%s/../outputs/artifacts/%s" % (
-                            stepdir, art1._from[29:-2])
-                    else:
-                        art.local_path = get_var(art1._from, steps).local_path
-                elif art1.from_expression is not None:
-                    if isinstance(art1.from_expression, str):
-                        expr = replace_argo_func(art1.from_expression)
-                        art1.from_expression = Expression(expr)
-                    art.local_path = art1.from_expression.eval(steps)
-
-            self.record_output_parameters(stepdir, self.outputs.parameters)
-            self.record_output_artifacts(stepdir, self.outputs.artifacts)
-            self.phase = "Succeeded"
-            with open(os.path.join(stepdir, "phase"), "w") as f:
-                f.write("Succeeded")
-            return
-
         if self.with_param is not None or self.with_sequence is not None:
             if isinstance(self.with_param, Expression):
                 item_list = self.with_param.eval(scope)
             elif isinstance(self.with_param, (InputParameter,
                                               OutputParameter)):
                 item_list = self.with_param.value
-            elif isinstance(self.with_param, list):
-                item_list = self.with_param
+            elif isinstance(self.with_param, str):
+                self.with_param = render_expr(self.with_param, scope)
+                item_list = eval(self.with_param)
+            elif hasattr(self.with_param, "__iter__"):
+                item_list = list(self.with_param)
             elif self.with_sequence is not None:
                 start = 0
                 if self.with_sequence.start is not None:
@@ -1569,9 +1467,6 @@ class Step:
                                  for i in sequence]
                 else:
                     item_list = sequence
-            elif isinstance(self.with_param, str):
-                self.with_param = render_expr(self.with_param, scope)
-                item_list = eval(self.with_param)
             else:
                 raise RuntimeError("Not supported")
 
@@ -1789,6 +1684,126 @@ class Step:
             art.local_path = art_path
 
     def exec(self, scope, parameters, item=None):
+        # render item
+        if item is not None:
+            for par in parameters.values():
+                if isinstance(par.value, str):
+                    par.value = render_item(par.value, item)
+            for art in self.inputs.artifacts.values():
+                if isinstance(art.source, S3Artifact):
+                    art.source.key = render_item(art.source.key, item)
+                elif isinstance(art.source, HTTPArtifact):
+                    art.source.url = render_item(art.source.url, item)
+
+        from .dag import DAG
+        from .steps import Steps
+        if isinstance(self.template, (DAG, Steps)):
+            self.exec_steps(scope, parameters, item)
+        else:
+            self.exec_pod(scope, parameters, item)
+
+    def exec_steps(self, scope, parameters, item=None):
+        if hasattr(self.template, "orig_template"):
+            steps = deepcopy(self.template.orig_template)
+            steps.orig_template = self.template.orig_template
+        else:
+            steps = deepcopy(self.template)
+            steps.orig_template = self.template
+
+        # override default inputs with arguments
+        for name, par in parameters.items():
+            steps.inputs.parameters[name].value = par.value
+
+        if "dflow_key" in steps.inputs.parameters and \
+                steps.inputs.parameters["dflow_key"].value:
+            step_id = steps.inputs.parameters["dflow_key"].value
+            stepdir = os.path.abspath(step_id)
+            if os.path.exists(stepdir):
+                with open(os.path.join(stepdir, "phase"), "r") as f:
+                    self.phase = f.read()
+                if self.phase == "Succeeded":
+                    logging.warning("step (key: %s) skipped" % step_id)
+                    self.load_output_parameters(stepdir,
+                                                self.outputs.parameters)
+                    self.load_output_artifacts(stepdir,
+                                               self.outputs.artifacts)
+                    return
+                logging.warning("step (key: %s) restarting" % step_id)
+            else:
+                os.makedirs(stepdir)
+        else:
+            while True:
+                step_id = "%s-%s-%s" % (scope.workflow_id, self.name,
+                                        randstr())
+                stepdir = os.path.abspath(step_id)
+                if not os.path.exists(stepdir):
+                    os.makedirs(stepdir)
+                    break
+
+        if self.phase == "Pending":
+            from .dag import DAG
+            from .steps import Steps
+            with open(os.path.join(stepdir, "type"), "w") as f:
+                if isinstance(self.template, Steps):
+                    f.write("Steps")
+                elif isinstance(self.template, DAG):
+                    f.write("DAG")
+            with open(os.path.join(stepdir, "phase"), "w") as f:
+                f.write("Pending")
+            with open(os.path.join(stepdir, "name"), "w") as f:
+                f.write(self.name)
+            self.record_input_parameters(stepdir, steps.inputs.parameters)
+            self.record_input_artifacts(stepdir, self.inputs.artifacts,
+                                        None, scope, True)
+
+        for name, art in self.inputs.artifacts.items():
+            art_path = os.path.join(stepdir, "inputs/artifacts/%s" % name)
+            if os.path.exists(art_path):
+                steps.inputs.artifacts[name].local_path = art_path
+
+        self.phase = "Running"
+        with open(os.path.join(stepdir, "phase"), "w") as f:
+            f.write("Running")
+        try:
+            steps.run(scope.workflow_id)
+        except Exception:
+            self.phase = "Failed"
+            with open(os.path.join(stepdir, "phase"), "w") as f:
+                f.write("Failed")
+            raise RuntimeError("Step %s failed" % self)
+
+        for name, par in self.outputs.parameters.items():
+            par1 = self.template.outputs.parameters[name]
+            if par1.value_from_parameter is not None:
+                par.value = get_var(par1.value_from_parameter, steps).value
+            elif par1.value_from_expression is not None:
+                if isinstance(par1.value_from_expression, str):
+                    expr = replace_argo_func(par1.value_from_expression)
+                    par1.value_from_expression = Expression(expr)
+                par.value = par1.value_from_expression.eval(steps)
+
+        for name, art in self.outputs.artifacts.items():
+            art1 = self.template.outputs.artifacts[name]
+            if art1._from is not None:
+                if isinstance(art1._from, str) and art1._from.startswith(
+                        "{{workflow.outputs.artifacts."):
+                    art.local_path = "%s/../outputs/artifacts/%s" % (
+                        stepdir, art1._from[29:-2])
+                else:
+                    art.local_path = get_var(art1._from, steps).local_path
+            elif art1.from_expression is not None:
+                if isinstance(art1.from_expression, str):
+                    expr = replace_argo_func(art1.from_expression)
+                    art1.from_expression = Expression(expr)
+                art.local_path = art1.from_expression.eval(steps)
+
+        self.record_output_parameters(stepdir, self.outputs.parameters)
+        self.record_output_artifacts(stepdir, self.outputs.artifacts)
+        self.phase = "Succeeded"
+        with open(os.path.join(stepdir, "phase"), "w") as f:
+            f.write("Succeeded")
+
+    def exec_pod(self, scope, parameters, item=None):
         """
         directory structure:
         step-xxxxx
@@ -1801,20 +1816,6 @@ class Step:
         |- script
         |- workdir
         """
-        self.phase = "Pending"
-
-        # render item
-        if item is not None:
-            for name, par in parameters.items():
-                if isinstance(par.value, str):
-                    par.value = render_item(par.value, item)
-            for name, art in self.inputs.artifacts.items():
-                if isinstance(art.source, S3Artifact):
-                    art.source.key = render_item(art.source.key, item)
-                elif isinstance(art.source, HTTPArtifact):
-                    art.source.url = render_item(art.source.url, item)
-
-        import os
         cwd = os.getcwd()
         if "dflow_key" in parameters:
             step_id = parameters["dflow_key"].value
@@ -2130,8 +2131,6 @@ def render_script(script, parameters, workflow_id=None, step_id=None):
 
 
 def backup(path):
-    import os
-    import shutil
     cnt = 0
     bk = path
     while os.path.exists(bk) or os.path.islink(bk):
