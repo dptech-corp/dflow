@@ -45,7 +45,6 @@ def test_python():
                 Duplicate, image='python:3.8'), parameters={
                 'msg': 'Hello', 'num': 3}, artifacts={
                 'foo': artifact0, 'idir': artifact1}, )
-    wf.submit()
 
     while wf.query_status() in ['Pending', 'Running']:
         time.sleep(1)
