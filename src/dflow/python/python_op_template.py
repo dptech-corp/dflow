@@ -506,8 +506,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(input_artifact_slices, name)
-                if self.slices is not None and self.slices.sub_path and \
-                        name in self.slices.input_artifact:
+                if "dflow_%s_sub_path" % name in self.inputs.parameters:
                     script += "    input['%s'] = handle_input_artifact('%s', "\
                         "input_sign['%s'], %s, r'%s', '{{inputs.parameters."\
                         "dflow_%s_sub_path}}', None)\n" % (
