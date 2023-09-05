@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.79](https://github.com/deepmodeling/dflow/compare/v1.7.78...v1.7.79) (2023-09-05)
+
+
+### Bug Fixes
+
+* subpath slices for steps ([f4ad94b](https://github.com/deepmodeling/dflow/commit/f4ad94b54f52d34dd0946c27be04f739d897e211))
+
 ## [1.7.78](https://github.com/deepmodeling/dflow/compare/v1.7.77...v1.7.78) (2023-09-05)
 
 
