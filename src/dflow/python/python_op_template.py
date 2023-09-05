@@ -61,9 +61,6 @@ class Slices:
             pool_size: Optional[int] = None,
             register_first_only: bool = False,
     ) -> None:
-        if sub_path:
-            assert input_artifact is not None, \
-                "input artifact not provided in subpath mode"
         self.input_parameter = input_parameter if input_parameter is not \
             None else []
         self.input_artifact = input_artifact if input_artifact is not None \
