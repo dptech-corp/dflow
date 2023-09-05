@@ -2182,6 +2182,9 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
                         value="{{inputs.parameters.%s}}" % slice_par)
 
     for name in slices.input_artifact:
+        if slices.sub_path:
+            templ.inputs.parameters["dflow_%s_sub_path" % name] = \
+                InputParameter()
         for step in steps:
             for art in list(step.inputs.artifacts.values()):
                 # input artifact referring to sliced input artifact
@@ -2206,6 +2209,11 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
                         pool_size=slices.pool_size), layer=layer+1)
                     step.inputs.parameters[slice_par_1] = InputParameter(
                         value="{{inputs.parameters.%s}}" % slice_par)
+                    if slices.sub_path:
+                        step.inputs.parameters[
+                            "dflow_%s_sub_path" % art_name] = InputParameter(
+                            value="{{inputs.parameters.dflow_%s_sub_path}}"
+                            % name)
 
     def stack_output_parameter(par):
         if isinstance(par, OutputParameter):
