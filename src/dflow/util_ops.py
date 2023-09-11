@@ -219,10 +219,16 @@ class CheckNumSuccess(ShellOPTemplate):
                  image_pull_policy=None):
         super().__init__(name=name, image=image,
                          image_pull_policy=image_pull_policy)
-        self.command = ["sh"]
-        self.script = "succ=`echo {{inputs.parameters.success}} | grep -o 1 "\
-            "| wc -l`\n"
-        self.script += "exit $(( $succ < {{inputs.parameters.threshold}} ))"
+        self.command = ["python3"]
+        self.script = "import json\n"
+        self.script += "succ = '''{{inputs.parameters.success}}'''\n"
+        self.script += "try:\n"
+        self.script += "    succ = sum([int(i) for i in json.loads(succ)])\n"
+        self.script += "except:\n"
+        self.script += "    succ = 0\n"
+        self.script += "print('Num success: ' + str(succ))\n"
+        self.script += "print('Threshold: {{inputs.parameters.threshold}}')\n"
+        self.script += "assert succ >= {{inputs.parameters.threshold}}\n"
         self.inputs = Inputs(
             parameters={"success": InputParameter(),
                         "threshold": InputParameter()})
@@ -233,12 +239,18 @@ class CheckSuccessRatio(ShellOPTemplate):
                  image_pull_policy=None):
         super().__init__(name=name, image=image,
                          image_pull_policy=image_pull_policy)
-        self.command = ["sh"]
-        self.script = "succ=`echo {{inputs.parameters.success}} | grep -o 1 |"\
-            " wc -l`\n"
-        self.script += "exit `echo $succ {{inputs.parameters.total}} | awk -v"\
-            " r={{inputs.parameters.threshold}} '{if ($1 < $2*r)"\
-            " {print 1} else {print 0}}'`"
+        self.command = ["python3"]
+        self.script = "import json\n"
+        self.script += "succ = '''{{inputs.parameters.success}}'''\n"
+        self.script += "try:\n"
+        self.script += "    succ = sum([int(i) for i in json.loads(succ)])\n"
+        self.script += "except:\n"
+        self.script += "    succ = 0\n"
+        self.script += "threshold = {{inputs.parameters.threshold}} * "\
+            "{{inputs.parameters.total}}\n"
+        self.script += "print('Num success: ' + str(succ))\n"
+        self.script += "print('Threshold: ' + str(threshold))\n"
+        self.script += "assert succ >= threshold\n"
         self.inputs = Inputs(
             parameters={"success": InputParameter(),
                         "total": InputParameter(),

@@ -197,6 +197,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  tmp_root: str = "/tmp",
                  pre_script: str = "",
                  post_script: str = "",
+                 success_tag: bool = False,
                  ) -> None:
         self.n_parts = {}
         self.keys_of_parts = {}
@@ -225,6 +226,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             annotations=annotations, node_selector=node_selector)
         self.pre_script = pre_script
         self.post_script = post_script
+        self.success_tag = success_tag
         if timeout is not None:
             self.timeout = "%ss" % timeout
         self.retry_on_transient_error = retry_on_transient_error
@@ -630,14 +632,25 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 "dflow_workflow_urn}}', r'%s')\n" % self.tmp_root
 
         if self.slices is not None and self.slices.pool_size is not None:
-            script += "    try:\n"
-            script += "        for error in error_list:\n"
-            script += "            if error is not None:\n"
-            script += "                raise error\n"
-            script += "    except TransientError:\n"
-            script += "        sys.exit(1)\n"
-            script += "    except FatalError:\n"
-            script += "        sys.exit(2)\n"
+            if self.success_tag:
+                script += "    with open('%s/outputs/success_tag', 'w') as f:"\
+                    "\n" % self.tmp_root
+                script += "        f.write(str(len([e for e in error_list if "\
+                    "e is None])))\n"
+            else:
+                script += "    try:\n"
+                script += "        for error in error_list:\n"
+                script += "            if error is not None:\n"
+                script += "                raise error\n"
+                script += "    except TransientError:\n"
+                script += "        sys.exit(1)\n"
+                script += "    except FatalError:\n"
+                script += "        sys.exit(2)\n"
+        else:
+            if self.success_tag:
+                script += "    with open('%s/outputs/success_tag', 'w') as f:"\
+                    "\n" % self.tmp_root
+                script += "        f.write('1')\n"
 
         script += self.post_script.format(**{"tmp_root": self.tmp_root})
 
