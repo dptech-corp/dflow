@@ -87,7 +87,7 @@ def download_artifact(
         bucket_name: bucket name for Minio
         skip_exists: skip files with the same MD5
     """
-    if hasattr(artifact, "local_path"):
+    if getattr(artifact, "local_path", None) is not None:
         if config["debug_copy_method"] == "symlink":
             linktree(artifact.local_path, path)
         elif config["debug_copy_method"] == "link":

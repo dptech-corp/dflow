@@ -845,61 +845,42 @@ class Step:
                 not None:
             self.continue_on_failed = True
             self.template = self.template.deepcopy()
-            from .steps import Steps
-            if isinstance(self.template, ScriptOPTemplate):
-                self.template.outputs.parameters["dflow_success_tag"] = \
-                    OutputParameter(value_from_path="/tmp/outputs/success_tag",
-                                    default="0")
-                self.outputs.parameters["dflow_success_tag"] = \
-                    OutputParameter(value_from_path="/tmp/outputs/success_tag",
-                                    default="0")
-                from .python import PythonOPTemplate
-                if isinstance(self.template, PythonOPTemplate):
-                    self.template.post_script += "\nwith open('{tmp_root}"\
-                        "/outputs/success_tag', 'w') as f:\n    f.write('1')\n"
-                    self.template.render_script()
-                elif isinstance(self.template, ShellOPTemplate):
-                    self.template.script += "\necho 1 > /tmp/outputs"\
-                        "/success_tag\n"
-                elif isinstance(self.template, PythonScriptOPTemplate):
-                    self.template.script += "\nwith open('/tmp/outputs"\
-                        "/success_tag', 'w') as f:\n    f.write('1')\n"
-            elif isinstance(self.template, Steps):
-                last_step = self.template.steps[-1]
-                last_templ = last_step.template
-                last_templ.outputs.parameters["dflow_success_tag"] = \
-                    OutputParameter(value_from_path="/tmp/outputs/success_tag",
-                                    default="0")
-                last_step.outputs.parameters["dflow_success_tag"] = \
-                    OutputParameter(value_from_path="/tmp/outputs/success_tag",
-                                    default="0")
-                from .python import PythonOPTemplate
-                if isinstance(last_templ, PythonOPTemplate):
-                    last_templ.post_script += "\nwith open('{tmp_root}"\
-                        "/outputs/success_tag', 'w') as f:\n    f.write('1')\n"
-                    last_templ.render_script()
-                elif isinstance(last_templ, ShellOPTemplate):
-                    last_templ.script += "\necho 1 > /tmp/outputs"\
-                        "/success_tag\n"
-                elif isinstance(last_templ, PythonScriptOPTemplate):
-                    last_templ.script += "\nwith open('/tmp/outputs"\
-                        "/success_tag', 'w') as f:\n    f.write('1')\n"
+
+            def add_success_tag(templ):
+                from .steps import Steps
+                if isinstance(templ, ScriptOPTemplate):
+                    templ.outputs.parameters["dflow_success_tag"] = \
+                        OutputParameter(
+                            value_from_path="/tmp/outputs/success_tag",
+                            default="0")
+                    from .python import PythonOPTemplate
+                    if isinstance(templ, PythonOPTemplate):
+                        templ.success_tag = True
+                        templ.render_script()
+                    elif isinstance(templ, ShellOPTemplate):
+                        templ.script += "\necho 1 > /tmp/outputs/success_tag\n"
+                    elif isinstance(templ, PythonScriptOPTemplate):
+                        templ.script += "\nwith open('/tmp/outputs"\
+                            "/success_tag', 'w') as f:\n    f.write('1')\n"
+                elif isinstance(templ, Steps):
+                    last_step = templ.steps[-1]
+                    last_templ = last_step.template
+                    add_success_tag(last_templ)
+                    last_step.outputs.parameters["dflow_success_tag"] = \
+                        deepcopy(
+                            last_templ.outputs.parameters["dflow_success_tag"])
+                    templ.outputs.parameters["dflow_success_tag"] = \
+                        OutputParameter(
+                            value_from_parameter=last_step.outputs.parameters[
+                                "dflow_success_tag"], default="0")
                 else:
                     raise RuntimeError(
                         "Unsupported type of OPTemplate for "
                         "continue_on_num_success or continue_on_success_ratio")
-                self.template.outputs.parameters["dflow_success_tag"] = \
-                    OutputParameter(value_from_parameter=last_step.outputs.
-                                    parameters["dflow_success_tag"],
-                                    default="0")
-                self.outputs.parameters["dflow_success_tag"] = \
-                    OutputParameter(value_from_parameter=last_step.outputs.
-                                    parameters["dflow_success_tag"],
-                                    default="0")
-            else:
-                raise RuntimeError(
-                    "Unsupported type of OPTemplate for "
-                    "continue_on_num_success or continue_on_success_ratio")
+
+            add_success_tag(self.template)
+            self.outputs.parameters["dflow_success_tag"] = deepcopy(
+                self.template.outputs.parameters["dflow_success_tag"])
 
         if self.continue_on_num_success is not None:
             self.check_step = self.__class__(
@@ -914,7 +895,9 @@ class Step:
                 }
             )
         elif self.continue_on_success_ratio is not None:
-            if self.with_param is not None:
+            if "dflow_nslices" in self.inputs.parameters:
+                total = self.inputs.parameters["dflow_nslices"].value
+            elif self.with_param is not None:
                 if hasattr(self.with_param, "__len__"):
                     total = len(self.with_param)
                 else:
