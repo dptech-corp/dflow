@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.7.80](https://github.com/deepmodeling/dflow/compare/v1.7.79...v1.7.80) (2023-09-11)
+
+
+### Bug Fixes
+
+* dflow download command ([23c6231](https://github.com/deepmodeling/dflow/commit/23c6231ed324e14bc934c32603c17af44c208750))
+* success ratio for grouped slices ([23c6231](https://github.com/deepmodeling/dflow/commit/23c6231ed324e14bc934c32603c17af44c208750))
+
 ## [1.7.79](https://github.com/deepmodeling/dflow/compare/v1.7.78...v1.7.79) (2023-09-05)
 
 
