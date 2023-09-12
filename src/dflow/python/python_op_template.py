@@ -19,11 +19,12 @@ from .op import OP, iwd
 from .opio import Artifact, BigParameter, Parameter
 
 try:
-    from argo.workflows.client import (V1alpha1UserContainer, V1Volume,
-                                       V1VolumeMount)
+    from argo.workflows.client import (V1alpha1UserContainer, V1Toleration,
+                                       V1Volume, V1VolumeMount)
 
     from ..client import V1alpha1RetryStrategy
 except Exception:
+    V1Toleration = object
     V1Volume = object
     V1VolumeMount = object
     V1alpha1UserContainer = object
@@ -123,6 +124,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         annotations: annotations for the OP template
         labels: labels for the OP template
         node_selector: node selector when scheduling the pod
+        tolerations: tolerations of taints when scheduling the pod
         input_artifact_slices: a dict specifying input artifacts to use slices
         output_artifact_save: a dict specifying storage of output artifacts
             overriding default storage
@@ -164,6 +166,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  annotations: Dict[str, str] = None,
                  labels: Dict[str, str] = None,
                  node_selector: Dict[str, str] = None,
+                 tolerations: List[V1Toleration] = None,
                  output_artifact_save: Dict[str,
                                             List[Union[PVC, S3Artifact]]]
                  = None,
@@ -223,7 +226,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             inputs=Inputs(), outputs=Outputs(), volumes=volumes, mounts=mounts,
             requests=requests, limits=limits, envs=envs,
             init_containers=init_containers, sidecars=sidecars, labels=labels,
-            annotations=annotations, node_selector=node_selector)
+            annotations=annotations, node_selector=node_selector,
+            tolerations=tolerations)
         self.pre_script = pre_script
         self.post_script = post_script
         self.success_tag = success_tag
