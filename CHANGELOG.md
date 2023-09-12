@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.81](https://github.com/deepmodeling/dflow/compare/v1.7.80...v1.7.81) (2023-09-12)
+
+
+### Bug Fixes
+
+* add tolerations to template ([b8a5a29](https://github.com/deepmodeling/dflow/commit/b8a5a292942ed39beb3bba9d9f5f905bb2a5655c))
+
 ## [1.7.80](https://github.com/deepmodeling/dflow/compare/v1.7.79...v1.7.80) (2023-09-11)
 
 
