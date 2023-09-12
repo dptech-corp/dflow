@@ -24,10 +24,10 @@ try:
 
     from ..client import V1alpha1RetryStrategy
 except Exception:
+    V1alpha1UserContainer = object
     V1Toleration = object
     V1Volume = object
     V1VolumeMount = object
-    V1alpha1UserContainer = object
 upload_packages = []
 
 
