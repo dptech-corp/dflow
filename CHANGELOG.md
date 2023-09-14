@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.82](https://github.com/deepmodeling/dflow/compare/v1.7.81...v1.7.82) (2023-09-14)
+
+
+### Bug Fixes
+
+* update workflow with patch ([c734c24](https://github.com/deepmodeling/dflow/commit/c734c24bff3c1da4ff9dde6a7360946b9b783a70))
+
 ## [1.7.81](https://github.com/deepmodeling/dflow/compare/v1.7.80...v1.7.81) (2023-09-12)
 
 
