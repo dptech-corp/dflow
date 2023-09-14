@@ -216,11 +216,12 @@ class ArgoStep(ArgoObjectDict):
         logger.info("Query workflow %s..." % self.workflow)
         wf_info = wf.query().recover()
         nodes = wf_info["status"]["nodes"]
-        nodes[self.id]["phase"] = "Pending"
+        patch = {"status": {"nodes": {}}}
+        patch["status"]["nodes"][self.id] = {"phase": "Pending"}
         for node in nodes.values():
-            if self.name.startswith(node["name"]) and \
-                    node["phase"] == "Failed":
-                node["phase"] = "Running"
+            if node["name"] != self.name and self.name.startswith(
+                    node["name"]) and node["phase"] == "Failed":
+                patch["status"]["nodes"][node["id"]] = {"phase": "Running"}
 
         logger.info("Delete pod of step %s..." % self.id)
         self.delete_pod()
@@ -231,7 +232,7 @@ class ArgoStep(ArgoObjectDict):
                     config["namespace"], self.workflow),
                 'PUT', response_type='object',
                 header_params=config["http_headers"],
-                body={"workflow": wf_info},
+                body={"patch": json.dumps(patch)},
                 _return_http_data_only=True)
 
         logger.info("Resume workflow %s..." % self.workflow)
