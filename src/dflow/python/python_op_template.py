@@ -1,7 +1,5 @@
-import inspect
 import logging
 import os
-import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type, Union
 
@@ -15,15 +13,16 @@ from ..io import (PVC, InputArtifact, InputParameter, Inputs, OutputArtifact,
                   OutputParameter, Outputs)
 from ..op_template import PythonScriptOPTemplate
 from ..utils import randstr, s3_config
-from .op import OP, iwd
+from .op import OP, get_source_code
 from .opio import Artifact, BigParameter, Parameter
 
 try:
-    from argo.workflows.client import (V1alpha1UserContainer, V1Toleration,
-                                       V1Volume, V1VolumeMount)
+    from argo.workflows.client import (V1Affinity, V1alpha1UserContainer,
+                                       V1Toleration, V1Volume, V1VolumeMount)
 
     from ..client import V1alpha1RetryStrategy
 except Exception:
+    V1Affinity = object
     V1alpha1UserContainer = object
     V1Toleration = object
     V1Volume = object
@@ -84,17 +83,6 @@ class Slices:
         self.register_first_only = register_first_only
 
 
-def get_source_code(o):
-    source_lines, start_line = inspect.getsourcelines(o)
-    if sys.version_info.minor >= 9:
-        source_file = inspect.getsourcefile(o)
-    else:
-        source_file = os.path.join(iwd, inspect.getsourcefile(o))
-    with open(source_file, "r", encoding="utf-8") as fd:
-        pre_lines = fd.readlines()[:start_line-1]
-    return "".join(pre_lines + source_lines) + "\n"
-
-
 def handle_packages_script(package_root):
     script = "import os, sys, json\n"
     script += "package_root = r'%s'\n" % package_root
@@ -125,6 +113,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         labels: labels for the OP template
         node_selector: node selector when scheduling the pod
         tolerations: tolerations of taints when scheduling the pod
+        affinity: affinity when scheduling the pod
         input_artifact_slices: a dict specifying input artifacts to use slices
         output_artifact_save: a dict specifying storage of output artifacts
             overriding default storage
@@ -167,6 +156,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  labels: Dict[str, str] = None,
                  node_selector: Dict[str, str] = None,
                  tolerations: List[V1Toleration] = None,
+                 affinity: V1Affinity = None,
                  output_artifact_save: Dict[str,
                                             List[Union[PVC, S3Artifact]]]
                  = None,
@@ -227,7 +217,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             requests=requests, limits=limits, envs=envs,
             init_containers=init_containers, sidecars=sidecars, labels=labels,
             annotations=annotations, node_selector=node_selector,
-            tolerations=tolerations)
+            tolerations=tolerations, affinity=affinity)
         self.pre_script = pre_script
         self.post_script = post_script
         self.success_tag = success_tag
@@ -324,6 +314,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         else:
             python_packages = upload_packages + [python_packages]
 
+        self.upload_dflow = upload_dflow
         if upload_dflow:
             python_packages += __path__
             python_packages += jsonpickle.__path__
@@ -708,6 +699,25 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             self.retry_strategy = V1alpha1RetryStrategy(
                 limit=self.retry_on_failure_and_error, retry_policy="Always")
         return super().convert_to_argo(memoize_prefix, memoize_configmap)
+
+    def convert_to_graph(self):
+        g = super().convert_to_graph()
+        del g["script"]
+        del g["inputs"]
+        del g["outputs"]
+        g["type"] = "PythonOPTemplate"
+        g["op"] = self.op_class.convert_to_graph()
+        g["python_packages"] = self.python_packages
+        g["retry_on_transient_error"] = self.retry_on_transient_error
+        g["retry_on_failure"] = self.retry_on_failure
+        g["retry_on_error"] = self.retry_on_error
+        g["retry_on_failure_and_error"] = self.retry_on_failure_and_error
+        g["timeout_as_transient_error"] = self.timeout_as_transient_error
+        g["upload_dflow"] = self.upload_dflow
+        g["tmp_root"] = self.tmp_root
+        g["pre_script"] = self.pre_script
+        g["post_script"] = self.post_script
+        return g
 
 
 class TransientError(Exception):

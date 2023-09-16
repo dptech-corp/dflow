@@ -124,6 +124,8 @@ class Workflow:
         if annotations is None:
             annotations = deepcopy(config["workflow_annotations"])
         self.annotations = annotations
+        if labels is None:
+            labels = {}
         self.labels = labels
         self.parallelism = parallelism
         self.pod_gc_strategy = pod_gc_strategy
@@ -734,6 +736,44 @@ class Workflow:
                 for pvc in template.pvcs:
                     if pvc.name not in self.pvcs:
                         self.pvcs[pvc.name] = pvc
+
+    def get_graph_templates(self, template, graph_templates=None):
+        if graph_templates is None:
+            graph_templates = {}
+        if template.name not in graph_templates:
+            if isinstance(template, (Steps, DAG)):
+                graph_template, templates = template.convert_to_graph()
+                graph_templates[template.name] = graph_template
+                for t in templates:
+                    self.get_graph_templates(t, graph_templates)
+            else:
+                graph_templates[template.name] = template.convert_to_graph()
+        return graph_templates
+
+    def to_graph(self):
+        graph_templates = self.get_graph_templates(self.entrypoint)
+        g = {
+            "name": self.name,
+            "namespace": self.namespace,
+            "id": self.id,
+            "context": self.context,
+            "annotations": self.annotations,
+            "labels": self.labels,
+            "parallelism": self.parallelism,
+            "pod_gc_strategy": self.pod_gc_strategy,
+            "artifact_repo_key": self.artifact_repo_key,
+            "image_pull_secrets": self.image_pull_secrets,
+            "parameters": self.parameters,
+            "entrypoint": self.entrypoint.name,
+            "templates": graph_templates,
+        }
+        return json.loads(jsonpickle.dumps(g, make_refs=False))
+
+    def to_graph_json(self, **kwargs):
+        return json.dumps(self.to_graph(), **kwargs)
+
+    def to_graph_yaml(self, **kwargs):
+        return yaml.dump(self.to_graph(), **kwargs)
 
     def query(
             self,

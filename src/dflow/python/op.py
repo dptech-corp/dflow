@@ -5,6 +5,7 @@ import inspect
 import json
 import logging
 import os
+import sys
 from abc import ABC
 from copy import deepcopy
 from functools import partial
@@ -16,12 +17,23 @@ from typeguard import check_type
 from ..argo_objects import ArgoObjectDict
 from ..config import config
 from ..context_syntax import GLOBAL_CONTEXT
-from ..io import InputArtifact, InputParameter, OutputArtifact, OutputParameter
+from ..io import (InputArtifact, InputParameter, OutputArtifact,
+                  OutputParameter, type_to_str)
 from ..utils import dict2list, get_key, randstr, s3_config
-from .opio import (OPIO, Artifact, BigParameter, OPIOSign, Parameter,
-                   type_to_str)
+from .opio import OPIO, Artifact, BigParameter, OPIOSign, Parameter
 
 iwd = os.getcwd()
+
+
+def get_source_code(o):
+    source_lines, start_line = inspect.getsourcelines(o)
+    if sys.version_info.minor >= 9:
+        source_file = inspect.getsourcefile(o)
+    else:
+        source_file = os.path.join(iwd, inspect.getsourcefile(o))
+    with open(source_file, "r", encoding="utf-8") as fd:
+        pre_lines = fd.readlines()[:start_line-1]
+    return "".join(pre_lines + source_lines) + "\n"
 
 
 class OP(ABC):
@@ -331,7 +343,7 @@ class OP(ABC):
         opio = {}
         for io, sign in opio_sign.items():
             if type(sign) in [Artifact, Parameter, BigParameter]:
-                opio[io] = sign.to_str()
+                opio[io] = sign
             else:
                 opio[io] = type_to_str(sign)
         return opio
@@ -341,13 +353,25 @@ class OP(ABC):
         res = {}
         name = "%s.%s" % (cls.__module__, cls.__name__)
         res["name"] = name
-        res["inputs"] = cls.get_opio_info(cls.get_input_sign())
-        res["outputs"] = cls.get_opio_info(cls.get_output_sign())
+        res["inputs"] = {k: str(v) for k, v in cls.get_opio_info(
+            cls.get_input_sign()).items()}
+        res["outputs"] = {k: str(v) for k, v in cls.get_opio_info(
+            cls.get_output_sign()).items()}
         if hasattr(cls, "func"):
             res["execute"] = "".join(inspect.getsourcelines(cls.func)[0])
         else:
             res["execute"] = "".join(inspect.getsourcelines(cls.execute)[0])
         return res
+
+    @classmethod
+    def convert_to_graph(cls):
+        return {
+            "name": "%s.%s" % (cls.__module__, cls.__name__),
+            "inputs": cls.get_opio_info(cls.get_input_sign()),
+            "outputs": cls.get_opio_info(cls.get_output_sign()),
+            "source": get_source_code(cls.func) if hasattr(cls, "func")
+            else get_source_code(cls)
+        }
 
 
 def type2opiosign(t):

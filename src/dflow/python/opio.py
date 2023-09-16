@@ -7,12 +7,15 @@ import jsonpickle
 
 from ..common import S3Artifact
 from ..config import config
-from ..io import PVC
+from ..io import PVC, type_to_str
 
 
 class nested_dict:
     def __init__(self, type):
         self.type = type
+
+    def __repr__(self):
+        return "dflow.python.NestedDict[%s]" % type_to_str(self.type)
 
     def __eq__(self, other):
         if not isinstance(other, nested_dict):
@@ -28,16 +31,6 @@ NestedDict = {
 ArtifactAllowedTypes = [str, Path, Set[str], Set[Path], List[str], List[Path],
                         Dict[str, str], Dict[str, Path], NestedDict[str],
                         NestedDict[Path]]
-
-
-def type_to_str(type):
-    if hasattr(type, "__module__") and hasattr(type, "__name__"):
-        if type.__module__ == "builtins":
-            return type.__name__
-        else:
-            return "%s.%s" % (type.__module__, type.__name__)
-    else:
-        return str(type)
 
 
 class Artifact:
@@ -85,7 +78,23 @@ class Artifact:
                                                         ArtifactAllowedTypes)
         super().__setattr__(key, value)
 
-    def to_str(self):
+    def __getstate__(self):
+        return {
+            "type": type_to_str(self.type),
+            "archive": self.archive,
+            "save": self.save,
+            "optional": self.optional,
+            "global_name": self.global_name,
+            "sub_path": self.sub_path,
+        }
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        if isinstance(self.type, str):
+            self.type = {type_to_str(t): t for t in ArtifactAllowedTypes}[
+                self.type]
+
+    def __repr__(self):
         return "Artifact(type=%s, optional=%s, sub_path=%s)" % (
             type_to_str(self.type), self.optional, self.sub_path)
 
@@ -116,7 +125,7 @@ class Parameter:
         for k, v in kwargs.items():
             self.__setattr__(k, v)
 
-    def to_str(self):
+    def __repr__(self):
         default = ""
         if hasattr(self, "default"):
             try:
@@ -125,6 +134,18 @@ class Parameter:
                 default = ", default=jsonpickle.loads('%s')" % \
                     jsonpickle.dumps(self.default)
         return "Parameter(type=%s%s)" % (type_to_str(self.type), default)
+
+    def __getstate__(self):
+        state = {
+            "type": type_to_str(self.type),
+            "global_name": self.global_name,
+        }
+        if hasattr(self, "default"):
+            state["default"] = self.default
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
 
 
 class BigParameter:
@@ -146,7 +167,7 @@ class BigParameter:
         for k, v in kwargs.items():
             self.__setattr__(k, v)
 
-    def to_str(self):
+    def __repr__(self):
         default = ""
         if hasattr(self, "default"):
             try:
@@ -155,6 +176,17 @@ class BigParameter:
                 default = ", default=jsonpickle.loads('%s')" % \
                     jsonpickle.dumps(self.default)
         return "BigParameter(type=%s%s)" % (type_to_str(self.type), default)
+
+    def __getstate__(self):
+        state = {
+            "type": type_to_str(self.type),
+        }
+        if hasattr(self, "default"):
+            state["default"] = self.default
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
 
 
 class OPIOSign(MutableMapping):

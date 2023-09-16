@@ -19,7 +19,7 @@ from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
 from .io import (PVC, ArgoVar, Expression, InputArtifact, InputParameter,
                  InputParameters, OutputArtifact, OutputParameter,
-                 if_expression, to_expr)
+                 if_expression, to_expr, type_to_str)
 from .op_template import (OPTemplate, PythonScriptOPTemplate, ScriptOPTemplate,
                           ShellOPTemplate)
 from .python import Slices
@@ -102,6 +102,23 @@ class ArgoSequence:
             "format": d.get("format", None),
         }
         return cls(**kwargs)
+
+    def to_dict(self):
+        return {
+            "count": "{{=%s}}" % self.count.expr if isinstance(
+                self.count, ArgoVar) else self.count,
+            "start": "{{=%s}}" % self.start.expr if isinstance(
+                self.start, ArgoVar) else self.start,
+            "end": "{{=%s}}" % self.end.expr if isinstance(
+                self.end, ArgoVar) else self.end,
+            "format": self.format
+        }
+
+    def __getstate__(self):
+        return self.to_dict()
+
+    def __setstate__(self, state):
+        self.__dict__.update(self.from_dict(state).__dict__)
 
     def convert_to_argo(self):
         count = self.count
@@ -1337,6 +1354,36 @@ class Step:
                                            error=self.continue_on_error)
         )
 
+    def convert_to_graph(self):
+        if isinstance(self.with_param, ArgoVar):
+            self.with_param = "{{=%s}}" % self.with_param.expr
+        if isinstance(self.when, ArgoVar):
+            self.when = "{{=%s}}" % self.when.expr
+
+        parameters = self.inputs.parameters.convert_to_graph()
+        parameters.pop("dflow_key", None)
+        return {
+            "name": self.name,
+            "template": self.template.name,
+            "with_param": self.with_param,
+            "with_sequence": self.with_sequence,
+            "slices": getattr(self.template, "slices", None),
+            "parameters": parameters,
+            "artifacts": self.inputs.artifacts.convert_to_graph(),
+            "continue_on_failed": self.continue_on_failed,
+            "continue_on_error": self.continue_on_error,
+            "continue_on_num_success": self.continue_on_num_success,
+            "continue_on_success_ratio": self.continue_on_success_ratio,
+            "when": self.when,
+            "key": self.key,
+            "executor": self.executor,
+            "use_resource": self.use_resource,
+            "util_image": self.util_image,
+            "util_image_pull_policy": self.util_image_pull_policy,
+            "util_command": self.util_command,
+            "parallelism": self.parallelism,
+        }
+
     def run(self, scope, context=None):
         self.phase = "Pending"
         self.render_by_executor(context)
@@ -1545,7 +1592,7 @@ class Step:
                 with open(os.path.join(
                         stepdir, "inputs/parameters/.dflow/%s" % name),
                         "w") as f:
-                    f.write(jsonpickle.dumps({"type": str(par.type)}))
+                    f.write(jsonpickle.dumps({"type": type_to_str(par.type)}))
 
     def record_input_artifacts(self, stepdir, artifacts, item, scope,
                                ignore_nonexist=False):
@@ -1623,7 +1670,7 @@ class Step:
                 with open(os.path.join(
                         stepdir, "outputs/parameters/.dflow/%s" % name),
                         "w") as f:
-                    f.write(jsonpickle.dumps({"type": str(par.type)}))
+                    f.write(jsonpickle.dumps({"type": type_to_str(par.type)}))
             if par.global_name is not None:
                 os.makedirs(os.path.join(stepdir, "../outputs/parameters"),
                             exist_ok=True)
