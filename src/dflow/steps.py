@@ -132,6 +132,28 @@ class Steps(OPTemplate):
                              parallelism=self.parallelism)
         return argo_template, templates
 
+    def convert_to_graph(self):
+        graph_steps = []
+        templates = []
+        for step in self.steps:
+            if not isinstance(step, list):
+                step = [step]
+            graph_parallel_steps = []
+            for ps in step:
+                graph_parallel_steps.append(ps.convert_to_graph())
+                templates.append(ps.template)
+            graph_steps.append(graph_parallel_steps)
+
+        return {
+            "type": "Steps",
+            "name": self.name,
+            "annotations": self.annotations,
+            "steps": graph_steps,
+            "inputs": self.inputs.convert_to_graph(),
+            "outputs": self.outputs.convert_to_graph(),
+            "parallelism": self.parallelism,
+        }, templates
+
     def run(self, workflow_id=None, context=None):
         self.workflow_id = workflow_id
         for step in self:

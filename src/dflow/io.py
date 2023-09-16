@@ -23,6 +23,16 @@ except Exception:
 NotAllowedInputArtifactPath = ["/", "/tmp"]
 
 
+def type_to_str(type):
+    if hasattr(type, "__module__") and hasattr(type, "__name__"):
+        if type.__module__ == "builtins":
+            return type.__name__
+        else:
+            return "%s.%s" % (type.__module__, type.__name__)
+    else:
+        return str(type)
+
+
 class ObjectDict(UserDict):
     def __getattr__(self, key):
         if key == "data":
@@ -104,6 +114,9 @@ class AutonamedDict(UserDict):
         self.template = template
         for value in self.values():
             value.template = template
+
+    def convert_to_graph(self):
+        return {k: v.convert_to_graph() for k, v in self.items()}
 
 
 class InputParameters(AutonamedDict):
@@ -434,8 +447,9 @@ class InputParameter(ArgoVar):
     def from_dict(cls, d):
         kwargs = {
             "name": d.get("name", None),
+            # for backward compatible
             "type": str if json.loads(d.get("description", "{}")).get(
-                "type", str(str)) == str(str) else None,
+                "type", "str") in ["str", str(str)] else None,
         }
         if "value" in d:
             kwargs["value"] = d["value"]
@@ -496,7 +510,7 @@ class InputParameter(ArgoVar):
     def convert_to_argo(self):
         description = None
         if self.type is not None:
-            description = jsonpickle.dumps({"type": str(self.type)})
+            description = jsonpickle.dumps({"type": type_to_str(self.type)})
 
         if self.save_as_artifact:
             if isinstance(self.source, (InputParameter, OutputParameter,
@@ -544,6 +558,35 @@ class InputParameter(ArgoVar):
             return V1alpha1Parameter(name=self.name,
                                      value=convert_value_to_str(self.value),
                                      description=description)
+
+    def convert_to_graph(self):
+        g = {
+            "name": self.name,
+            "type": type_to_str(self.type) if self.type is not None else None,
+            "save_as_artifact": self.save_as_artifact,
+            "path": self.path,
+        }
+        if hasattr(self, "value"):
+            if isinstance(self.value, ArgoVar):
+                if self.value.is_str:
+                    g["value"] = "{{=%s}}" % self.value.expr
+                else:
+                    g["value"] = "{{=string(%s) == %s ? %s : toJson(%s)}}" % (
+                        self.value.expr, self.value.expr, self.value.expr,
+                        self.value.expr)
+            else:
+                g["value"] = self.value
+        elif self.source is not None:
+            if getattr(self.source, "save_as_artifact", False):
+                self.source.save_as_artifact = False
+                g["value"] = str(self.source) if isinstance(
+                    self.source, ArgoVar) else self.source
+                self.source.save_as_artifact = True
+            else:
+                g["value"] = str(self.source) if isinstance(
+                    self.source, ArgoVar) else self.source
+        print(g)
+        return g
 
 
 class InputArtifact(ArgoVar):
@@ -738,6 +781,34 @@ class InputArtifact(ArgoVar):
                 "Cannot pass an object of type %s to artifact %s" %
                 (type(self.source), self))
 
+    def convert_to_graph(self):
+        if getattr(self.source, "save_as_parameter", False):
+            self.source.save_as_parameter = False
+            source = str(self.source) if isinstance(
+                self.source, ArgoVar) else self.source
+            self.source.save_as_parameter = True
+        elif self.source is not None:
+            source = str(self.source) if isinstance(
+                self.source, ArgoVar) else self.source
+        else:
+            source = None
+        sub_path = getattr(self.source, "_sub_path", None)
+        if self.sp is not None:
+            sub_path = self.sp if sub_path is None else "%s/%s" % (
+                sub_path, self.sp)
+        return {
+            "name": self.name,
+            "type": type_to_str(self.type) if self.type is not None else None,
+            "path": self.path,
+            "optional": self.optional,
+            "source": source,
+            "mode": self.mode,
+            "sub_path": sub_path,
+            "slice": self.slice,
+            "archive": self.archive,
+            "save_as_parameter": self.save_as_parameter,
+        }
+
 
 class OutputParameter(ArgoVar):
     """
@@ -791,8 +862,9 @@ class OutputParameter(ArgoVar):
         kwargs = {
             "name": d.get("name", None),
             "value_from_path": d.get("valueFrom", {}).get("path", None),
+            # for backward compatible
             "type": str if json.loads(d.get("description", "{}")).get(
-                "type", str(str)) == str(str) else None,
+                "type", "str") in ["str", str(str)] else None,
             "global_name": d.get("globalName", None),
             "value_from_expression": d.get("valueFrom", {}).get("expression",
                                                                 None),
@@ -927,7 +999,7 @@ class OutputParameter(ArgoVar):
     def convert_to_argo_parameter(self):
         description = None
         if self.type is not None:
-            description = jsonpickle.dumps({"type": str(self.type)})
+            description = jsonpickle.dumps({"type": type_to_str(self.type)})
 
         default = None
         if hasattr(self, "default"):
@@ -978,6 +1050,33 @@ class OutputParameter(ArgoVar):
                 return self.convert_to_argo_artifact()
         else:
             return self.convert_to_argo_parameter()
+
+    def convert_to_graph(self):
+        g = {
+            "name": self.name,
+            "value_from_path": self.value_from_path,
+            "type": type_to_str(self.type) if self.type is not None else None,
+            "global_name": self.global_name,
+            "value_from_expression": str(self.value_from_expression)
+            if self.value_from_expression is not None else None,
+            "save_as_artifact": self.save_as_artifact,
+            "save_both": self.save_both,
+            "value_from_parameter": None,
+        }
+        if self.value_from_parameter is not None:
+            if getattr(self.value_from_parameter, "save_as_artifact", False):
+                self.value_from_parameter.save_as_artifact = False
+                g["value_from_parameter"] = str(self.value_from_parameter)\
+                    .replace("{{", "").replace("}}", "")
+                self.value_from_parameter.save_as_artifact = True
+            else:
+                g["value_from_parameter"] = str(self.value_from_parameter)\
+                    .replace("{{", "").replace("}}", "")
+        if hasattr(self, "default"):
+            g["default"] = self.default
+        if hasattr(self, "value"):
+            g["value"] = self.value
+        return g
 
 
 class OutputArtifact(ArgoVar):
@@ -1193,6 +1292,21 @@ class OutputArtifact(ArgoVar):
         else:
             raise RuntimeError("Output artifact %s is not specified" % self)
 
+    def convert_to_graph(self):
+        return {
+            "name": self.name,
+            "path": self.path,
+            "type": type_to_str(self.type) if self.type is not None else None,
+            "save": self.save,
+            "archive": self.archive,
+            "global_name": self.global_name,
+            "from_expression": str(self.from_expression)
+            if self.from_expression is not None else None,
+            "redirect": str(self.redirect) if self.redirect is not None
+            else None,
+            "_from": str(self._from) if self._from is not None else None,
+        }
+
 
 class Inputs:
     """
@@ -1270,6 +1384,12 @@ class Inputs:
             else:
                 artifacts.append(art.convert_to_argo())
         return V1alpha1Inputs(parameters=parameters, artifacts=artifacts)
+
+    def convert_to_graph(self):
+        return {
+            "parameters": self.parameters.convert_to_graph(),
+            "artifacts": self.artifacts.convert_to_graph(),
+        }
 
 
 class Outputs:
@@ -1349,3 +1469,9 @@ class Outputs:
         for art in self.artifacts.values():
             artifacts.append(art.convert_to_argo())
         return V1alpha1Outputs(parameters=parameters, artifacts=artifacts)
+
+    def convert_to_graph(self):
+        return {
+            "parameters": self.parameters.convert_to_graph(),
+            "artifacts": self.artifacts.convert_to_graph(),
+        }

@@ -85,7 +85,8 @@ class S3Artifact(V1alpha1S3Artifact):
         return art
 
     def to_dict(self):
-        d = {"key": self.key, "urn": self.urn}
+        d = {"key": self.key, "urn": self.urn, "path_list": self.path_list,
+             "slice": self.slice}
         if s3_config["storage_client"] is None:
             d.update(s3_config)
         else:
@@ -94,7 +95,16 @@ class S3Artifact(V1alpha1S3Artifact):
 
     @classmethod
     def from_dict(cls, d):
-        return cls(key=d["key"], urn=d.get("urn", ""))
+        artifact = cls(key=d["key"], urn=d.get("urn", ""),
+                       path_list=d.get("path_list"))
+        artifact.slice = d.get("slice")
+        return artifact
+
+    def __getstate__(self):
+        return self.to_dict()
+
+    def __setstate__(self, state):
+        self.__dict__.update(self.from_dict(state).__dict__)
 
     def sub_path(
             self,

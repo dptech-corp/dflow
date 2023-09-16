@@ -9,8 +9,8 @@ from .io import PVC, InputParameter, Inputs, OutputParameter, Outputs
 from .utils import randstr
 
 try:
-    from argo.workflows.client import (V1alpha1Cache, V1alpha1Memoize,
-                                       V1alpha1Metadata,
+    from argo.workflows.client import (V1Affinity, V1alpha1Cache,
+                                       V1alpha1Memoize, V1alpha1Metadata,
                                        V1alpha1ResourceTemplate,
                                        V1alpha1ScriptTemplate,
                                        V1alpha1Template, V1alpha1UserContainer,
@@ -24,13 +24,14 @@ try:
 
     from .client.v1alpha1_retry_strategy import V1alpha1RetryStrategy
 except Exception:
+    V1Affinity = object
     V1alpha1ResourceTemplate = object
     V1alpha1RetryStrategy = object
+    V1alpha1UserContainer = object
+    V1EnvVarSource = object
     V1Toleration = object
     V1Volume = object
     V1VolumeMount = object
-    V1alpha1UserContainer = object
-    V1EnvVarSource = object
 
 
 class Secret:
@@ -218,6 +219,7 @@ class ScriptOPTemplate(OPTemplate):
         labels: labels for the OP template
         node_selector: node selector when scheduling the pod
         tolerations: tolerations of taints when scheduling the pod
+        affinity: affinity when scheduling the pod
         requests: a dict of resource requests
         limits: a dict of resource limits
         envs: environment variables
@@ -234,6 +236,7 @@ class ScriptOPTemplate(OPTemplate):
             labels: Dict[str, str] = None,
             node_selector: Dict[str, str] = None,
             tolerations: List[V1Toleration] = None,
+            affinity: V1Affinity = None,
             image: Optional[str] = None,
             command: Union[str, List[str]] = None,
             script: Optional[str] = None,
@@ -281,6 +284,7 @@ class ScriptOPTemplate(OPTemplate):
         self.sidecars = sidecars
         self.node_selector = node_selector if node_selector is not None else {}
         self.tolerations = tolerations if tolerations is not None else []
+        self.affinity = affinity
         self.script_rendered = script_rendered
 
     @classmethod
@@ -311,6 +315,9 @@ class ScriptOPTemplate(OPTemplate):
                 "script", {}).get("env", [])},
             "init_containers": d.get("initContainers", None),
             "sidecars": d.get("sidecars", None),
+            "node_selector": d.get("nodeSelector", None),
+            "tolerations": d.get("tolerations", None),
+            "affinity": d.get("affinity", None),
         }
         engine = d.get("metadata", {}).get("annotations", {}).get(
             "workflow.dp.tech/container_engine")
@@ -397,6 +404,7 @@ class ScriptOPTemplate(OPTemplate):
                                      labels=self.labels),
                                  node_selector=self.node_selector,
                                  tolerations=self.tolerations,
+                                 affinity=self.affinity,
                                  inputs=self.inputs.convert_to_argo(),
                                  outputs=self.outputs.convert_to_argo(),
                                  timeout=self.timeout,
@@ -416,6 +424,36 @@ class ScriptOPTemplate(OPTemplate):
                                  sidecars=self.sidecars,
                                  archive_location=loc,
                                  )
+
+    def convert_to_graph(self):
+        return {
+            "name": self.name,
+            "type": "ScriptOPTemplate",
+            "inputs": self.inputs.convert_to_graph(),
+            "outputs": self.outputs.convert_to_graph(),
+            "memoize_key": self.memoize_key,
+            "pvcs": self.pvcs,
+            "annotations": self.annotations,
+            "labels": self.labels,
+            "image": self.image,
+            "command": self.command,
+            "script": self.script,
+            "volumes": self.volumes,
+            "mounts": self.mounts,
+            "init_progress": self.init_progress,
+            "timeout": self.timeout,
+            "retry_strategy": self.retry_strategy,
+            "resource": self.resource,
+            "image_pull_policy": self.image_pull_policy,
+            "requests": self.requests,
+            "limits": self.limits,
+            "envs": self.envs,
+            "init_containers": self.init_containers,
+            "sidecars": self.sidecars,
+            "node_selector": self.node_selector,
+            "tolerations": self.tolerations,
+            "affinity": self.affinity,
+        }
 
 
 class ShellOPTemplate(ScriptOPTemplate):
@@ -441,6 +479,7 @@ class ShellOPTemplate(ScriptOPTemplate):
         labels: labels for the OP template
         node_selector: node selector when scheduling the pod
         tolerations: tolerations of taints when scheduling the pod
+        affinity: affinity when scheduling the pod
         requests: a dict of resource requests
         limits: a dict of resource limits
         envs: environment variables
@@ -459,6 +498,7 @@ class ShellOPTemplate(ScriptOPTemplate):
         labels: Dict[str, str] = None,
         node_selector: Dict[str, str] = None,
         tolerations: List[V1Toleration] = None,
+        affinity: V1Affinity = None,
         image: Optional[str] = None,
         command: Union[str, List[str]] = None,
         script: Optional[str] = None,
@@ -482,7 +522,7 @@ class ShellOPTemplate(ScriptOPTemplate):
             init_progress=init_progress, timeout=timeout,
             retry_strategy=retry_strategy, memoize_key=memoize_key, pvcs=pvcs,
             image_pull_policy=image_pull_policy, annotations=annotations,
-            labels=labels, node_selector=node_selector,
+            labels=labels, node_selector=node_selector, affinity=affinity,
             tolerations=tolerations, requests=requests, limits=limits,
             envs=envs, init_containers=init_containers, sidecars=sidecars,
         )
@@ -511,6 +551,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         labels: labels for the OP template
         node_selector: node selector when scheduling the pod
         tolerations: tolerations of taints when scheduling the pod
+        affinity: affinity when scheduling the pod
         requests: a dict of resource requests
         limits: a dict of resource limits
         envs: environment variables
@@ -529,6 +570,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         labels: Dict[str, str] = None,
         node_selector: Dict[str, str] = None,
         tolerations: List[V1Toleration] = None,
+        affinity: V1Affinity = None,
         image: Optional[str] = None,
         command: Union[str, List[str]] = None,
         script: Optional[str] = None,
@@ -552,7 +594,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
             init_progress=init_progress, timeout=timeout,
             retry_strategy=retry_strategy, memoize_key=memoize_key, pvcs=pvcs,
             image_pull_policy=image_pull_policy, annotations=annotations,
-            labels=labels, node_selector=node_selector,
+            labels=labels, node_selector=node_selector, affinity=affinity,
             tolerations=tolerations, requests=requests, limits=limits,
             envs=envs, init_containers=init_containers, sidecars=sidecars,
         )

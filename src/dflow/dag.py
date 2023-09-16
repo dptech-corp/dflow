@@ -120,6 +120,23 @@ class DAG(OPTemplate):
                              parallelism=self.parallelism)
         return argo_template, templates
 
+    def convert_to_graph(self):
+        graph_tasks = []
+        templates = []
+        for task in self.tasks:
+            graph_tasks.append(task.convert_to_graph())
+            templates.append(task.template)
+
+        return {
+            "type": "DAG",
+            "name": self.name,
+            "annotations": self.annotations,
+            "tasks": graph_tasks,
+            "inputs": self.inputs.convert_to_graph(),
+            "outputs": self.outputs.convert_to_graph(),
+            "parallelism": self.parallelism,
+        }, templates
+
     def resolve(self, pool, futures):
         import concurrent.futures
         for task in self.waiting.copy():

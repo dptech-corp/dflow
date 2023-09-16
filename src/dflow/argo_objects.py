@@ -96,7 +96,8 @@ class ArgoParameter(ArgoObjectDict):
         if key == "value" and hasattr(self, "description") and \
                 self.description is not None:
             desc = jsonpickle.loads(self.description)
-            if desc["type"] != str(str):
+            # for backward compatible
+            if desc["type"] not in ["str", str(str)]:
                 try:
                     return jsonpickle.loads(super().__getattr__("value"))
                 except Exception as e:

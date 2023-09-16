@@ -104,3 +104,8 @@ class Task(Step):
             with_sequence=self.with_sequence,
             depends=" && ".join(depends),
         )
+
+    def convert_to_graph(self):
+        g = super().convert_to_graph()
+        g["denpendencies"] = [str(d) for d in self.dependencies]
+        return g
