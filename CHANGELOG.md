@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.7.83](https://github.com/deepmodeling/dflow/compare/v1.7.82...v1.7.83) (2023-09-16)
+
+
+### Bug Fixes
+
+* add convert_to_graph ([54573e5](https://github.com/deepmodeling/dflow/commit/54573e50423a6b7d19776e6d4dc7a92f8e6d4b1e))
+* add debug_workdir ([88c4a77](https://github.com/deepmodeling/dflow/commit/88c4a771ff67bf3051b8a4bf56bb51977c1ca711))
+* recursive symlink ([88c4a77](https://github.com/deepmodeling/dflow/commit/88c4a771ff67bf3051b8a4bf56bb51977c1ca711))
+* str(str) ([88c4a77](https://github.com/deepmodeling/dflow/commit/88c4a771ff67bf3051b8a4bf56bb51977c1ca711))
+
 ## [1.7.82](https://github.com/deepmodeling/dflow/compare/v1.7.81...v1.7.82) (2023-09-14)
 
 
