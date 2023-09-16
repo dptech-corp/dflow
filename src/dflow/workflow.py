@@ -220,12 +220,14 @@ class Workflow:
             if self.id is None:
                 while True:
                     self.id = self.name + "-" + randstr()
-                    wfdir = os.path.abspath(self.id)
+                    wfdir = os.path.abspath(os.path.join(
+                        config["debug_workdir"], self.id))
                     if not os.path.exists(wfdir):
                         os.makedirs(wfdir)
                         break
             else:
-                wfdir = os.path.abspath(self.id)
+                wfdir = os.path.abspath(os.path.join(
+                    config["debug_workdir"], self.id))
                 if os.path.exists(wfdir):
                     with open(os.path.join(wfdir, "status"), "r") as f:
                         status = f.read()
@@ -818,7 +820,8 @@ class Workflow:
             Pending, Running, Succeeded, Failed, Error, etc
         """
         if config["mode"] == "debug":
-            with open("%s/status" % self.id, "r") as f:
+            wfdir = os.path.join(config["debug_workdir"], self.id)
+            with open(os.path.join(wfdir, "status"), "r") as f:
                 return f.read()
         workflow = self.query(fields=["status.phase"])
 
@@ -855,11 +858,12 @@ class Workflow:
             a list of steps
         """
         if config["mode"] == "debug":
+            wfdir = os.path.join(config["debug_workdir"], self.id)
             if key is not None and not isinstance(key, list):
                 key = [key]
             step_list = []
-            for s in os.listdir(self.id):
-                stepdir = os.path.join(self.id, s)
+            for s in os.listdir(wfdir):
+                stepdir = os.path.join(wfdir, s)
                 if not os.path.isdir(stepdir):
                     continue
                 if not os.path.exists(os.path.join(stepdir, "name")):
@@ -915,7 +919,8 @@ class Workflow:
                                         stepdir, io, "parameters/.dflow", p),
                                         "r") as f:
                                     _type = json.load(f)["type"]
-                                if _type != str(str):
+                                # for backward compatible
+                                if _type not in ["str", str(str)]:
                                     val = jsonpickle.loads(val)
                             step[io]["parameters"].append({
                                 "name": p, "value": val, "type": _type})
@@ -1019,10 +1024,11 @@ class Workflow:
             a list of steps
         """
         if config["mode"] == "debug":
-            if not os.path.exists(os.path.join(self.id, "outputs")):
+            wfdir = os.path.join(config["debug_workdir"], self.id)
+            if not os.path.exists(os.path.join(wfdir, "outputs")):
                 return None
             outputs = {"parameters": [], "artifacts": []}
-            pars = os.path.join(self.id, "outputs", "parameters")
+            pars = os.path.join(wfdir, "outputs", "parameters")
             if os.path.exists(pars):
                 for p in os.listdir(pars):
                     if p == ".dflow":
@@ -1033,11 +1039,12 @@ class Workflow:
                     if os.path.exists(os.path.join(pars, ".dflow", p)):
                         with open(os.path.join(pars, ".dflow", p), "r") as f:
                             _type = json.load(f)["type"]
-                        if _type != str(str):
+                        # for backward compatible
+                        if _type != ["str", str(str)]:
                             val = jsonpickle.loads(val)
                     outputs["parameters"].append({
                         "name": p, "value": val, "type": _type})
-            arts = os.path.join(self.id, "outputs", "artifacts")
+            arts = os.path.join(wfdir, "outputs", "artifacts")
             if os.path.exists(arts):
                 for a in os.listdir(arts):
                     outputs["artifacts"].append({
@@ -1059,7 +1066,8 @@ class Workflow:
         if self.id is None:
             raise RuntimeError("Workflow ID is None")
         if config["mode"] == "debug":
-            with open(os.path.join(self.id, "pid"), "r") as f:
+            wfdir = os.path.join(config["debug_workdir"], self.id)
+            with open(os.path.join(wfdir, "pid"), "r") as f:
                 pid = int(f.read())
             import psutil
             p = psutil.Process(pid)

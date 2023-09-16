@@ -240,7 +240,7 @@ def upload_artifact(
             target = os.path.join(tmpdir, relpath)
             os.makedirs(os.path.dirname(target), exist_ok=True)
             if config["mode"] == "debug" and not config["debug_s3"] and \
-                    cwd.startswith(str(p)):
+                    cwd.startswith(os.path.abspath(str(p))):
                 # To avoid recursive symlink
                 copy_file(abspath, target)
             else:
@@ -383,8 +383,8 @@ def upload_s3(
     if config["mode"] == "debug" and not config["debug_s3"]:
         if key is None:
             key = "upload/%s/%s" % (uuid.uuid4(), os.path.basename(path))
-        target = os.path.abspath(
-            os.path.join(config["debug_artifact_dir"], key))
+        target = os.path.abspath(os.path.join(
+            config["debug_workdir"], config["debug_artifact_dir"], key))
         os.makedirs(os.path.dirname(target), exist_ok=True)
         debug_func(os.path.abspath(path), target)
         return target
