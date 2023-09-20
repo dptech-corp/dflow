@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.84](https://github.com/deepmodeling/dflow/compare/v1.7.83...v1.7.84) (2023-09-20)
+
+
+### Bug Fixes
+
+* project_id -&gt; projectId ([05b4731](https://github.com/deepmodeling/dflow/commit/05b473142efeb6cce4c9b6a88aba8a804b894ec3))
+
 ## [1.7.83](https://github.com/deepmodeling/dflow/compare/v1.7.82...v1.7.83) (2023-09-16)
 
 
