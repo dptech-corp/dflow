@@ -93,7 +93,7 @@ def create_job_group(job_group_name):
     import requests
     data = {
         "name": job_group_name,
-        "project_id": config["project_id"],
+        "projectId": config["project_id"],
     }
     headers = {
         "Content-type": "application/json",
