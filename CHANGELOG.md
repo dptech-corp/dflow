@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.85](https://github.com/deepmodeling/dflow/compare/v1.7.84...v1.7.85) (2023-09-20)
+
+
+### Bug Fixes
+
+* convert project_id to int ([eabe7e1](https://github.com/deepmodeling/dflow/commit/eabe7e1eb41c08a1fd5f9f1e04fbfce02722aa29))
+
 ## [1.7.84](https://github.com/deepmodeling/dflow/compare/v1.7.83...v1.7.84) (2023-09-20)
 
 
