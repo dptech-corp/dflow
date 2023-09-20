@@ -93,8 +93,9 @@ def create_job_group(job_group_name):
     import requests
     data = {
         "name": job_group_name,
-        "projectId": config["project_id"],
     }
+    if config["project_id"] is not None:
+        data["projectId"] = int(config["project_id"])
     headers = {
         "Content-type": "application/json",
     }
