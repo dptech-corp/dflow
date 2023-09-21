@@ -529,18 +529,23 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         if self.slices is not None and self.slices.pool_size is not None:
             sliced_inputs = self.slices.input_artifact + \
                 self.slices.input_parameter
-            if len(sliced_inputs) > 1:
-                script += "    assert %s\n" % " == ".join(
-                    ["len(input['%s'])" % i for i in sliced_inputs])
-            script += "    n_slices = len(input['%s'])\n" % \
-                sliced_inputs[0]
+            script += "    n_slices = None\n"
+            for name in sliced_inputs:
+                # for optional artifact
+                script += "    if input['%s'] is not None:\n" % name
+                script += "        if n_slices is None:\n"
+                script += "            n_slices = len(input['%s'])\n" % name
+                script += "        else:\n"
+                script += "            assert len(input['%s']) == n_slices\n" \
+                    % name
+            script += "    assert n_slices is not None\n"
             script += "    input_list = []\n"
             script += "    from copy import deepcopy\n"
             script += "    for i in range(n_slices):\n"
             script += "        input1 = deepcopy(input)\n"
             for name in sliced_inputs:
-                script += "        input1['%s'] = list(input['%s'])[i]\n" % (
-                    name, name)
+                script += "        input1['%s'] = list(input['%s'])[i] if "\
+                    "input['%s'] is not None else None\n" % (name, name, name)
             script += "        input_list.append(input1)\n"
             if self.slices.pool_size == 1:
                 script += "    output_list = []\n"
