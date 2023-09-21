@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.7.86](https://github.com/deepmodeling/dflow/compare/v1.7.85...v1.7.86) (2023-09-21)
+
+
+### Bug Fixes
+
+* optional artifact when grouping slices ([ce9361d](https://github.com/deepmodeling/dflow/commit/ce9361d747ebcb609066a7baf5cc03acdcefa2ca))
+
 ## [1.7.85](https://github.com/deepmodeling/dflow/compare/v1.7.84...v1.7.85) (2023-09-20)
 
 
