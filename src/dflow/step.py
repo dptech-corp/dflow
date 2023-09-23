@@ -334,8 +334,11 @@ class Step:
         self.name = name
         self.id = self.name
         self.template = template
+        self._with_param = with_param
         self.with_param = with_param
+        self._with_sequence = with_sequence
         self.with_sequence = with_sequence
+        self._slices = slices or getattr(self.template, "slices", None)
         if slices is not None and slices.sub_path and all([isinstance(
                 artifacts[n], list) for n in slices.input_artifact]):
             self.handle_sub_path_slices_of_artifact_list(slices, artifacts)
@@ -585,8 +588,7 @@ class Step:
                             v.sub_path(config["catalog_dir_name"])
                         self.inputs.artifacts[name].source = \
                             v.sub_path("{{item.%s}}" % name)
-                    elif isinstance(v, (InputArtifact, OutputArtifact,
-                                        LocalArtifact)):
+                    elif v is not None:
                         self.prepare_step.inputs.artifacts[name].source = v
                         self.inputs.artifacts[name].sp = "{{item.%s}}" % name
                 self.with_param = self.prepare_step.outputs.parameters[
@@ -1355,21 +1357,29 @@ class Step:
         )
 
     def convert_to_graph(self):
-        if isinstance(self.with_param, ArgoVar):
-            self.with_param = "{{=%s}}" % self.with_param.expr
+        if isinstance(self._with_param, ArgoVar):
+            self._with_param = "{{=%s}}" % self._with_param.expr
         if isinstance(self.when, ArgoVar):
             self.when = "{{=%s}}" % self.when.expr
 
-        parameters = self.inputs.parameters.convert_to_graph()
-        parameters.pop("dflow_key", None)
+        parameters = {
+            k: v["value"] for k, v in
+            self.inputs.parameters.convert_to_graph().items()
+            if not k.startswith("dflow_") and "value" in v
+        }
+        artifacts = {
+            k: v["source"] for k, v in
+            self.inputs.artifacts.convert_to_graph().items()
+            if not k.startswith("dflow_") and v["source"] is not None
+        }
         return {
             "name": self.name,
             "template": self.template.name,
-            "with_param": self.with_param,
-            "with_sequence": self.with_sequence,
-            "slices": getattr(self.template, "slices", None),
+            "with_param": self._with_param,
+            "with_sequence": self._with_sequence,
+            "slices": self._slices,
             "parameters": parameters,
-            "artifacts": self.inputs.artifacts.convert_to_graph(),
+            "artifacts": artifacts,
             "continue_on_failed": self.continue_on_failed,
             "continue_on_error": self.continue_on_error,
             "continue_on_num_success": self.continue_on_num_success,
@@ -1381,8 +1391,20 @@ class Step:
             "util_image": self.util_image,
             "util_image_pull_policy": self.util_image_pull_policy,
             "util_command": self.util_command,
-            "parallelism": self.parallelism,
         }
+
+    @classmethod
+    def from_graph(cls, graph, templates):
+        template = templates[graph["template"]]
+        graph["template"] = template
+        if isinstance(graph.get("with_param"), str) and graph[
+                "with_param"].startswith("{{="):
+            graph["with_param"] = ArgoVar(graph["with_param"][3:-2])
+        for k in template.inputs.artifacts:
+            if not k.startswith("dflow_") and k not in graph["artifacts"]:
+                graph["artifacts"] = graph.get("artifacts", {})
+                graph["artifacts"][k] = None
+        return cls(**graph)
 
     def run(self, scope, context=None):
         self.phase = "Pending"

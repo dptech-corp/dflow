@@ -777,6 +777,56 @@ class Workflow:
     def to_graph_yaml(self, **kwargs):
         return yaml.dump(self.to_graph(), **kwargs)
 
+    @classmethod
+    def from_graph(cls, graph):
+        from .python import PythonOPTemplate
+
+        graph = jsonpickle.loads(json.dumps(graph))
+        templates = {}
+        for name, template in list(graph["templates"].items()):
+            if template["type"] == "PythonOPTemplate":
+                templates[name] = PythonOPTemplate.from_graph(template)
+                del graph["templates"][name]
+            elif template["type"] == "ScriptOPTemplate":
+                templates[name] = ScriptOPTemplate.from_graph(template)
+                del graph["templates"][name]
+
+        while len(graph["templates"]) > 0:
+            update = False
+            for name, template in list(graph["templates"].items()):
+                if template["type"] == "Steps":
+                    if all([all([
+                        ps["template"] in templates or ps["template"] == name
+                            for ps in s]) for s in template["steps"]]):
+                        templates[name] = Steps.from_graph(template, templates)
+                        del graph["templates"][name]
+                        update = True
+                elif template["type"] == "DAG":
+                    if all([
+                        t["template"] in templates or t["template"] == name
+                            for t in template["tasks"]]):
+                        templates[name] = DAG.from_graph(template, templates)
+                        del graph["templates"][name]
+                        update = True
+            assert update, "Failed to resolve templates: %s" % list(
+                graph["templates"])
+
+        del graph["templates"]
+        entrypoint = templates[graph.pop("entrypoint")]
+        if isinstance(entrypoint, Steps):
+            graph["steps"] = entrypoint
+        elif isinstance(entrypoint, DAG):
+            graph["dag"] = entrypoint
+        return cls(**graph)
+
+    @classmethod
+    def from_graph_json(cls, j, **kwargs):
+        return cls.from_graph(json.loads(j, **kwargs))
+
+    @classmethod
+    def from_graph_yaml(cls, y, **kwargs):
+        return cls.from_graph(yaml.full_load(y, **kwargs))
+
     def query(
             self,
             fields: Optional[List[str]] = None,

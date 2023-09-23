@@ -116,7 +116,8 @@ class AutonamedDict(UserDict):
             value.template = template
 
     def convert_to_graph(self):
-        return {k: v.convert_to_graph() for k, v in self.items()}
+        return {k: v.convert_to_graph() for k, v in self.items()
+                if not k.startswith("dflow_")}
 
 
 class InputParameters(AutonamedDict):
@@ -513,8 +514,7 @@ class InputParameter(ArgoVar):
             description = jsonpickle.dumps({"type": type_to_str(self.type)})
 
         if self.save_as_artifact:
-            if isinstance(self.source, (InputParameter, OutputParameter,
-                                        InputArtifact, OutputArtifact)):
+            if self.source is not None:
                 return V1alpha1Artifact(name="dflow_bigpar_" + self.name,
                                         path=self.path, _from=str(self.source))
             elif hasattr(self, "value"):
@@ -577,16 +577,15 @@ class InputParameter(ArgoVar):
             else:
                 g["value"] = self.value
         elif self.source is not None:
-            if getattr(self.source, "save_as_artifact", False):
+            if hasattr(self.source, "save_as_artifact"):
                 self.source.save_as_artifact = False
-                g["value"] = str(self.source) if isinstance(
-                    self.source, ArgoVar) else self.source
-                self.source.save_as_artifact = True
-            else:
-                g["value"] = str(self.source) if isinstance(
-                    self.source, ArgoVar) else self.source
-        print(g)
+            g["value"] = str(self.source) if isinstance(
+                self.source, ArgoVar) else self.source
         return g
+
+    @classmethod
+    def from_graph(cls, graph):
+        return cls(**graph)
 
 
 class InputArtifact(ArgoVar):
@@ -742,9 +741,10 @@ class InputArtifact(ArgoVar):
             return V1alpha1Artifact(name=self.name, path=self.path,
                                     optional=self.optional, mode=self.mode,
                                     archive=archive)
-        if isinstance(self.source, (InputArtifact, OutputArtifact)):
+        if isinstance(self.source, (InputArtifact, OutputArtifact)) or (
+                isinstance(self.source, str) and self.source.find("{{") != -1):
             sub_path = self.sp if self.sp is not None else \
-                self.source._sub_path
+                getattr(self.source, "_sub_path", None)
             if isinstance(sub_path, ArgoVar):
                 sub_path = "{{=%s}}" % sub_path.expr
             return V1alpha1Artifact(name=self.name, path=self.path,
@@ -763,10 +763,6 @@ class InputArtifact(ArgoVar):
                                         oss=self.source.oss(),
                                         sub_path=self.sp, mode=self.mode,
                                         archive=archive)
-        elif isinstance(self.source, str) and self.source.find("{{") != -1:
-            return V1alpha1Artifact(name=self.name, path=self.path,
-                                    optional=self.optional, _from=self.source,
-                                    mode=self.mode, archive=archive)
         elif isinstance(self.source, str):
             return V1alpha1Artifact(name=self.name, path=self.path,
                                     optional=self.optional,
@@ -782,20 +778,13 @@ class InputArtifact(ArgoVar):
                 (type(self.source), self))
 
     def convert_to_graph(self):
-        if getattr(self.source, "save_as_parameter", False):
+        if hasattr(self.source, "save_as_parameter"):
             self.source.save_as_parameter = False
-            source = str(self.source) if isinstance(
-                self.source, ArgoVar) else self.source
-            self.source.save_as_parameter = True
-        elif self.source is not None:
-            source = str(self.source) if isinstance(
-                self.source, ArgoVar) else self.source
-        else:
-            source = None
-        sub_path = getattr(self.source, "_sub_path", None)
-        if self.sp is not None:
-            sub_path = self.sp if sub_path is None else "%s/%s" % (
-                sub_path, self.sp)
+        if hasattr(self.source, "redirect"):
+            self.source.redirect = None
+
+        source = str(self.source) if isinstance(
+            self.source, ArgoVar) else self.source
         return {
             "name": self.name,
             "type": type_to_str(self.type) if self.type is not None else None,
@@ -803,11 +792,15 @@ class InputArtifact(ArgoVar):
             "optional": self.optional,
             "source": source,
             "mode": self.mode,
-            "sub_path": sub_path,
+            "sub_path": self.sp,
             "slice": self.slice,
             "archive": self.archive,
             "save_as_parameter": self.save_as_parameter,
         }
+
+    @classmethod
+    def from_graph(cls, graph):
+        return cls(**graph)
 
 
 class OutputParameter(ArgoVar):
@@ -1064,19 +1057,18 @@ class OutputParameter(ArgoVar):
             "value_from_parameter": None,
         }
         if self.value_from_parameter is not None:
-            if getattr(self.value_from_parameter, "save_as_artifact", False):
+            if hasattr(self.value_from_parameter, "save_as_artifact"):
                 self.value_from_parameter.save_as_artifact = False
-                g["value_from_parameter"] = str(self.value_from_parameter)\
-                    .replace("{{", "").replace("}}", "")
-                self.value_from_parameter.save_as_artifact = True
-            else:
-                g["value_from_parameter"] = str(self.value_from_parameter)\
-                    .replace("{{", "").replace("}}", "")
+            g["value_from_parameter"] = str(self.value_from_parameter)
         if hasattr(self, "default"):
             g["default"] = self.default
         if hasattr(self, "value"):
             g["value"] = self.value
         return g
+
+    @classmethod
+    def from_graph(cls, graph):
+        return cls(**graph)
 
 
 class OutputArtifact(ArgoVar):
@@ -1293,6 +1285,8 @@ class OutputArtifact(ArgoVar):
             raise RuntimeError("Output artifact %s is not specified" % self)
 
     def convert_to_graph(self):
+        if hasattr(self._from, "redirect"):
+            self._from.redirect = None
         return {
             "name": self.name,
             "path": self.path,
@@ -1302,10 +1296,12 @@ class OutputArtifact(ArgoVar):
             "global_name": self.global_name,
             "from_expression": str(self.from_expression)
             if self.from_expression is not None else None,
-            "redirect": str(self.redirect) if self.redirect is not None
-            else None,
             "_from": str(self._from) if self._from is not None else None,
         }
+
+    @classmethod
+    def from_graph(cls, graph):
+        return cls(**graph)
 
 
 class Inputs:
@@ -1391,6 +1387,16 @@ class Inputs:
             "artifacts": self.artifacts.convert_to_graph(),
         }
 
+    @classmethod
+    def from_graph(cls, graph):
+        graph["parameters"] = {
+            name: InputParameter.from_graph(par)
+            for name, par in graph.get("parameters", {}).items()}
+        graph["artifacts"] = {
+            name: InputArtifact.from_graph(art)
+            for name, art in graph.get("artifacts", {}).items()}
+        return cls(**graph)
+
 
 class Outputs:
     """
@@ -1475,3 +1481,13 @@ class Outputs:
             "parameters": self.parameters.convert_to_graph(),
             "artifacts": self.artifacts.convert_to_graph(),
         }
+
+    @classmethod
+    def from_graph(cls, graph):
+        graph["parameters"] = {
+            name: OutputParameter.from_graph(par)
+            for name, par in graph.get("parameters", {}).items()}
+        graph["artifacts"] = {
+            name: OutputArtifact.from_graph(art)
+            for name, art in graph.get("artifacts", {}).items()}
+        return cls(**graph)

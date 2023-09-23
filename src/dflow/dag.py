@@ -3,6 +3,10 @@ import os
 from copy import deepcopy
 from typing import Dict, List, Optional, Union
 
+from .common import (input_artifact_pattern, input_parameter_expr_pattern,
+                     input_parameter_pattern, task_output_artifact_pattern,
+                     task_output_parameter_expr_pattern,
+                     task_output_parameter_pattern)
 from .config import config, s3_config
 from .context_syntax import GLOBAL_CONTEXT
 from .io import Inputs, Outputs
@@ -66,6 +70,74 @@ class DAG(OPTemplate):
         kwargs["tasks"] = list(tasks.values())
         return cls(**kwargs)
 
+    @classmethod
+    def from_graph(cls, graph, templates):
+        assert graph.pop("type") == "DAG"
+        graph["inputs"] = Inputs.from_graph(graph.get("inputs", {}))
+        tasks = graph.pop("tasks")
+        outputs = graph.pop("outputs", {})
+
+        obj = cls(**graph)
+        templates[graph["name"]] = obj
+
+        task_dict = {}
+        for t in tasks:
+            task = Task.from_graph(t, templates)
+            obj.add(task)
+            task_dict[task.name] = task
+
+        # replace variable references with pointers
+        for task in obj.tasks:
+            for name, par in task.inputs.parameters.items():
+                value = getattr(par, "value", None)
+                if isinstance(value, str):
+                    match = input_parameter_pattern.match(value) or \
+                        input_parameter_expr_pattern.match(value)
+                    if match:
+                        task.set_parameters({name: obj.inputs.parameters[
+                            match.group(1)]})
+                    match = task_output_parameter_pattern.match(value) or \
+                        task_output_parameter_expr_pattern.match(value)
+                    if match:
+                        task.set_parameters({name: task_dict[match.group(
+                            1)].outputs.parameters[match.group(2)]})
+            for name, art in task.inputs.artifacts.items():
+                source = art.source
+                if isinstance(source, str):
+                    match = input_artifact_pattern.match(source)
+                    if match:
+                        task.set_artifacts({name: obj.inputs.artifacts[
+                            match.group(1)]})
+                    match = task_output_artifact_pattern.match(source)
+                    if match:
+                        task.set_artifacts({name: task_dict[match.group(
+                            1)].outputs.artifacts[match.group(2)]})
+
+        obj.outputs = Outputs.from_graph(outputs)
+        # replace variable references with pointers
+        for par in obj.outputs.parameters.values():
+            _from = par.value_from_parameter
+            if isinstance(_from, str):
+                match = input_parameter_pattern.match(_from)
+                if match:
+                    par.value_from_parameter = obj.inputs.parameters[
+                        match.group(1)]
+                match = task_output_parameter_pattern.match(_from)
+                if match:
+                    par.value_from_parameter = task_dict[match.group(1)].\
+                        outputs.parameters[match.group(2)]
+        for art in obj.outputs.artifacts.values():
+            _from = art._from
+            if isinstance(_from, str):
+                match = input_artifact_pattern.match(_from)
+                if match:
+                    art._from = obj.inputs.artifacts[match.group(1)]
+                match = task_output_artifact_pattern.match(_from)
+                if match:
+                    art._from = task_dict[match.group(1)].outputs.\
+                        artifacts[match.group(2)]
+        return obj
+
     def __iter__(self):
         return iter(self.tasks)
 
@@ -124,8 +196,11 @@ class DAG(OPTemplate):
         graph_tasks = []
         templates = []
         for task in self.tasks:
-            graph_tasks.append(task.convert_to_graph())
-            templates.append(task.template)
+            if not task.name.endswith("-init-artifact") and \
+                not task.name.endswith("-check-num-success") and \
+                    not task.name.endswith("-check-success-ratio"):
+                graph_tasks.append(task.convert_to_graph())
+                templates.append(task.template)
 
         return {
             "type": "DAG",

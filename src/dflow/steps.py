@@ -4,6 +4,10 @@ import time
 from copy import deepcopy
 from typing import Dict, List, Optional, Union
 
+from .common import (input_artifact_pattern, input_parameter_expr_pattern,
+                     input_parameter_pattern, step_output_artifact_pattern,
+                     step_output_parameter_expr_pattern,
+                     step_output_parameter_pattern)
 from .config import config, s3_config
 from .context_syntax import GLOBAL_CONTEXT
 from .io import Inputs, Outputs
@@ -140,9 +144,13 @@ class Steps(OPTemplate):
                 step = [step]
             graph_parallel_steps = []
             for ps in step:
-                graph_parallel_steps.append(ps.convert_to_graph())
-                templates.append(ps.template)
-            graph_steps.append(graph_parallel_steps)
+                if not ps.name.endswith("-init-artifact") and \
+                    not ps.name.endswith("-check-num-success") and \
+                        not ps.name.endswith("-check-success-ratio"):
+                    graph_parallel_steps.append(ps.convert_to_graph())
+                    templates.append(ps.template)
+            if len(graph_parallel_steps) > 0:
+                graph_steps.append(graph_parallel_steps)
 
         return {
             "type": "Steps",
@@ -153,6 +161,78 @@ class Steps(OPTemplate):
             "outputs": self.outputs.convert_to_graph(),
             "parallelism": self.parallelism,
         }, templates
+
+    @classmethod
+    def from_graph(cls, graph, templates):
+        assert graph.pop("type") == "Steps"
+        graph["inputs"] = Inputs.from_graph(graph.get("inputs", {}))
+        steps = graph.pop("steps")
+        outputs = graph.pop("outputs", {})
+
+        obj = cls(**graph)
+        templates[graph["name"]] = obj
+
+        step_dict = {}
+        for step in steps:
+            parallel_steps = []
+            for ps in step:
+                s = Step.from_graph(ps, templates)
+                parallel_steps.append(s)
+                step_dict[s.name] = s
+            obj.add(parallel_steps)
+
+        # replace variable references with pointers
+        for step in obj.steps:
+            for ps in step:
+                for name, par in ps.inputs.parameters.items():
+                    value = getattr(par, "value", None)
+                    if isinstance(value, str):
+                        match = input_parameter_pattern.match(value) or \
+                            input_parameter_expr_pattern.match(value)
+                        if match:
+                            ps.set_parameters({
+                                name: obj.inputs.parameters[match.group(1)]})
+                        match = step_output_parameter_pattern.match(value) or \
+                            step_output_parameter_expr_pattern.match(value)
+                        if match:
+                            ps.set_parameters({name: step_dict[match.group(
+                                1)].outputs.parameters[match.group(2)]})
+                for name, art in ps.inputs.artifacts.items():
+                    source = art.source
+                    if isinstance(source, str):
+                        match = input_artifact_pattern.match(source)
+                        if match:
+                            ps.set_artifacts({
+                                name: obj.inputs.artifacts[match.group(1)]})
+                        match = step_output_artifact_pattern.match(source)
+                        if match:
+                            ps.set_artifacts({name: step_dict[match.group(
+                                1)].outputs.artifacts[match.group(2)]})
+
+        obj.outputs = Outputs.from_graph(outputs)
+        # replace variable references with pointers
+        for par in obj.outputs.parameters.values():
+            _from = par.value_from_parameter
+            if isinstance(_from, str):
+                match = input_parameter_pattern.match(_from)
+                if match:
+                    par.value_from_parameter = obj.inputs.parameters[
+                        match.group(1)]
+                match = step_output_parameter_pattern.match(_from)
+                if match:
+                    par.value_from_parameter = step_dict[match.group(1)].\
+                        outputs.parameters[match.group(2)]
+        for art in obj.outputs.artifacts.values():
+            _from = art._from
+            if isinstance(_from, str):
+                match = input_artifact_pattern.match(_from)
+                if match:
+                    art._from = obj.inputs.artifacts[match.group(1)]
+                match = step_output_artifact_pattern.match(_from)
+                if match:
+                    art._from = step_dict[match.group(1)].outputs.\
+                        artifacts[match.group(2)]
+        return obj
 
     def run(self, workflow_id=None, context=None):
         self.workflow_id = workflow_id

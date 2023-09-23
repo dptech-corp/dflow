@@ -424,7 +424,11 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             jsonpickle.dumps(config)
         script += "s3_config.update(jsonpickle.loads(r'''%s'''))\n" % \
             jsonpickle.dumps(s3_config)
-        if op_class.__module__ in ["__main__", "__mp_main__"]:
+        mod = op_class.__module__
+        if hasattr(op_class, "_source"):
+            script += op_class._source
+            mod = "__main__"
+        elif mod in ["__main__", "__mp_main__"]:
             try:
                 if hasattr(op_class, "func"):
                     script += get_source_code(op_class.func)
@@ -454,7 +458,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                   " handle_input_parameter\n"
         script += "from dflow.python.utils import handle_output_artifact," \
                   " handle_output_parameter, handle_lineage\n"
-        script += f"from {op_class.__module__} import {class_name}\n\n"
+        script += f"from {mod} import {class_name}\n\n"
         if hasattr(op_class, "func"):
             script += "op_obj = %s\n" % class_name
         elif op is None:
@@ -707,12 +711,17 @@ class PythonOPTemplate(PythonScriptOPTemplate):
 
     def convert_to_graph(self):
         g = super().convert_to_graph()
+        del g["name"]
         del g["script"]
         del g["inputs"]
         del g["outputs"]
+        del g["pvcs"]
+        del g["init_progress"]
+        del g["retry_strategy"]
+        del g["resource"]
         g["type"] = "PythonOPTemplate"
         g["op"] = self.op_class.convert_to_graph()
-        g["python_packages"] = self.python_packages
+        g["python_packages"] = [str(p) for p in self.python_packages]
         g["retry_on_transient_error"] = self.retry_on_transient_error
         g["retry_on_failure"] = self.retry_on_failure
         g["retry_on_error"] = self.retry_on_error
@@ -723,6 +732,12 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         g["pre_script"] = self.pre_script
         g["post_script"] = self.post_script
         return g
+
+    @classmethod
+    def from_graph(cls, graph):
+        assert graph.pop("type") == "PythonOPTemplate"
+        graph["op_class"] = OP.from_graph(graph.pop("op"))
+        return cls(**graph)
 
 
 class TransientError(Exception):

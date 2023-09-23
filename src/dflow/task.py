@@ -107,5 +107,5 @@ class Task(Step):
 
     def convert_to_graph(self):
         g = super().convert_to_graph()
-        g["denpendencies"] = [str(d) for d in self.dependencies]
+        g["dependencies"] = [str(d) for d in self.dependencies]
         return g
