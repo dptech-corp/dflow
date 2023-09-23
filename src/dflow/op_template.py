@@ -431,7 +431,6 @@ class ScriptOPTemplate(OPTemplate):
             "type": "ScriptOPTemplate",
             "inputs": self.inputs.convert_to_graph(),
             "outputs": self.outputs.convert_to_graph(),
-            "memoize_key": self.memoize_key,
             "pvcs": self.pvcs,
             "annotations": self.annotations,
             "labels": self.labels,
@@ -454,6 +453,13 @@ class ScriptOPTemplate(OPTemplate):
             "tolerations": self.tolerations,
             "affinity": self.affinity,
         }
+
+    @classmethod
+    def from_graph(cls, graph):
+        assert graph.pop("type") == "ScriptOPTemplate"
+        graph["inputs"] = Inputs.from_graph(graph.get("inputs", {}))
+        graph["outputs"] = Outputs.from_graph(graph.get("outputs", {}))
+        return cls(**graph)
 
 
 class ShellOPTemplate(ScriptOPTemplate):

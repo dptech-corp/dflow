@@ -31,6 +31,22 @@ param_errmsg = "parameter/artifact name must consist of alpha-numeric "\
 key_regex = re.compile("^[a-z0-9][-a-z0-9]*$")
 key_errmsg = "key must consist of lower case alpha-numeric characters or '-',"\
     "and must start with an alpha-numeric character (e.g. 'my-key')"
+input_parameter_pattern = re.compile(r"^{{inputs\.parameters\.(.*)}}$")
+input_parameter_expr_pattern = re.compile(
+    r"^{{=inputs\.parameters['(.*?)']}}$")
+input_artifact_pattern = re.compile(r"^{{inputs\.artifacts\.(.*)}}$")
+step_output_parameter_pattern = re.compile(
+    r"^{{steps\.(.*?)\.outputs\.parameters\.(.*?)}}$")
+step_output_parameter_expr_pattern = re.compile(
+    r"^{{=steps['(.*?)'].outputs\.parameters['(.*?)']}}$")
+step_output_artifact_pattern = re.compile(
+    r"^{{steps\.(.*?)\.outputs\.artifacts\.(.*?)}}$")
+task_output_parameter_pattern = re.compile(
+    r"^{{tasks\.(.*?)\.outputs\.parameters\.(.*?)}}$")
+task_output_parameter_expr_pattern = re.compile(
+    r"^{{=tasks['(.*?)'].outputs\.parameters['(.*?)']}}$")
+task_output_artifact_pattern = re.compile(
+    r"^{{tasks\.(.*?)\.outputs\.artifacts\.(.*?)}}$")
 
 
 class S3Artifact(V1alpha1S3Artifact):
@@ -85,8 +101,7 @@ class S3Artifact(V1alpha1S3Artifact):
         return art
 
     def to_dict(self):
-        d = {"key": self.key, "urn": self.urn, "path_list": self.path_list,
-             "slice": self.slice}
+        d = {"key": self.key, "urn": self.urn, "slice": self.slice}
         if s3_config["storage_client"] is None:
             d.update(s3_config)
         else:
@@ -95,8 +110,7 @@ class S3Artifact(V1alpha1S3Artifact):
 
     @classmethod
     def from_dict(cls, d):
-        artifact = cls(key=d["key"], urn=d.get("urn", ""),
-                       path_list=d.get("path_list"))
+        artifact = cls(key=d["key"], urn=d.get("urn", ""))
         artifact.slice = d.get("slice")
         return artifact
 

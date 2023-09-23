@@ -1690,7 +1690,7 @@ spec:
         - --auth-mode
         - client
         env: []
-        image: registry.dp.tech/deepmodeling/argocli:3.4.1-202308231146
+        image: registry.dp.tech/deepmodeling/argocli:3.4.1-202309142010
         name: argo-server
         ports:
         - containerPort: 2746

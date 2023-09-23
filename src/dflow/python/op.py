@@ -9,6 +9,7 @@ import sys
 from abc import ABC
 from copy import deepcopy
 from functools import partial
+from importlib import import_module
 from pathlib import Path
 from typing import Dict, List, Set, Union
 
@@ -365,13 +366,30 @@ class OP(ABC):
 
     @classmethod
     def convert_to_graph(cls):
+        source = None
+        try:
+            source = get_source_code(cls.func) if hasattr(
+                cls, "func") else get_source_code(cls)
+        except Exception:
+            logging.info("Failed to get source code of OP", exc_info=True)
         return {
-            "name": "%s.%s" % (cls.__module__, cls.__name__),
+            "module": str(cls.__module__),
+            "name": str(cls.__name__),
             "inputs": cls.get_opio_info(cls.get_input_sign()),
             "outputs": cls.get_opio_info(cls.get_output_sign()),
-            "source": get_source_code(cls.func) if hasattr(cls, "func")
-            else get_source_code(cls)
+            "source": source,
         }
+
+    @classmethod
+    def from_graph(cls, graph):
+        if graph["module"] in ["__main__", "__mp_main__"]:
+            exec(graph["source"], globals())
+            op = globals()[graph["name"]]
+            op._source = graph["source"]
+        else:
+            mod = import_module(graph["module"])
+            op = getattr(mod, graph["name"])
+        return op
 
 
 def type2opiosign(t):
