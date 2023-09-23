@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.0](https://github.com/deepmodeling/dflow/compare/v1.7.86...v1.8.0) (2023-09-23)
+
+
+### Features
+
+* make workflows jsonizable ([6fbfb23](https://github.com/deepmodeling/dflow/commit/6fbfb23d3720923c316decdfbb4953374fd6ec32))
+
 ## [1.7.86](https://github.com/deepmodeling/dflow/compare/v1.7.85...v1.7.86) (2023-09-21)
 
 
