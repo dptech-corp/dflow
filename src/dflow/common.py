@@ -32,13 +32,9 @@ key_regex = re.compile("^[a-z0-9][-a-z0-9]*$")
 key_errmsg = "key must consist of lower case alpha-numeric characters or '-',"\
     "and must start with an alpha-numeric character (e.g. 'my-key')"
 input_parameter_pattern = re.compile(r"^{{inputs\.parameters\.(.*)}}$")
-input_parameter_expr_pattern = re.compile(
-    r"^{{=inputs\.parameters['(.*?)']}}$")
 input_artifact_pattern = re.compile(r"^{{inputs\.artifacts\.(.*)}}$")
 step_output_parameter_pattern = re.compile(
     r"^{{steps\.(.*?)\.outputs\.parameters\.(.*?)}}$")
-step_output_parameter_expr_pattern = re.compile(
-    r"^{{=steps['(.*?)'].outputs\.parameters['(.*?)']}}$")
 step_output_artifact_pattern = re.compile(
     r"^{{steps\.(.*?)\.outputs\.artifacts\.(.*?)}}$")
 task_output_parameter_pattern = re.compile(

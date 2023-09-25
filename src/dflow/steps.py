@@ -4,9 +4,8 @@ import time
 from copy import deepcopy
 from typing import Dict, List, Optional, Union
 
-from .common import (input_artifact_pattern, input_parameter_expr_pattern,
-                     input_parameter_pattern, step_output_artifact_pattern,
-                     step_output_parameter_expr_pattern,
+from .common import (input_artifact_pattern, input_parameter_pattern,
+                     step_output_artifact_pattern,
                      step_output_parameter_pattern)
 from .config import config, s3_config
 from .context_syntax import GLOBAL_CONTEXT
@@ -187,13 +186,11 @@ class Steps(OPTemplate):
                 for name, par in ps.inputs.parameters.items():
                     value = getattr(par, "value", None)
                     if isinstance(value, str):
-                        match = input_parameter_pattern.match(value) or \
-                            input_parameter_expr_pattern.match(value)
+                        match = input_parameter_pattern.match(value)
                         if match:
                             ps.set_parameters({
                                 name: obj.inputs.parameters[match.group(1)]})
-                        match = step_output_parameter_pattern.match(value) or \
-                            step_output_parameter_expr_pattern.match(value)
+                        match = step_output_parameter_pattern.match(value)
                         if match:
                             ps.set_parameters({name: step_dict[match.group(
                                 1)].outputs.parameters[match.group(2)]})

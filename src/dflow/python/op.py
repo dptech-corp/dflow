@@ -368,12 +368,17 @@ class OP(ABC):
     def convert_to_graph(cls):
         source = None
         try:
-            source = get_source_code(cls.func) if hasattr(
-                cls, "func") else get_source_code(cls)
+            if hasattr(cls, "_source"):
+                mod = "__main__"
+                source = cls._source
+            else:
+                mod = str(cls.__module__)
+                source = get_source_code(cls.func) if hasattr(
+                    cls, "func") else get_source_code(cls)
         except Exception:
             logging.info("Failed to get source code of OP", exc_info=True)
         return {
-            "module": str(cls.__module__),
+            "module": mod,
             "name": str(cls.__name__),
             "inputs": cls.get_opio_info(cls.get_input_sign()),
             "outputs": cls.get_opio_info(cls.get_output_sign()),
@@ -385,7 +390,10 @@ class OP(ABC):
         if graph["module"] in ["__main__", "__mp_main__"]:
             exec(graph["source"], globals())
             op = globals()[graph["name"]]
-            op._source = graph["source"]
+            if isinstance(op, OP):
+                op.__class__._source = graph["source"]
+            else:
+                op._source = graph["source"]
         else:
             mod = import_module(graph["module"])
             op = getattr(mod, graph["name"])
