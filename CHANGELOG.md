@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.1](https://github.com/deepmodeling/dflow/compare/v1.8.0...v1.8.1) (2023-09-25)
+
+
+### Bug Fixes
+
+* dflow graph for function OP ([d60099f](https://github.com/deepmodeling/dflow/commit/d60099f92dfcf78703b5046e20dae873659974e8))
+* refer to parameters with {{inputs.parameters.xxx}} in dflow graph ([d60099f](https://github.com/deepmodeling/dflow/commit/d60099f92dfcf78703b5046e20dae873659974e8))
+
 ## [1.8.0](https://github.com/deepmodeling/dflow/compare/v1.7.86...v1.8.0) (2023-09-23)
 
 
