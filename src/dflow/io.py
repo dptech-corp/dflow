@@ -567,7 +567,9 @@ class InputParameter(ArgoVar):
             "path": self.path,
         }
         if hasattr(self, "value"):
-            if isinstance(self.value, ArgoVar):
+            if isinstance(self.value, (InputParameter, OutputParameter)):
+                g["value"] = str(self.value)
+            elif isinstance(self.value, ArgoVar):
                 if self.value.is_str:
                     g["value"] = "{{=%s}}" % self.value.expr
                 else:
