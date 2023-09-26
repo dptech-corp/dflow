@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.2](https://github.com/deepmodeling/dflow/compare/v1.8.1...v1.8.2) (2023-09-26)
+
+
+### Bug Fixes
+
+* add codegen ([3278ef8](https://github.com/deepmodeling/dflow/commit/3278ef808f9669f5b3cc93e4a603bd314efa537e))
+
 ## [1.8.1](https://github.com/deepmodeling/dflow/compare/v1.8.0...v1.8.1) (2023-09-25)
 
 
