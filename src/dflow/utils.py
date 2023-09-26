@@ -858,3 +858,30 @@ artifact_classes = {
     set: ArtifactSet,
     dict: ArtifactDict,
 }
+
+
+class Variable:
+    def __init__(self, expr):
+        self.expr = expr
+
+    def evalable_repr(self, imports):
+        return self.expr
+
+
+def evalable_repr(obj, imports):
+    if obj is None or isinstance(obj, (str, int, float, bool)):
+        return repr(obj)
+    if isinstance(obj, list):
+        return "[%s]" % ", ".join([evalable_repr(i, imports) for i in obj])
+    if isinstance(obj, set):
+        if len(obj) == 0:
+            return "set()"
+        else:
+            return "{%s}" % ", ".join([evalable_repr(i, imports) for i in obj])
+    if isinstance(obj, dict):
+        return "{%s}" % ", ".join(["%s: %s" % (evalable_repr(
+            k, imports), evalable_repr(v, imports)) for k, v in obj.items()])
+    if hasattr(obj, "evalable_repr"):
+        return obj.evalable_repr(imports)
+    imports.add((None, "jsonpickle"))
+    return "jsonpickle.loads(%s)" % repr(jsonpickle.dumps(obj))

@@ -25,8 +25,9 @@ from .op_template import (OPTemplate, PythonScriptOPTemplate, ScriptOPTemplate,
 from .python import Slices
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
-from .utils import (catalog_of_artifact, copy_file, download_s3, flatten,
-                    force_link, get_key, merge_dir, randstr, upload_artifact)
+from .utils import (catalog_of_artifact, copy_file, download_s3, evalable_repr,
+                    flatten, force_link, get_key, merge_dir, randstr,
+                    upload_artifact)
 
 try:
     from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
@@ -132,6 +133,14 @@ class ArgoSequence:
             end = "{{=%s}}" % end.expr
         return V1alpha1Sequence(count=count, start=start, end=end,
                                 format=self.format)
+
+    def evalable_repr(self, imports):
+        kwargs = {k: getattr(self, k)
+                  for k in ["count", "start", "end", "format"]
+                  if getattr(self, k) is not None}
+        imports.add(("dflow", "argo_sequence"))
+        return "argo_sequence(%s)" % ", ".join(["%s=%s" % (k, evalable_repr(
+            v, imports)) for k, v in kwargs.items()])
 
 
 def argo_sequence(
@@ -336,6 +345,9 @@ class Step:
         self.template = template
         self._with_param = with_param
         self.with_param = with_param
+        if isinstance(self.with_param, str) and self.with_param.startswith(
+                "{{=") and self.with_param.endswith("}}"):
+            self.with_param = ArgoVar(self.with_param[3:-2])
         self._with_sequence = with_sequence
         self.with_sequence = with_sequence
         self._slices = slices or getattr(self.template, "slices", None)
@@ -1397,9 +1409,6 @@ class Step:
     def from_graph(cls, graph, templates):
         template = templates[graph["template"]]
         graph["template"] = template
-        if isinstance(graph.get("with_param"), str) and graph[
-                "with_param"].startswith("{{="):
-            graph["with_param"] = ArgoVar(graph["with_param"][3:-2])
         for k in template.inputs.artifacts:
             if not k.startswith("dflow_") and k not in graph["artifacts"]:
                 graph["artifacts"] = graph.get("artifacts", {})
