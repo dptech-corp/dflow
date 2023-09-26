@@ -39,8 +39,6 @@ step_output_artifact_pattern = re.compile(
     r"^{{steps\.(.*?)\.outputs\.artifacts\.(.*?)}}$")
 task_output_parameter_pattern = re.compile(
     r"^{{tasks\.(.*?)\.outputs\.parameters\.(.*?)}}$")
-task_output_parameter_expr_pattern = re.compile(
-    r"^{{=tasks['(.*?)'].outputs\.parameters['(.*?)']}}$")
 task_output_artifact_pattern = re.compile(
     r"^{{tasks\.(.*?)\.outputs\.artifacts\.(.*?)}}$")
 
@@ -135,6 +133,13 @@ class S3Artifact(V1alpha1S3Artifact):
         config.client_side_validation = False
         return V1alpha1OSSArtifact(key=s3_config["repo_prefix"] + self.key,
                                    local_vars_configuration=config)
+
+    def evalable_repr(self, imports):
+        args = "key='%s'" % self.key
+        if self.urn:
+            args += ", urn='%s'" % self.urn
+        imports.add(("dflow", "S3Artifact"))
+        return "S3Artifact(%s)" % args
 
 
 class LocalArtifact:

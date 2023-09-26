@@ -1,9 +1,10 @@
 import argparse
 import datetime
+import json
 from typing import List, Optional
 
 from dflow import (S3Artifact, Secret, Workflow, config, download_artifact,
-                   query_workflows, upload_artifact)
+                   gen_code, query_workflows, upload_artifact)
 
 
 def main_parser():
@@ -275,6 +276,15 @@ def main_parser():
         default="secret",
         help="key in the secret",
     )
+
+    parser_codegen = subparsers.add_parser(
+        "codegen",
+        help="Generate code from graph",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser_codegen.add_argument("GRAPH", help="the graph JSON file.")
+    parser_codegen.add_argument("-o", "--output", type=str,
+                                help="File path of the generated code")
     return parser
 
 
@@ -498,6 +508,15 @@ def main():
             s = Secret(args.value, args.name, args.key)
             print("Secret (name: %s, key: %s) created" % (s.secret_name,
                                                           s.secret_key))
+    elif args.command == "codegen":
+        with open(args.GRAPH, "r") as f:
+            graph = json.load(f)
+        code = gen_code(graph)
+        if args.output is None:
+            print(code)
+        else:
+            with open(args.output, "w") as f:
+                f.write(code)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+import inspect
 import logging
 import os
 from pathlib import Path
@@ -12,7 +13,7 @@ from ..config import config
 from ..io import (PVC, InputArtifact, InputParameter, Inputs, OutputArtifact,
                   OutputParameter, Outputs)
 from ..op_template import PythonScriptOPTemplate
-from ..utils import randstr, s3_config
+from ..utils import evalable_repr, randstr, s3_config
 from .op import OP, get_source_code
 from .opio import Artifact, BigParameter, Parameter
 
@@ -81,6 +82,24 @@ class Slices:
         self.random_seed = random_seed
         self.pool_size = pool_size
         self.register_first_only = register_first_only
+
+    def evalable_repr(self, imports):
+        kwargs = {}
+        sign = inspect.signature(self.__init__).parameters
+        for k, v in self.__dict__.items():
+            if k in sign:
+                if v == sign[k].default:
+                    continue
+                if sign[k].default is None and v in [[], {}]:
+                    continue
+                if k == "slices" and self.sub_path and v == "{{item.order}}":
+                    continue
+                if k == "slices" and not self.sub_path and v == "{{item}}":
+                    continue
+                kwargs[k] = v
+        imports.add(("dflow.python", "Slices"))
+        return "Slices(%s)" % ", ".join(["%s=%s" % (k, evalable_repr(
+            v, imports)) for k, v in kwargs.items()])
 
 
 def handle_packages_script(package_root):
@@ -719,9 +738,15 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         del g["init_progress"]
         del g["retry_strategy"]
         del g["resource"]
+        python_packages = []
+        for p in self.python_packages:
+            if self.upload_dflow and Path(p).name in [
+                    "dflow", "jsonpickle", "typeguard"]:
+                continue
+            python_packages.append(str(p))
         g["type"] = "PythonOPTemplate"
         g["op"] = self.op_class.convert_to_graph()
-        g["python_packages"] = [str(p) for p in self.python_packages]
+        g["python_packages"] = python_packages
         g["retry_on_transient_error"] = self.retry_on_transient_error
         g["retry_on_failure"] = self.retry_on_failure
         g["retry_on_error"] = self.retry_on_error

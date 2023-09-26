@@ -2,6 +2,7 @@ import logging
 import os
 
 from .argo_objects import ArgoStep, ArgoWorkflow
+from .code_gen import gen_code
 from .common import (CustomArtifact, LineageClient, LocalArtifact, S3Artifact,
                      import_func)
 from .config import config, s3_config, set_config, set_s3_config
@@ -43,7 +44,7 @@ __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "LineageClient", "Secret", "query_workflows",
            "query_archived_workflows", "ContainerExecutor", "ArgoStep",
            "ArgoWorkflow", "argo_enumerate", "path_object_of_artifact",
-           "CustomArtifact"]
+           "CustomArtifact", "gen_code"]
 
 
 if os.environ.get("DFLOW_LINEAGE"):
