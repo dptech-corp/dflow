@@ -60,6 +60,7 @@
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
 </div>
@@ -245,6 +246,8 @@
       <li><a href="dflow.html#dflow.util_ops.CheckNumSuccess">CheckNumSuccess (class in dflow.util_ops)</a>
 </li>
       <li><a href="dflow.html#dflow.util_ops.CheckSuccessRatio">CheckSuccessRatio (class in dflow.util_ops)</a>
+</li>
+      <li><a href="dflow.html#dflow.code_gen.CodeGenerator">CodeGenerator (class in dflow.code_gen)</a>
 </li>
       <li><a href="dflow.html#dflow.ContainerExecutor">ContainerExecutor (class in dflow)</a>
 
@@ -487,6 +490,13 @@
 </li>
       </ul></li>
       <li>
+    dflow.code_gen
+
+      <ul>
+        <li><a href="dflow.html#module-dflow.code_gen">module</a>
+</li>
+      </ul></li>
+      <li>
     dflow.common
 
       <ul>
@@ -591,6 +601,8 @@
         <li><a href="dflow.plugins.html#module-dflow.plugins.ray">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     dflow.python
 
@@ -598,8 +610,6 @@
         <li><a href="dflow.python.html#module-dflow.python">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     dflow.python.op
 
@@ -746,6 +756,22 @@
 </li>
       <li><a href="dflow.html#dflow.step.eval_expr">eval_expr() (in module dflow.step)</a>
 </li>
+      <li><a href="dflow.html#dflow.common.S3Artifact.evalable_repr">evalable_repr() (dflow.common.S3Artifact method)</a>
+
+      <ul>
+        <li><a href="dflow.python.html#dflow.python.python_op_template.Slices.evalable_repr">(dflow.python.python_op_template.Slices method)</a>
+</li>
+        <li><a href="dflow.python.html#dflow.python.Slices.evalable_repr">(dflow.python.Slices method)</a>
+</li>
+        <li><a href="dflow.html#dflow.S3Artifact.evalable_repr">(dflow.S3Artifact method)</a>
+</li>
+        <li><a href="dflow.html#dflow.step.ArgoSequence.evalable_repr">(dflow.step.ArgoSequence method)</a>
+</li>
+        <li><a href="dflow.html#dflow.utils.Variable.evalable_repr">(dflow.utils.Variable method)</a>
+</li>
+        <li><a href="dflow.html#dflow.utils.evalable_repr">(in module dflow.utils)</a>
+</li>
+      </ul></li>
       <li><a href="dflow.html#dflow.Step.exec">exec() (dflow.Step method)</a>
 
       <ul>
@@ -764,6 +790,8 @@
         <li><a href="dflow.python.html#dflow.python.op.OP.exec_sign_check">(dflow.python.op.OP static method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dflow.html#dflow.Step.exec_steps">exec_steps() (dflow.Step method)</a>
 
       <ul>
@@ -776,8 +804,6 @@
         <li><a href="dflow.html#dflow.step.Step.exec_with_config">(dflow.step.Step method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dflow.html#dflow.executor.RemoteExecutor.execute">execute() (dflow.executor.RemoteExecutor method)</a>
 
       <ul>
@@ -1000,6 +1026,14 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="dflow.html#dflow.gen_code">gen_code() (in module dflow)</a>
+
+      <ul>
+        <li><a href="dflow.html#dflow.code_gen.gen_code">(in module dflow.code_gen)</a>
+</li>
+      </ul></li>
+      <li><a href="dflow.html#dflow.code_gen.CodeGenerator.generate">generate() (dflow.code_gen.CodeGenerator method)</a>
+</li>
       <li><a href="dflow.html#dflow.workflow.get_argo_api_client">get_argo_api_client() (in module dflow.workflow)</a>
 </li>
       <li><a href="dflow.html#dflow.common.LineageClient.get_artifact_metadata">get_artifact_metadata() (dflow.common.LineageClient method)</a>
@@ -1064,6 +1098,8 @@
       </ul></li>
       <li><a href="dflow.html#dflow.utils.get_key">get_key() (in module dflow.utils)</a>
 </li>
+      <li><a href="dflow.html#dflow.code_gen.CodeGenerator.get_kwargs">get_kwargs() (dflow.code_gen.CodeGenerator method)</a>
+</li>
       <li><a href="dflow.html#dflow.Resource.get_manifest">get_manifest() (dflow.Resource method)</a>
 
       <ul>
@@ -1084,6 +1120,8 @@
         <li><a href="dflow.html#dflow.utils.get_md5">(in module dflow.utils)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dflow.plugins.html#dflow.plugins.datasets.DatasetsArtifact.get_mount_script">get_mount_script() (dflow.plugins.datasets.DatasetsArtifact method)</a>
 </li>
       <li><a href="dflow.python.html#dflow.python.OP.get_opio_info">get_opio_info() (dflow.python.OP class method)</a>
@@ -1092,8 +1130,6 @@
         <li><a href="dflow.python.html#dflow.python.op.OP.get_opio_info">(dflow.python.op.OP class method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dflow.python.html#dflow.python.OP.get_output_artifact_link">get_output_artifact_link() (dflow.python.OP method)</a>
 
       <ul>
@@ -1179,6 +1215,8 @@
 </li>
       </ul></li>
       <li><a href="dflow.html#dflow.step.get_var">get_var() (in module dflow.step)</a>
+</li>
+      <li><a href="dflow.html#dflow.code_gen.CodeGenerator.get_var_name">get_var_name() (dflow.code_gen.CodeGenerator method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1431,6 +1469,8 @@
         <li><a href="dflow.html#module-dflow">dflow</a>
 </li>
         <li><a href="dflow.html#module-dflow.argo_objects">dflow.argo_objects</a>
+</li>
+        <li><a href="dflow.html#module-dflow.code_gen">dflow.code_gen</a>
 </li>
         <li><a href="dflow.html#module-dflow.common">dflow.common</a>
 </li>
@@ -1833,9 +1873,13 @@
         <li><a href="dflow.html#dflow.step.Step.render_by_executor">(dflow.step.Step method)</a>
 </li>
       </ul></li>
+      <li><a href="dflow.html#dflow.code_gen.CodeGenerator.render_dag">render_dag() (dflow.code_gen.CodeGenerator method)</a>
+</li>
       <li><a href="dflow.html#dflow.step.render_expr">render_expr() (in module dflow.step)</a>
 </li>
       <li><a href="dflow.html#dflow.step.render_item">render_item() (in module dflow.step)</a>
+</li>
+      <li><a href="dflow.html#dflow.code_gen.CodeGenerator.render_python_op_template">render_python_op_template() (dflow.code_gen.CodeGenerator method)</a>
 </li>
       <li><a href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate.render_script">render_script() (dflow.python.python_op_template.PythonOPTemplate method)</a>
 
@@ -1847,6 +1891,8 @@
         <li><a href="dflow.html#dflow.step.render_script">(in module dflow.step)</a>
 </li>
       </ul></li>
+      <li><a href="dflow.html#dflow.code_gen.CodeGenerator.render_script_op_template">render_script_op_template() (dflow.code_gen.CodeGenerator method)</a>
+</li>
       <li><a href="dflow.html#dflow.executor.render_script_with_tmp_root">render_script_with_tmp_root() (in module dflow.executor)</a>
 </li>
       <li><a href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate.render_slices">render_slices() (dflow.python.python_op_template.PythonOPTemplate method)</a>
@@ -1855,6 +1901,8 @@
         <li><a href="dflow.python.html#dflow.python.PythonOPTemplate.render_slices">(dflow.python.PythonOPTemplate method)</a>
 </li>
       </ul></li>
+      <li><a href="dflow.html#dflow.code_gen.CodeGenerator.render_steps">render_steps() (dflow.code_gen.CodeGenerator method)</a>
+</li>
       <li><a href="dflow.html#dflow.step.replace_argo_func">replace_argo_func() (in module dflow.step)</a>
 </li>
       <li><a href="dflow.html#dflow.argo_objects.ArgoStep.replay">replay() (dflow.argo_objects.ArgoStep method)</a>
@@ -2265,6 +2313,14 @@
         <li><a href="dflow.html#dflow.utils.upload_s3">(in module dflow.utils)</a>
 </li>
       </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="dflow.html#dflow.utils.Variable">Variable (class in dflow.utils)</a>
+</li>
   </ul></td>
 </tr></table>
 

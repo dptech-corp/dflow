@@ -22,6 +22,14 @@ dflow.argo\_objects module
    :undoc-members:
    :show-inheritance:
 
+dflow.code\_gen module
+----------------------
+
+.. automodule:: dflow.code_gen
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dflow.common module
 -------------------
 

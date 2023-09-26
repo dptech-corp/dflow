@@ -113,6 +113,20 @@
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.argo_objects.match"><code class="docutils literal notranslate"><span class="pre">match()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="dflow.html#module-dflow.code_gen">dflow.code_gen module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.code_gen.CodeGenerator"><code class="docutils literal notranslate"><span class="pre">CodeGenerator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.code_gen.CodeGenerator.generate"><code class="docutils literal notranslate"><span class="pre">CodeGenerator.generate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.code_gen.CodeGenerator.get_kwargs"><code class="docutils literal notranslate"><span class="pre">CodeGenerator.get_kwargs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.code_gen.CodeGenerator.get_var_name"><code class="docutils literal notranslate"><span class="pre">CodeGenerator.get_var_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.code_gen.CodeGenerator.render_dag"><code class="docutils literal notranslate"><span class="pre">CodeGenerator.render_dag()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.code_gen.CodeGenerator.render_python_op_template"><code class="docutils literal notranslate"><span class="pre">CodeGenerator.render_python_op_template()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.code_gen.CodeGenerator.render_script_op_template"><code class="docutils literal notranslate"><span class="pre">CodeGenerator.render_script_op_template()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.code_gen.CodeGenerator.render_steps"><code class="docutils literal notranslate"><span class="pre">CodeGenerator.render_steps()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.code_gen.gen_code"><code class="docutils literal notranslate"><span class="pre">gen_code()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="dflow.html#module-dflow.common">dflow.common module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.common.CustomArtifact"><code class="docutils literal notranslate"><span class="pre">CustomArtifact</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.common.CustomArtifact.download"><code class="docutils literal notranslate"><span class="pre">CustomArtifact.download()</span></code></a></li>
@@ -139,6 +153,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.common.S3Artifact"><code class="docutils literal notranslate"><span class="pre">S3Artifact</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.common.S3Artifact.download"><code class="docutils literal notranslate"><span class="pre">S3Artifact.download()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.common.S3Artifact.evalable_repr"><code class="docutils literal notranslate"><span class="pre">S3Artifact.evalable_repr()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.common.S3Artifact.from_dict"><code class="docutils literal notranslate"><span class="pre">S3Artifact.from_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.common.S3Artifact.oss"><code class="docutils literal notranslate"><span class="pre">S3Artifact.oss()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.common.S3Artifact.sub_path"><code class="docutils literal notranslate"><span class="pre">S3Artifact.sub_path()</span></code></a></li>
@@ -373,6 +388,7 @@
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.step.ArgoRange"><code class="docutils literal notranslate"><span class="pre">ArgoRange</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.step.ArgoSequence"><code class="docutils literal notranslate"><span class="pre">ArgoSequence</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.step.ArgoSequence.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">ArgoSequence.convert_to_argo()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.step.ArgoSequence.evalable_repr"><code class="docutils literal notranslate"><span class="pre">ArgoSequence.evalable_repr()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.step.ArgoSequence.from_dict"><code class="docutils literal notranslate"><span class="pre">ArgoSequence.from_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.step.ArgoSequence.to_dict"><code class="docutils literal notranslate"><span class="pre">ArgoSequence.to_dict()</span></code></a></li>
 </ul>
@@ -476,6 +492,10 @@
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.utils.StorageClient.upload"><code class="docutils literal notranslate"><span class="pre">StorageClient.upload()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.utils.Variable"><code class="docutils literal notranslate"><span class="pre">Variable</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.utils.Variable.evalable_repr"><code class="docutils literal notranslate"><span class="pre">Variable.evalable_repr()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.utils.assemble_path_object"><code class="docutils literal notranslate"><span class="pre">assemble_path_object()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.utils.assemble_path_object_from_catalog"><code class="docutils literal notranslate"><span class="pre">assemble_path_object_from_catalog()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.utils.catalog_of_artifact"><code class="docutils literal notranslate"><span class="pre">catalog_of_artifact()</span></code></a></li>
@@ -487,6 +507,7 @@
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.utils.dict2list"><code class="docutils literal notranslate"><span class="pre">dict2list()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.utils.download_artifact"><code class="docutils literal notranslate"><span class="pre">download_artifact()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.utils.download_s3"><code class="docutils literal notranslate"><span class="pre">download_s3()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.utils.evalable_repr"><code class="docutils literal notranslate"><span class="pre">evalable_repr()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.utils.expand"><code class="docutils literal notranslate"><span class="pre">expand()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.utils.find_subclass"><code class="docutils literal notranslate"><span class="pre">find_subclass()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.utils.flatten"><code class="docutils literal notranslate"><span class="pre">flatten()</span></code></a></li>
@@ -717,6 +738,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.S3Artifact"><code class="docutils literal notranslate"><span class="pre">S3Artifact</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.S3Artifact.download"><code class="docutils literal notranslate"><span class="pre">S3Artifact.download()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.S3Artifact.evalable_repr"><code class="docutils literal notranslate"><span class="pre">S3Artifact.evalable_repr()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.S3Artifact.from_dict"><code class="docutils literal notranslate"><span class="pre">S3Artifact.from_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.S3Artifact.oss"><code class="docutils literal notranslate"><span class="pre">S3Artifact.oss()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.S3Artifact.sub_path"><code class="docutils literal notranslate"><span class="pre">S3Artifact.sub_path()</span></code></a></li>
@@ -830,6 +852,7 @@
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.copy_s3"><code class="docutils literal notranslate"><span class="pre">copy_s3()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.download_artifact"><code class="docutils literal notranslate"><span class="pre">download_artifact()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.download_s3"><code class="docutils literal notranslate"><span class="pre">download_s3()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.gen_code"><code class="docutils literal notranslate"><span class="pre">gen_code()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.if_expression"><code class="docutils literal notranslate"><span class="pre">if_expression()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.path_list_of_artifact"><code class="docutils literal notranslate"><span class="pre">path_list_of_artifact()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.path_object_of_artifact"><code class="docutils literal notranslate"><span class="pre">path_object_of_artifact()</span></code></a></li>

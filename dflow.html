@@ -198,7 +198,10 @@
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.PythonOPTemplate.set_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.set_slices()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.Slices"><code class="docutils literal notranslate"><span class="pre">Slices</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.Slices"><code class="docutils literal notranslate"><span class="pre">Slices</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.Slices.evalable_repr"><code class="docutils literal notranslate"><span class="pre">Slices.evalable_repr()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.TransientError"><code class="docutils literal notranslate"><span class="pre">TransientError</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.python_op_template.handle_packages_script"><code class="docutils literal notranslate"><span class="pre">handle_packages_script()</span></code></a></li>
 </ul>
@@ -256,7 +259,10 @@
 <li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.PythonOPTemplate.set_slices"><code class="docutils literal notranslate"><span class="pre">PythonOPTemplate.set_slices()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.Slices"><code class="docutils literal notranslate"><span class="pre">Slices</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.Slices"><code class="docutils literal notranslate"><span class="pre">Slices</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dflow.python.html#dflow.python.Slices.evalable_repr"><code class="docutils literal notranslate"><span class="pre">Slices.evalable_repr()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.python.html#dflow.python.TransientError"><code class="docutils literal notranslate"><span class="pre">TransientError</span></code></a></li>
 </ul>
 </li>
@@ -417,6 +423,55 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 <dd></dd></dl>
 
 </section>
+<section id="module-dflow.code_gen">
+<span id="dflow-code-gen-module"></span><h2>dflow.code_gen module<a class="headerlink" href="#module-dflow.code_gen" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.code_gen.CodeGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.code_gen.</span></span><span class="sig-name descname"><span class="pre">CodeGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.code_gen.CodeGenerator" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.code_gen.CodeGenerator.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.code_gen.CodeGenerator.generate" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.code_gen.CodeGenerator.get_kwargs">
+<span class="sig-name descname"><span class="pre">get_kwargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.code_gen.CodeGenerator.get_kwargs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.code_gen.CodeGenerator.get_var_name">
+<span class="sig-name descname"><span class="pre">get_var_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.code_gen.CodeGenerator.get_var_name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.code_gen.CodeGenerator.render_dag">
+<span class="sig-name descname"><span class="pre">render_dag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.code_gen.CodeGenerator.render_dag" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.code_gen.CodeGenerator.render_python_op_template">
+<span class="sig-name descname"><span class="pre">render_python_op_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.code_gen.CodeGenerator.render_python_op_template" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.code_gen.CodeGenerator.render_script_op_template">
+<span class="sig-name descname"><span class="pre">render_script_op_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.code_gen.CodeGenerator.render_script_op_template" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.code_gen.CodeGenerator.render_steps">
+<span class="sig-name descname"><span class="pre">render_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">var_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.code_gen.CodeGenerator.render_steps" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.code_gen.gen_code">
+<span class="sig-prename descclassname"><span class="pre">dflow.code_gen.</span></span><span class="sig-name descname"><span class="pre">gen_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.code_gen.gen_code" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
 <section id="module-dflow.common">
 <span id="dflow-common-module"></span><h2>dflow.common module<a class="headerlink" href="#module-dflow.common" title="Link to this heading">¶</a></h2>
 <dl class="py class">
@@ -511,6 +566,11 @@ on __getattr__, otherwise modify a.b.c will not take effect</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dflow.common.S3Artifact.download">
 <span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.common.S3Artifact.download" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.common.S3Artifact.evalable_repr">
+<span class="sig-name descname"><span class="pre">evalable_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imports</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.common.S3Artifact.evalable_repr" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1658,6 +1718,11 @@ self in this method to make the executor reusable</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dflow.step.ArgoSequence.evalable_repr">
+<span class="sig-name descname"><span class="pre">evalable_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imports</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.ArgoSequence.evalable_repr" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dflow.step.ArgoSequence.from_dict">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.step.ArgoSequence.from_dict" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -2203,6 +2268,17 @@ generated parallel tasks greater than certain number</p></li>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.utils.Variable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">Variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.Variable" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.utils.Variable.evalable_repr">
+<span class="sig-name descname"><span class="pre">evalable_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imports</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.Variable.evalable_repr" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="dflow.utils.assemble_path_object">
 <span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">assemble_path_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">art_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.assemble_path_object" title="Link to this definition">¶</a></dt>
@@ -2284,6 +2360,11 @@ generated parallel tasks greater than certain number</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="dflow.utils.download_s3">
 <span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">download_s3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_exists</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#dflow.utils.download_s3" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dflow.utils.evalable_repr">
+<span class="sig-prename descclassname"><span class="pre">dflow.utils.</span></span><span class="sig-name descname"><span class="pre">evalable_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imports</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.utils.evalable_repr" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -3596,6 +3677,11 @@ self in this method to make the executor reusable</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dflow.S3Artifact.evalable_repr">
+<span class="sig-name descname"><span class="pre">evalable_repr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imports</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.S3Artifact.evalable_repr" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dflow.S3Artifact.from_dict">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.S3Artifact.from_dict" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -4463,6 +4549,11 @@ with count, can be an Argo parameter</p></li>
 <dd></dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="dflow.gen_code">
+<span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">gen_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.gen_code" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="dflow.if_expression">
 <span class="sig-prename descclassname"><span class="pre">dflow.</span></span><span class="sig-name descname"><span class="pre">if_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_if</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">_then</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">_else</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#dflow.io.ArgoVar" title="dflow.io.ArgoVar"><span class="pre">ArgoVar</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#dflow.io.IfExpression" title="dflow.io.IfExpression"><span class="pre">IfExpression</span></a></span></span><a class="headerlink" href="#dflow.if_expression" title="Link to this definition">¶</a></dt>
 <dd><p>Return an if expression in Argo</p>
@@ -4638,6 +4729,20 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.argo_objects.match"><code class="docutils literal notranslate"><span class="pre">match()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#module-dflow.code_gen">dflow.code_gen module</a><ul>
+<li><a class="reference internal" href="#dflow.code_gen.CodeGenerator"><code class="docutils literal notranslate"><span class="pre">CodeGenerator</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.code_gen.CodeGenerator.generate"><code class="docutils literal notranslate"><span class="pre">CodeGenerator.generate()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.code_gen.CodeGenerator.get_kwargs"><code class="docutils literal notranslate"><span class="pre">CodeGenerator.get_kwargs()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.code_gen.CodeGenerator.get_var_name"><code class="docutils literal notranslate"><span class="pre">CodeGenerator.get_var_name()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.code_gen.CodeGenerator.render_dag"><code class="docutils literal notranslate"><span class="pre">CodeGenerator.render_dag()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.code_gen.CodeGenerator.render_python_op_template"><code class="docutils literal notranslate"><span class="pre">CodeGenerator.render_python_op_template()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.code_gen.CodeGenerator.render_script_op_template"><code class="docutils literal notranslate"><span class="pre">CodeGenerator.render_script_op_template()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.code_gen.CodeGenerator.render_steps"><code class="docutils literal notranslate"><span class="pre">CodeGenerator.render_steps()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.code_gen.gen_code"><code class="docutils literal notranslate"><span class="pre">gen_code()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-dflow.common">dflow.common module</a><ul>
 <li><a class="reference internal" href="#dflow.common.CustomArtifact"><code class="docutils literal notranslate"><span class="pre">CustomArtifact</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.common.CustomArtifact.download"><code class="docutils literal notranslate"><span class="pre">CustomArtifact.download()</span></code></a></li>
@@ -4664,6 +4769,7 @@ parameters</p></li>
 </li>
 <li><a class="reference internal" href="#dflow.common.S3Artifact"><code class="docutils literal notranslate"><span class="pre">S3Artifact</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.common.S3Artifact.download"><code class="docutils literal notranslate"><span class="pre">S3Artifact.download()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.common.S3Artifact.evalable_repr"><code class="docutils literal notranslate"><span class="pre">S3Artifact.evalable_repr()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.common.S3Artifact.from_dict"><code class="docutils literal notranslate"><span class="pre">S3Artifact.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.common.S3Artifact.oss"><code class="docutils literal notranslate"><span class="pre">S3Artifact.oss()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.common.S3Artifact.sub_path"><code class="docutils literal notranslate"><span class="pre">S3Artifact.sub_path()</span></code></a></li>
@@ -4898,6 +5004,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.step.ArgoRange"><code class="docutils literal notranslate"><span class="pre">ArgoRange</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.ArgoSequence"><code class="docutils literal notranslate"><span class="pre">ArgoSequence</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.step.ArgoSequence.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">ArgoSequence.convert_to_argo()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.step.ArgoSequence.evalable_repr"><code class="docutils literal notranslate"><span class="pre">ArgoSequence.evalable_repr()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.ArgoSequence.from_dict"><code class="docutils literal notranslate"><span class="pre">ArgoSequence.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.step.ArgoSequence.to_dict"><code class="docutils literal notranslate"><span class="pre">ArgoSequence.to_dict()</span></code></a></li>
 </ul>
@@ -5001,6 +5108,10 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.utils.StorageClient.upload"><code class="docutils literal notranslate"><span class="pre">StorageClient.upload()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#dflow.utils.Variable"><code class="docutils literal notranslate"><span class="pre">Variable</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.utils.Variable.evalable_repr"><code class="docutils literal notranslate"><span class="pre">Variable.evalable_repr()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#dflow.utils.assemble_path_object"><code class="docutils literal notranslate"><span class="pre">assemble_path_object()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.assemble_path_object_from_catalog"><code class="docutils literal notranslate"><span class="pre">assemble_path_object_from_catalog()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.catalog_of_artifact"><code class="docutils literal notranslate"><span class="pre">catalog_of_artifact()</span></code></a></li>
@@ -5012,6 +5123,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.utils.dict2list"><code class="docutils literal notranslate"><span class="pre">dict2list()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.download_artifact"><code class="docutils literal notranslate"><span class="pre">download_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.download_s3"><code class="docutils literal notranslate"><span class="pre">download_s3()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.utils.evalable_repr"><code class="docutils literal notranslate"><span class="pre">evalable_repr()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.expand"><code class="docutils literal notranslate"><span class="pre">expand()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.find_subclass"><code class="docutils literal notranslate"><span class="pre">find_subclass()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.utils.flatten"><code class="docutils literal notranslate"><span class="pre">flatten()</span></code></a></li>
@@ -5242,6 +5354,7 @@ parameters</p></li>
 </li>
 <li><a class="reference internal" href="#dflow.S3Artifact"><code class="docutils literal notranslate"><span class="pre">S3Artifact</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.S3Artifact.download"><code class="docutils literal notranslate"><span class="pre">S3Artifact.download()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.S3Artifact.evalable_repr"><code class="docutils literal notranslate"><span class="pre">S3Artifact.evalable_repr()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.S3Artifact.from_dict"><code class="docutils literal notranslate"><span class="pre">S3Artifact.from_dict()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.S3Artifact.oss"><code class="docutils literal notranslate"><span class="pre">S3Artifact.oss()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.S3Artifact.sub_path"><code class="docutils literal notranslate"><span class="pre">S3Artifact.sub_path()</span></code></a></li>
@@ -5355,6 +5468,7 @@ parameters</p></li>
 <li><a class="reference internal" href="#dflow.copy_s3"><code class="docutils literal notranslate"><span class="pre">copy_s3()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.download_artifact"><code class="docutils literal notranslate"><span class="pre">download_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.download_s3"><code class="docutils literal notranslate"><span class="pre">download_s3()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.gen_code"><code class="docutils literal notranslate"><span class="pre">gen_code()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.if_expression"><code class="docutils literal notranslate"><span class="pre">if_expression()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.path_list_of_artifact"><code class="docutils literal notranslate"><span class="pre">path_list_of_artifact()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.path_object_of_artifact"><code class="docutils literal notranslate"><span class="pre">path_object_of_artifact()</span></code></a></li>
