@@ -280,7 +280,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 self.outputs.artifacts[name] = OutputArtifact(
                     path="%s/outputs/artifacts/" % self.tmp_root + name,
                     archive=sign.archive, save=sign.save,
-                    global_name=sign.global_name, type=sign.type)
+                    global_name=sign.global_name, type=sign.type,
+                    optional=sign.optional)
                 if config["save_path_as_parameter"]:
                     self.outputs.parameters["dflow_%s_path_list" %
                                             name] = OutputParameter(
