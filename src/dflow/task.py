@@ -5,7 +5,8 @@ from .op_template import OPTemplate
 from .step import Step
 
 try:
-    from argo.workflows.client import V1alpha1Arguments, V1alpha1DAGTask
+    from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
+                                       V1alpha1DAGTask)
 except Exception:
     pass
 
@@ -95,12 +96,18 @@ class Task(Step):
                 depends.append("(%s.Succeeded)" % task)
             else:
                 depends.append("(%s)" % task)
+        if self.continue_on_failed or self.continue_on_error:
+            continue_on = V1alpha1ContinueOn(
+                failed=self.continue_on_failed, error=self.continue_on_error)
+        else:
+            continue_on = None
         return V1alpha1DAGTask(
             name=self.name, template=self.template.name,
             arguments=V1alpha1Arguments(
                 parameters=self.argo_parameters,
                 artifacts=self.argo_artifacts
             ), when=self.when, with_param=self.with_param,
+            continue_on=continue_on,
             with_sequence=self.with_sequence,
             depends=" && ".join(depends),
         )
