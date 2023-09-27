@@ -1101,6 +1101,7 @@ class OutputArtifact(ArgoVar):
             archive: str = "default",
             global_name: Optional[str] = None,
             from_expression: Union[IfExpression, str] = None,
+            optional: bool = False,
     ) -> None:
         self.path = path
         self.name = name
@@ -1122,6 +1123,7 @@ class OutputArtifact(ArgoVar):
         self._from = _from
         self.slice = None
         self.parent = None
+        self.optional = optional
 
     @classmethod
     def from_dict(cls, d):
@@ -1132,6 +1134,7 @@ class OutputArtifact(ArgoVar):
             "global_name": d.get("globalName", None),
             "from_expression": d.get("fromExpression", None),
             "_from": d.get("from", None),
+            "optional": d.get("optional", False),
         }
         if "s3" in d:
             kwargs["save"] = [S3Artifact(key=d["s3"]["key"])]
@@ -1255,7 +1258,8 @@ class OutputArtifact(ArgoVar):
     def convert_to_argo(self):
         kwargs = {
             "name": self.name,
-            "global_name": self.global_name
+            "global_name": self.global_name,
+            "optional": self.optional,
         }
 
         if self.archive is None:
@@ -1299,6 +1303,7 @@ class OutputArtifact(ArgoVar):
             "from_expression": str(self.from_expression)
             if self.from_expression is not None else None,
             "_from": str(self._from) if self._from is not None else None,
+            "optional": self.optional,
         }
 
     @classmethod
