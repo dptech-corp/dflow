@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.4](https://github.com/deepmodeling/dflow/compare/v1.8.3...v1.8.4) (2023-09-27)
+
+
+### Bug Fixes
+
+* add optional to output artifact ([6f7979c](https://github.com/deepmodeling/dflow/commit/6f7979c662c5070e66a6c43fdd5a4016668bea66))
+
 ## [1.8.3](https://github.com/deepmodeling/dflow/compare/v1.8.2...v1.8.3) (2023-09-27)
 
 
