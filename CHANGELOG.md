@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.3](https://github.com/deepmodeling/dflow/compare/v1.8.2...v1.8.3) (2023-09-27)
+
+
+### Bug Fixes
+
+* support continue_on for Task ([4cc4f9c](https://github.com/deepmodeling/dflow/commit/4cc4f9c5c035d3cffad2e98533a7d2b726c64d29))
+
 ## [1.8.2](https://github.com/deepmodeling/dflow/compare/v1.8.1...v1.8.2) (2023-09-26)
 
 
