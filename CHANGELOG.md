@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.5](https://github.com/deepmodeling/dflow/compare/v1.8.4...v1.8.5) (2023-09-28)
+
+
+### Bug Fixes
+
+* remove scheduling strategies in dispatcher executor ([e021874](https://github.com/deepmodeling/dflow/commit/e021874593ab0728f2660c4c0352585d4e453195))
+
 ## [1.8.4](https://github.com/deepmodeling/dflow/compare/v1.8.3...v1.8.4) (2023-09-27)
 
 
