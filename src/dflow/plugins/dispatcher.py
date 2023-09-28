@@ -84,6 +84,7 @@ class DispatcherExecutor(Executor):
                  pre_script: str = "",
                  post_script: str = "",
                  clean: bool = True,
+                 remove_scheduling_strategies: bool = True,
                  ) -> None:
         self.host = host
         self.queue_name = queue_name
@@ -119,6 +120,7 @@ class DispatcherExecutor(Executor):
         self.pre_script = pre_script
         self.post_script = post_script
         self.clean = clean
+        self.remove_scheduling_strategies = remove_scheduling_strategies
 
         conf = {}
         if json_file is not None:
@@ -236,6 +238,12 @@ class DispatcherExecutor(Executor):
         new_template.image = self.image
         new_template.image_pull_policy = self.image_pull_policy
         new_template.command = self.command
+        if self.remove_scheduling_strategies:
+            new_template.node_selector = None
+            new_template.tolerations = []
+            new_template.affinity = None
+            new_template.requests = {}
+            new_template.limits = {}
 
         remote_command = template.command if self.remote_command is None \
             else self.remote_command
