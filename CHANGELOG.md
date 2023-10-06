@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.6](https://github.com/deepmodeling/dflow/compare/v1.8.5...v1.8.6) (2023-10-06)
+
+
+### Bug Fixes
+
+* removeprefix and removesuffix only supported for python&gt;=3.9 ([8f34e59](https://github.com/deepmodeling/dflow/commit/8f34e598b3b4a81ff91c9718cffd8e34b851d40d))
+
 ## [1.8.5](https://github.com/deepmodeling/dflow/compare/v1.8.4...v1.8.5) (2023-09-28)
 
 
