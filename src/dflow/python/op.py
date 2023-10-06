@@ -422,8 +422,8 @@ def type2opiosign(t):
         return OPIOSign(
             {"dflow_output_%s" % i: v for i, v in enumerate(t.__args__)}), \
             lambda x: {"dflow_output_%s" % i: v for i, v in enumerate(x)}, \
-            lambda x: tuple(dict2list({int(k.removeprefix("dflow_output_")): v
-                                      for k, v in x.items()}))
+            lambda x: tuple(dict2list({int(k[13:] if k.startswith(
+                "dflow_output_") else k): v for k, v in x.items()}))
     elif t is not None:
         return OPIOSign({"dflow_output": t}), lambda x: {"dflow_output": x}, \
             lambda x: x["dflow_output"]

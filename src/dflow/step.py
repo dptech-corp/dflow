@@ -1020,8 +1020,9 @@ class Step:
             assert len(artifacts[name]) == n
             if all([isinstance(art, S3Artifact)
                     for art in artifacts[name]]):
-                param[name] = [art.key.removeprefix(s3_config["prefix"])
-                               for art in artifacts[name]]
+                param[name] = [art.key[len(s3_config["prefix"]):]
+                               if art.key.startswith(s3_config["prefix"])
+                               else art.key for art in artifacts[name]]
                 artifacts[name] = S3Artifact(key="{{item.%s}}" % name)
             elif all(isinstance(art, CustomArtifact)
                      for art in artifacts[name]):
