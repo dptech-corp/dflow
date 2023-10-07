@@ -1027,7 +1027,7 @@ class Step:
             elif all(isinstance(art, CustomArtifact)
                      for art in artifacts[name]):
                 param[name] = [art.get_urn() for art in artifacts[name]]
-                artifacts[name] = artifacts[name][0]
+                artifacts[name] = deepcopy(artifacts[name][0])
                 artifacts[name].redirect = "{{item.%s}}" % name
         if isinstance(self.with_param, ArgoEnumerate):
             self.with_param = argo_enumerate(**self.with_param.kwargs, **param)
