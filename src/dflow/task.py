@@ -97,7 +97,10 @@ class Task(Step):
         depends = []
         for task in self.dependencies:
             if isinstance(task, Task):
-                depends.append("(%s.Succeeded)" % task)
+                if task.check_step is not None:
+                    depends.append("(%s.Succeeded)" % task.check_step)
+                else:
+                    depends.append("(%s.Succeeded)" % task)
             else:
                 depends.append("(%s)" % task)
         if self.continue_on_failed or self.continue_on_error:
