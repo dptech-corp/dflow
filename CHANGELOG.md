@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.10](https://github.com/deepmodeling/dflow/compare/v1.8.9...v1.8.10) (2023-10-07)
+
+
+### Bug Fixes
+
+* depends on check_step if check_step is not None ([1d40655](https://github.com/deepmodeling/dflow/commit/1d4065513b51c451aacffdd9fa78514551113d2e))
+
 ## [1.8.9](https://github.com/deepmodeling/dflow/compare/v1.8.8...v1.8.9) (2023-10-07)
 
 
