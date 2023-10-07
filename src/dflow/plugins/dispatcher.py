@@ -242,8 +242,15 @@ class DispatcherExecutor(Executor):
             new_template.node_selector = None
             new_template.tolerations = []
             new_template.affinity = None
-            new_template.requests = {}
-            new_template.limits = {}
+            # dispatcher pod use ephemeral storage currently
+            if new_template.requests is not None:
+                new_template.requests = {
+                    k: v for k, v in new_template.requests.items()
+                    if k == "ephemeral-storage"}
+            if new_template.limits is not None:
+                new_template.limits = {
+                    k: v for k, v in new_template.limits.items()
+                    if k == "ephemeral-storage"}
 
         remote_command = template.command if self.remote_command is None \
             else self.remote_command
