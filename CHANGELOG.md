@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.8](https://github.com/deepmodeling/dflow/compare/v1.8.7...v1.8.8) (2023-10-07)
+
+
+### Bug Fixes
+
+* dispatcher pod use ephemeral storage currently, do not remove ephemeral-storage in requests/limits in dispatcher executor ([5015d06](https://github.com/deepmodeling/dflow/commit/5015d06870b59850834821ef5990913414235ea7))
+
 ## [1.8.7](https://github.com/deepmodeling/dflow/compare/v1.8.6...v1.8.7) (2023-10-07)
 
 
