@@ -52,7 +52,8 @@ class Task(Step):
         if self.prepare_step is not None:
             self.dependencies.append(self.prepare_step)
         if self.check_step is not None:
-            self.check_step.dependencies.append(self)
+            self.check_step.dependencies = [
+                "%s.Succeeded || %s.Failed || %s.Errored" % (self, self, self)]
 
     @classmethod
     def from_dict(cls, d, templates):
