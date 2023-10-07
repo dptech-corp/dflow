@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.7](https://github.com/deepmodeling/dflow/compare/v1.8.6...v1.8.7) (2023-10-07)
+
+
+### Bug Fixes
+
+* not modify list of dataset artifacts when set artifacts ([cbe42bb](https://github.com/deepmodeling/dflow/commit/cbe42bb523d901b91217d3b53a3af941f6ceb89d))
+
 ## [1.8.6](https://github.com/deepmodeling/dflow/compare/v1.8.5...v1.8.6) (2023-10-06)
 
 
