@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.9](https://github.com/deepmodeling/dflow/compare/v1.8.8...v1.8.9) (2023-10-07)
+
+
+### Bug Fixes
+
+* check task depends on task finish ([2a166b5](https://github.com/deepmodeling/dflow/commit/2a166b545bb730068705d88589dcea3050373f27))
+
 ## [1.8.8](https://github.com/deepmodeling/dflow/compare/v1.8.7...v1.8.8) (2023-10-07)
 
 
