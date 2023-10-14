@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.11](https://github.com/deepmodeling/dflow/compare/v1.8.10...v1.8.11) (2023-10-14)
+
+
+### Bug Fixes
+
+* race condition of removing symlink of global outputs in debug mode ([b9f004e](https://github.com/deepmodeling/dflow/commit/b9f004e8d5389c86b12c63569982c4b72fac506f))
+
 ## [1.8.10](https://github.com/deepmodeling/dflow/compare/v1.8.9...v1.8.10) (2023-10-07)
 
 
