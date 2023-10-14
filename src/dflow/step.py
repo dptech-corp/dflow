@@ -115,12 +115,6 @@ class ArgoSequence:
             "format": self.format
         }
 
-    def __getstate__(self):
-        return self.to_dict()
-
-    def __setstate__(self, state):
-        self.__dict__.update(self.from_dict(state).__dict__)
-
     def convert_to_argo(self):
         count = self.count
         start = self.start
@@ -1389,7 +1383,8 @@ class Step:
             "name": self.name,
             "template": self.template.name,
             "with_param": self._with_param,
-            "with_sequence": self._with_sequence,
+            "with_sequence": self._with_sequence.to_dict() if isinstance(
+                self._with_sequence, ArgoSequence) else self._with_sequence,
             "slices": self._slices,
             "parameters": parameters,
             "artifacts": artifacts,
@@ -1414,6 +1409,9 @@ class Step:
             if not k.startswith("dflow_") and k not in graph["artifacts"]:
                 graph["artifacts"] = graph.get("artifacts", {})
                 graph["artifacts"][k] = None
+        if isinstance(graph.get("with_sequence"), dict):
+            graph["with_sequence"] = ArgoSequence.from_dict(
+                graph["with_sequence"])
         return cls(**graph)
 
     def run(self, scope, context=None):
