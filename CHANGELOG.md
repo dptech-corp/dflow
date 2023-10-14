@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.12](https://github.com/deepmodeling/dflow/compare/v1.8.11...v1.8.12) (2023-10-14)
+
+
+### Bug Fixes
+
+* remove __getstate__ and __setstate__ methods of ArgoSequence ([423d44f](https://github.com/deepmodeling/dflow/commit/423d44f504caba0c3a110b5ed34e50883b5322e3))
+
 ## [1.8.11](https://github.com/deepmodeling/dflow/compare/v1.8.10...v1.8.11) (2023-10-14)
 
 
