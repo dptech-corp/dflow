@@ -1770,7 +1770,11 @@ class Step:
                         os.symlink(art_path, global_art_path)
                         break
                     except FileExistsError:
-                        os.remove(global_art_path)
+                        # for race condition of removing symlink
+                        try:
+                            os.remove(global_art_path)
+                        except FileNotFoundError:
+                            pass
 
     def load_output_parameters(self, stepdir, parameters):
         for name, par in parameters.items():
