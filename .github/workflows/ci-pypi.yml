@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - 1.7.76-fix-filenotfound
     paths:
       - 'VERSION'
 
