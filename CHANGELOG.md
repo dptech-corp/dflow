@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.13](https://github.com/deepmodeling/dflow/compare/v1.8.12...v1.8.13) (2023-10-16)
+
+
+### Bug Fixes
+
+* list has no attribute inputs ([196cefe](https://github.com/deepmodeling/dflow/commit/196cefe45a3adef8484369ed25f18691aecd7deb))
+* remove unnecessary __getstate__/__setstate__ methods ([196cefe](https://github.com/deepmodeling/dflow/commit/196cefe45a3adef8484369ed25f18691aecd7deb))
+
 ## [1.8.12](https://github.com/deepmodeling/dflow/compare/v1.8.11...v1.8.12) (2023-10-14)
 
 
