@@ -1082,7 +1082,8 @@ class Step:
                 from .dag import DAG
                 from .steps import Steps
                 if isinstance(self.template, (Steps, DAG)):
-                    for step in self.template:
+                    for step in sum([s if isinstance(s, list) else [s]
+                                     for s in self.template], []):
                         for name, art in step.inputs.artifacts.items():
                             if art.source is self.template.inputs.artifacts[k]\
                                 or getattr(art.source, "parent", None) is \
@@ -1108,7 +1109,8 @@ class Step:
                 from .dag import DAG
                 from .steps import Steps
                 if isinstance(self.template, (Steps, DAG)):
-                    for step in self.template:
+                    for step in sum([s if isinstance(s, list) else [s]
+                                     for s in self.template], []):
                         for name, art in list(step.inputs.artifacts.items()):
                             if art.source is self.template.inputs.artifacts[k]\
                                 or getattr(art.source, "parent", None) is \
@@ -1160,7 +1162,8 @@ class Step:
                 from .dag import DAG
                 from .steps import Steps
                 if isinstance(self.template, (Steps, DAG)):
-                    for step in self.template:
+                    for step in sum([s if isinstance(s, list) else [s]
+                                     for s in self.template], []):
                         for name, art in list(step.inputs.artifacts.items()):
                             if art.source is self.template.inputs.artifacts[k]\
                                 or getattr(art.source, "parent", None) is \
@@ -1208,7 +1211,8 @@ class Step:
                     from .dag import DAG
                     from .steps import Steps
                     if isinstance(self.template, (Steps, DAG)):
-                        for step in self.template:
+                        for step in sum([s if isinstance(s, list) else [s]
+                                         for s in self.template], []):
                             for name, art in step.inputs.artifacts.items():
                                 if art.source is \
                                         self.template.inputs.artifacts[k] or \

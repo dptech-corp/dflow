@@ -8,6 +8,8 @@ from copy import copy, deepcopy
 from importlib import import_module
 from typing import Any, Dict, List, Union
 
+import jsonpickle
+
 from .config import config as global_config
 from .config import s3_config
 
@@ -43,6 +45,17 @@ task_output_artifact_pattern = re.compile(
     r"^{{tasks\.(.*?)\.outputs\.artifacts\.(.*?)}}$")
 
 
+class CustomHandler(jsonpickle.handlers.BaseHandler):
+    def flatten(self, obj, data):
+        data.update(obj.to_dict())
+        return data
+
+    def restore(self, obj):
+        cls = import_func(obj.pop("py/object"))
+        return cls.from_dict(obj)
+
+
+@CustomHandler.handles
 class S3Artifact(V1alpha1S3Artifact):
     """
     S3 artifact
@@ -107,12 +120,6 @@ class S3Artifact(V1alpha1S3Artifact):
         artifact = cls(key=d["key"], urn=d.get("urn", ""))
         artifact.slice = d.get("slice")
         return artifact
-
-    def __getstate__(self):
-        return self.to_dict()
-
-    def __setstate__(self, state):
-        self.__dict__.update(self.from_dict(state).__dict__)
 
     def sub_path(
             self,
