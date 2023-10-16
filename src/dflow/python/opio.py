@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Set, Union
 
 import jsonpickle
 
-from ..common import S3Artifact
+from ..common import CustomHandler, S3Artifact
 from ..config import config
 from ..io import PVC, type_to_str
 
@@ -33,6 +33,7 @@ ArtifactAllowedTypes = [str, Path, Set[str], Set[Path], List[str], List[Path],
                         NestedDict[Path]]
 
 
+@CustomHandler.handles
 class Artifact:
     """
     OPIO signature of artifact
@@ -78,7 +79,7 @@ class Artifact:
                                                         ArtifactAllowedTypes)
         super().__setattr__(key, value)
 
-    def __getstate__(self):
+    def to_dict(self):
         return {
             "type": type_to_str(self.type),
             "archive": self.archive,
@@ -88,11 +89,12 @@ class Artifact:
             "sub_path": self.sub_path,
         }
 
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        if isinstance(self.type, str):
-            self.type = {type_to_str(t): t for t in ArtifactAllowedTypes}[
-                self.type]
+    @classmethod
+    def from_dict(cls, d):
+        if isinstance(d["type"], str):
+            d["type"] = {type_to_str(t): t for t in ArtifactAllowedTypes}[
+                d["type"]]
+        return cls(**d)
 
     def __repr__(self):
         return "Artifact(type=%s, optional=%s, sub_path=%s)" % (
@@ -102,6 +104,7 @@ class Artifact:
         self.type(*args, **kwargs)
 
 
+@CustomHandler.handles
 class Parameter:
     """
     OPIO signature of parameter
@@ -135,19 +138,21 @@ class Parameter:
                     jsonpickle.dumps(self.default)
         return "Parameter(type=%s%s)" % (type_to_str(self.type), default)
 
-    def __getstate__(self):
-        state = {
+    def to_dict(self):
+        d = {
             "type": type_to_str(self.type),
             "global_name": self.global_name,
         }
         if hasattr(self, "default"):
-            state["default"] = self.default
-        return state
+            d["default"] = self.default
+        return d
 
-    def __setstate__(self, state):
-        self.__dict__.update(state)
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d)
 
 
+@CustomHandler.handles
 class BigParameter:
     """
     OPIO signature of big parameter
@@ -177,16 +182,17 @@ class BigParameter:
                     jsonpickle.dumps(self.default)
         return "BigParameter(type=%s%s)" % (type_to_str(self.type), default)
 
-    def __getstate__(self):
-        state = {
+    def to_dict(self):
+        d = {
             "type": type_to_str(self.type),
         }
         if hasattr(self, "default"):
-            state["default"] = self.default
-        return state
+            d["default"] = self.default
+        return d
 
-    def __setstate__(self, state):
-        self.__dict__.update(state)
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d)
 
 
 class OPIOSign(MutableMapping):
