@@ -1480,6 +1480,9 @@ class Step:
                                     " value: %s" % e)
 
         # source input artifacts
+        for name, art in self.template.inputs.artifacts.items():
+            if name not in self.inputs.artifacts and art.source is not None:
+                self.inputs.artifacts[name] = deepcopy(art)
         for name, art in self.inputs.artifacts.items():
             if isinstance(art.source, (InputArtifact, OutputArtifact)):
                 art.source = get_var(art.source, scope)
