@@ -84,7 +84,11 @@ class S3Artifact(V1alpha1S3Artifact):
             else:
                 logging.warning("Lineage client not provided")
         assert isinstance(self.key, str)
-        if not self.key.startswith(s3_config["prefix"]) and not any(
+        self.local_path = None
+        if global_config["mode"] == "debug" and not global_config["debug_s3"] \
+                and not debug_s3:
+            self.local_path = self.key
+        elif not self.key.startswith(s3_config["prefix"]) and not any(
                 [self.key.startswith(p) for p in s3_config["extra_prefixes"]]):
             self.key = s3_config["prefix"] + self.key
         if path_list is None:
@@ -93,10 +97,6 @@ class S3Artifact(V1alpha1S3Artifact):
         self.urn = urn
         self.slice = None
         self.parent = None
-        self.local_path = None
-        if global_config["mode"] == "debug" and not global_config["debug_s3"] \
-                and not debug_s3:
-            self.local_path = self.key
 
     def __getitem__(self, key):
         art = copy(self)
