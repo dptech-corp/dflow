@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.14](https://github.com/deepmodeling/dflow/compare/v1.8.13...v1.8.14) (2023-10-17)
+
+
+### Bug Fixes
+
+* private_key_file of DispatcherExecutor in debug mode ([30ee41c](https://github.com/deepmodeling/dflow/commit/30ee41cc68649c42031d9014d79700dc83088f89))
+
 ## [1.8.13](https://github.com/deepmodeling/dflow/compare/v1.8.12...v1.8.13) (2023-10-16)
 
 
