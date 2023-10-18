@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.15](https://github.com/deepmodeling/dflow/compare/v1.8.14...v1.8.15) (2023-10-18)
+
+
+### Bug Fixes
+
+* cd to workdir before execute for grouped slices ([a880d76](https://github.com/deepmodeling/dflow/commit/a880d762f73964e61b55bc4be83fe0e9a3ed8e1b))
+
 ## [1.8.14](https://github.com/deepmodeling/dflow/compare/v1.8.13...v1.8.14) (2023-10-17)
 
 
