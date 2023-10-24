@@ -24,12 +24,12 @@ class TypeguardTransformer(ast.NodeVisitor):
     def visit_Module(self, node: ast.Module):
         # Insert "import typeguard" after any "from __future__ ..." imports
         for i, child in enumerate(node.body):
-            if isinstance(child, ast.ImportFrom) and child.module == '__future__':
+            if isinstance(child, ast.ImportFrom) and child.module == '__future__':  # noqa: E501
                 continue
-            elif isinstance(child, ast.Expr) and isinstance(child.value, ast.Str):
+            elif isinstance(child, ast.Expr) and isinstance(child.value, ast.Str):  # noqa: E501
                 continue  # module docstring
             else:
-                node.body.insert(i, ast.Import(names=[ast.alias('typeguard', None)]))
+                node.body.insert(i, ast.Import(names=[ast.alias('typeguard', None)]))  # noqa: E501
                 break
 
         self._parents.append(node)
@@ -39,7 +39,7 @@ class TypeguardTransformer(ast.NodeVisitor):
 
     def visit_ClassDef(self, node: ast.ClassDef):
         node.decorator_list.append(
-            ast.Attribute(ast.Name(id='typeguard', ctx=ast.Load()), 'typechecked', ast.Load())
+            ast.Attribute(ast.Name(id='typeguard', ctx=ast.Load()), 'typechecked', ast.Load())  # noqa: E501
         )
         self._parents.append(node)
         self.generic_visit(node)
@@ -51,12 +51,12 @@ class TypeguardTransformer(ast.NodeVisitor):
         if isinstance(self._parents[-1], ast.ClassDef):
             return node
 
-        has_annotated_args = any(arg for arg in node.args.args if arg.annotation)
+        has_annotated_args = any(arg for arg in node.args.args if arg.annotation)  # noqa: E501
         has_annotated_return = bool(node.returns)
         if has_annotated_args or has_annotated_return:
             node.decorator_list.insert(
                 0,
-                ast.Attribute(ast.Name(id='typeguard', ctx=ast.Load()), 'typechecked', ast.Load())
+                ast.Attribute(ast.Name(id='typeguard', ctx=ast.Load()), 'typechecked', ast.Load())  # noqa: E501
             )
 
         self._parents.append(node)
@@ -68,7 +68,7 @@ class TypeguardTransformer(ast.NodeVisitor):
 class TypeguardLoader(SourceFileLoader):
     def source_to_code(self, data, path, *, _optimize=-1):
         source = decode_source(data)
-        tree = _call_with_frames_removed(compile, source, path, 'exec', ast.PyCF_ONLY_AST,
+        tree = _call_with_frames_removed(compile, source, path, 'exec', ast.PyCF_ONLY_AST,  # noqa: E501
                                          dont_inherit=True, optimize=_optimize)
         tree = TypeguardTransformer().visit(tree)
         ast.fix_missing_locations(tree)
@@ -76,8 +76,8 @@ class TypeguardLoader(SourceFileLoader):
                                          dont_inherit=True, optimize=_optimize)
 
     def exec_module(self, module):
-        # Use a custom optimization marker – the import lock should make this monkey patch safe
-        with patch('importlib._bootstrap_external.cache_from_source', optimized_cache_from_source):
+        # Use a custom optimization marker – the import lock should make this monkey patch safe  # noqa: E501
+        with patch('importlib._bootstrap_external.cache_from_source', optimized_cache_from_source):  # noqa: E501
             return super().exec_module(module)
 
 
@@ -90,7 +90,7 @@ class TypeguardFinder(MetaPathFinder):
 
     .. versionadded:: 2.6
 
-    """
+    """  # noqa: E501
 
     def __init__(self, packages, original_pathfinder):
         self.packages = packages
@@ -100,7 +100,7 @@ class TypeguardFinder(MetaPathFinder):
         if self.should_instrument(fullname):
             spec = self._original_pathfinder.find_spec(fullname, path, target)
             if spec is not None and isinstance(spec.loader, SourceFileLoader):
-                spec.loader = TypeguardLoader(spec.loader.name, spec.loader.path)
+                spec.loader = TypeguardLoader(spec.loader.name, spec.loader.path)  # noqa: E501
                 return spec
 
         return None
@@ -111,7 +111,7 @@ class TypeguardFinder(MetaPathFinder):
 
         :param module_name: full name of the module that is about to be imported (e.g. ``xyz.abc``)
 
-        """
+        """  # noqa: E501
         for package in self.packages:
             if module_name == package or module_name.startswith(package + '.'):
                 return True
@@ -137,7 +137,7 @@ class ImportHookManager:
 
 
 def install_import_hook(packages: Iterable[str], *,
-                        cls: Type[TypeguardFinder] = TypeguardFinder) -> ImportHookManager:
+                        cls: Type[TypeguardFinder] = TypeguardFinder) -> ImportHookManager:  # noqa: E501
     """
     Install an import hook that decorates classes and functions with ``@typechecked``.
 
@@ -147,12 +147,12 @@ def install_import_hook(packages: Iterable[str], *,
 
     .. versionadded:: 2.6
 
-    """
+    """  # noqa: E501
     if isinstance(packages, str):
         packages = [packages]
 
     for i, finder in enumerate(sys.meta_path):
-        if isclass(finder) and finder.__name__ == 'PathFinder' and hasattr(finder, 'find_spec'):
+        if isclass(finder) and finder.__name__ == 'PathFinder' and hasattr(finder, 'find_spec'):  # noqa: E501
             break
     else:
         raise RuntimeError('Cannot find a PathFinder in sys.meta_path')
