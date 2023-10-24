@@ -1,5 +1,4 @@
 import jsonpickle
-import typeguard
 
 from . import __path__
 from .common import S3Artifact
@@ -81,7 +80,6 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
             python_packages = []
             python_packages += __path__
             python_packages += jsonpickle.__path__
-            python_packages += typeguard.__path__
             self.python_packages = set(python_packages)
             self.inputs.artifacts["dflow_python_packages"] = InputArtifact(
                 path="%s/inputs/artifacts/dflow_python_packages"

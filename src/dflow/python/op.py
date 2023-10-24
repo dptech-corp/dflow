@@ -13,14 +13,13 @@ from importlib import import_module
 from pathlib import Path
 from typing import Dict, List, Set, Union
 
-from typeguard import check_type
-
 from ..argo_objects import ArgoObjectDict
 from ..config import config
 from ..context_syntax import GLOBAL_CONTEXT
 from ..io import (InputArtifact, InputParameter, OutputArtifact,
                   OutputParameter, type_to_str)
 from ..utils import dict2list, get_key, randstr, s3_config
+from ._vendor.typeguard import check_type
 from .opio import OPIO, Artifact, BigParameter, OPIOSign, Parameter
 
 iwd = os.getcwd()
