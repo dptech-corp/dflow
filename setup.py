@@ -21,6 +21,8 @@ setup(
     packages=[
         "dflow",
         "dflow/python",
+        "dflow/python/vendor",
+        "dflow/python/vendor/typeguard",
         "dflow/client",
         "dflow/plugins",
     ],
@@ -31,7 +33,6 @@ setup(
         "python-dateutil",
         "urllib3",
         "certifi",
-        "typeguard==2.13.3",
         "argo-workflows==5.0.0",
         "jsonpickle",
         "minio",

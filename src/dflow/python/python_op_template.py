@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Type, Union
 
 import jsonpickle
-import typeguard
 
 from .. import __path__
 from ..common import S3Artifact
@@ -338,7 +337,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         if upload_dflow:
             python_packages += __path__
             python_packages += jsonpickle.__path__
-            python_packages += typeguard.__path__
 
         self.python_packages = None
         if python_packages:
@@ -743,8 +741,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         del g["resource"]
         python_packages = []
         for p in self.python_packages:
-            if self.upload_dflow and Path(p).name in [
-                    "dflow", "jsonpickle", "typeguard"]:
+            if self.upload_dflow and Path(p).name in ["dflow", "jsonpickle"]:
                 continue
             python_packages.append(str(p))
         g["type"] = "PythonOPTemplate"
