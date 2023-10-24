@@ -21,6 +21,8 @@ setup(
     packages=[
         "dflow",
         "dflow/python",
+        "dflow/python/vendor",
+        "dflow/python/vendor/typeguard",
         "dflow/client",
         "dflow/plugins",
     ],
