@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## [1.8.16](https://github.com/deepmodeling/dflow/compare/v1.8.15...v1.8.16) (2023-10-24)
+
+
+### Bug Fixes
+
+* add dflow/python/vendor/typeguard to packages in setup.py ([35663ef](https://github.com/deepmodeling/dflow/commit/35663ef848be35e3062e46decfdaf3dfef2164a5))
+* add unittest to github actions ([a7fa89d](https://github.com/deepmodeling/dflow/commit/a7fa89d88c24474899805acf33a507de3a0ac6a6))
+* noqa for typeguard ([cacb2cf](https://github.com/deepmodeling/dflow/commit/cacb2cf631d9669bb7003421ad9f2fa3c93f982f))
+* rename _vendor -&gt; vendor ([9c3a5bf](https://github.com/deepmodeling/dflow/commit/9c3a5bf7e1c68b0e5b26bbf4a98e421e4b05a860))
+* vendor typeguard==2.13.3 ([a7fa89d](https://github.com/deepmodeling/dflow/commit/a7fa89d88c24474899805acf33a507de3a0ac6a6))
+
 ## [1.8.15](https://github.com/deepmodeling/dflow/compare/v1.8.14...v1.8.15) (2023-10-18)
 
 
