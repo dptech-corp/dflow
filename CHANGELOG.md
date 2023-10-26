@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.17](https://github.com/deepmodeling/dflow/compare/v1.8.16...v1.8.17) (2023-10-26)
+
+
+### Bug Fixes
+
+* outputs has no attribute artifacts (for argo&lt;3.4) ([e85800b](https://github.com/deepmodeling/dflow/commit/e85800b25189803a80f165f8bc1e41c3a736c1bf))
+
 ## [1.8.16](https://github.com/deepmodeling/dflow/compare/v1.8.15...v1.8.16) (2023-10-24)
 
 
