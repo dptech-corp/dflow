@@ -394,9 +394,8 @@ class Workflow:
                         else:
                             self.handle_reused_artifact_with_copy(
                                 step, name, art)
-
-        outputs["artifacts"] = [
-            art.recover() for art in step.outputs.artifacts.values()]
+                outputs["artifacts"] = [
+                    art.recover() for art in step.outputs.artifacts.values()]
         self.memoize_map["%s-%s" % (self.id, step.key)] = {
             "nodeID": step.id,
             "outputs": outputs,
