@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from copy import deepcopy
 from typing import Dict, List, Optional, Union
 
@@ -268,11 +269,15 @@ class DAG(OPTemplate):
             else:
                 self.tasks[j].outputs = deepcopy(t.outputs)
                 self.tasks[j].phase = t.phase
+                logging.info("Outputs of %s collected" % self.tasks[j])
             self.running.remove(self.tasks[j])
             self.finished.append(self.tasks[j])
             self.resolve(pool, futures)
 
-        pool.shutdown()
+        if sys.version_info.minor >= 9:
+            pool.shutdown(wait=False)
+        else:
+            pool.shutdown(wait=True)
         assert len(self.finished) == len(self.tasks), "cyclic graph"
 
     def add_slices(self, slices, layer=0):

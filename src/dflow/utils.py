@@ -1,4 +1,5 @@
 import abc
+import concurrent.futures
 import contextlib
 import hashlib
 import inspect
@@ -885,3 +886,13 @@ def evalable_repr(obj, imports):
         return obj.evalable_repr(imports)
     imports.add((None, "jsonpickle"))
     return "jsonpickle.loads(%s)" % repr(jsonpickle.dumps(obj))
+
+
+class ProcessPoolExecutor(concurrent.futures.ProcessPoolExecutor):
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # Work around of getting stuck when exiting, only work for python>=3.9
+        if sys.version_info.minor >= 9:
+            self.shutdown(wait=False)
+        else:
+            self.shutdown(wait=True)
+        return False

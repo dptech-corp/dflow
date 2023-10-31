@@ -25,9 +25,9 @@ from .op_template import (OPTemplate, PythonScriptOPTemplate, ScriptOPTemplate,
 from .python import Slices
 from .resource import Resource
 from .util_ops import CheckNumSuccess, CheckSuccessRatio, InitArtifactForSlices
-from .utils import (catalog_of_artifact, copy_file, download_s3, evalable_repr,
-                    flatten, force_link, get_key, merge_dir, randstr,
-                    upload_artifact)
+from .utils import (ProcessPoolExecutor, catalog_of_artifact, copy_file,
+                    download_s3, evalable_repr, flatten, force_link, get_key,
+                    merge_dir, randstr, upload_artifact)
 
 try:
     from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
@@ -1545,7 +1545,7 @@ class Step:
             max_workers = config["debug_pool_workers"]
             if max_workers == -1:
                 max_workers = len(item_list)
-            with concurrent.futures.ProcessPoolExecutor(max_workers) as pool:
+            with ProcessPoolExecutor(max_workers) as pool:
                 futures = []
                 for i, item in enumerate(item_list):
                     ps = self.parallel_steps[i]
@@ -1580,6 +1580,8 @@ class Step:
                                                self.parallel_steps[j])
                     else:
                         self.parallel_steps[j].outputs = deepcopy(ps.outputs)
+                        logging.info("Outputs of %s collected" %
+                                     self.parallel_steps[j])
 
             for name, par in self.outputs.parameters.items():
                 par.value = []
