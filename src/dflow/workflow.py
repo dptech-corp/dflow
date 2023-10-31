@@ -1233,9 +1233,12 @@ def query_workflows(labels: Optional[Dict[str, str]] = None,
 
 
 def query_archived_workflows(
-        labels: Optional[Dict[str, str]] = None) -> List[ArgoWorkflow]:
-    query_params = [('listOptions.fieldSelector',
-                     "metadata.namespace=%s" % config["namespace"])]
+        labels: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None) -> List[ArgoWorkflow]:
+    sel = "metadata.namespace=%s" % config["namespace"]
+    if id is not None:
+        sel += ",metadata.name=%s" % id
+    query_params = [('listOptions.fieldSelector', sel)]
     if labels is not None:
         query_params.append((
             'listOptions.labelSelector',

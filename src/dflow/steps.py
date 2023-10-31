@@ -12,6 +12,7 @@ from .context_syntax import GLOBAL_CONTEXT
 from .io import Inputs, Outputs
 from .op_template import OPTemplate
 from .step import Step, add_slices
+from .utils import ProcessPoolExecutor
 
 try:
     from argo.workflows.client import V1alpha1Metadata, V1alpha1Template
@@ -240,8 +241,7 @@ class Steps(OPTemplate):
                 max_workers = config["debug_pool_workers"]
                 if max_workers == -1:
                     max_workers = len(step)
-                with concurrent.futures.ProcessPoolExecutor(
-                        max_workers) as pool:
+                with ProcessPoolExecutor(max_workers) as pool:
                     futures = []
                     for i, ps in enumerate(step):
                         ps.phase = "Pending"
@@ -276,6 +276,7 @@ class Steps(OPTemplate):
                                 raise RuntimeError("Step %s failed" % step[j])
                         else:
                             step[j].outputs = deepcopy(ps.outputs)
+                            logging.info("Outputs of %s collected" % step[j])
             else:
                 step.run(self, context)
 
