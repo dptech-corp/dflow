@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.18](https://github.com/deepmodeling/dflow/compare/v1.8.17...v1.8.18) (2023-10-31)
+
+
+### Bug Fixes
+
+* add option id when querying archived workflows ([a723874](https://github.com/deepmodeling/dflow/commit/a723874ce229d3bcc09fcd295f98fc467253e702))
+* stuck when exiting ProcessPoolExecutor ([a723874](https://github.com/deepmodeling/dflow/commit/a723874ce229d3bcc09fcd295f98fc467253e702))
+
 ## [1.8.17](https://github.com/deepmodeling/dflow/compare/v1.8.16...v1.8.17) (2023-10-26)
 
 
