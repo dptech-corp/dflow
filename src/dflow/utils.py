@@ -623,8 +623,10 @@ def set_directory(dirname: os.PathLike, mkdir: bool = False):
     if mkdir:
         path.mkdir(exist_ok=True, parents=True)
     os.chdir(path)
-    yield path
-    os.chdir(pwd)
+    try:
+        yield path
+    finally:
+        os.chdir(pwd)
 
 
 def run_command(

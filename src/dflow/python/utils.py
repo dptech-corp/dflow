@@ -1,5 +1,6 @@
 import os
 import shutil
+import traceback
 import uuid
 from pathlib import Path
 from typing import Dict, List, Set
@@ -268,6 +269,8 @@ def copy_results(source, name, data_root="/tmp"):
             rel_path = rel_path[1:]
         return rel_path
     else:
+        if source.startswith(os.getcwd()):
+            source = source[len(os.getcwd())+1:]
         target = data_root + "/outputs/artifacts/%s/%s" % (name, source)
         copy_file(source, target)
         if source[:1] == "/":
@@ -300,3 +303,31 @@ def handle_lineage(wf_name, pod_name, op_obj, input_urns, workflow_urn,
         with open("%s/outputs/parameters/dflow_%s_urn" % (data_root, name),
                   "w") as f:
             f.write(urn)
+
+
+def absolutize(path):
+    if path is None:
+        return None
+    if isinstance(path, str):
+        return os.path.abspath(path)
+    if isinstance(path, Path):
+        return path.absolute()
+    if isinstance(path, list):
+        return [absolutize(p) for p in path]
+    if isinstance(path, dict):
+        return {k: absolutize(p) for k, p in path.items()}
+
+
+def try_to_execute(input, op_obj, output_sign, cwd):
+    os.chdir(cwd)
+    try:
+        output = op_obj.execute(input)
+        for n, s in output_sign.items():
+            if isinstance(s, Artifact):
+                output[n] = absolutize(output[n])
+        os.chdir(cwd)
+        return output, None
+    except Exception as e:
+        traceback.print_exc()
+        os.chdir(cwd)
+        return None, e
