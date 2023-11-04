@@ -487,19 +487,15 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         script += "op_obj.key = '{{=inputs.parameters.dflow_key}}'\n"
         script += "if op_obj.key.startswith('{'): op_obj.key = None\n"
         script += "op_obj.workflow_name = '{{workflow.name}}'\n"
-        script += "cwd = os.getcwd()\n"
-        script += "def try_to_execute(input):\n"
-        script += "    os.chdir(cwd)\n"
-        script += "    try:\n"
-        script += "        return op_obj.execute(input), None\n"
-        script += "    except Exception as e:\n"
-        script += "        traceback.print_exc()\n"
-        script += "        return None, e\n\n"
         script += "if __name__ == '__main__':\n"
         script += "    input = OPIO()\n"
         script += "    input_sign = %s.get_input_sign()\n" % class_name
         script += "    output_sign = %s.get_output_sign()\n" % class_name
         if self.slices is not None and self.slices.pool_size is not None:
+            script += "    from dflow.python.utils import try_to_execute\n"
+            script += "    from functools import partial\n"
+            script += "    try_to_execute = partial(try_to_execute, "\
+                "op_obj=op_obj, output_sign=output_sign, cwd=os.getcwd())\n"
             script += "    from typing import List\n"
             script += "    from pathlib import Path\n"
             for name in self.slices.input_artifact:
