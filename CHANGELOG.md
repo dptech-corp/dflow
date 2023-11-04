@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.19](https://github.com/deepmodeling/dflow/compare/v1.8.18...v1.8.19) (2023-11-04)
+
+
+### Bug Fixes
+
+* path problem in try_to_execute ([1d6fe6e](https://github.com/deepmodeling/dflow/commit/1d6fe6ee3b5301d5631c3bb9181c630136a60dbe))
+* set_directory ([1d6fe6e](https://github.com/deepmodeling/dflow/commit/1d6fe6ee3b5301d5631c3bb9181c630136a60dbe))
+
 ## [1.8.18](https://github.com/deepmodeling/dflow/compare/v1.8.17...v1.8.18) (2023-10-31)
 
 
