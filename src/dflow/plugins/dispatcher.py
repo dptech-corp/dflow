@@ -4,7 +4,7 @@ import os
 from abc import ABC
 from copy import deepcopy
 from getpass import getpass
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from ..common import CustomArtifact, S3Artifact
 from ..config import config
@@ -85,6 +85,7 @@ class DispatcherExecutor(Executor):
                  post_script: str = "",
                  clean: bool = True,
                  remove_scheduling_strategies: bool = True,
+                 envs: Optional[Dict[str, str]] = None,
                  ) -> None:
         self.host = host
         self.queue_name = queue_name
@@ -121,6 +122,7 @@ class DispatcherExecutor(Executor):
         self.post_script = post_script
         self.clean = clean
         self.remove_scheduling_strategies = remove_scheduling_strategies
+        self.envs = envs
 
         conf = {}
         if json_file is not None:
@@ -505,6 +507,11 @@ class DispatcherExecutor(Executor):
                     path=config["private_key_host_path"])))
             new_template.mounts.append(V1VolumeMount(
                 name="dflow-private-key", mount_path="/root/.ssh"))
+
+        if self.envs is not None:
+            if new_template.envs is None:
+                new_template.envs = {}
+            new_template.envs.update(self.envs)
         return new_template
 
 
