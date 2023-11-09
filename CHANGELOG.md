@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.21](https://github.com/deepmodeling/dflow/compare/v1.8.20...v1.8.21) (2023-11-09)
+
+
+### Bug Fixes
+
+* cwd is / ([02a8c76](https://github.com/deepmodeling/dflow/commit/02a8c76cfba7277c89a2b1fddd68d478230e7b81))
+
 ## [1.8.20](https://github.com/deepmodeling/dflow/compare/v1.8.19...v1.8.20) (2023-11-09)
 
 
