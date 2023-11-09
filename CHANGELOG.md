@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.20](https://github.com/deepmodeling/dflow/compare/v1.8.19...v1.8.20) (2023-11-09)
+
+
+### Bug Fixes
+
+* add envs to DispatcherExecutor ([df1c9c4](https://github.com/deepmodeling/dflow/commit/df1c9c441f57d7a0edecbdc5d62c4689a86dc45a))
+
 ## [1.8.19](https://github.com/deepmodeling/dflow/compare/v1.8.18...v1.8.19) (2023-11-04)
 
 
