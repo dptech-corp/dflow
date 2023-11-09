@@ -269,8 +269,11 @@ def copy_results(source, name, data_root="/tmp"):
             rel_path = rel_path[1:]
         return rel_path
     else:
-        if source.startswith(os.getcwd()):
-            source = source[len(os.getcwd())+1:]
+        cwd = os.getcwd()
+        if not cwd.endswith("/"):
+            cwd = cwd + "/"
+        if source.startswith(cwd):
+            source = source[len(cwd):]
         target = data_root + "/outputs/artifacts/%s/%s" % (name, source)
         copy_file(source, target)
         if source[:1] == "/":
