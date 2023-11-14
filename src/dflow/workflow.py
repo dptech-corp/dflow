@@ -40,6 +40,7 @@ try:
                                        V1PersistentVolumeClaimSpec,
                                        V1ResourceRequirements,
                                        WorkflowServiceApi)
+    from argo.workflows.client.exceptions import ApiException
 except Exception:
     pass
 
@@ -829,6 +830,7 @@ class Workflow:
     def query(
             self,
             fields: Optional[List[str]] = None,
+            retry: int = 3,
     ) -> ArgoWorkflow:
         """
         Query the workflow from Argo
@@ -849,12 +851,20 @@ class Workflow:
                 'GET', response_type=object, _return_http_data_only=True,
                 header_params=config["http_headers"],
                 query_params=query_params)
-        except Exception:
-            response = self.api_instance.api_client.call_api(
-                '/api/v1/archived-workflows/%s' % self.uid,
-                'GET', response_type=object, _return_http_data_only=True,
-                header_params=config["http_headers"],
-                query_params=query_params)
+        except ApiException as e:
+            if e.status == 404:
+                response = self.api_instance.api_client.call_api(
+                    '/api/v1/archived-workflows/%s' % self.uid,
+                    'GET', response_type=object, _return_http_data_only=True,
+                    header_params=config["http_headers"],
+                    query_params=query_params)
+            elif e.status == 500 and retry > 0:
+                logger.error("API Exception: %s" % e)
+                logger.error("Remaining retry: %s" % retry)
+                time.sleep(1)
+                return self.query(fields=fields, retry=retry-1)
+            else:
+                raise e
         workflow = ArgoWorkflow(response)
         return workflow
 
