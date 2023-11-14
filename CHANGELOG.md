@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.22](https://github.com/deepmodeling/dflow/compare/v1.8.21...v1.8.22) (2023-11-14)
+
+
+### Bug Fixes
+
+* add retry for query response 500 ([02f2467](https://github.com/deepmodeling/dflow/commit/02f2467f12a92a1816c252115f151ef10cb40df4))
+
 ## [1.8.21](https://github.com/deepmodeling/dflow/compare/v1.8.20...v1.8.21) (2023-11-09)
 
 
