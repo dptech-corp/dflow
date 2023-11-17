@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.23](https://github.com/deepmodeling/dflow/compare/v1.8.22...v1.8.23) (2023-11-17)
+
+
+### Bug Fixes
+
+* support retry multiple steps in a workflow ([cf97746](https://github.com/deepmodeling/dflow/commit/cf9774622ab28c657ceca41456e6b240911fc20b))
+
 ## [1.8.22](https://github.com/deepmodeling/dflow/compare/v1.8.21...v1.8.22) (2023-11-14)
 
 
