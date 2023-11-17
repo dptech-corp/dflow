@@ -446,8 +446,7 @@ def main():
         wf_id = args.ID
         wf = Workflow(id=wf_id)
         if args.step is not None:
-            step = wf.query_step(id=args.step)[0]
-            step.retry()
+            wf.retry_steps(args.step.split(","))
         else:
             wf.retry()
     elif args.command == "stop":

@@ -1198,6 +1198,40 @@ class Workflow:
             '/api/v1/workflows/%s/%s/suspend' % (self.namespace, self.id),
             'PUT', header_params=config["http_headers"])
 
+    def retry_steps(self, step_ids):
+        assert self.query_status() == "Running"
+        logger.info("Suspend workflow %s..." % self.id)
+        self.suspend()
+        time.sleep(5)
+
+        logger.info("Query workflow %s..." % self.id)
+        wf_info = self.query().recover()
+        nodes = wf_info["status"]["nodes"]
+        patch = {"status": {"nodes": {}}}
+        for step_id in step_ids:
+            step = ArgoStep(nodes[step_id], self.id)
+            patch["status"]["nodes"][step_id] = {"phase": "Pending"}
+            for node in nodes.values():
+                if node["name"] != step.name and step.name.startswith(
+                        node["name"]) and node["phase"] == "Failed":
+                    patch["status"]["nodes"][node["id"]] = {"phase": "Running"}
+
+            logger.info("Delete pod of step %s..." % step_id)
+            step.delete_pod()
+
+        with get_argo_api_client() as api_client:
+            logger.info("Update workflow %s..." % self.id)
+            api_client.call_api(
+                '/api/v1/workflows/%s/%s' % (
+                    config["namespace"], self.id),
+                'PUT', response_type='object',
+                header_params=config["http_headers"],
+                body={"patch": json.dumps(patch)},
+                _return_http_data_only=True)
+
+        logger.info("Resume workflow %s..." % self.id)
+        self.resume()
+
 
 def get_argo_api_client(host=None, token=None):
     if host is None:
