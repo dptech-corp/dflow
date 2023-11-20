@@ -358,6 +358,9 @@ class Step:
             self.template.set_slices(self.template.slices)
 
         self.inputs = deepcopy(self.template.inputs)
+        # We need not input artifact path for a step
+        for art in self.inputs.artifacts.values():
+            art.path = None
         self.outputs = deepcopy(self.template.outputs)
         self.inputs.set_step(self)
         self.outputs.set_step(self)
@@ -585,9 +588,6 @@ class Step:
                 for name in sliced_input_artifact:
                     self.inputs.parameters["dflow_%s_sub_path" %
                                            name].value = "{{item.%s}}" % name
-                    # step cannot resolve
-                    # {{inputs.parameters.dflow_%s_sub_path}}
-                    self.inputs.artifacts[name].path = None
                     v = self.inputs.artifacts[name].source
                     if isinstance(v, S3Artifact):
                         self.prepare_step.inputs.artifacts[name].source = \
