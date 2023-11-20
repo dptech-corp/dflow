@@ -360,7 +360,8 @@ class Step:
         self.inputs = deepcopy(self.template.inputs)
         # We need not input artifact path for a step
         for art in self.inputs.artifacts.values():
-            art.path = None
+            if isinstance(art.path, str) and "{{" in art.path:
+                art.path = None
         self.outputs = deepcopy(self.template.outputs)
         self.inputs.set_step(self)
         self.outputs.set_step(self)
