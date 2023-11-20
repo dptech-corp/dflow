@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.24](https://github.com/deepmodeling/dflow/compare/v1.8.23...v1.8.24) (2023-11-20)
+
+
+### Bug Fixes
+
+* backward compatibility ([fbcecab](https://github.com/deepmodeling/dflow/commit/fbcecab0446f57b5b90944ca84c6af5a6eaf8063))
+* We need not input artifact path for a step ([9374e2a](https://github.com/deepmodeling/dflow/commit/9374e2a3bc9e65ea52c35ca459dea90eafd5d093))
+
 ## [1.8.23](https://github.com/deepmodeling/dflow/compare/v1.8.22...v1.8.23) (2023-11-17)
 
 
