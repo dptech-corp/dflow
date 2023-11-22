@@ -446,11 +446,11 @@ class InputParameter(ArgoVar):
 
     @classmethod
     def from_dict(cls, d):
+        _type = json.loads(d.get("description", "{}")).get("type")
         kwargs = {
             "name": d.get("name", None),
             # for backward compatible
-            "type": str if json.loads(d.get("description", "{}")).get(
-                "type", "str") in ["str", str(str)] else None,
+            "type": str if _type in ["str", str(str)] else _type,
         }
         if "value" in d:
             kwargs["value"] = d["value"]
@@ -854,12 +854,12 @@ class OutputParameter(ArgoVar):
 
     @classmethod
     def from_dict(cls, d):
+        _type = json.loads(d.get("description", "{}")).get("type")
         kwargs = {
             "name": d.get("name", None),
             "value_from_path": d.get("valueFrom", {}).get("path", None),
             # for backward compatible
-            "type": str if json.loads(d.get("description", "{}")).get(
-                "type", "str") in ["str", str(str)] else None,
+            "type": str if _type in ["str", str(str)] else _type,
             "global_name": d.get("globalName", None),
             "value_from_expression": d.get("valueFrom", {}).get("expression",
                                                                 None),

@@ -1200,6 +1200,10 @@ class Step:
                 del self.inputs.artifacts[k]
             else:
                 self.inputs.artifacts[k].source = v
+                if isinstance(v, str) and "}}/" in v:
+                    i = v.find("}}/")
+                    self.inputs.artifacts[k].source = v[:i+2]
+                    self.inputs.artifacts[k].sp = v[i+3:]
                 if getattr(v, "slice", None) is not None:
                     self.template = self.template.copy()
                     if isinstance(v.slice, (InputParameter, OutputParameter)):
@@ -1494,6 +1498,8 @@ class Step:
             elif isinstance(self.with_param, (InputParameter,
                                               OutputParameter)):
                 item_list = self.with_param.value
+            elif isinstance(self.with_param, ArgoVar):
+                item_list = Expression(self.with_param.expr).eval(scope)
             elif isinstance(self.with_param, str):
                 self.with_param = render_expr(self.with_param, scope)
                 item_list = eval(self.with_param)
