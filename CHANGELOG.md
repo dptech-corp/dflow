@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.8.25](https://github.com/deepmodeling/dflow/compare/v1.8.24...v1.8.25) (2023-11-22)
+
+
+### Bug Fixes
+
+* parse type in yaml ([847251f](https://github.com/deepmodeling/dflow/commit/847251f33f29d65b7cccd91f2533700f11ae7248))
+* subpath when parsing yaml ([847251f](https://github.com/deepmodeling/dflow/commit/847251f33f29d65b7cccd91f2533700f11ae7248))
+* with_param in debug mode ([847251f](https://github.com/deepmodeling/dflow/commit/847251f33f29d65b7cccd91f2533700f11ae7248))
+
 ## [1.8.24](https://github.com/deepmodeling/dflow/compare/v1.8.23...v1.8.24) (2023-11-20)
 
 
