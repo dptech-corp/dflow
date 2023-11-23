@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.26](https://github.com/deepmodeling/dflow/compare/v1.8.25...v1.8.26) (2023-11-23)
+
+
+### Bug Fixes
+
+* support optional output artifact without from/path specified ([6211ebd](https://github.com/deepmodeling/dflow/commit/6211ebd53048bc41802bb315b8a3a9e6d1c0ce7c))
+
 ## [1.8.25](https://github.com/deepmodeling/dflow/compare/v1.8.24...v1.8.25) (2023-11-22)
 
 
