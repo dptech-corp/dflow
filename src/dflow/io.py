@@ -1287,6 +1287,8 @@ class OutputArtifact(ArgoVar):
         elif self.from_expression is not None:
             return V1alpha1Artifact(
                 from_expression=str(self.from_expression), **kwargs)
+        elif self.optional:
+            return V1alpha1Artifact(**kwargs)
         else:
             raise RuntimeError("Output artifact %s is not specified" % self)
 
