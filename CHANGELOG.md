@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.27](https://github.com/deepmodeling/dflow/compare/v1.8.26...v1.8.27) (2023-11-27)
+
+
+### Bug Fixes
+
+* missing dependencies of init-artifact for sub-path sliced task ([6d4a81d](https://github.com/deepmodeling/dflow/commit/6d4a81d091034e730e068edc86de14841142263e))
+
 ## [1.8.26](https://github.com/deepmodeling/dflow/compare/v1.8.25...v1.8.26) (2023-11-23)
 
 
