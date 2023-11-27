@@ -591,12 +591,12 @@ class Step:
                                            name].value = "{{item.%s}}" % name
                     v = self.inputs.artifacts[name].source
                     if isinstance(v, S3Artifact):
-                        self.prepare_step.inputs.artifacts[name].source = \
-                            v.sub_path(config["catalog_dir_name"])
+                        self.prepare_step.set_artifacts({
+                            name: v.sub_path(config["catalog_dir_name"])})
                         self.inputs.artifacts[name].source = \
                             v.sub_path("{{item.%s}}" % name)
                     elif v is not None:
-                        self.prepare_step.inputs.artifacts[name].source = v
+                        self.prepare_step.set_artifacts({name: v})
                         self.inputs.artifacts[name].sp = "{{item.%s}}" % name
                 self.with_param = self.prepare_step.outputs.parameters[
                     "dflow_slices_path"]
@@ -654,8 +654,8 @@ class Step:
                     if name in auto_loop_artifacts or (name.startswith(
                             "dflow_") and name[6:name.rfind("_")] in
                             auto_loop_artifacts):
-                        self.prepare_step.inputs.artifacts[name].source = \
-                            self.inputs.artifacts[name].source
+                        self.prepare_step.set_artifacts({
+                            name: self.inputs.artifacts[name].source})
                 self.with_param = argo_range(
                     self.prepare_step.outputs.parameters["dflow_nslices"])
 
