@@ -59,7 +59,7 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None,
         elif image_pull_policy == "IfNotPresent":
             script += "if [ $(docker images %s | wc -l) -lt 2 ]; " % image
             script += "then %s pull %s; fi && " % (docker, image)
-        return script + "%s run -v$(pwd)/tmp:/tmp "\
+        return script + "mkdir -p tmp && %s run -v$(pwd)/tmp:/tmp "\
             "-v$(pwd)/script:/script %s %s %s /script" % (
                 docker, args, image, " ".join(cmd))
     elif singularity is not None:
@@ -70,8 +70,8 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None,
             args += " " + " ".join(["--env %s=%s" % (k, shlex.quote(v))
                                     for k, v in envs.items()])
         return "if [ -f %s ]; then rm -f image.sif && ln -s %s image.sif; "\
-            "else %s pull image.sif %s; fi && %s run -B$(pwd)/tmp:/tmp "\
-            "-B$(pwd)/script:/script %s image.sif %s /script && rm "\
+            "else %s pull image.sif %s; fi && mkdir -p tmp && %s run -B$(pwd)"\
+            "/tmp:/tmp -B$(pwd)/script:/script %s image.sif %s /script && rm "\
             "image.sif" % (image, image, singularity, image, singularity,
                            args, " ".join(cmd))
     elif podman is not None:
@@ -85,7 +85,7 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None,
         if envs is not None:
             args += " " + " ".join(["-e %s=%s" % (k, shlex.quote(v))
                                     for k, v in envs.items()])
-        return "%s pull %s && %s run -v$(pwd)/tmp:/tmp "\
+        return "%s pull %s && mkdir -p tmp && %s run -v$(pwd)/tmp:/tmp "\
             "-v$(pwd)/script:/script %s %s %s /script" % (
                 podman, image, podman, args, image, " ".join(cmd))
     else:
