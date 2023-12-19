@@ -388,8 +388,10 @@ class Workflow:
                         "parameters", {}).get("dflow_group_key", {}).get(
                         "value")
                     art_key = get_key(art, raise_error=False)
-                    if group_key and art_key and art_key.endswith(
-                            "%s/%s" % (group_key, name)):
+                    if group_key and ((art_key and art_key.endswith(
+                        "%s/%s" % (group_key, name))) or (
+                        hasattr(art, "modified") and art.modified[
+                            "old_key"].endswith("%s/%s" % (group_key, name)))):
                         if config["overwrite_reused_artifact"]:
                             self.handle_reused_artifact(step, name, art)
                         else:
