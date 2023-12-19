@@ -1499,7 +1499,8 @@ class Step:
                                               OutputParameter)):
                 item_list = self.with_param.value
             elif isinstance(self.with_param, ArgoVar):
-                item_list = Expression(self.with_param.expr).eval(scope)
+                item_list = Expression(replace_argo_func(
+                    self.with_param.expr)).eval(scope)
             elif isinstance(self.with_param, str):
                 self.with_param = render_expr(self.with_param, scope)
                 item_list = eval(self.with_param)
@@ -2221,6 +2222,13 @@ def backup(path):
 
 
 def replace_argo_func(expr):
+    i = expr.find("toJson(map(sprig.untilStep(0, ")
+    j = expr.find(", 1), { {'order': #")
+    k = expr.find("} }))")
+    if i != -1 and j != -1 and k != -1:
+        v = expr[j+19:k].replace("jsonpath(", "eval(").replace(
+            ", '$')[#]", ")[i]")
+        expr = "[{'order': i" + v + "} for i in range(" + expr[i+30:j] + ")]"
     expr = expr.replace("toJson", "str")
     expr = expr.replace("sprig.fromJson", "eval")
     expr = expr.replace("sprig.untilStep",
