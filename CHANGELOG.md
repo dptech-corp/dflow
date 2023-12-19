@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.29](https://github.com/deepmodeling/dflow/compare/v1.8.28...v1.8.29) (2023-12-19)
+
+
+### Bug Fixes
+
+* parse argo enumerate expression in debug mode ([a9457ea](https://github.com/deepmodeling/dflow/commit/a9457eae86923b1b6ee565d1b71d7bfdfa0c74a6))
+
 ## [1.8.28](https://github.com/deepmodeling/dflow/compare/v1.8.27...v1.8.28) (2023-12-19)
 
 
