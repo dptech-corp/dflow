@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.28](https://github.com/deepmodeling/dflow/compare/v1.8.27...v1.8.28) (2023-12-19)
+
+
+### Bug Fixes
+
+* container mount nonexist tmp ([bea5ac2](https://github.com/deepmodeling/dflow/commit/bea5ac21a0d2b64d90b27c8611cf454026724422))
+* modify merged output artifact ([bea5ac2](https://github.com/deepmodeling/dflow/commit/bea5ac21a0d2b64d90b27c8611cf454026724422))
+
 ## [1.8.27](https://github.com/deepmodeling/dflow/compare/v1.8.26...v1.8.27) (2023-11-27)
 
 
