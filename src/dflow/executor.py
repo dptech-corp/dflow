@@ -70,10 +70,11 @@ def run_script(image, cmd, docker=None, singularity=None, podman=None,
             args += " " + " ".join(["--env %s=%s" % (k, shlex.quote(v))
                                     for k, v in envs.items()])
         return "if [ -f %s ]; then rm -f image.sif && ln -s %s image.sif; "\
-            "else %s pull image.sif %s; fi && mkdir -p tmp && %s run -B$(pwd)"\
-            "/tmp:/tmp -B$(pwd)/script:/script %s image.sif %s /script && rm "\
-            "image.sif" % (image, image, singularity, image, singularity,
-                           args, " ".join(cmd))
+            "else %s pull image.sif %s; fi && mkdir -p tmp && "\
+            "%s exec -B$(pwd)/tmp:/tmp -B$(pwd)/script:/script %s image.sif "\
+            "%s /script && rm image.sif" % (
+                image, image, singularity, image, singularity, args,
+                " ".join(cmd))
     elif podman is not None:
         if host_mounts is not None:
             args += " " + " ".join(["-v%s:%s" % (v, k) for k, v in
