@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.32](https://github.com/deepmodeling/dflow/compare/v1.8.31...v1.8.32) (2023-12-20)
+
+
+### Bug Fixes
+
+* default value of output parameter in debug mode ([8ed6e9e](https://github.com/deepmodeling/dflow/commit/8ed6e9e098653ee9f58cb19c6919a92c3c5c4dc7))
+
 ## [1.8.31](https://github.com/deepmodeling/dflow/compare/v1.8.30...v1.8.31) (2023-12-20)
 
 
