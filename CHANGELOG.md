@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.30](https://github.com/deepmodeling/dflow/compare/v1.8.29...v1.8.30) (2023-12-20)
+
+
+### Bug Fixes
+
+* singularity exec instead of singularity run ([b80a948](https://github.com/deepmodeling/dflow/commit/b80a9488a343237a4e6d41963840c74bcc1ac42d))
+
 ## [1.8.29](https://github.com/deepmodeling/dflow/compare/v1.8.28...v1.8.29) (2023-12-19)
 
 
