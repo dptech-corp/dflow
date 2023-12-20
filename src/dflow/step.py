@@ -2114,8 +2114,9 @@ def render_expr(expr, scope):
 def get_var(expr, scope):
     sub_path = getattr(expr, "_sub_path", None)
     expr = str(expr)
-    assert expr[:2] == "{{" and expr[-2:] == "}}", "Parse failed: %s" % expr
-    fields = expr[2:-2].split(".")
+    if expr[:2] == "{{" and expr[-2:] == "}}":
+        expr = expr[2:-2]
+    fields = expr.split(".")
     if fields[:2] == ["inputs", "parameters"]:
         name = fields[2]
         return scope.inputs.parameters[name]
