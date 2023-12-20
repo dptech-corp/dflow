@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.31](https://github.com/deepmodeling/dflow/compare/v1.8.30...v1.8.31) (2023-12-20)
+
+
+### Bug Fixes
+
+* value_from_parameter without {{}} ([53585e0](https://github.com/deepmodeling/dflow/commit/53585e0271af2b658f65c0b88c5c76cc950257d1))
+
 ## [1.8.30](https://github.com/deepmodeling/dflow/compare/v1.8.29...v1.8.30) (2023-12-20)
 
 
