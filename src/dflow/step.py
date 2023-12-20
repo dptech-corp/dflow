@@ -1856,7 +1856,13 @@ class Step:
         for name, par in self.outputs.parameters.items():
             par1 = self.template.outputs.parameters[name]
             if par1.value_from_parameter is not None:
-                par.value = get_var(par1.value_from_parameter, steps).value
+                try:
+                    par.value = get_var(par1.value_from_parameter, steps).value
+                except Exception as e:
+                    if hasattr(par1, "default"):
+                        par.value = par1.default
+                    else:
+                        raise e
             elif par1.value_from_expression is not None:
                 if isinstance(par1.value_from_expression, str):
                     expr = replace_argo_func(par1.value_from_expression)
