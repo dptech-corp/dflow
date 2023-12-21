@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.33](https://github.com/deepmodeling/dflow/compare/v1.8.32...v1.8.33) (2023-12-21)
+
+
+### Bug Fixes
+
+* item_list is not a list ([d48e489](https://github.com/deepmodeling/dflow/commit/d48e4892c4c0b18b52efbb745f8c355cb58e0713))
+* pass context to steps ([d48e489](https://github.com/deepmodeling/dflow/commit/d48e4892c4c0b18b52efbb745f8c355cb58e0713))
+
 ## [1.8.32](https://github.com/deepmodeling/dflow/compare/v1.8.31...v1.8.32) (2023-12-20)
 
 
