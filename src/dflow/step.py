@@ -2236,7 +2236,8 @@ def replace_argo_func(expr):
     if i != -1 and j != -1 and k != -1:
         v = expr[j+19:k].replace("jsonpath(", "eval(").replace(
             ", '$')[#]", ")[i]")
-        expr = "[{'order': i" + v + "} for i in range(" + expr[i+30:j] + ")]"
+        expr = "str([{'order': i" + v + "} for i in range(" + expr[i+30:j] \
+            + ")])"
     expr = expr.replace("toJson", "str")
     expr = expr.replace("sprig.fromJson", "eval")
     expr = expr.replace("sprig.untilStep",
