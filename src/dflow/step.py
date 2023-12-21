@@ -1499,8 +1499,8 @@ class Step:
                                               OutputParameter)):
                 item_list = self.with_param.value
             elif isinstance(self.with_param, ArgoVar):
-                item_list = Expression(replace_argo_func(
-                    self.with_param.expr)).eval(scope)
+                item_list = eval(Expression(replace_argo_func(
+                    self.with_param.expr)).eval(scope))
             elif isinstance(self.with_param, str):
                 self.with_param = render_expr(self.with_param, scope)
                 item_list = eval(self.with_param)
@@ -1561,7 +1561,7 @@ class Step:
                     try:
                         future = pool.submit(
                             ps.exec_with_config, scope, parameters, item,
-                            config, s3_config, cwd)
+                            config, s3_config, cwd, context)
                     except concurrent.futures.process.BrokenProcessPool as e:
                         # retrieve exception of subprocess before exit
                         for future in concurrent.futures.as_completed(futures):
@@ -1613,7 +1613,7 @@ class Step:
             self.phase = "Succeeded"
         else:
             try:
-                self.exec(scope, parameters)
+                self.exec(scope, parameters, context)
             except Exception:
                 self.phase = "Failed"
                 if not self.continue_on_failed:
@@ -1764,7 +1764,7 @@ class Step:
                                     "outputs/artifacts/%s" % name)
             art.local_path = art_path
 
-    def exec(self, scope, parameters, item=None):
+    def exec(self, scope, parameters, item=None, context=None):
         # render item
         if item is not None:
             for par in parameters.values():
@@ -1779,11 +1779,11 @@ class Step:
         from .dag import DAG
         from .steps import Steps
         if isinstance(self.template, (DAG, Steps)):
-            self.exec_steps(scope, parameters, item)
+            self.exec_steps(scope, parameters, item, context)
         else:
             self.exec_pod(scope, parameters, item)
 
-    def exec_steps(self, scope, parameters, item=None):
+    def exec_steps(self, scope, parameters, item=None, context=None):
         if hasattr(self.template, "orig_template"):
             steps = deepcopy(self.template.orig_template)
             steps.orig_template = self.template.orig_template
@@ -1846,7 +1846,7 @@ class Step:
         with open(os.path.join(stepdir, "phase"), "w") as f:
             f.write("Running")
         try:
-            steps.run(scope.workflow_id)
+            steps.run(scope.workflow_id, context)
         except Exception:
             self.phase = "Failed"
             with open(os.path.join(stepdir, "phase"), "w") as f:
@@ -2068,11 +2068,12 @@ class Step:
         with open(os.path.join(stepdir, "phase"), "w") as f:
             f.write("Succeeded")
 
-    def exec_with_config(self, scope, parameters, item, conf, s3_conf, cwd):
+    def exec_with_config(self, scope, parameters, item, conf, s3_conf, cwd,
+                         context=None):
         config.update(conf)
         s3_config.update(s3_conf)
         os.chdir(cwd)
-        self.exec(scope, parameters, item)
+        self.exec(scope, parameters, item, context)
         return self
 
 
