@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.34](https://github.com/deepmodeling/dflow/compare/v1.8.33...v1.8.34) (2023-12-21)
+
+
+### Bug Fixes
+
+* bug of argo enumerate in debug mode ([54ac7ae](https://github.com/deepmodeling/dflow/commit/54ac7ae8c00409e794c638b93ceba83d75308217))
+
 ## [1.8.33](https://github.com/deepmodeling/dflow/compare/v1.8.32...v1.8.33) (2023-12-21)
 
 
