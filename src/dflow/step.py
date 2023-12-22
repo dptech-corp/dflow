@@ -1499,8 +1499,10 @@ class Step:
                                               OutputParameter)):
                 item_list = self.with_param.value
             elif isinstance(self.with_param, ArgoVar):
-                item_list = eval(Expression(replace_argo_func(
-                    self.with_param.expr)).eval(scope))
+                item_list = Expression(replace_argo_func(
+                    self.with_param.expr)).eval(scope)
+                if isinstance(item_list, str):
+                    item_list = eval(item_list)
             elif isinstance(self.with_param, str):
                 self.with_param = render_expr(self.with_param, scope)
                 item_list = eval(self.with_param)
