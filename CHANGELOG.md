@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.35](https://github.com/deepmodeling/dflow/compare/v1.8.34...v1.8.35) (2023-12-22)
+
+
+### Bug Fixes
+
+* a bug of enumerate in debug mode ([fae33c3](https://github.com/deepmodeling/dflow/commit/fae33c3fe81581960eced0b6386f40b66acad024))
+
 ## [1.8.34](https://github.com/deepmodeling/dflow/compare/v1.8.33...v1.8.34) (2023-12-21)
 
 
