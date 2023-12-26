@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.36](https://github.com/deepmodeling/dflow/compare/v1.8.35...v1.8.36) (2023-12-26)
+
+
+### Bug Fixes
+
+* render expr with {{= ([d31a51b](https://github.com/deepmodeling/dflow/commit/d31a51be3b0ebd6060d133fca5fb360c37ff5e3d))
+
 ## [1.8.35](https://github.com/deepmodeling/dflow/compare/v1.8.34...v1.8.35) (2023-12-22)
 
 
