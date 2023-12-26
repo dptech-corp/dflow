@@ -2104,8 +2104,8 @@ def render_expr(expr, scope):
     i = expr.find("{{")
     while i >= 0:
         j = expr.find("}}", i+2)
-        if expr[:3] == "{{=":
-            value = Expression(replace_argo_func(expr[3:-2])).eval(scope)
+        if expr[i:i+3] == "{{=":
+            value = Expression(replace_argo_func(expr[i+3:j])).eval(scope)
             value = value if isinstance(value, str) else \
                 jsonpickle.dumps(value)
             expr = expr[:i] + value.strip() + expr[j+2:]

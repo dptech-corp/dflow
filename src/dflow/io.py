@@ -286,7 +286,7 @@ class ArgoVar:
 
     def __add__(self, other):
         if isinstance(other, str):
-            return ArgoVar("%s + '%s'" % (self.expr, other))
+            return str(self) + other
         if config["mode"] == "debug":
             return ArgoVar("%s + %s" % (self.expr, to_expr(other)))
         if isinstance(other, ArgoVar):
