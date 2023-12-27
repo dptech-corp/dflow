@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.38](https://github.com/deepmodeling/dflow/compare/v1.8.37...v1.8.38) (2023-12-27)
+
+
+### Bug Fixes
+
+* sprig.fromJson in debug mode ([27cde52](https://github.com/deepmodeling/dflow/commit/27cde522ff9f4bd7d7bfe6ff901c82e61a4d6a3a))
+
 ## [1.8.37](https://github.com/deepmodeling/dflow/compare/v1.8.36...v1.8.37) (2023-12-27)
 
 
