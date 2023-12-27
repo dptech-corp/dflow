@@ -2241,7 +2241,8 @@ def replace_argo_func(expr):
         expr = "str([{'order': i" + v + "} for i in range(" + expr[i+30:j] \
             + ")])"
     expr = expr.replace("toJson", "str")
-    expr = expr.replace("sprig.fromJson", "eval")
+    expr = expr.replace("sprig.fromJson",
+                        "(lambda x: eval(x) if isinstance(x, str) else x)")
     expr = expr.replace("sprig.untilStep",
                         "(lambda *x: list(range(*list(map(int, x)))))")
     expr = expr.replace("sprig.atoi", "int")
