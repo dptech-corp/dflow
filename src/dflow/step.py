@@ -2248,6 +2248,9 @@ def replace_argo_func(expr):
     expr = expr.replace(" ? ", " and ")
     expr = expr.replace(" : ", " or ")
     expr = expr.replace("asFloat", "float")
+    expr = expr.replace("jsonpath",
+                        "(lambda x, y: eval(x) if isinstance(x, str) else x)")
+    expr = expr.replace("string", "str")
     return expr
 
 
