@@ -2236,8 +2236,9 @@ def replace_argo_func(expr):
     j = expr.find(", 1), { {'order': #")
     k = expr.find("} }))")
     if i != -1 and j != -1 and k != -1:
-        v = expr[j+19:k].replace("jsonpath(", "eval(").replace(
-            ", '$')[#]", ")[i]")
+        v = expr[j+19:k].replace(
+            "jsonpath(", "(lambda x: eval(x) if isinstance(x, str) else x)("
+        ).replace(", '$')[#]", ")[i]")
         expr = "str([{'order': i" + v + "} for i in range(" + expr[i+30:j] \
             + ")])"
     expr = expr.replace("toJson", "str")
