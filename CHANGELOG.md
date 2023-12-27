@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.37](https://github.com/deepmodeling/dflow/compare/v1.8.36...v1.8.37) (2023-12-27)
+
+
+### Bug Fixes
+
+* replace jsonpath and string with python functions ([72b5d49](https://github.com/deepmodeling/dflow/commit/72b5d49fdaf0fefdd1de845f023efbcaada2206b))
+
 ## [1.8.36](https://github.com/deepmodeling/dflow/compare/v1.8.35...v1.8.36) (2023-12-26)
 
 
