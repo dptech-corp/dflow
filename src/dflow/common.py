@@ -179,7 +179,8 @@ class HTTPArtifact:
 
     def download(self, path="."):
         os.makedirs(path, exist_ok=True)
-        file_path = os.path.join(path, os.path.basename(self.url))
+        file_path = os.path.join(path, os.path.basename(
+            self.url.split("?")[0]))
         import requests
         sess = requests.session()
         with sess.get(self.url, stream=True, verify=False) as req:
