@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.40](https://github.com/deepmodeling/dflow/compare/v1.8.39...v1.8.40) (2023-12-29)
+
+
+### Bug Fixes
+
+* File name too long in downloading HTTP artifact ([2fab9bc](https://github.com/deepmodeling/dflow/commit/2fab9bc0f08859f1a35e28539b436e58740958c3))
+
 ## [1.8.39](https://github.com/deepmodeling/dflow/compare/v1.8.38...v1.8.39) (2023-12-27)
 
 
