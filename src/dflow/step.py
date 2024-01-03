@@ -1555,6 +1555,9 @@ class Step:
             max_workers = config["debug_pool_workers"]
             if max_workers == -1:
                 max_workers = len(item_list)
+            if max_workers is None:
+                max_workers = os.cpu_count() or 1
+            max_workers = min(max_workers, len(item_list))
             with ProcessPoolExecutor(max_workers) as pool:
                 futures = []
                 for i, item in enumerate(item_list):
