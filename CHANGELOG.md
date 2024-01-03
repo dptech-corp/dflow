@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.41](https://github.com/deepmodeling/dflow/compare/v1.8.40...v1.8.41) (2024-01-03)
+
+
+### Bug Fixes
+
+* optimize worker number ([c34f122](https://github.com/deepmodeling/dflow/commit/c34f1226d4b7f106147508ed18a282e158b112ec))
+
 ## [1.8.40](https://github.com/deepmodeling/dflow/compare/v1.8.39...v1.8.40) (2023-12-29)
 
 
