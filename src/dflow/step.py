@@ -1664,16 +1664,24 @@ class Step:
             if isinstance(art.source, S3Artifact) and art.source.local_path \
                     is None:
                 path = os.path.abspath(os.path.join(
-                    config["debug_artifact_dir"], "download/%s" % randstr()))
-                path = download_artifact_debug(art.source, path=path)
+                    stepdir, "..", config["debug_artifact_dir"],
+                    art.source.key[:-4] if art.source.key.endswith(".tgz")
+                    else art.source.key))
+                download_with_lock(
+                    lambda: download_artifact_debug(
+                        artifact=art.source, path=os.path.dirname(path)), path)
                 assert os.path.exists(path), "S3 key of the input art"\
                     "ifact %s: %s does not exist" % (name, art.source.key)
                 art.source.local_path = path
             elif isinstance(art.source, HTTPArtifact) and not hasattr(
                     art.source, "local_path"):
                 path = os.path.abspath(os.path.join(
-                    config["debug_artifact_dir"], "download/%s" % randstr()))
-                art.source.local_path = art.source.download(path=path)
+                    stepdir, "..", config["debug_artifact_dir"],
+                    art.source.url.split("?")[0]))
+                download_with_lock(
+                    lambda: art.source.download(
+                        path=os.path.dirname(path)), path)
+                art.source.local_path = path
             if isinstance(
                 art.source, (InputArtifact, OutputArtifact, LocalArtifact,
                              S3Artifact, HTTPArtifact)):
@@ -2384,8 +2392,30 @@ def download_artifact_debug(artifact, path):
         # return its path
         ld = os.listdir(path)
         if len(ld) == 1:
-            return os.path.join(path, ld[0])
+            os.rename(os.path.join(path, ld[0]), path + ".tmp")
+            os.rmdir(path)
+            os.rename(path + ".tmp", path)
         return path
     else:
         download_s3(key=key, path=path, keep_dir=True)
         return os.path.join(path, os.path.basename(key))
+
+
+def download_with_lock(download, path):
+    if os.path.exists(path):
+        return
+    else:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path + ".lock", "w") as f:
+            os.lockf(f.fileno(), os.F_LOCK, 0)
+            try:
+                if os.path.exists(path):
+                    pass
+                else:
+                    download()
+            finally:
+                os.lockf(f.fileno(), os.F_ULOCK, 0)
+        try:
+            os.remove(path + ".lock")
+        except FileNotFoundError:
+            pass
