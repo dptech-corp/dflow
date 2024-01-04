@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.42](https://github.com/deepmodeling/dflow/compare/v1.8.41...v1.8.42) (2024-01-04)
+
+
+### Bug Fixes
+
+* use lock to avoid redundant downloads ([e654919](https://github.com/deepmodeling/dflow/commit/e6549190892b65c9e985e61aea135e5e1417e3d8))
+
 ## [1.8.41](https://github.com/deepmodeling/dflow/compare/v1.8.40...v1.8.41) (2024-01-03)
 
 
