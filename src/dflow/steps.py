@@ -246,11 +246,12 @@ class Steps(OPTemplate):
                 max_workers = min(max_workers, len(step)) or 1
                 with ProcessPoolExecutor(max_workers) as pool:
                     futures = []
+                    self_copy = deepcopy(self)
                     for i, ps in enumerate(step):
                         ps.phase = "Pending"
                         try:
                             future = pool.submit(
-                                ps.run_with_config, self, context, config,
+                                ps.run_with_config, self_copy, context, config,
                                 s3_config, cwd)
                         except concurrent.futures.process.BrokenProcessPool \
                                 as e:

@@ -1630,7 +1630,8 @@ class Step:
         s3_config.update(s3_conf)
         os.chdir(cwd)
         self.run(scope, context)
-        logging.info("Step %s finishes in process %s" % (self.name, os.getpid()))
+        logging.info("Step %s finishes in process %s" % (
+            self.name, os.getpid()))
         return self
 
     def record_input_parameters(self, stepdir, parameters):
