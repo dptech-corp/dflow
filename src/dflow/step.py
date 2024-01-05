@@ -1557,7 +1557,7 @@ class Step:
                 max_workers = len(item_list)
             if max_workers is None:
                 max_workers = os.cpu_count() or 1
-            max_workers = min(max_workers, len(item_list))
+            max_workers = min(max_workers, len(item_list)) or 1
             with ProcessPoolExecutor(max_workers) as pool:
                 futures = []
                 for i, item in enumerate(item_list):
@@ -1625,10 +1625,12 @@ class Step:
                     raise RuntimeError("Step %s failed" % self)
 
     def run_with_config(self, scope, context, conf, s3_conf, cwd):
+        logging.info("Step %s starts in process %s" % (self.name, os.getpid()))
         config.update(conf)
         s3_config.update(s3_conf)
         os.chdir(cwd)
         self.run(scope, context)
+        logging.info("Step %s finishes in process %s" % (self.name, os.getpid()))
         return self
 
     def record_input_parameters(self, stepdir, parameters):
@@ -2083,10 +2085,14 @@ class Step:
 
     def exec_with_config(self, scope, parameters, item, conf, s3_conf, cwd,
                          context=None):
+        logging.info("Step %s with item %s starts in process %s" % (
+            self.name, item, os.getpid()))
         config.update(conf)
         s3_config.update(s3_conf)
         os.chdir(cwd)
         self.exec(scope, parameters, item, context)
+        logging.info("Step %s with item %s finishes in process %s" % (
+            self.name, item, os.getpid()))
         return self
 
 

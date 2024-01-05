@@ -61,6 +61,7 @@ class Task(Step):
         task.dependencies = d.get("dependencies", [])
         if d.get("depends"):
             for dep in d["depends"].split("&&"):
+                dep = dep.strip()
                 # removeprefix and removesuffix only supported for python>=3.9
                 dep = dep[1:] if dep.startswith("(") else dep
                 dep = dep[:-1] if dep.endswith(")") else dep
