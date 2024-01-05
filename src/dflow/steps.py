@@ -243,7 +243,7 @@ class Steps(OPTemplate):
                     max_workers = len(step)
                 if max_workers is None:
                     max_workers = os.cpu_count() or 1
-                max_workers = min(max_workers, len(step))
+                max_workers = min(max_workers, len(step)) or 1
                 with ProcessPoolExecutor(max_workers) as pool:
                     futures = []
                     for i, ps in enumerate(step):

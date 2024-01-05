@@ -250,7 +250,7 @@ class DAG(OPTemplate):
             max_workers = len(self.tasks)
         if max_workers is None:
             max_workers = os.cpu_count() or 1
-        max_workers = min(max_workers, len(self.tasks))
+        max_workers = min(max_workers, len(self.tasks)) or 1
         pool = concurrent.futures.ProcessPoolExecutor(max_workers)
         futures = {}
         self.waiting = [task for task in self]
