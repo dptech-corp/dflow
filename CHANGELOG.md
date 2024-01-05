@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.43](https://github.com/deepmodeling/dflow/compare/v1.8.42...v1.8.43) (2024-01-05)
+
+
+### Bug Fixes
+
+* add debug messages for process pool executor ([0dab022](https://github.com/deepmodeling/dflow/commit/0dab0220ed3b6d89635d9ba308f36c153db6ff23))
+
 ## [1.8.42](https://github.com/deepmodeling/dflow/compare/v1.8.41...v1.8.42) (2024-01-04)
 
 
