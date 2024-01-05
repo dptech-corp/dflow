@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.44](https://github.com/deepmodeling/dflow/compare/v1.8.43...v1.8.44) (2024-01-05)
+
+
+### Bug Fixes
+
+* dictionary changed size during iteration ([eba3d14](https://github.com/deepmodeling/dflow/commit/eba3d14b927558777cc0536607e9cf5c5bedaa3e))
+
 ## [1.8.43](https://github.com/deepmodeling/dflow/compare/v1.8.42...v1.8.43) (2024-01-05)
 
 
