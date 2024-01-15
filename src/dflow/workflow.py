@@ -490,7 +490,10 @@ class Workflow:
                 data = {key: json.dumps(step)}
                 config_map = kubernetes.client.V1ConfigMap(
                     data=data, metadata=kubernetes.client.V1ObjectMeta(
-                        name="dflow-%s" % key))
+                        name="dflow-%s" % key,
+                        labels={
+                            "workflows.argoproj.io/configmap-type": "Cache",
+                        }))
                 core_v1_api = self.get_k8s_core_v1_api()
                 logger.debug("creating configmap: %s" %
                              config_map.metadata.name)
@@ -860,7 +863,7 @@ class Workflow:
                     'GET', response_type=object, _return_http_data_only=True,
                     header_params=config["http_headers"],
                     query_params=query_params)
-            elif e.status == 500 and retry > 0:
+            elif e.status >= 500 and e.status < 600 and retry > 0:
                 logger.error("API Exception: %s" % e)
                 logger.error("Remaining retry: %s" % retry)
                 time.sleep(1)
