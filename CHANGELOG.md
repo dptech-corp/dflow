@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.45](https://github.com/deepmodeling/dflow/compare/v1.8.44...v1.8.45) (2024-01-15)
+
+
+### Bug Fixes
+
+* add label to memoize config map ([5800f2a](https://github.com/deepmodeling/dflow/commit/5800f2a904a727d313ad0c80654b655b973d1418))
+* retry for status 5xx of query API ([5800f2a](https://github.com/deepmodeling/dflow/commit/5800f2a904a727d313ad0c80654b655b973d1418))
+
 ## [1.8.44](https://github.com/deepmodeling/dflow/compare/v1.8.43...v1.8.44) (2024-01-05)
 
 
