@@ -519,6 +519,7 @@ class ShellOPTemplate(ScriptOPTemplate):
         envs: Dict[str, str] = None,
         init_containers: Optional[List[V1alpha1UserContainer]] = None,
         sidecars: Optional[List[V1alpha1UserContainer]] = None,
+        script_rendered: bool = False,
     ) -> None:
         if command is None:
             command = ["sh"]
@@ -531,6 +532,7 @@ class ShellOPTemplate(ScriptOPTemplate):
             labels=labels, node_selector=node_selector, affinity=affinity,
             tolerations=tolerations, requests=requests, limits=limits,
             envs=envs, init_containers=init_containers, sidecars=sidecars,
+            script_rendered=script_rendered,
         )
 
 
@@ -591,6 +593,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
         envs: Dict[str, str] = None,
         init_containers: Optional[List[V1alpha1UserContainer]] = None,
         sidecars: Optional[List[V1alpha1UserContainer]] = None,
+        script_rendered: bool = False,
     ) -> None:
         if command is None:
             command = ["python3"]
@@ -603,6 +606,7 @@ class PythonScriptOPTemplate(ScriptOPTemplate):
             labels=labels, node_selector=node_selector, affinity=affinity,
             tolerations=tolerations, requests=requests, limits=limits,
             envs=envs, init_containers=init_containers, sidecars=sidecars,
+            script_rendered=script_rendered,
         )
 
 
