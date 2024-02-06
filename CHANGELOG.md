@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.46](https://github.com/deepmodeling/dflow/compare/v1.8.45...v1.8.46) (2024-02-06)
+
+
+### Bug Fixes
+
+* specify storage location of a file in debug mode ([b4d7257](https://github.com/deepmodeling/dflow/commit/b4d725764db0ecdead2c6aabc91b490b0f6decb5))
+
 ## [1.8.45](https://github.com/deepmodeling/dflow/compare/v1.8.44...v1.8.45) (2024-01-15)
 
 
