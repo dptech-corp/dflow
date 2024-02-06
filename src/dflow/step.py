@@ -2068,14 +2068,18 @@ class Step:
                                         scope.workflow_id, step_id)
                     save_path = os.path.join(
                         cwd, "..", config["debug_artifact_dir"], key)
-                    os.makedirs(save_path, exist_ok=True)
 
                     def try_link(src, dst):
                         try:
                             os.symlink(src, dst)
                         except Exception:
                             pass
-                    merge_dir(path, save_path, try_link)
+                    if os.path.isfile(path):
+                        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+                        try_link(path, save_path)
+                    else:
+                        os.makedirs(save_path, exist_ok=True)
+                        merge_dir(path, save_path, try_link)
                     art.local_path = save_path
         self.record_output_artifacts(stepdir, self.outputs.artifacts)
 
