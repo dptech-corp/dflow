@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.47](https://github.com/deepmodeling/dflow/compare/v1.8.46...v1.8.47) (2024-02-08)
+
+
+### Bug Fixes
+
+* slices for recursive steps ([c62c0c6](https://github.com/deepmodeling/dflow/commit/c62c0c6f5022a97e42066a2fcc3376b11861f85d))
+
 ## [1.8.46](https://github.com/deepmodeling/dflow/compare/v1.8.45...v1.8.46) (2024-02-06)
 
 
