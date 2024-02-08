@@ -1,5 +1,4 @@
 import json
-import os
 import tempfile
 from collections import UserDict
 from copy import copy, deepcopy
@@ -1091,7 +1090,7 @@ class OutputArtifact(ArgoVar):
 
     def __init__(
             self,
-            path: Optional[os.PathLike] = None,
+            path: Optional[str] = None,
             _from: Union[InputArtifact, "OutputArtifact"] = None,
             name: Optional[str] = None,
             step=None,
