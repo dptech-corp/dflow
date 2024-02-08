@@ -2281,8 +2281,7 @@ def replace_argo_func(expr):
 def add_slices(templ: OPTemplate, slices: Slices, layer=0):
     slice_par = "dflow_slice" if layer == 0 else "dflow_slice_%s" % layer
     slice_par_1 = "dflow_slice_%s" % (layer + 1)
-    templ.inputs.parameters[slice_par] = InputParameter(
-        value=slices.slices)
+    templ.inputs.parameters[slice_par] = InputParameter(value="None")
 
     steps = []
     for s in templ:
