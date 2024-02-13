@@ -490,9 +490,31 @@ class Step:
                 # For the case of reusing sliced steps, ensure that the output
                 # artifacts are reused
                 for name in sliced_output_artifact:
-                    def merge_step_output_artifact(art):
+                    def merge_step_output_artifact(art, parent, item_vars):
                         step = art.step
                         template = step.template
+                        if template is parent:
+                            if step.key is not None:
+                                group_key = str(step.key)
+                                for var in item_vars:
+                                    group_key = group_key.replace(
+                                        "{{inputs.parameters.%s}}" % var,
+                                        "group")
+                                step.inputs.parameters["dflow_group_key"] = \
+                                    InputParameter(value=group_key)
+                                step.inputs.parameters[
+                                    "dflow_artifact_key"] = InputParameter(
+                                        value="{{workflow.name}}/%s" %
+                                        group_key)
+                            else:
+                                step.inputs.parameters["dflow_group_key"] = \
+                                    InputParameter(value="{{inputs.parameters."
+                                                   "dflow_group_key}}")
+                                step.inputs.parameters[
+                                    "dflow_artifact_key"] = InputParameter(
+                                        value="{{inputs.parameters."
+                                        "dflow_artifact_key}}")
+                            return
                         template.inputs.parameters["dflow_group_key"] = \
                             InputParameter()
                         step.inputs.parameters["dflow_group_key"] = \
@@ -516,54 +538,73 @@ class Step:
                             merge_output_artifact(
                                 step.prepare_step.template.outputs.artifacts[
                                     art.name])
+                        new_item_vars = []
+                        for k, v in step.inputs.parameters.items():
+                            for var in item_vars:
+                                if str(getattr(v, "value", "")) == \
+                                        "{{inputs.parameters.%s}}" % var:
+                                    new_item_vars.append(k)
                         merge_output_artifact(
-                            template.outputs.artifacts[art.name])
+                            template.outputs.artifacts[art.name], template,
+                            new_item_vars)
 
-                    def merge_output_artifact(art):
+                    def merge_output_artifact(art, parent, item_vars):
                         if art._from is not None:
-                            merge_step_output_artifact(art._from)
+                            merge_step_output_artifact(
+                                art._from, parent, item_vars)
                         elif art.from_expression is not None:
                             merge_step_output_artifact(
-                                art.from_expression._then)
+                                art.from_expression._then, parent, item_vars)
                             merge_step_output_artifact(
-                                art.from_expression._else)
+                                art.from_expression._else, parent, item_vars)
                         else:
                             art.save.append(S3Artifact(
                                 key="{{inputs.parameters.dflow_artifact_key}}"
                                 "/%s" % name))
 
+                    item_vars = []
+                    for k, v in self.inputs.parameters.items():
+                        if re.match("^{{=?item.*}}$", str(getattr(
+                                v, "value", ""))):
+                            item_vars.append(k)
                     merge_output_artifact(
-                        self.template.outputs.artifacts[name])
+                        self.template.outputs.artifacts[name], self.template,
+                        item_vars)
             else:
                 self.template.inputs.parameters["dflow_artifact_key"] = \
                     InputParameter(value="")
                 for name in sliced_output_artifact:
-                    def merge_step_output_artifact(art):
+                    def merge_step_output_artifact(art, parent):
                         step = art.step
                         template = step.template
+                        if template is parent:
+                            step.inputs.parameters["dflow_artifact_key"] = \
+                                InputParameter(value="{{inputs.parameters."
+                                               "dflow_artifact_key}}")
+                            return
                         template.inputs.parameters["dflow_artifact_key"] = \
                             InputParameter()
                         step.inputs.parameters["dflow_artifact_key"] = \
                             InputParameter(value="{{inputs.parameters."
                                            "dflow_artifact_key}}")
                         merge_output_artifact(
-                            template.outputs.artifacts[art.name])
+                            template.outputs.artifacts[art.name], template)
 
-                    def merge_output_artifact(art):
+                    def merge_output_artifact(art, parent):
                         if art._from is not None:
-                            merge_step_output_artifact(art._from)
+                            merge_step_output_artifact(art._from, parent)
                         elif art.from_expression is not None:
                             merge_step_output_artifact(
-                                art.from_expression._then)
+                                art.from_expression._then, parent)
                             merge_step_output_artifact(
-                                art.from_expression._else)
+                                art.from_expression._else, parent)
                         else:
                             art.save.append(S3Artifact(
                                 key="{{inputs.parameters.dflow_artifact_key}}"
                                 "/%s" % name))
 
                     merge_output_artifact(
-                        self.template.outputs.artifacts[name])
+                        self.template.outputs.artifacts[name], self.template)
 
             if self.key is not None:
                 group_key = re.sub("{{=?item.*}}", "group", str(self.key))
@@ -2070,6 +2111,8 @@ class Step:
                         cwd, "..", config["debug_artifact_dir"], key)
 
                     def try_link(src, dst):
+                        if os.path.islink(dst):
+                            os.remove(dst)
                         try:
                             os.symlink(src, dst)
                         except Exception:
@@ -2190,6 +2233,8 @@ def get_var(expr, scope):
         raise RuntimeError("Parse failed: %s" % expr)
     elif fields[0] == "item":
         return None  # ignore
+    elif fields == ["workflow", "name"]:
+        return InputParameter(value=scope.workflow_id)
     else:
         raise RuntimeError("Not supported: %s" % expr)
 
@@ -2343,6 +2388,11 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
     def stack_output_parameter(par):
         if isinstance(par, OutputParameter):
             step = par.step
+            if step.template is templ:
+                step.inputs.parameters[slice_par] = InputParameter(
+                    value="({{inputs.parameters.%s}} if is_outputs else None)"
+                    % slice_par)
+                return
             step.template.inputs.parameters[slice_par_1] = InputParameter()
             step.template.add_slices(Slices(
                 "{{inputs.parameters.%s}}" % slice_par_1,
@@ -2366,6 +2416,11 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
     def stack_output_artifact(art):
         if isinstance(art, OutputArtifact):
             step = art.step
+            if step.template is templ:
+                step.inputs.parameters[slice_par] = InputParameter(
+                    value="({{inputs.parameters.%s}} if is_outputs else None)"
+                    % slice_par)
+                return
             step.template.inputs.parameters[slice_par_1] = InputParameter()
             step.template.add_slices(Slices(
                 "{{inputs.parameters.%s}}" % slice_par_1,

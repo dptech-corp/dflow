@@ -517,6 +517,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                         "inputs/artifacts/%s'))\n" % (
                             name, self.download_method, name, self.tmp_root,
                             name)
+        script += "    is_outputs = False\n"
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(input_artifact_slices, name)
@@ -615,6 +616,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             % self.tmp_root
         script += "    os.makedirs(r'%s/outputs/artifacts', exist_ok=True)\n" \
             % self.tmp_root
+        script += "    is_outputs = True\n"
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(output_artifact_slices, name)
