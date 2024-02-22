@@ -847,6 +847,31 @@ class Workflow:
         Returns:
             an ArgoWorkflow object
         """
+        if config["mode"] == "debug":
+            nodes = {}
+            for step in self.query_step():
+                step.inputs.parameters = list(step.inputs.parameters.values())
+                step.inputs.artifacts = list(step.inputs.artifacts.values())
+                step.outputs.parameters = list(
+                    step.outputs.parameters.values())
+                step.outputs.artifacts = list(step.outputs.artifacts.values())
+                nodes[step.id] = step.recover()
+            outputs = self.query_global_outputs()
+            if outputs is not None:
+                outputs.parameters = list(outputs.parameters.values())
+                outputs.artifacts = list(outputs.artifacts.values())
+                outputs = outputs.recover()
+            response = {
+                "metadata": {
+                    "name": self.id,
+                },
+                "status": {
+                    "phase": self.query_status(),
+                    "nodes": nodes,
+                    "outputs": outputs,
+                }
+            }
+            return ArgoWorkflow(response)
         query_params = None
         if fields is not None:
             query_params = [('fields', ",".join(fields))]
@@ -955,6 +980,7 @@ class Workflow:
                     "workflow": self.id,
                     "displayName": _name,
                     "key": s,
+                    "id": s,
                     "startedAt": os.path.getmtime(stepdir),
                     "phase": _phase,
                     "type": _type,
@@ -998,6 +1024,7 @@ class Workflow:
                             })
                 step = ArgoStep(step, self.id)
                 step_list.append(step)
+            step_list.sort(key=lambda x: x["startedAt"])
             return step_list
 
         return self.query().get_step(name=name, key=key, phase=phase, id=id,
@@ -1015,7 +1042,8 @@ class Workflow:
             a list of keys
         """
         if config["mode"] == "debug":
-            return [step.key for step in self.query_step()]
+            return [step.key for step in self.query_step()
+                    if step.key is not None]
         try:
             try:
                 response = self.api_instance.api_client.call_api(
