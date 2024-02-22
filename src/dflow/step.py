@@ -1623,6 +1623,7 @@ class Step:
                                      "batch" % config["debug_batch_interval"])
                         time.sleep(config["debug_batch_interval"])
 
+                failed = []
                 for future in concurrent.futures.as_completed(futures):
                     j = futures.index(future)
                     try:
@@ -1633,12 +1634,17 @@ class Step:
                         self.parallel_steps[j].phase = "Failed"
                         if not self.continue_on_failed:
                             self.phase = "Failed"
-                            raise RuntimeError("Step %s failed" %
-                                               self.parallel_steps[j])
+                            if config["debug_failfast"]:
+                                raise RuntimeError("Step %s failed" %
+                                                   self.parallel_steps[j])
+                            else:
+                                failed.append(self.parallel_steps[j])
                     else:
                         self.parallel_steps[j].outputs = deepcopy(ps.outputs)
                         logging.info("Outputs of %s collected" %
                                      self.parallel_steps[j])
+                if len(failed) > 0:
+                    raise RuntimeError("Step %s failed" % failed)
 
             for name, par in self.outputs.parameters.items():
                 par.value = []
