@@ -464,7 +464,10 @@ class Step:
             if self.template.slices.input_parameter:
                 name = self.template.slices.input_parameter[0]
                 value = self.inputs.parameters[name].value
-                self.with_param = argo_range(argo_len(value))
+                if hasattr(value, "__len__"):
+                    self.with_param = argo_range(len(value))
+                else:
+                    self.with_param = argo_range(argo_len(value))
             else:
                 assert len(self.template.slices.input_artifact) > 0, "sliced "\
                     "input parameter or artifact must not be empty to infer "\
