@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.50](https://github.com/deepmodeling/dflow/compare/v1.8.49...v1.8.50) (2024-02-22)
+
+
+### Bug Fixes
+
+* failfast=False for default in debug mode ([ac2c5a9](https://github.com/deepmodeling/dflow/commit/ac2c5a9a21b1e315c62f77b8f8e011634a431596))
+
 ## [1.8.49](https://github.com/deepmodeling/dflow/compare/v1.8.48...v1.8.49) (2024-02-22)
 
 
