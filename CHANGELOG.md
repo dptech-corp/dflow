@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.49](https://github.com/deepmodeling/dflow/compare/v1.8.48...v1.8.49) (2024-02-22)
+
+
+### Bug Fixes
+
+* support wf.query() in debug mode ([a66ba11](https://github.com/deepmodeling/dflow/commit/a66ba11e55c1c81ab40769675bd91f4199cedd2d))
+
 ## [1.8.48](https://github.com/deepmodeling/dflow/compare/v1.8.47...v1.8.48) (2024-02-13)
 
 
