@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.51](https://github.com/deepmodeling/dflow/compare/v1.8.50...v1.8.51) (2024-02-23)
+
+
+### Bug Fixes
+
+* add debug_save_copy_method ([6ab8973](https://github.com/deepmodeling/dflow/commit/6ab89735c3edcf319d02cced4bea47894fbe73b7))
+
 ## [1.8.50](https://github.com/deepmodeling/dflow/compare/v1.8.49...v1.8.50) (2024-02-22)
 
 
