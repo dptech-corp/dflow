@@ -2120,10 +2120,15 @@ class Step:
                         cwd, "..", config["debug_artifact_dir"], key)
 
                     def try_link(src, dst):
-                        if os.path.islink(dst):
+                        if os.path.islink(dst) or os.path.isfile(dst):
                             os.remove(dst)
                         try:
-                            os.symlink(src, dst)
+                            if config["debug_save_copy_method"] == "symlink":
+                                os.symlink(src, dst)
+                            elif config["debug_save_copy_method"] == "link":
+                                os.link(src, dst)
+                            elif config["debug_save_copy_method"] == "copy":
+                                shutil.copy2(src, dst)
                         except Exception:
                             pass
                     if os.path.isfile(path):
