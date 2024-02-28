@@ -710,13 +710,17 @@ def run_command(
             sel = selectors.DefaultSelector()
             sel.register(sub.stdout, selectors.EVENT_READ)
             sel.register(sub.stderr, selectors.EVENT_READ)
-            ok = True
-            while ok:
+            stdout_eof = False
+            stderr_eof = False
+            while not (stdout_eof and stderr_eof):
                 for key, _ in sel.select():
                     line = key.fileobj.readline().decode(sys.stdout.encoding)
                     if not line:
-                        ok = False
-                        break
+                        if key.fileobj is sub.stdout:
+                            stdout_eof = True
+                        if key.fileobj is sub.stderr:
+                            stderr_eof = True
+                        continue
                     if key.fileobj is sub.stdout:
                         sys.stdout.write(line)
                         out += line
