@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.52](https://github.com/deepmodeling/dflow/compare/v1.8.51...v1.8.52) (2024-02-28)
+
+
+### Bug Fixes
+
+* fix run_command ([a86753f](https://github.com/deepmodeling/dflow/commit/a86753f14dbcf153ce4fbc664521ce5c2005e738))
+* print_oe in run_command ([d7e424e](https://github.com/deepmodeling/dflow/commit/d7e424e26859cb6b7933d358c99cb3c968e7ccda))
+
 ## [1.8.51](https://github.com/deepmodeling/dflow/compare/v1.8.50...v1.8.51) (2024-02-23)
 
 
