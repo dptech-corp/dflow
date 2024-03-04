@@ -535,6 +535,8 @@ for item in range(5):
 ```
 where `with_param` and `slices` corresponds to the `for` loop and the statement in loop in the pseudocode, respectively.
 
+Note that this feature merges the sliced output artifacts by default, which means the relative path in the output artifact of each slice is remained in the merged artifact. This could potentially lead to overwriting issues due to path conflicts. To create a separate dir for each slice for saving output artifacts, set `create_dir=True`.
+
 - [Slices example](examples/test_slices.py)
 
 It should be noticed that this feature, by default, passes full input artifacts to each parallel step which may only use some slices of these artifacts. In contrast, the subpath mode of slices only passes one single slice of the input artifacts to each parallel step. To use the subpath mode of slices,
