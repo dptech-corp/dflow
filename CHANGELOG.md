@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.53](https://github.com/deepmodeling/dflow/compare/v1.8.52...v1.8.53) (2024-03-04)
+
+
+### Bug Fixes
+
+* add create_dir to slices ([74c6409](https://github.com/deepmodeling/dflow/commit/74c64098cad0393cafe89fdb5cd610efdfc74abe))
+
 ## [1.8.52](https://github.com/deepmodeling/dflow/compare/v1.8.51...v1.8.52) (2024-02-28)
 
 
