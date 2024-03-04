@@ -213,7 +213,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  pre_script: str = "",
                  post_script: str = "",
                  success_tag: bool = False,
-                 output_slice_dir: Dict[str, str] = None,
+                 create_dir: bool = False,
                  ) -> None:
         self.n_parts = {}
         self.keys_of_parts = {}
@@ -376,8 +376,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             else output_artifact_slices
         self.output_parameter_slices = {} if output_parameter_slices is None \
             else output_parameter_slices
-        self.output_slice_dir = {} if output_slice_dir is None\
-            else output_slice_dir
+        self.create_dir = create_dir
         self.set_slices(slices)
         self.download_method = "download"
 
@@ -410,13 +409,15 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 self.input_parameter_slices[name] = slices.slices
         if slices.output_artifact:
             for name in slices.output_artifact:
-                self.output_artifact_slices[name] = slices.slices
+                if name in self.output_artifact_slices:
+                    s = str(self.output_artifact_slices[name]).strip("'")
+                    s += "." + slices.slices
+                    self.output_artifact_slices[name] = "'%s'" % s
+                else:
+                    self.output_artifact_slices[name] = slices.slices
                 self.outputs.artifacts[name].archive = None  # no archive
                 if slices.create_dir:
-                    self.output_slice_dir[name] = \
-                        "{{inputs.parameters.dflow_slice_dir}}"
-                    self.inputs.parameters["dflow_slice_dir"] = InputParameter(
-                        value="")
+                    self.create_dir = True
         if slices.output_parameter:
             for name in slices.output_parameter:
                 self.output_parameter_slices[name] = slices.slices
@@ -632,12 +633,10 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(output_artifact_slices, name)
-                slice_dir = None
-                if name in self.output_slice_dir:
-                    slice_dir = "'%s'" % self.output_slice_dir[name]
                 script += "    handle_output_artifact('%s', output['%s'], "\
                     "output_sign['%s'], %s, r'%s', %s)\n" % (
-                        name, name, name, slices, self.tmp_root, slice_dir)
+                        name, name, name, slices, self.tmp_root,
+                        slices is not None and self.create_dir)
             else:
                 slices = self.get_slices(output_parameter_slices, name)
                 script += "    handle_output_parameter('%s', output['%s'], "\
