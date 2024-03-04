@@ -162,27 +162,28 @@ def handle_input_parameter(name, value, sign, slices=None, data_root="/tmp"):
     return obj
 
 
+def slices_to_dir(slices):
+    return str(slices).replace(".", "/")
+
+
 def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp",
-                           slice_dir=None):
+                           create_dir=False):
     path_list = []
     if sign.type in [str, Path]:
         os.makedirs(data_root + '/outputs/artifacts/' + name, exist_ok=True)
-        if slices is not None:
-            assert isinstance(slices, int)
-        else:
+        if slices is None:
             slices = 0
-        if value and os.path.exists(str(value)):
-            path_list.append({"dflow_list_item": copy_results(
-                value, name, data_root, slice_dir), "order": slices})
-        else:
-            path_list.append({"dflow_list_item": None, "order": slices})
+        path_list.append(copy_results_and_return_path_item(
+            value, name, slices, data_root,
+            slices_to_dir(slices) if create_dir else None))
     elif sign.type in [List[str], List[Path], Set[str], Set[Path]]:
         os.makedirs(data_root + '/outputs/artifacts/' + name, exist_ok=True)
         if slices is not None:
             if isinstance(slices, int):
                 for path in value:
                     path_list.append(copy_results_and_return_path_item(
-                        path, name, slices, data_root, slice_dir))
+                        path, name, slices, data_root,
+                        slices_to_dir(slices) if create_dir else None))
             else:
                 assert len(slices) == len(value)
                 for path, s in zip(value, slices):
@@ -190,24 +191,26 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp",
                         for p in path:
                             path_list.append(
                                 copy_results_and_return_path_item(
-                                    p, name, s, data_root, slice_dir))
+                                    p, name, s, data_root, slices_to_dir(
+                                        s) if create_dir else None))
                     else:
                         path_list.append(copy_results_and_return_path_item(
-                            path, name, s, data_root, slice_dir))
+                            path, name, s, data_root, slices_to_dir(
+                                s) if create_dir else None))
         else:
             for s, path in enumerate(value):
                 path_list.append(copy_results_and_return_path_item(
-                    path, name, s, data_root, slice_dir))
+                    path, name, s, data_root))
     elif sign.type in [Dict[str, str], Dict[str, Path]]:
         os.makedirs(data_root + '/outputs/artifacts/' + name, exist_ok=True)
         for s, path in value.items():
             path_list.append(copy_results_and_return_path_item(
-                path, name, s, data_root, slice_dir))
+                path, name, s, data_root))
     elif sign.type in [NestedDict[str], NestedDict[Path]]:
         os.makedirs(data_root + '/outputs/artifacts/' + name, exist_ok=True)
         for s, path in flatten(value).items():
             path_list.append(copy_results_and_return_path_item(
-                path, name, s, data_root, slice_dir))
+                path, name, s, data_root))
 
     os.makedirs(data_root + "/outputs/artifacts/%s/%s" % (name, config[
         "catalog_dir_name"]), exist_ok=True)
@@ -265,7 +268,7 @@ def copy_results(source, name, data_root="/tmp", slice_dir=None):
             rel_path = randstr()
         else:
             rel_path = source[i+1:]
-        if slice_dir:
+        if slice_dir is not None:
             rel_path = "%s/%s" % (slice_dir, rel_path)
         target = data_root + "/outputs/artifacts/%s/%s" % (name, rel_path)
         copy_file(source, target, shutil.copy)
@@ -279,7 +282,7 @@ def copy_results(source, name, data_root="/tmp", slice_dir=None):
         if source.startswith(cwd):
             source = source[len(cwd):]
         rel_path = source[1:] if source[:1] == "/" else source
-        if slice_dir:
+        if slice_dir is not None:
             rel_path = "%s/%s" % (slice_dir, rel_path)
         target = data_root + "/outputs/artifacts/%s/%s" % (name, rel_path)
         copy_file(source, target)

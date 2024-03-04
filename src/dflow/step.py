@@ -428,11 +428,6 @@ class Step:
                 self.inputs.parameters["dflow_slice"] = InputParameter(
                     value=slices.slices)
 
-        if getattr(getattr(self.template, "slices", None),
-                   "create_dir", False):
-            self.inputs.parameters["dflow_slice_dir"] = InputParameter(
-                value="{{item}}")
-
         sum_var = None
         if isinstance(self.with_param, ArgoRange) and \
                 isinstance(self.with_param.end, ArgoSum):
@@ -2354,9 +2349,6 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
         else:
             steps.append(s)
 
-    if slices.create_dir:
-        templ.inputs.parameters["dflow_slice_dir"] = InputParameter(value="")
-
     for name in slices.input_parameter:
         for step in steps:
             for par in list(step.inputs.parameters.values()):
@@ -2438,17 +2430,6 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
     def stack_output_artifact(art):
         if isinstance(art, OutputArtifact):
             step = art.step
-            if slices.create_dir:
-                slice_dir = "{{inputs.parameters.dflow_slice_dir}}"
-                value = getattr(step.inputs.parameters.get(
-                    "dflow_slice_dir", None), "value", "")
-                if value:
-                    if value.startswith(slice_dir):
-                        slice_dir = value
-                    else:
-                        slice_dir += "/" + value
-                step.inputs.parameters["dflow_slice_dir"] = InputParameter(
-                    value=slice_dir)
             if step.template is templ:
                 step.inputs.parameters[slice_par] = InputParameter(
                     value="({{inputs.parameters.%s}} if is_outputs else None)"
