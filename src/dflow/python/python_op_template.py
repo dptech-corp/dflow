@@ -45,6 +45,8 @@ class Slices:
             to handle each slice, 1 for serial, -1 for infinity (i.e. equals to
             the number of slices)
         register_first_only: only register first slice when lineage used
+        create_dir: create a separate dir for each slice for saving output
+            artifacts
     """
 
     def __init__(
@@ -60,6 +62,7 @@ class Slices:
             random_seed: int = 0,
             pool_size: Optional[int] = None,
             register_first_only: bool = False,
+            create_dir: bool = False,
     ) -> None:
         self.input_parameter = input_parameter if input_parameter is not \
             None else []
@@ -81,6 +84,7 @@ class Slices:
         self.random_seed = random_seed
         self.pool_size = pool_size
         self.register_first_only = register_first_only
+        self.create_dir = create_dir
 
     def evalable_repr(self, imports):
         kwargs = {}
@@ -209,6 +213,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  pre_script: str = "",
                  post_script: str = "",
                  success_tag: bool = False,
+                 output_slice_dir: Dict[str, str] = None,
                  ) -> None:
         self.n_parts = {}
         self.keys_of_parts = {}
@@ -371,6 +376,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             else output_artifact_slices
         self.output_parameter_slices = {} if output_parameter_slices is None \
             else output_parameter_slices
+        self.output_slice_dir = {} if output_slice_dir is None\
+            else output_slice_dir
         self.set_slices(slices)
         self.download_method = "download"
 
@@ -405,6 +412,11 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             for name in slices.output_artifact:
                 self.output_artifact_slices[name] = slices.slices
                 self.outputs.artifacts[name].archive = None  # no archive
+                if slices.create_dir:
+                    self.output_slice_dir[name] = \
+                        "{{inputs.parameters.dflow_slice_dir}}"
+                    self.inputs.parameters["dflow_slice_dir"] = InputParameter(
+                        value="")
         if slices.output_parameter:
             for name in slices.output_parameter:
                 self.output_parameter_slices[name] = slices.slices
@@ -620,9 +632,12 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(output_artifact_slices, name)
+                slice_dir = None
+                if name in self.output_slice_dir:
+                    slice_dir = "'%s'" % self.output_slice_dir[name]
                 script += "    handle_output_artifact('%s', output['%s'], "\
-                    "output_sign['%s'], %s, r'%s')\n" % (name, name, name,
-                                                         slices, self.tmp_root)
+                    "output_sign['%s'], %s, r'%s', %s)\n" % (
+                        name, name, name, slices, self.tmp_root, slice_dir)
             else:
                 slices = self.get_slices(output_parameter_slices, name)
                 script += "    handle_output_parameter('%s', output['%s'], "\
