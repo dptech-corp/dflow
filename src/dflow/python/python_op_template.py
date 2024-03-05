@@ -213,7 +213,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  pre_script: str = "",
                  post_script: str = "",
                  success_tag: bool = False,
-                 create_dir: bool = False,
+                 create_slice_dir: bool = False,
                  ) -> None:
         self.n_parts = {}
         self.keys_of_parts = {}
@@ -376,7 +376,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             else output_artifact_slices
         self.output_parameter_slices = {} if output_parameter_slices is None \
             else output_parameter_slices
-        self.create_dir = create_dir
+        self.create_slice_dir = create_slice_dir
         self.set_slices(slices)
         self.download_method = "download"
 
@@ -417,7 +417,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     self.output_artifact_slices[name] = slices.slices
                 self.outputs.artifacts[name].archive = None  # no archive
                 if slices.create_dir:
-                    self.create_dir = True
+                    self.create_slice_dir = True
         if slices.output_parameter:
             for name in slices.output_parameter:
                 self.output_parameter_slices[name] = slices.slices
@@ -581,11 +581,20 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 script += "        input1['%s'] = list(input['%s'])[i] if "\
                     "input['%s'] is not None else None\n" % (name, name, name)
             script += "        input_list.append(input1)\n"
+            if self.create_slice_dir:
+                slices = self.render_slices(self.slices.slices)
+                script += "    from dflow.python.utils import slice_to_dir\n"
+                script += "    slice_dirs = list(map(slice_to_dir, %s))\n" % \
+                    slices
+            else:
+                script += "    slice_dirs = [None] * n_slices\n"
             if self.slices.pool_size == 1:
                 script += "    output_list = []\n"
                 script += "    error_list = []\n"
-                script += "    for input in input_list:\n"
-                script += "        output, error = try_to_execute(input)\n"
+                script += "    for input, slice_dir in zip(input_list, "\
+                    "slice_dirs):\n"
+                script += "        output, error = try_to_execute(input, "\
+                    "slice_dir)\n"
                 script += "        output_list.append(output)\n"
                 script += "        error_list.append(error)\n"
             else:
@@ -595,8 +604,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 else:
                     script += "    pool = Pool(%s)\n" % \
                         self.slices.pool_size
-                script += "    oe_list = pool.map(try_to_execute, "\
-                    "input_list)\n"
+                script += "    oe_list = pool.starmap(try_to_execute, "\
+                    "zip(input_list, slice_dirs))\n"
                 script += "    output_list = [oe[0] for oe in oe_list]\n"
                 script += "    error_list = [oe[1] for oe in oe_list]\n"
             sliced_outputs = self.slices.output_artifact + \
@@ -636,7 +645,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                 script += "    handle_output_artifact('%s', output['%s'], "\
                     "output_sign['%s'], %s, r'%s', %s)\n" % (
                         name, name, name, slices, self.tmp_root,
-                        slices is not None and self.create_dir)
+                        slices is not None and self.create_slice_dir and
+                        getattr(self.slices, "pool_size", None) is None)
             else:
                 slices = self.get_slices(output_parameter_slices, name)
                 script += "    handle_output_parameter('%s', output['%s'], "\
