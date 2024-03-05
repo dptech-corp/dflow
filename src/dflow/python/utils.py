@@ -162,8 +162,8 @@ def handle_input_parameter(name, value, sign, slices=None, data_root="/tmp"):
     return obj
 
 
-def slices_to_dir(slices):
-    return str(slices).replace(".", "/")
+def slice_to_dir(slice):
+    return str(slice).replace(".", "/")
 
 
 def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp",
@@ -175,7 +175,7 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp",
             slices = 0
         path_list.append(copy_results_and_return_path_item(
             value, name, slices, data_root,
-            slices_to_dir(slices) if create_dir else None))
+            slice_to_dir(slices) if create_dir else None))
     elif sign.type in [List[str], List[Path], Set[str], Set[Path]]:
         os.makedirs(data_root + '/outputs/artifacts/' + name, exist_ok=True)
         if slices is not None:
@@ -183,7 +183,7 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp",
                 for path in value:
                     path_list.append(copy_results_and_return_path_item(
                         path, name, slices, data_root,
-                        slices_to_dir(slices) if create_dir else None))
+                        slice_to_dir(slices) if create_dir else None))
             else:
                 assert len(slices) == len(value)
                 for path, s in zip(value, slices):
@@ -191,11 +191,11 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp",
                         for p in path:
                             path_list.append(
                                 copy_results_and_return_path_item(
-                                    p, name, s, data_root, slices_to_dir(
+                                    p, name, s, data_root, slice_to_dir(
                                         s) if create_dir else None))
                     else:
                         path_list.append(copy_results_and_return_path_item(
-                            path, name, s, data_root, slices_to_dir(
+                            path, name, s, data_root, slice_to_dir(
                                 s) if create_dir else None))
         else:
             for s, path in enumerate(value):
@@ -329,8 +329,11 @@ def absolutize(path):
         return {k: absolutize(p) for k, p in path.items()}
 
 
-def try_to_execute(input, op_obj, output_sign, cwd):
+def try_to_execute(input, slice_dir, op_obj, output_sign, cwd):
     os.chdir(cwd)
+    if slice_dir is not None:
+        os.makedirs(slice_dir, exist_ok=True)
+        os.chdir(slice_dir)
     try:
         output = op_obj.execute(input)
         for n, s in output_sign.items():
