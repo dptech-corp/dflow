@@ -20,7 +20,7 @@ from .op_template import (ContainerOPTemplate, OPTemplate, ScriptOPTemplate,
 from .step import Step
 from .steps import Steps
 from .task import Task
-from .utils import copy_s3, get_key, linktree, randstr, set_key
+from .utils import copy_s3, force_link, get_key, linktree, randstr, set_key
 
 try:
     import urllib3
@@ -371,7 +371,7 @@ class Workflow:
         while self.query_status() in ["Pending", "Running"]:
             time.sleep(interval)
 
-    def handle_reused_step(self, step):
+    def handle_reused_step(self, step, global_parameters, global_artifacts):
         outputs = {}
         if hasattr(step, "outputs"):
             if hasattr(step.outputs, "exitCode"):
@@ -379,9 +379,14 @@ class Workflow:
             if hasattr(step.outputs, "parameters"):
                 outputs["parameters"] = []
                 for name, par in step.outputs.parameters.items():
-                    if not hasattr(step.outputs.parameters[name],
-                                   "save_as_artifact"):
+                    if not hasattr(par, "save_as_artifact"):
                         outputs["parameters"].append(par.recover())
+                        if hasattr(par, "globalName") and name != \
+                                "dflow_global":
+                            global_par = par.recover()
+                            global_par["name"] = par.globalName
+                            global_par.pop("globalName", None)
+                            global_parameters[par.globalName] = global_par
             if hasattr(step.outputs, "artifacts"):
                 for name, art in step.outputs.artifacts.items():
                     group_key = step.get("inputs", {}).get(
@@ -397,6 +402,11 @@ class Workflow:
                         else:
                             self.handle_reused_artifact_with_copy(
                                 step, name, art)
+                    if hasattr(art, "globalName"):
+                        global_art = art.recover()
+                        global_art["name"] = art.globalName
+                        global_art.pop("globalName", None)
+                        global_artifacts[art.globalName] = global_art
                 outputs["artifacts"] = [
                     art.recover() for art in step.outputs.artifacts.values()]
         self.memoize_map["%s-%s" % (self.id, step.key)] = {
@@ -470,7 +480,8 @@ class Workflow:
             assert isinstance(self.context, (Context, Executor))
             self = self.context.render(self)
 
-        status = None
+        global_parameters = {}
+        global_artifacts = {}
         if reuse_step is not None:
             self.reused_keys = [step.key for step in reuse_step
                                 if step.key is not None]
@@ -484,7 +495,8 @@ class Workflow:
                 if step.key is None:
                     continue
                 key2id[step.key] = step.id
-                self.handle_reused_step(step)
+                self.handle_reused_step(step, global_parameters,
+                                        global_artifacts)
 
             for key, step in self.memoize_map.items():
                 data = {key: json.dumps(step)}
@@ -506,8 +518,8 @@ class Workflow:
             self.handle_template(self.entrypoint, memoize_prefix=self.id,
                                  memoize_configmap="dflow")
             if config["save_keys_in_global_outputs"]:
-                status = {"outputs": {"parameters": [
-                    {"name": key, "value": id} for key, id in key2id.items()]}}
+                for key, id in key2id.items():
+                    global_parameters[key] = {"name": key, "value": id}
         else:
             self.handle_template(self.entrypoint)
 
@@ -573,7 +585,8 @@ class Workflow:
                 artifact_repository_ref=None if self.artifact_repo_key is None
                 else V1alpha1ArtifactRepositoryRef(key=self.artifact_repo_key)
             ),
-            status=status)
+            status={"outputs": {"parameters": list(global_parameters.values()),
+                                "artifacts": list(global_artifacts.values())}})
 
     def deduplicate_templates(self):
         logger.debug("before deduplication: %s" % len(self.argo_templates))
