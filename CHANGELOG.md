@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.8.55](https://github.com/deepmodeling/dflow/compare/v1.8.54...v1.8.55) (2024-03-18)
+
+
+### Bug Fixes
+
+* format ([fbf5725](https://github.com/deepmodeling/dflow/commit/fbf5725e40aec464a3b5a8df9ee1e93b7097fb4b))
+* reuse global outputs of reused steps ([751b1f4](https://github.com/deepmodeling/dflow/commit/751b1f4a159dc069b99ba140aef8feba8a46e062))
+* support create_slice_dir when pool_size is used ([f8bb80c](https://github.com/deepmodeling/dflow/commit/f8bb80c70d4fdfd881c9b89617f2f0526603bc11))
+
 ## [1.8.54](https://github.com/deepmodeling/dflow/compare/v1.8.53...v1.8.54) (2024-03-04)
 
 
