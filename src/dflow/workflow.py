@@ -20,7 +20,7 @@ from .op_template import (ContainerOPTemplate, OPTemplate, ScriptOPTemplate,
 from .step import Step
 from .steps import Steps
 from .task import Task
-from .utils import copy_s3, force_link, get_key, linktree, randstr, set_key
+from .utils import copy_s3, get_key, linktree, randstr, set_key
 
 try:
     import urllib3
