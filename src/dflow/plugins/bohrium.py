@@ -4,6 +4,7 @@ from copy import deepcopy
 from getpass import getpass
 from typing import Optional
 
+from ..config import boolize
 from ..config import config as dflow_config
 from ..config import s3_config
 from ..context import Context
@@ -25,6 +26,8 @@ config = {
     "tiefblue_url": os.environ.get("BOHRIUM_TIEFBLUE_URL",
                                    "https://tiefblue.dp.tech"),
     "ticket": os.environ.get("BOHRIUM_TICKET", None),
+    "upload_progress": boolize(os.environ.get("BOHRIUM_UPLOAD_PROGRESS",
+                                              False)),
 }
 
 
@@ -322,13 +325,15 @@ class TiefblueClient(StorageClient):
                                "`pip install -U lbg`")
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
         try:
-            client.upload_from_file(key, path)
+            client.upload_from_file(
+                key, path, progress_bar=config["upload_progress"])
         except tiefblue.client.TiefblueException as e:
             if e.code == 190001:
                 self.get_token()
                 client = tiefblue.Client(base_url=self.tiefblue_url,
                                          token=self.token)
-                client.upload_from_file(key, path)
+                client.upload_from_file(
+                    key, path, progress_bar=config["upload_progress"])
             else:
                 raise e
 
