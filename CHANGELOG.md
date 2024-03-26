@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.56](https://github.com/deepmodeling/dflow/compare/v1.8.55...v1.8.56) (2024-03-26)
+
+
+### Bug Fixes
+
+* add BOHRIUM_UPLOAD_PROGRESS ([0f2f823](https://github.com/deepmodeling/dflow/commit/0f2f823f6c972b5e03da847220fb2c6564eb871d))
+
 ## [1.8.55](https://github.com/deepmodeling/dflow/compare/v1.8.54...v1.8.55) (2024-03-18)
 
 
