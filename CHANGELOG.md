@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.57](https://github.com/deepmodeling/dflow/compare/v1.8.56...v1.8.57) (2024-03-28)
+
+
+### Bug Fixes
+
+* multi-merge case when key is not used ([74e1bd8](https://github.com/deepmodeling/dflow/commit/74e1bd826874e485463cdf6a0e291f03f42c7d0b))
+
 ## [1.8.56](https://github.com/deepmodeling/dflow/compare/v1.8.55...v1.8.56) (2024-03-26)
 
 
