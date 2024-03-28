@@ -590,6 +590,19 @@ class Step:
                         step.inputs.parameters["dflow_artifact_key"] = \
                             InputParameter(value="{{inputs.parameters."
                                            "dflow_artifact_key}}")
+                        if step.prepare_step is not None and art.name in \
+                                step.prepare_step.outputs.artifacts:
+                            # for multi-merge, save output artifact of inner
+                            # slices all together
+                            step.prepare_step.template.inputs.parameters[
+                                "dflow_artifact_key"] = InputParameter()
+                            step.prepare_step.inputs.parameters[
+                                "dflow_artifact_key"] = InputParameter(
+                                value="{{inputs.parameters."
+                                "dflow_artifact_key}}")
+                            merge_output_artifact(
+                                step.prepare_step.template.outputs.artifacts[
+                                    art.name], None)
                         merge_output_artifact(
                             template.outputs.artifacts[art.name], template)
 
