@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.58](https://github.com/deepmodeling/dflow/compare/v1.8.57...v1.8.58) (2024-03-29)
+
+
+### Bug Fixes
+
+* opt multi-merge ([dd89130](https://github.com/deepmodeling/dflow/commit/dd891309ca4f15e691dfbf8ced100a3a8c419ae2))
+
 ## [1.8.57](https://github.com/deepmodeling/dflow/compare/v1.8.56...v1.8.57) (2024-03-28)
 
 
