@@ -490,137 +490,57 @@ class Step:
                     value=re.sub("{{=?item.*}}", "group", str(self.key)))
                 self.template.inputs.parameters["dflow_artifact_key"] = \
                     InputParameter(value="")
-                # For the case of reusing sliced steps, ensure that the output
-                # artifacts are reused
-                for name in sliced_output_artifact:
-                    def merge_step_output_artifact(art, parent, item_vars):
-                        step = art.step
-                        template = step.template
-                        if template is parent:
-                            if step.key is not None:
-                                group_key = str(step.key)
-                                for var in item_vars:
-                                    group_key = group_key.replace(
-                                        "{{inputs.parameters.%s}}" % var,
-                                        "group")
-                                step.inputs.parameters["dflow_group_key"] = \
-                                    InputParameter(value=group_key)
-                                step.inputs.parameters[
-                                    "dflow_artifact_key"] = InputParameter(
-                                        value="{{workflow.name}}/%s" %
-                                        group_key)
-                            else:
-                                step.inputs.parameters["dflow_group_key"] = \
-                                    InputParameter(value="{{inputs.parameters."
-                                                   "dflow_group_key}}")
-                                step.inputs.parameters[
-                                    "dflow_artifact_key"] = InputParameter(
-                                        value="{{inputs.parameters."
-                                        "dflow_artifact_key}}")
-                            return
-                        template.inputs.parameters["dflow_group_key"] = \
-                            InputParameter()
-                        step.inputs.parameters["dflow_group_key"] = \
-                            InputParameter(
-                                value="{{inputs.parameters.dflow_group_key}}")
-                        template.inputs.parameters["dflow_artifact_key"] = \
-                            InputParameter()
-                        step.inputs.parameters["dflow_artifact_key"] = \
-                            InputParameter(value="{{inputs.parameters."
-                                           "dflow_artifact_key}}")
-                        if step.prepare_step is not None and art.name in \
-                                step.prepare_step.outputs.artifacts:
-                            # for multi-merge, save output artifact of inner
-                            # slices all together
-                            step.prepare_step.template.inputs.parameters[
-                                "dflow_artifact_key"] = InputParameter()
-                            step.prepare_step.inputs.parameters[
-                                "dflow_artifact_key"] = InputParameter(
-                                value="{{inputs.parameters."
-                                "dflow_artifact_key}}")
-                            merge_output_artifact(
-                                step.prepare_step.template.outputs.artifacts[
-                                    art.name], None, [])
-                        new_item_vars = []
-                        for k, v in step.inputs.parameters.items():
-                            for var in item_vars:
-                                if str(getattr(v, "value", "")) == \
-                                        "{{inputs.parameters.%s}}" % var:
-                                    new_item_vars.append(k)
-                        merge_output_artifact(
-                            template.outputs.artifacts[art.name], template,
-                            new_item_vars)
-
-                    def merge_output_artifact(art, parent, item_vars):
-                        if art._from is not None:
-                            merge_step_output_artifact(
-                                art._from, parent, item_vars)
-                        elif art.from_expression is not None:
-                            merge_step_output_artifact(
-                                art.from_expression._then, parent, item_vars)
-                            merge_step_output_artifact(
-                                art.from_expression._else, parent, item_vars)
-                        else:
-                            art.save.append(S3Artifact(
-                                key="{{inputs.parameters.dflow_artifact_key}}"
-                                "/%s" % name))
-
-                    item_vars = []
-                    for k, v in self.inputs.parameters.items():
-                        if re.match("^{{=?item.*}}$", str(getattr(
-                                v, "value", ""))):
-                            item_vars.append(k)
-                    merge_output_artifact(
-                        self.template.outputs.artifacts[name], self.template,
-                        item_vars)
             else:
                 self.template.inputs.parameters["dflow_artifact_key"] = \
                     InputParameter(value="")
-                for name in sliced_output_artifact:
-                    def merge_step_output_artifact(art, parent):
-                        step = art.step
-                        template = step.template
-                        if template is parent:
-                            step.inputs.parameters["dflow_artifact_key"] = \
-                                InputParameter(value="{{inputs.parameters."
-                                               "dflow_artifact_key}}")
-                            return
-                        template.inputs.parameters["dflow_artifact_key"] = \
-                            InputParameter()
-                        step.inputs.parameters["dflow_artifact_key"] = \
-                            InputParameter(value="{{inputs.parameters."
-                                           "dflow_artifact_key}}")
-                        if step.prepare_step is not None and art.name in \
-                                step.prepare_step.outputs.artifacts:
-                            # for multi-merge, save output artifact of inner
-                            # slices all together
-                            step.prepare_step.template.inputs.parameters[
-                                "dflow_artifact_key"] = InputParameter()
-                            step.prepare_step.inputs.parameters[
-                                "dflow_artifact_key"] = InputParameter(
-                                value="{{inputs.parameters."
-                                "dflow_artifact_key}}")
-                            merge_output_artifact(
-                                step.prepare_step.template.outputs.artifacts[
-                                    art.name], None)
+
+            for name in sliced_output_artifact:
+                def merge_step_output_artifact(art, parent, layer=0):
+                    step = art.step
+                    template = step.template
+                    cur_key = "dflow_artifact_key_%s" % (layer + 1)
+                    last_key = "dflow_artifact_key" if layer == 0 else \
+                        "dflow_artifact_key_%s" % layer
+                    if template is parent:
+                        step.inputs.parameters[last_key] = InputParameter(
+                            value="{{inputs.parameters.%s}}" % last_key)
+                        return
+                    template.inputs.parameters[cur_key] = InputParameter()
+                    step.inputs.parameters[cur_key] = InputParameter(
+                        value="{{inputs.parameters.%s}}" % last_key)
+                    if step.prepare_step is not None and art.name in \
+                            step.prepare_step.outputs.artifacts:
+                        # for multi-merge, save output artifact of inner
+                        # slices all together
+                        step.prepare_step.template.inputs.parameters[
+                            cur_key] = InputParameter()
+                        step.prepare_step.inputs.parameters[cur_key] = \
+                            InputParameter(value="{{inputs.parameters.%s}}"
+                                           % last_key)
                         merge_output_artifact(
-                            template.outputs.artifacts[art.name], template)
+                            step.prepare_step.template.outputs.artifacts[
+                                art.name], None, layer+1)
+                    merge_output_artifact(template.outputs.artifacts[
+                        art.name], template, layer+1)
 
-                    def merge_output_artifact(art, parent):
-                        if art._from is not None:
-                            merge_step_output_artifact(art._from, parent)
-                        elif art.from_expression is not None:
-                            merge_step_output_artifact(
-                                art.from_expression._then, parent)
-                            merge_step_output_artifact(
-                                art.from_expression._else, parent)
-                        else:
-                            art.save.append(S3Artifact(
-                                key="{{inputs.parameters.dflow_artifact_key}}"
-                                "/%s" % name))
+                def merge_output_artifact(art, parent, layer=0):
+                    if art._from is not None:
+                        merge_step_output_artifact(
+                            art._from, parent, layer)
+                    elif art.from_expression is not None:
+                        merge_step_output_artifact(
+                            art.from_expression._then, parent, layer)
+                        merge_step_output_artifact(
+                            art.from_expression._else, parent, layer)
+                    else:
+                        key = "dflow_artifact_key" if layer == 0 else \
+                            "dflow_artifact_key_%s" % layer
+                        art.save.append(S3Artifact(
+                            key="{{inputs.parameters.%s}}/%s"
+                            % (key, name)))
 
-                    merge_output_artifact(
-                        self.template.outputs.artifacts[name], self.template)
+                merge_output_artifact(
+                    self.template.outputs.artifacts[name], self.template)
 
             if self.key is not None:
                 group_key = re.sub("{{=?item.*}}", "group", str(self.key))
