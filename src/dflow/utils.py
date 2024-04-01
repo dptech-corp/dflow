@@ -410,7 +410,7 @@ def upload_s3(
         client.upload(key=key, path=path)
     elif os.path.isdir(path):
         for dn, ds, fs in os.walk(path, followlinks=True):
-            rel_path = dn[len(path):]
+            rel_path = dn[len(str(path)):]
             if rel_path == "":
                 pass
             elif rel_path[0] != "/":

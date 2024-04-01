@@ -2054,7 +2054,10 @@ class Step:
 
                     def try_link(src, dst):
                         if os.path.islink(dst) or os.path.isfile(dst):
-                            os.remove(dst)
+                            try:
+                                os.remove(dst)
+                            except Exception:
+                                pass
                         try:
                             if config["debug_save_copy_method"] == "symlink":
                                 os.symlink(src, dst)
