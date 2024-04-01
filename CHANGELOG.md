@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.60](https://github.com/deepmodeling/dflow/compare/v1.8.59...v1.8.60) (2024-04-01)
+
+
+### Bug Fixes
+
+* add prefix when upload_s3 with key ([fed4697](https://github.com/deepmodeling/dflow/commit/fed46970d5271338575b7cccd21fa8027b0fea5e))
+
 ## [1.8.59](https://github.com/deepmodeling/dflow/compare/v1.8.58...v1.8.59) (2024-04-01)
 
 
