@@ -395,7 +395,9 @@ def upload_s3(
     else:
         client = MinioClient(**kwargs)
     if key is not None:
-        pass
+        if not key.startswith(s3_config["prefix"]) and not any(
+                [key.startswith(p) for p in s3_config["extra_prefixes"]]):
+            key = s3_config["prefix"] + key
     elif prefix is not None:
         if prefix[-1] != "/":
             prefix += "/"
