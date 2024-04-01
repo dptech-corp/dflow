@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.59](https://github.com/deepmodeling/dflow/compare/v1.8.58...v1.8.59) (2024-04-01)
+
+
+### Bug Fixes
+
+* object of type Path has no len() in upload_s3 ([8ca08f4](https://github.com/deepmodeling/dflow/commit/8ca08f48c0e6c7f23f1b57480c45ee736ac851d1))
+* race condition in merging outputs in debug mode ([8ca08f4](https://github.com/deepmodeling/dflow/commit/8ca08f48c0e6c7f23f1b57480c45ee736ac851d1))
+
 ## [1.8.58](https://github.com/deepmodeling/dflow/compare/v1.8.57...v1.8.58) (2024-03-29)
 
 
