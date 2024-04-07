@@ -1,7 +1,5 @@
-import jsonpickle
-
 from . import __path__
-from .common import S3Artifact
+from .common import S3Artifact, jsonpickle
 from .config import config
 from .io import (InputArtifact, InputParameter, Inputs, OutputArtifact,
                  OutputParameter)

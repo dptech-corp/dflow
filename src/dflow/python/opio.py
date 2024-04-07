@@ -3,9 +3,7 @@ from collections.abc import MutableMapping
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Union
 
-import jsonpickle
-
-from ..common import CustomHandler, S3Artifact
+from ..common import CustomHandler, S3Artifact, jsonpickle
 from ..config import config
 from ..io import PVC, type_to_str
 

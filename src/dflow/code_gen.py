@@ -1,13 +1,12 @@
 import inspect
 import json
 
-import jsonpickle
-
 from .common import (input_artifact_pattern, input_parameter_pattern,
                      step_output_artifact_pattern,
                      step_output_parameter_pattern,
                      task_output_artifact_pattern,
                      task_output_parameter_pattern)
+from .common import jsonpickle
 from .config import config
 from .dag import DAG
 from .io import InputArtifact, InputParameter, OutputArtifact, OutputParameter
@@ -118,7 +117,7 @@ class CodeGenerator:
                                 "%s.outputs.parameters['%s']" % (
                                     step_dict[match.group(1)], match.group(2)))
                     elif isinstance(par, dict) and "py/object" in par:
-                        self.imports.add((None, "jsonpickle"))
+                        self.imports.add(("dflow", "jsonpickle"))
                         kwargs["parameters"][name] = Variable(
                             "jsonpickle.loads(%s)" % repr(json.dumps(par)))
                 for name, art in kwargs.get("artifacts", {}).items():
@@ -254,7 +253,7 @@ class CodeGenerator:
                                 task_dict[match.group(1)], match.group(2)))
                         dependencies_dict[task["name"]].append(match.group(1))
                 elif isinstance(par, dict) and "py/object" in par:
-                    self.imports.add((None, "jsonpickle"))
+                    self.imports.add(("dflow", "jsonpickle"))
                     kwargs["parameters"][name] = Variable(
                         "jsonpickle.loads(%s)" % repr(json.dumps(par)))
             for name, art in kwargs.get("artifacts", {}).items():

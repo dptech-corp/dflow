@@ -4,10 +4,8 @@ from collections import UserDict
 from copy import copy, deepcopy
 from typing import Any, Dict, List, Optional, Union
 
-import jsonpickle
-
-from .common import (CustomArtifact, LocalArtifact, S3Artifact, param_errmsg,
-                     param_regex)
+from .common import (CustomArtifact, LocalArtifact, S3Artifact, jsonpickle,
+                     param_errmsg, param_regex)
 from .config import config
 from .utils import randstr, s3_config, upload_s3
 

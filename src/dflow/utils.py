@@ -21,9 +21,7 @@ from functools import partial
 from pathlib import Path, PosixPath, WindowsPath
 from typing import Dict, List, Optional, Set, Tuple, Union
 
-import jsonpickle
-
-from .common import LocalArtifact, S3Artifact
+from .common import LocalArtifact, S3Artifact, jsonpickle
 from .config import config, s3_config
 
 try:
