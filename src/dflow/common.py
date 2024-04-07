@@ -8,7 +8,7 @@ from copy import copy, deepcopy
 from importlib import import_module
 from typing import Any, Dict, List, Union
 
-import jsonpickle
+import jsonpickle as jp
 
 from .config import config as global_config
 from .config import s3_config
@@ -45,7 +45,7 @@ task_output_artifact_pattern = re.compile(
     r"^{{tasks\.(.*?)\.outputs\.artifacts\.(.*?)}}$")
 
 
-class CustomHandler(jsonpickle.handlers.BaseHandler):
+class CustomHandler(jp.handlers.BaseHandler):
     def flatten(self, obj, data):
         data.update(obj.to_dict())
         return data
@@ -253,3 +253,16 @@ class CustomArtifact(ABC):
 
     def render(self, template, name: str):
         return template
+
+
+class CustomPickler:
+    __path__ = jp.__path__
+
+    def dumps(self, obj, **kwargs):
+        return jp.dumps(obj, keys=True, **kwargs)
+
+    def loads(self, s, **kwargs):
+        return jp.loads(s, keys=True, **kwargs)
+
+
+jsonpickle = CustomPickler()

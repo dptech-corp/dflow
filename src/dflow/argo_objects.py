@@ -8,8 +8,7 @@ from collections import UserDict, UserList
 from copy import deepcopy
 from typing import Any, List, Union
 
-import jsonpickle
-
+from .common import jsonpickle
 from .config import config, s3_config
 from .io import S3Artifact
 from .op_template import get_k8s_client

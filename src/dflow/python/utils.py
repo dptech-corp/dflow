@@ -5,8 +5,7 @@ import uuid
 from pathlib import Path
 from typing import Dict, List, Set
 
-import jsonpickle
-
+from ..common import jsonpickle
 from ..config import config
 from ..utils import (artifact_classes, assemble_path_object,
                      convert_dflow_list, copy_file, expand, flatten, randstr,

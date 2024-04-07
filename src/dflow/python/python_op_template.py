@@ -4,10 +4,8 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type, Union
 
-import jsonpickle
-
 from .. import __path__
-from ..common import S3Artifact
+from ..common import S3Artifact, jsonpickle
 from ..config import config
 from ..io import (PVC, InputArtifact, InputParameter, Inputs, OutputArtifact,
                   OutputParameter, Outputs)
@@ -449,8 +447,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += handle_packages_script(
                 "%s/inputs/artifacts/dflow_python_packages" % self.tmp_root)
 
-        script += "import json, jsonpickle\n"
-        script += "from dflow import config, s3_config\n"
+        script += "import json\n"
+        script += "from dflow import config, jsonpickle, s3_config\n"
         script += "config.update(jsonpickle.loads(r'''%s'''))\n" % \
             jsonpickle.dumps(config)
         script += "s3_config.update(jsonpickle.loads(r'''%s'''))\n" % \
@@ -483,7 +481,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     script += "%s = cloudpickle.loads(%s)\n" % \
                         (class_name, cloudpickle.dumps(op_class))
 
-        script += "import os, sys, traceback, jsonpickle\n"
+        script += "import os, sys, traceback\n"
         script += "from dflow.python import OPIO, TransientError, FatalError\n"
         script += "from dflow.python.utils import handle_input_artifact," \
                   " handle_input_parameter\n"

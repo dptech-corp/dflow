@@ -6,10 +6,8 @@ import time
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Union
 
-import jsonpickle
-
 from .argo_objects import ArgoStep, ArgoWorkflow
-from .common import subdomain_errmsg, subdomain_regex
+from .common import jsonpickle, subdomain_errmsg, subdomain_regex
 from .config import config, s3_config
 from .context import Context
 from .context_syntax import GLOBAL_CONTEXT

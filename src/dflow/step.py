@@ -10,10 +10,9 @@ import time
 from copy import copy, deepcopy
 from typing import Any, Dict, List, Optional, Union
 
-import jsonpickle
-
 from .common import (CustomArtifact, HTTPArtifact, LocalArtifact, S3Artifact,
-                     field_errmsg, field_regex, key_errmsg, key_regex)
+                     field_errmsg, field_regex, jsonpickle, key_errmsg,
+                     key_regex)
 from .config import config, s3_config
 from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
