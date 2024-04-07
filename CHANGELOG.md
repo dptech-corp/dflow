@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.61](https://github.com/deepmodeling/dflow/compare/v1.8.60...v1.8.61) (2024-04-07)
+
+
+### Bug Fixes
+
+* add keys=True to jsonpickle ([3a0b4de](https://github.com/deepmodeling/dflow/commit/3a0b4de1a4cd7355ff47a1074709886341e024ce))
+
 ## [1.8.60](https://github.com/deepmodeling/dflow/compare/v1.8.59...v1.8.60) (2024-04-01)
 
 
