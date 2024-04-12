@@ -310,6 +310,12 @@ class ArgoStep(ArgoObjectDict):
 
 max_k8s_resource_name_length = 253
 k8s_naming_hash_length = 10
+FNV_32_PRIME = 0x01000193
+FNV1_32_INIT = 0x811c9dc5
+
+
+def get_hash(node_name):
+    return fnva(node_name.encode(), FNV1_32_INIT, FNV_32_PRIME, 2**32)
 
 
 def get_pod_name(wf_name, node_name, template_name, node_id):
@@ -319,12 +325,8 @@ def get_pod_name(wf_name, node_name, template_name, node_id):
     max_prefix_length = max_k8s_resource_name_length - k8s_naming_hash_length
     if len(prefix) > max_prefix_length - 1:
         prefix = prefix[:max_prefix_length-1]
-    hash_val = fnva(node_name.encode(), FNV1_32_INIT, FNV_32_PRIME, 2**32)
+    hash_val = get_hash(node_name)
     return "%s-%s" % (prefix, hash_val)
-
-
-FNV_32_PRIME = 0x01000193
-FNV1_32_INIT = 0x811c9dc5
 
 
 def fnva(data, hval_init, fnv_prime, fnv_size):
