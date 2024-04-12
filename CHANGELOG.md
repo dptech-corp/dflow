@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.62](https://github.com/deepmodeling/dflow/compare/v1.8.61...v1.8.62) (2024-04-12)
+
+
+### Bug Fixes
+
+* downgrade to full query when key(s) not found in the global outputs in query_step_by_key ([cf2156b](https://github.com/deepmodeling/dflow/commit/cf2156b1c8384fad1a78c724ba7ff4d7aa4c7c2a))
+* update key-ID map in global outputs according to the new workflow ID when reusing ([cf2156b](https://github.com/deepmodeling/dflow/commit/cf2156b1c8384fad1a78c724ba7ff4d7aa4c7c2a))
+
 ## [1.8.61](https://github.com/deepmodeling/dflow/compare/v1.8.60...v1.8.61) (2024-04-07)
 
 
