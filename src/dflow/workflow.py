@@ -6,7 +6,7 @@ import time
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Union
 
-from .argo_objects import ArgoStep, ArgoWorkflow
+from .argo_objects import ArgoStep, ArgoWorkflow, get_hash
 from .common import jsonpickle, subdomain_errmsg, subdomain_regex
 from .config import config, s3_config
 from .context import Context
@@ -492,7 +492,10 @@ class Workflow:
                 data = {}
                 if step.key is None:
                     continue
-                key2id[step.key] = step.id
+                node_name = self.id + step.name[len(step.workflow):]
+                hash_val = get_hash(node_name)
+                new_id = "%s-%s" % (self.id, hash_val)
+                key2id[step.key] = new_id
                 self.handle_reused_step(step, global_parameters,
                                         global_artifacts)
 
@@ -1109,9 +1112,11 @@ class Workflow:
             workflow = self.query(
                 fields=['metadata.name'] + [
                     'status.nodes.' + key2id[k] for k in key])
-            return workflow.get_step(name=name, phase=phase, id=id, type=type)
+            steps = workflow.get_step(name=name, phase=phase, id=id, type=type)
+            assert len(steps) > 0
+            return steps
         except Exception:
-            logger.warning("Key-ID map not found in the global outputs, "
+            logger.warning("Key(s) not found in the global outputs, "
                            "downgrade to full query")
             return self.query_step(key=key, name=name, phase=phase, id=id,
                                    type=type)
