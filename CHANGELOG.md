@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.63](https://github.com/deepmodeling/dflow/compare/v1.8.62...v1.8.63) (2024-04-30)
+
+
+### Bug Fixes
+
+* handle reused artifacts for slices of slices ([0e6dad9](https://github.com/deepmodeling/dflow/commit/0e6dad9ee3ae4d2453fbed15ce57043a4d497ea5))
+
 ## [1.8.62](https://github.com/deepmodeling/dflow/compare/v1.8.61...v1.8.62) (2024-04-12)
 
 
