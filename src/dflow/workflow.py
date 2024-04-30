@@ -390,11 +390,21 @@ class Workflow:
                     group_key = step.get("inputs", {}).get(
                         "parameters", {}).get("dflow_group_key", {}).get(
                         "value")
+                    keys = []
+                    if group_key:
+                        keys.append(group_key)
+                        for k, v in step.get("inputs", {}).get(
+                                "parameters", {}).items():
+                            if k.startswith("dflow_artifact_key_"):
+                                keys.append(v)
                     art_key = get_key(art, raise_error=False)
-                    if group_key and ((art_key and art_key.endswith(
-                        "%s/%s" % (group_key, name))) or (
-                        hasattr(art, "modified") and art.modified[
-                            "old_key"].endswith("%s/%s" % (group_key, name)))):
+                    need_handle = False
+                    for k in keys:
+                        if (art_key and art_key.endswith("%s/%s" % (k, name)))\
+                            or (getattr(art, "modified", {}).get(
+                                "old_key", "").endswith("%s/%s" % (k, name))):
+                            need_handle = True
+                    if need_handle:
                         if config["overwrite_reused_artifact"]:
                             self.handle_reused_artifact(step, name, art)
                         else:
