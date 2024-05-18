@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.65](https://github.com/deepmodeling/dflow/compare/v1.8.64...v1.8.65) (2024-05-18)
+
+
+### Bug Fixes
+
+* add switch raise_for_group ([ca77068](https://github.com/deepmodeling/dflow/commit/ca770681b9e6f7459fbb5476868f0bcf20cf544c))
+
 ## [1.8.64](https://github.com/deepmodeling/dflow/compare/v1.8.63...v1.8.64) (2024-04-30)
 
 
