@@ -78,6 +78,7 @@ config = {
     "debug_failfast": boolize(os.environ.get("DFLOW_DEBUG_FAILFAST", False)),
     "debug_save_copy_method": os.environ.get("DFLOW_DEBUG_SAVE_COPY_METHOD",
                                              "symlink"),
+    "raise_for_group": boolize(os.environ.get("DFLOW_RAISE_FOR_GROUP", False)),
 }
 
 

@@ -681,7 +681,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     "\n" % self.tmp_root
                 script += "        f.write(str(len([e for e in error_list if "\
                     "e is None])))\n"
-            else:
+            if not self.success_tag or config["raise_for_group"]:
                 script += "    try:\n"
                 script += "        for error in error_list:\n"
                 script += "            if error is not None:\n"
