@@ -484,15 +484,20 @@ class DispatcherExecutor(Executor):
                 new_template.script += "    f.write(json.dumps(res))\n"
         new_template.script_rendered = True
 
-        # workaround for unavailable exit code of dispatcher
-        # check output files explicitly
-        for art in template.outputs.artifacts.values():
-            new_template.script += "assert os.path.exists('./%s')\n" % art.path
-        for par in template.outputs.parameters.values():
-            if par.save_as_artifact or (par.value_from_path is not None and
-                                        not hasattr(par, "default")):
+        if machine_dict["context_type"] == "Bohrium":
+            new_template.script += "for job in submission.belonging_jobs:\n" \
+                "    assert machine.get_exit_code(job) == 0\n"
+        else:
+            # workaround for unavailable exit code of dispatcher
+            # check output files explicitly
+            for art in template.outputs.artifacts.values():
                 new_template.script += "assert os.path.exists('./%s')\n" % \
-                    par.value_from_path
+                    art.path
+            for par in template.outputs.parameters.values():
+                if par.save_as_artifact or (par.value_from_path is not None and
+                                            not hasattr(par, "default")):
+                    new_template.script += "assert os.path.exists('./%s')\n" %\
+                        par.value_from_path
 
         new_template.script += self.post_script
         if self.private_key_file is not None:
