@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.66](https://github.com/deepmodeling/dflow/compare/v1.8.65...v1.8.66) (2024-05-23)
+
+
+### Bug Fixes
+
+* get exit code explicitly for Bohrium with dispatcher ([568237c](https://github.com/deepmodeling/dflow/commit/568237c7a730442766d9697cc2ebd13bc6c65bcb))
+
 ## [1.8.65](https://github.com/deepmodeling/dflow/compare/v1.8.64...v1.8.65) (2024-05-18)
 
 
