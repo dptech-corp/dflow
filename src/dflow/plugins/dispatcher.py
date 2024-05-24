@@ -336,6 +336,10 @@ class DispatcherExecutor(Executor):
 
         machine_dict["local_root"] = self.work_root
         new_template.script += "import json, shlex\n"
+        if config["dispatcher_debug"]:
+            new_template.script += "import logging\n"
+            new_template.script += "from dpdispatcher.dlog import dlog\n"
+            new_template.script += "dlog.setLevel(logging.DEBUG)\n"
         new_template.script += "from dpdispatcher import Machine, Resources,"\
             " Task, Submission\n"
         new_template.script += "machine = Machine.load_from_dict(json.loads("\
