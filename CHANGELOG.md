@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.67](https://github.com/deepmodeling/dflow/compare/v1.8.66...v1.8.67) (2024-05-24)
+
+
+### Bug Fixes
+
+* add dispatcher_debug ([a4eeb69](https://github.com/deepmodeling/dflow/commit/a4eeb69ad88426c9034780e15187bd225e7141a2))
+
 ## [1.8.66](https://github.com/deepmodeling/dflow/compare/v1.8.65...v1.8.66) (2024-05-23)
 
 
