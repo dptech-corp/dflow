@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.68](https://github.com/deepmodeling/dflow/compare/v1.8.67...v1.8.68) (2024-05-28)
+
+
+### Bug Fixes
+
+* handle sliced recursive super OP with skip_slice_input ([aa530dc](https://github.com/deepmodeling/dflow/commit/aa530dc3fd69367d83f761290989958579739326))
+
 ## [1.8.67](https://github.com/deepmodeling/dflow/compare/v1.8.66...v1.8.67) (2024-05-24)
 
 
