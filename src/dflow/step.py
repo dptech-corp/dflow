@@ -2290,6 +2290,13 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
                 # input parameter referring to sliced input parameter
                 if getattr(par, "value", None) is \
                         templ.inputs.parameters[name]:
+                    templ.inputs.parameters["dflow_skip_slice_input"] = \
+                        InputParameter(value=0)
+                    if hasattr(step.template, "set_skip_slice_input"):
+                        step.template.set_skip_slice_input()
+                    else:
+                        step.template.inputs.parameters[
+                            "dflow_skip_slice_input"] = InputParameter(value=0)
                     step.template.inputs.parameters[slice_par_1] = \
                         InputParameter()
                     step.template.add_slices(Slices(
@@ -2299,6 +2306,9 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
                         pool_size=slices.pool_size), layer=layer+1)
                     step.inputs.parameters[slice_par_1] = InputParameter(
                         value="{{inputs.parameters.%s}}" % slice_par)
+                    step.inputs.parameters["dflow_skip_slice_input"] = \
+                        InputParameter(value="{{inputs.parameters."
+                                       "dflow_skip_slice_input}}")
 
     for name in slices.input_artifact:
         if slices.sub_path:
@@ -2319,6 +2329,13 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
                         "dflow_%s_" % name)])
                     art_name = art.name[6:art.name.rfind("_")]
                 if source_slice:
+                    templ.inputs.parameters["dflow_skip_slice_input"] = \
+                        InputParameter(value=0)
+                    if hasattr(step.template, "set_skip_slice_input"):
+                        step.template.set_skip_slice_input()
+                    else:
+                        step.template.inputs.parameters[
+                            "dflow_skip_slice_input"] = InputParameter(value=0)
                     step.template.inputs.parameters[slice_par_1] = \
                         InputParameter()
                     step.template.add_slices(Slices(
@@ -2328,6 +2345,9 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
                         pool_size=slices.pool_size), layer=layer+1)
                     step.inputs.parameters[slice_par_1] = InputParameter(
                         value="{{inputs.parameters.%s}}" % slice_par)
+                    step.inputs.parameters["dflow_skip_slice_input"] = \
+                        InputParameter(value="{{inputs.parameters."
+                                       "dflow_skip_slice_input}}")
                     if slices.sub_path:
                         step.inputs.parameters[
                             "dflow_%s_sub_path" % art_name] = InputParameter(
@@ -2338,9 +2358,12 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
         if isinstance(par, OutputParameter):
             step = par.step
             if step.template is templ:
+                templ.inputs.parameters["dflow_skip_slice_input"] = \
+                    InputParameter(value=0)
+                step.inputs.parameters["dflow_skip_slice_input"] = \
+                    InputParameter(value=1)
                 step.inputs.parameters[slice_par] = InputParameter(
-                    value="({{inputs.parameters.%s}} if is_outputs else None)"
-                    % slice_par)
+                    value="{{inputs.parameters.%s}}" % slice_par)
                 return
             step.template.inputs.parameters[slice_par_1] = InputParameter()
             step.template.add_slices(Slices(
@@ -2366,9 +2389,12 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
         if isinstance(art, OutputArtifact):
             step = art.step
             if step.template is templ:
+                templ.inputs.parameters["dflow_skip_slice_input"] = \
+                    InputParameter(value=0)
+                step.inputs.parameters["dflow_skip_slice_input"] = \
+                    InputParameter(value=1)
                 step.inputs.parameters[slice_par] = InputParameter(
-                    value="({{inputs.parameters.%s}} if is_outputs else None)"
-                    % slice_par)
+                    value="{{inputs.parameters.%s}}" % slice_par)
                 return
             step.template.inputs.parameters[slice_par_1] = InputParameter()
             step.template.add_slices(Slices(
