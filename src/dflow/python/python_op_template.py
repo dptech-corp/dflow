@@ -212,6 +212,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                  post_script: str = "",
                  success_tag: bool = False,
                  create_slice_dir: bool = False,
+                 skip_slice_input: bool = False,
                  ) -> None:
         self.n_parts = {}
         self.keys_of_parts = {}
@@ -375,6 +376,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         self.output_parameter_slices = {} if output_parameter_slices is None \
             else output_parameter_slices
         self.create_slice_dir = create_slice_dir
+        self.skip_slice_input = skip_slice_input
         self.set_slices(slices)
         self.download_method = "download"
 
@@ -430,6 +432,11 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     "dflow_%s_sub_path}}" % (self.tmp_root, name, name),
                     optional=sign.optional, type=sign.type)
         self.render_script()
+
+    def set_skip_slice_input(self):
+        self.skip_slice_input = True
+        self.inputs.parameters["dflow_skip_slice_input"] = InputParameter(
+            value=0)
 
     def render_script(self):
         op_class = self.op_class
@@ -528,10 +535,12 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                         "inputs/artifacts/%s'))\n" % (
                             name, self.download_method, name, self.tmp_root,
                             name)
-        script += "    is_outputs = False\n"
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(input_artifact_slices, name)
+                if self.skip_slice_input and slices is not None:
+                    slices = "(None if {{inputs.parameters.dflow_skip_slice_"\
+                        "input}} else %s)" % slices
                 if "dflow_%s_sub_path" % name in self.inputs.parameters:
                     script += "    input['%s'] = handle_input_artifact('%s', "\
                         "input_sign['%s'], %s, r'%s', '{{inputs.parameters."\
@@ -547,6 +556,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                             self.input_artifact_prefix.get(name, None))
             else:
                 slices = self.get_slices(input_parameter_slices, name)
+                if self.skip_slice_input and slices is not None:
+                    slices = "(None if {{inputs.parameters.dflow_skip_slice_"\
+                        "input}} else %s)" % slices
                 if isinstance(sign, BigParameter) and \
                         config["mode"] != "debug":
                     script += "    input['%s'] = handle_input_parameter('%s',"\
@@ -636,7 +648,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             % self.tmp_root
         script += "    os.makedirs(r'%s/outputs/artifacts', exist_ok=True)\n" \
             % self.tmp_root
-        script += "    is_outputs = True\n"
         for name, sign in output_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(output_artifact_slices, name)
