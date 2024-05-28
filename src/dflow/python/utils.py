@@ -142,7 +142,7 @@ def handle_input_parameter(name, value, sign, slices=None, data_root="/tmp"):
             content = jsonpickle.loads(f.read())
             obj = content
     else:
-        if isinstance(sign, Parameter):
+        if isinstance(sign, (Parameter, BigParameter)):
             sign = sign.type
         if sign == str and slices is None:
             obj = value
