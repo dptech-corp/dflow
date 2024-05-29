@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.70](https://github.com/deepmodeling/dflow/compare/v1.8.69...v1.8.70) (2024-05-29)
+
+
+### Bug Fixes
+
+* BigParameter(str) in debug mode ([b4f5452](https://github.com/deepmodeling/dflow/commit/b4f54523f5d11d52f2a9e44205c0cc0f892a4162))
+
 ## [1.8.69](https://github.com/deepmodeling/dflow/compare/v1.8.68...v1.8.69) (2024-05-28)
 
 
