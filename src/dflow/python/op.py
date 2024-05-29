@@ -212,11 +212,11 @@ class OP(ABC):
 
             @classmethod
             def get_input_sign(cls):
-                return input_sign
+                return deepcopy(input_sign)
 
             @classmethod
             def get_output_sign(cls):
-                return output_sign
+                return deepcopy(output_sign)
 
             @OP.exec_sign_check
             def execute(self, op_in):
