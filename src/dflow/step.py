@@ -2288,8 +2288,8 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
         for step in steps:
             for par in list(step.inputs.parameters.values()):
                 # input parameter referring to sliced input parameter
-                if getattr(par, "value", None) is \
-                        templ.inputs.parameters[name]:
+                if getattr(par, "value", None) is templ.inputs.parameters[
+                        name] or par.source is templ.inputs.parameters[name]:
                     templ.inputs.parameters["dflow_skip_slice_input"] = \
                         InputParameter(value=0)
                     if hasattr(step.template, "set_skip_slice_input"):
