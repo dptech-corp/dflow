@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.71](https://github.com/deepmodeling/dflow/compare/v1.8.70...v1.8.71) (2024-05-29)
+
+
+### Bug Fixes
+
+* pass on sliced big parameter for sliced super OP ([a2e1867](https://github.com/deepmodeling/dflow/commit/a2e1867843788fe2fb65c6f1aeffa5b5e06aac66))
+
 ## [1.8.70](https://github.com/deepmodeling/dflow/compare/v1.8.69...v1.8.70) (2024-05-29)
 
 
