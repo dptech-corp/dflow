@@ -478,8 +478,7 @@ def catalog_of_artifact(art, **kwargs) -> List[dict]:
             client.download(key=obj, path=os.path.join(tmpdir, fname))
             with open(os.path.join(tmpdir, fname), "r") as f:
                 for item in jsonpickle.loads(f.read())['path_list']:
-                    if item not in catalog:
-                        catalog.append(item)  # remove duplicate
+                    append_item(catalog, item)
     return catalog
 
 
@@ -545,6 +544,22 @@ def copy_file(src, dst, func=try_link):
         raise FileNotFoundError("File %s not found" % src)
 
 
+def append_item(catalog, item):
+    for citem in catalog:
+        # remove duplicate
+        if citem == item:
+            break
+        if citem["order"] == item["order"]:
+            # override None
+            if citem["dflow_list_item"] is None:
+                citem["dflow_list_item"] = item["dflow_list_item"]
+                break
+            if item["dflow_list_item"] is None:
+                break
+    else:
+        catalog.append(item)
+
+
 def catalog_of_local_artifact(art_path, remove=False):
     catalog = []
     if os.path.isdir(art_path):
@@ -553,8 +568,7 @@ def catalog_of_local_artifact(art_path, remove=False):
             for f in os.listdir(catalog_dir):
                 with open(os.path.join(catalog_dir, f), 'r') as fd:
                     for item in jsonpickle.loads(fd.read())['path_list']:
-                        if item not in catalog:
-                            catalog.append(item)  # remove duplicate
+                        append_item(catalog, item)
             if remove:
                 shutil.rmtree(catalog_dir)
     return catalog
