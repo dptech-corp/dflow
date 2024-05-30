@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.72](https://github.com/deepmodeling/dflow/compare/v1.8.71...v1.8.72) (2024-05-30)
+
+
+### Bug Fixes
+
+* `op.function` doesn't work with slices. ([7dec8b9](https://github.com/deepmodeling/dflow/commit/7dec8b9c12863096be5b5ea9b89595ae4bbc4cbc))
+* override None item in assembling path object from artifact catalog ([ecb544f](https://github.com/deepmodeling/dflow/commit/ecb544f62a05efe0cf12aeee9a2d225887c2b417))
+
 ## [1.8.71](https://github.com/deepmodeling/dflow/compare/v1.8.70...v1.8.71) (2024-05-29)
 
 
