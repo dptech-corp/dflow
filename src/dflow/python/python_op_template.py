@@ -73,7 +73,7 @@ class Slices:
         self.sub_path = sub_path
         if slices is not None:
             self.slices = slices
-        elif self.sub_path:
+        elif self.sub_path and group_size is None:
             self.slices = "{{item.order}}"
         else:
             self.slices = "{{item}}"
@@ -401,28 +401,33 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             self.render_script()
 
     def add_slices(self, slices: Slices, layer=0):
+        if slices.sub_path and slices.group_size is not None:
+            self.inputs.parameters["dflow_ngroups"] = InputParameter()
+            slices_slices = "input_slices"
+        else:
+            slices_slices = slices.slices
         if slices.input_artifact and not slices.sub_path:
             for name in slices.input_artifact:
-                self.input_artifact_slices[name] = slices.slices
+                self.input_artifact_slices[name] = slices_slices
         if slices.input_parameter:
             for name in slices.input_parameter:
-                self.input_parameter_slices[name] = slices.slices
+                self.input_parameter_slices[name] = slices_slices
         if slices.output_artifact:
             for name in slices.output_artifact:
                 if name in self.output_artifact_slices:
                     s = str(self.output_artifact_slices[name]).strip("'")
-                    s += "." + slices.slices
+                    s += "." + slices_slices
                     self.output_artifact_slices[name] = "'%s'" % s
                 else:
-                    self.output_artifact_slices[name] = slices.slices
+                    self.output_artifact_slices[name] = slices_slices
                 self.outputs.artifacts[name].archive = None  # no archive
                 if slices.create_dir:
                     self.create_slice_dir = True
         if slices.output_parameter:
             for name in slices.output_parameter:
-                self.output_parameter_slices[name] = slices.slices
+                self.output_parameter_slices[name] = slices_slices
 
-        if slices.sub_path:
+        if slices.sub_path and not slices.group_size:
             for name in slices.input_artifact:
                 self.inputs.parameters["dflow_%s_sub_path" %
                                        name] = InputParameter(value=".")
@@ -535,6 +540,14 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                         "inputs/artifacts/%s'))\n" % (
                             name, self.download_method, name, self.tmp_root,
                             name)
+        if self.slices is not None and self.slices.sub_path and \
+                self.slices.group_size is not None:
+            for name in self.slices.input_artifact:
+                if not self.inputs.artifacts[name].optional:
+                    script += "    from dflow.python.utils import "\
+                        "get_input_slices\n"
+                    script += "    input_slices = get_input_slices('%s', "\
+                        "r'%s')\n" % (name, self.tmp_root)
         for name, sign in input_sign.items():
             if isinstance(sign, Artifact):
                 slices = self.get_slices(input_artifact_slices, name)
@@ -592,7 +605,10 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     "input['%s'] is not None else None\n" % (name, name, name)
             script += "        input_list.append(input1)\n"
             if self.create_slice_dir:
-                slices = self.render_slices(self.slices.slices)
+                if self.slices.sub_path and self.slices.group_size is not None:
+                    slices = "input_slices"
+                else:
+                    slices = self.render_slices(self.slices.slices)
                 script += "    from dflow.python.utils import slice_to_dir\n"
                 script += "    slice_dirs = list(map(slice_to_dir, %s))\n" % \
                     slices
