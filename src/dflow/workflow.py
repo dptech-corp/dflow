@@ -445,14 +445,38 @@ class Workflow:
             return
         memoize_key = "%s-%s-init-artifact" % (self.id, group_key)
         if memoize_key not in self.memoize_map:
+            pars = [{
+                "name": "dflow_artifact_key",
+                "value": art_key_prefix,
+            }]
+            arts = []
+            if "dflow_ngroups" in step.inputs.parameters:
+                pars.append({
+                    "name": "dflow_ngroups",
+                    "value": step.inputs.parameters["dflow_ngroups"].value,
+                })
+                for k, v in step.inputs.artifacts.items():
+                    if hasattr(v, "s3") and hasattr(v.s3, "key"):
+                        v_key = v.s3.key
+                        storage = "s3"
+                    elif hasattr(v, "oss") and hasattr(v.oss, "key"):
+                        v_key = v.oss.key
+                        storage = "oss"
+                    else:
+                        continue
+                    fields = v_key.split("/")
+                    if fields[-2:-1] == [k] and fields[-1].startswith(
+                            "group_"):
+                        arts.append({
+                            "name": k,
+                            storage: {"key": "/".join(fields[:-1])},
+                            "archive": {"none": {}},
+                        })
             self.memoize_map[memoize_key] = {
                 "nodeID": "dflow-%s" % randstr(10),
                 "outputs": {
-                    "parameters": [{
-                        "name": "dflow_artifact_key",
-                        "value": art_key_prefix,
-                    }],
-                    "artifacts": [],
+                    "parameters": pars,
+                    "artifacts": arts,
                 },
                 "creationTimestamp": step.finishedAt,
                 "lastHitTimestamp": step.finishedAt,

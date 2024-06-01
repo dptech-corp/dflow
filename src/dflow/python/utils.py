@@ -8,8 +8,8 @@ from typing import Dict, List, Set
 from ..common import jsonpickle
 from ..config import config
 from ..utils import (artifact_classes, assemble_path_object,
-                     convert_dflow_list, copy_file, expand, flatten, randstr,
-                     remove_empty_dir_tag)
+                     catalog_of_local_artifact, convert_dflow_list, copy_file,
+                     expand, flatten, randstr, remove_empty_dir_tag)
 from .opio import Artifact, BigParameter, NestedDict, Parameter
 
 
@@ -344,3 +344,11 @@ def try_to_execute(input, slice_dir, op_obj, output_sign, cwd):
         traceback.print_exc()
         os.chdir(cwd)
         return None, e
+
+
+def get_input_slices(name, data_root="/tmp"):
+    art_path = '%s/inputs/artifacts/%s' % (data_root, name)
+    catalog = catalog_of_local_artifact(art_path)
+    slices = [item["order"] for item in catalog]
+    slices.sort()
+    return slices

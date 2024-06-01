@@ -9,7 +9,8 @@ from .op_template import PythonScriptOPTemplate, ShellOPTemplate
 class InitArtifactForSlices(PythonScriptOPTemplate):
     def __init__(self, template, image, command, image_pull_policy, key,
                  sliced_output_artifact, sliced_input_artifact, sum_var,
-                 concat_var, auto_loop_artifacts, tmp_root="/tmp"):
+                 concat_var, auto_loop_artifacts, group_size, format="%d",
+                 tmp_root="/tmp"):
         name = template.name
         super().__init__(name="%s-init-artifact" % name, image=image,
                          command=command, image_pull_policy=image_pull_policy)
@@ -20,6 +21,9 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
         self.sum_var = sum_var
         self.concat_var = concat_var
         self.auto_loop_artifacts = auto_loop_artifacts
+        self.template = template
+        self.group_size = group_size
+        self.format = format
         self.tmp_root = tmp_root
 
         if self.key is not None:
@@ -52,13 +56,26 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
                     value="{{pod.name}}",
                     global_name="{{inputs.parameters.dflow_key}}",
                 )
-            for name in self.sliced_input_artifact:
-                self.inputs.artifacts[name] = InputArtifact(
-                    path="%s/inputs/artifacts/%s" % (self.tmp_root, name),
-                    optional=True, sub_path=config["catalog_dir_name"])
-                self.outputs.parameters["dflow_slices_path"] = OutputParameter(
-                    value_from_path="%s/outputs/parameters/dflow_slices_path"
-                    % self.tmp_root, type=dict)
+            if group_size is not None:
+                for name in self.sliced_input_artifact:
+                    self.inputs.artifacts[name] = InputArtifact(
+                        path="%s/inputs/artifacts/%s" % (self.tmp_root, name),
+                        optional=True)
+                    self.outputs.artifacts[name] = OutputArtifact(
+                        path="%s/outputs/artifacts/%s" % (self.tmp_root, name),
+                        archive=None, optional=True)
+                self.outputs.parameters["dflow_ngroups"] = OutputParameter(
+                    value_from_path="%s/outputs/parameters/dflow_ngroups"
+                    % self.tmp_root, type=int)
+            else:
+                for name in self.sliced_input_artifact:
+                    self.inputs.artifacts[name] = InputArtifact(
+                        path="%s/inputs/artifacts/%s" % (self.tmp_root, name),
+                        optional=True, sub_path=config["catalog_dir_name"])
+                    self.outputs.parameters["dflow_slices_path"] = \
+                        OutputParameter(
+                            value_from_path="%s/outputs/parameters/dflow_"\
+                                "slices_path" % self.tmp_root, type=dict)
 
         if self.sum_var is not None:
             name = self.sum_var.name
@@ -110,8 +127,12 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
             required = []
             for i, name in enumerate(self.sliced_input_artifact):
                 script += "path_list_%s = []\n" % i
-                script += "path = r'%s/inputs/artifacts/%s'\n" % \
-                    (self.tmp_root, name)
+                if self.group_size is not None:
+                    script += "path = r'%s/inputs/artifacts/%s/%s'\n" % \
+                        (self.tmp_root, name, config["catalog_dir_name"])
+                else:
+                    script += "path = r'%s/inputs/artifacts/%s'\n" % \
+                        (self.tmp_root, name)
                 script += "if os.path.exists(path):\n"
                 script += "    for f in os.listdir(path):\n"
                 script += "        with open(os.path.join(path, f), 'r')"\
@@ -128,19 +149,69 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
                 script += "assert " + " == ".join(
                     ["len(path_list_%s)" % i for i in required]) + "\n"
 
-            script += "slices_path = []\n"
-            script += "for i in range(len(path_list_%s)):\n" % required[0]
-            script += "    item = {'order': i}\n"
-            for i, name in enumerate(self.sliced_input_artifact):
-                script += "    item['%s'] = path_list_%s[i]"\
-                    "['dflow_list_item'] if path_list_%s else None\n" % (
-                        name, i, i)
-            script += "    slices_path.append(item)\n"
-            script += "os.makedirs(r'%s/outputs/parameters', exist_ok=True)\n"\
-                % self.tmp_root
-            script += "with open(r'%s/outputs/parameters/dflow_slices_path',"\
-                " 'w') as f:\n" % self.tmp_root
-            script += "    json.dump(slices_path, f)\n"
+            if self.group_size is not None:
+                script += "import math, shutil\n"
+                script += "nslices = len(path_list_%s)\n" % required[0]
+                script += "ngroups = math.ceil(nslices/%s)\n" % self.group_size
+                if self.template.slices.shuffle:
+                    script += "import random\n"
+                    script += "random.seed(%s)\n" % \
+                        self.template.slices.random_seed
+                    script += "shuffled = list(range(nslices))\n"
+                    script += "random.shuffle(shuffled)\n"
+                    script += "random.seed()\n"  # unset seed
+                script += "for i in range(ngroups):\n"
+                for i, name in enumerate(self.sliced_input_artifact):
+                    script += "    if not path_list_%s:\n" % i
+                    script += "        continue\n"
+                    script += "    group_dir = r'%s/outputs/artifacts/%s/"\
+                        "group_' + ('%s' %% i)\n" % (
+                            self.tmp_root, name, self.format)
+                    script += "    os.makedirs(group_dir, exist_ok=True)\n"
+                    if self.template.slices.shuffle:
+                        script += "    path_list = [path_list_%s[j] for j in "\
+                            "shuffled[%s*i:%s*(i+1)]]\n" % (
+                                i, self.group_size, self.group_size)
+                    else:
+                        script += "    path_list = path_list_%s[%s*i:%s*(i+1)"\
+                            "]\n" % (i, self.group_size, self.group_size)
+                    script += "    for item in path_list:\n"
+                    script += "        src = r'%s/inputs/artifacts/%s/'+item"\
+                        "['dflow_list_item']\n" % (self.tmp_root, name)
+                    script += "        dst = group_dir+'/'+item['dflow_list"\
+                        "_item']\n"
+                    script += "        os.makedirs(os.path.dirname(dst),"\
+                        " exist_ok=True)\n"
+                    script += "        if os.path.isfile(src):\n"
+                    script += "            shutil.copy(src, dst)\n"
+                    script += "        elif os.path.isdir(src):\n"
+                    script += "            shutil.copytree(src, dst)\n"
+                    script += "    cat = os.path.join(group_dir, '%s')\n" % \
+                        config["catalog_dir_name"]
+                    script += "    os.makedirs(cat, exist_ok=True)\n"
+                    script += "    with open(os.path.join(cat, 'catalog'), "\
+                        "'w') as f:\n"
+                    script += "        json.dump({'path_list': path_list}, f)"\
+                        "\n"
+                script += "os.makedirs(r'%s/outputs/parameters', exist_ok="\
+                    "True)\n" % self.tmp_root
+                script += "with open(r'%s/outputs/parameters/dflow_ngroups'"\
+                    ", 'w') as f:\n" % self.tmp_root
+                script += "    f.write(str(ngroups))\n"
+            else:
+                script += "slices_path = []\n"
+                script += "for i in range(len(path_list_%s)):\n" % required[0]
+                script += "    item = {'order': i}\n"
+                for i, name in enumerate(self.sliced_input_artifact):
+                    script += "    item['%s'] = path_list_%s[i]"\
+                        "['dflow_list_item'] if path_list_%s else None\n" % (
+                            name, i, i)
+                script += "    slices_path.append(item)\n"
+                script += "os.makedirs(r'%s/outputs/parameters', exist_ok="\
+                    "True)\n" % self.tmp_root
+                script += "with open(r'%s/outputs/parameters/dflow_slices_"\
+                    "path', 'w') as f:\n" % self.tmp_root
+                script += "    json.dump(slices_path, f)\n"
 
         if self.sum_var is not None:
             name = self.sum_var.name

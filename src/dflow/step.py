@@ -448,40 +448,46 @@ class Step:
             concat_var = self.with_sequence.count.param.param
 
         sliced_output_artifact = self.template.slices.output_artifact if \
-            hasattr(self.template, "slices") and \
-            self.template.slices is not None else []
+            getattr(self.template, "slices", None) is not None else []
 
         sliced_input_artifact = self.template.slices.input_artifact if \
-            hasattr(self.template, "slices") and \
-            self.template.slices is not None and \
+            getattr(self.template, "slices", None) is not None and \
             self.template.slices.sub_path else []
 
         auto_loop_artifacts = []
-        if hasattr(self.template, "slices") and self.template.slices is not \
-                None and not self.template.slices.sub_path and \
+        if getattr(self.template, "slices", None) is not None and \
+            not self.template.slices.sub_path and \
                 self.with_param is None and self.with_sequence is None:
             if self.template.slices.input_parameter:
                 name = self.template.slices.input_parameter[0]
-                value = self.inputs.parameters[name].value
-                if hasattr(value, "__len__"):
-                    self.with_param = argo_range(len(value))
-                else:
-                    self.with_param = argo_range(argo_len(value))
+                par = self.inputs.parameters[name]
+                if hasattr(par, "value"):
+                    if hasattr(par.value, "__len__"):
+                        self.with_param = argo_range(len(par.value))
+                    else:
+                        self.with_param = argo_range(argo_len(par.value))
+                elif par.source is not None:
+                    self.with_param = argo_range(argo_len(par.source))
             else:
                 assert len(self.template.slices.input_artifact) > 0, "sliced "\
                     "input parameter or artifact must not be empty to infer "\
                     "with_param"
                 auto_loop_artifacts = self.template.slices.input_artifact
 
+        group_size = self.template.slices.group_size if getattr(
+            self.template, "slices", None) is not None else None
+
         if sliced_output_artifact or sliced_input_artifact or \
-                sum_var is not None or concat_var is not None or \
+            sum_var is not None or concat_var is not None or \
                 auto_loop_artifacts:
             self.template = self.template.deepcopy()
+            sequence_format = self.with_sequence.format \
+                if self.with_sequence is not None else "%d"
             init_template = InitArtifactForSlices(
                 self.template, self.util_image, self.util_command,
                 self.util_image_pull_policy, self.key, sliced_output_artifact,
                 sliced_input_artifact, sum_var, concat_var,
-                auto_loop_artifacts)
+                auto_loop_artifacts, group_size, sequence_format)
             if self.key is not None:
                 self.template.inputs.parameters["dflow_group_key"] = \
                     InputParameter(value="")
@@ -562,20 +568,36 @@ class Step:
                 if self.key is not None:
                     self.prepare_step.inputs.parameters["dflow_key"].value = \
                         "%s-init-artifact" % group_key
-                for name in sliced_input_artifact:
-                    self.inputs.parameters["dflow_%s_sub_path" %
-                                           name].value = "{{item.%s}}" % name
-                    v = self.inputs.artifacts[name].source
-                    if isinstance(v, S3Artifact):
+                if group_size is not None:
+                    for name in sliced_input_artifact:
                         self.prepare_step.set_artifacts({
-                            name: v.sub_path(config["catalog_dir_name"])})
+                            name: self.inputs.artifacts[name].source})
                         self.inputs.artifacts[name].source = \
-                            v.sub_path("{{item.%s}}" % name)
-                    elif v is not None:
-                        self.prepare_step.set_artifacts({name: v})
-                        self.inputs.artifacts[name].sp = "{{item.%s}}" % name
-                self.with_param = self.prepare_step.outputs.parameters[
-                    "dflow_slices_path"]
+                            self.prepare_step.outputs.artifacts[name]
+                        self.inputs.artifacts[name].sp = "group_{{item}}"
+                    ngroups = self.prepare_step.outputs.parameters[
+                        "dflow_ngroups"]
+                    self.inputs.parameters["dflow_ngroups"].value = ngroups
+                    if self.with_sequence is not None:
+                        self.with_sequence = argo_sequence(
+                            ngroups, format=self.with_sequence.format)
+                    else:
+                        self.with_param = argo_range(ngroups)
+                else:
+                    for name in sliced_input_artifact:
+                        self.inputs.parameters["dflow_%s_sub_path" %
+                                            name].value = "{{item.%s}}" % name
+                        v = self.inputs.artifacts[name].source
+                        if isinstance(v, S3Artifact):
+                            self.prepare_step.set_artifacts({
+                                name: v.sub_path(config["catalog_dir_name"])})
+                            self.inputs.artifacts[name].source = \
+                                v.sub_path("{{item.%s}}" % name)
+                        elif v is not None:
+                            self.prepare_step.set_artifacts({name: v})
+                            self.inputs.artifacts[name].sp = "{{item.%s}}" % name
+                        self.with_param = self.prepare_step.outputs.parameters[
+                            "dflow_slices_path"]
 
             for name in sliced_output_artifact:
                 self.outputs.artifacts[name].redirect = \
@@ -635,8 +657,9 @@ class Step:
                 self.with_param = argo_range(
                     self.prepare_step.outputs.parameters["dflow_nslices"])
 
-        if hasattr(self.template, "slices") and self.template.slices is not \
-                None and self.template.slices.group_size is not None:
+        if getattr(self.template, "slices", None) is not None and \
+            self.template.slices.group_size is not None and \
+                not self.template.slices.sub_path:
             self.template = self.template.deepcopy()
             group_size = self.template.slices.group_size
             self.template.inputs.parameters["dflow_nslices"] = InputParameter()
