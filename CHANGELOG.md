@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.73](https://github.com/deepmodeling/dflow/compare/v1.8.72...v1.8.73) (2024-06-01)
+
+
+### Bug Fixes
+
+* support group_size for subpath mode of slices ([c43da1a](https://github.com/deepmodeling/dflow/commit/c43da1a47bb312bc0d25a363d8550d9defa0017e))
+
 ## [1.8.72](https://github.com/deepmodeling/dflow/compare/v1.8.71...v1.8.72) (2024-05-30)
 
 
