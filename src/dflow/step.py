@@ -1294,6 +1294,7 @@ class Step:
                     InputParameter(value=None)
                 self.inputs.parameters["dflow_sequence_format"] = \
                     InputParameter(value="")
+                key = "0"
                 if self.with_param is not None:
                     self.inputs.parameters["dflow_with_param"].value = \
                         self.with_param
@@ -1313,9 +1314,11 @@ class Step:
                     self.inputs.parameters["dflow_sequence_format"].value = \
                         format
                     self.with_sequence = None
+                    if format is not None:
+                        key = format % 0
                 if self.key is not None:
                     self.inputs.parameters["dflow_key"] = InputParameter(
-                        value=str(self.key).replace("{{item}}", "merged"))
+                        value=str(self.key).replace("{{item}}", key))
         elif context is not None:
             self.template = context.render(self.template)
 
