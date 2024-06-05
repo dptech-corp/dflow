@@ -554,7 +554,8 @@ class Workflow:
                                  memoize_configmap="dflow")
             if config["save_keys_in_global_outputs"]:
                 for key, id in key2id.items():
-                    global_parameters[key] = {"name": key, "value": id}
+                    name = "dflow_key_" + key
+                    global_parameters[name] = {"name": name, "value": id}
         else:
             self.handle_template(self.entrypoint)
 
@@ -1092,24 +1093,13 @@ class Workflow:
         if config["mode"] == "debug":
             return [step.key for step in self.query_step()
                     if step.key is not None]
-        try:
-            try:
-                response = self.api_instance.api_client.call_api(
-                    '/api/v1/workflows/%s/%s' % (self.namespace, self.id),
-                    'GET', response_type=object, _return_http_data_only=True,
-                    header_params=config["http_headers"],
-                    query_params=[('fields', 'status.outputs')])
-            except Exception:
-                response = self.api_instance.api_client.call_api(
-                    '/api/v1/archived-workflows/%s' % self.uid,
-                    'GET', response_type=object, _return_http_data_only=True,
-                    header_params=config["http_headers"],
-                    query_params=[('fields', 'status.outputs')])
-            return [par["name"] for par in
-                    response["status"]["outputs"]["parameters"]]
-        except Exception:
-            logger.warning("Key-ID map not found in the global outputs, "
-                           "downgrade to full query")
+        outputs = self.query_global_outputs()
+        if hasattr(outputs, "parameters") and any([par.startswith(
+                "dflow_key_") for par in outputs.parameters]):
+            return [par[10:] for par in outputs.parameters]
+        else:
+            logger.debug("Key-ID map not found in the global outputs, "
+                         "downgrade to full query")
             return [step.key for step in self.query_step()
                     if step.key is not None]
 
@@ -1135,23 +1125,23 @@ class Workflow:
         if isinstance(key, str):
             key = [key]
 
-        try:
-            workflow = self.query(fields=['metadata.name', 'status.outputs'])
-            wf_name = workflow.metadata.name
+        outputs = self.query_global_outputs()
+        if hasattr(outputs, "parameters") and any([par.startswith(
+                "dflow_key_") for par in outputs.parameters]):
+            wf_name = outputs.workflow
             key2id = {}
-            for par in workflow.status.outputs.parameters:
-                pod_name = par["value"]
-                key2id[par["name"]] = wf_name + "-" + pod_name.split("-")[-1]
+            for par in outputs.parameters:
+                pod_name = outputs.parameters[par]["value"]
+                key2id[par[10:]] = wf_name + "-" + pod_name.split("-")[-1]
 
             workflow = self.query(
                 fields=['metadata.name'] + [
                     'status.nodes.' + key2id[k] for k in key])
             steps = workflow.get_step(name=name, phase=phase, id=id, type=type)
-            assert len(steps) > 0
             return steps
-        except Exception:
-            logger.warning("Key(s) not found in the global outputs, "
-                           "downgrade to full query")
+        else:
+            logger.debug("Key-ID map not found in the global outputs, "
+                         "downgrade to full query")
             return self.query_step(key=key, name=name, phase=phase, id=id,
                                    type=type)
 
@@ -1197,6 +1187,7 @@ class Workflow:
         workflow = self.query(fields=['metadata.name', 'status.outputs'])
         step = ArgoStep(workflow.status, workflow.metadata.name)
         if hasattr(step, "outputs"):
+            step.outputs.workflow = step.workflow
             return step.outputs
         else:
             return None

@@ -52,7 +52,7 @@ config = {
     "dispatcher_image_pull_policy": os.environ.get(
         "DFLOW_DISPATCHER_IMAGE_PULL_POLICY", None),
     "save_keys_in_global_outputs": boolize(os.environ.get(
-        "DFLOW_SAVE_KEYS_IN_GLOBAL_OUTPUTS", True)),
+        "DFLOW_SAVE_KEYS_IN_GLOBAL_OUTPUTS", False)),
     "mode": os.environ.get("DFLOW_MODE", "default"),
     "lineage": None,
     "register_tasks": boolize(os.environ.get("DFLOW_REGISTER_TASKS", False)),

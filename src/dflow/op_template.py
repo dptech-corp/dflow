@@ -148,14 +148,14 @@ class OPTemplate:
             if global_config["save_keys_in_global_outputs"]:
                 if hasattr(self, "image"):
                     self.outputs.parameters["dflow_global"] = OutputParameter(
-                        value="{{pod.name}}",
-                        global_name="{{inputs.parameters.dflow_key}}",
+                        value="{{pod.name}}", global_name="dflow_key_"
+                        "{{inputs.parameters.dflow_key}}",
                     )
                 else:
                     self.outputs.parameters["dflow_global"] = OutputParameter(
                         value_from_parameter="non-exists",
-                        default="{{node.id}}",
-                        global_name="{{inputs.parameters.dflow_key}}",
+                        default="{{node.id}}", global_name="dflow_key_"
+                        "{{inputs.parameters.dflow_key}}",
                     )
         elif "dflow_group_key" in self.inputs.parameters:
             if memoize_prefix is not None:
