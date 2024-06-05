@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.75](https://github.com/deepmodeling/dflow/compare/v1.8.74...v1.8.75) (2024-06-05)
+
+
+### Bug Fixes
+
+* key and group_size for merge_sliced_step ([3fec184](https://github.com/deepmodeling/dflow/commit/3fec184be23949792ca68cd07234c9111d30c15c))
+
 ## [1.8.74](https://github.com/deepmodeling/dflow/compare/v1.8.73...v1.8.74) (2024-06-05)
 
 
