@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.74](https://github.com/deepmodeling/dflow/compare/v1.8.73...v1.8.74) (2024-06-05)
+
+
+### Bug Fixes
+
+* set save_keys_in_global_outputs to False by default ([192db78](https://github.com/deepmodeling/dflow/commit/192db78d4bf1e7ad275ebe3b7e0fa619d2d20083))
+
 ## [1.8.73](https://github.com/deepmodeling/dflow/compare/v1.8.72...v1.8.73) (2024-06-01)
 
 
