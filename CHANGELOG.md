@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.77](https://github.com/deepmodeling/dflow/compare/v1.8.76...v1.8.77) (2024-06-06)
+
+
+### Bug Fixes
+
+* add pool_timeout to Slices ([c1de9b1](https://github.com/deepmodeling/dflow/commit/c1de9b13e7f046347e2dd184b96b934080104fe5))
+
 ## [1.8.76](https://github.com/deepmodeling/dflow/compare/v1.8.75...v1.8.76) (2024-06-06)
 
 
