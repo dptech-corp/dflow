@@ -1,5 +1,6 @@
 import os
 import shutil
+import signal
 import traceback
 import uuid
 from pathlib import Path
@@ -328,11 +329,18 @@ def absolutize(path):
         return {k: absolutize(p) for k, p in path.items()}
 
 
-def try_to_execute(input, slice_dir, op_obj, output_sign, cwd):
+def sigalrm_handler(signum, frame):
+    raise TimeoutError("Timeout")
+
+
+def try_to_execute(input, slice_dir, op_obj, output_sign, cwd, timeout=None):
     os.chdir(cwd)
     if slice_dir is not None:
         os.makedirs(slice_dir, exist_ok=True)
         os.chdir(slice_dir)
+    if timeout is not None:
+        signal.signal(signal.SIGALRM, sigalrm_handler)
+        signal.alarm(timeout)
     try:
         output = op_obj.execute(input)
         for n, s in output_sign.items():
@@ -344,6 +352,9 @@ def try_to_execute(input, slice_dir, op_obj, output_sign, cwd):
         traceback.print_exc()
         os.chdir(cwd)
         return None, e
+    finally:
+        if timeout is not None:
+            signal.alarm(0)
 
 
 def get_input_slices(name, data_root="/tmp"):
