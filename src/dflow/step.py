@@ -953,6 +953,9 @@ class Step:
                 }
             )
 
+        if hasattr(self.executor, "modify_step"):
+            self.executor.modify_step(self)
+
         if GLOBAL_CONTEXT.in_context:
             if not self.name.endswith('init-artifact'):
                 GLOBAL_CONTEXT.current_workflow.add(self)

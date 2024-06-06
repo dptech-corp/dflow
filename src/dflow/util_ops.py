@@ -8,22 +8,26 @@ from .op_template import PythonScriptOPTemplate, ShellOPTemplate
 
 class InitArtifactForSlices(PythonScriptOPTemplate):
     def __init__(self, template, image, command, image_pull_policy, key,
-                 sliced_output_artifact, sliced_input_artifact, sum_var,
-                 concat_var, auto_loop_artifacts, group_size, format="%d",
+                 sliced_output_artifact=None, sliced_input_artifact=None,
+                 sum_var=None, concat_var=None, auto_loop_artifacts=None,
+                 group_size=None, format="%d", post_script="",
                  tmp_root="/tmp"):
         name = template.name
         super().__init__(name="%s-init-artifact" % name, image=image,
                          command=command, image_pull_policy=image_pull_policy)
         self.origin = template
         self.key = key
-        self.sliced_output_artifact = sliced_output_artifact
-        self.sliced_input_artifact = sliced_input_artifact
+        self.sliced_output_artifact = sliced_output_artifact \
+            if sliced_output_artifact is not None else []
+        self.sliced_input_artifact = sliced_input_artifact \
+            if sliced_input_artifact is not None else []
         self.sum_var = sum_var
         self.concat_var = concat_var
         self.auto_loop_artifacts = auto_loop_artifacts
         self.template = template
         self.group_size = group_size
         self.format = format
+        self.post_script = post_script
         self.tmp_root = tmp_root
 
         if self.key is not None:
@@ -278,6 +282,7 @@ with open(r'%s/outputs/parameters/concat_%s', 'w') as f:
                 " as f:\n" % self.tmp_root
             script += "    f.write(str(len(input['%s'])))\n" % required[0]
 
+        script += self.post_script.format(**{"tmp_root": self.tmp_root})
         self.script = script
 
 

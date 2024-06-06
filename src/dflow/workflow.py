@@ -472,6 +472,11 @@ class Workflow:
                             storage: {"key": "/".join(fields[:-1])},
                             "archive": {"none": {}},
                         })
+            if "bohr_job_group_id" in step.inputs.parameters:
+                pars.append({
+                    "name": "bohr_job_group_id",
+                    "value": step.inputs.parameters["bohr_job_group_id"].value,
+                })
             self.memoize_map[memoize_key] = {
                 "nodeID": "dflow-%s" % randstr(10),
                 "outputs": {
