@@ -4,15 +4,17 @@ import os
 from abc import ABC
 from copy import deepcopy
 from getpass import getpass
+import re
 from typing import Dict, List, Optional, Union
 
 from ..common import CustomArtifact, S3Artifact
 from ..config import config
 from ..executor import Executor, render_script_with_tmp_root, run_script
-from ..io import InputArtifact, InputParameter
+from ..io import InputArtifact, InputParameter, OutputParameter
 from ..op_template import ScriptOPTemplate
 from ..python import PythonOPTemplate
 from ..python.python_op_template import handle_packages_script
+from ..util_ops import InitArtifactForSlices
 from ..utils import randstr, upload_s3
 
 try:
@@ -86,6 +88,7 @@ class DispatcherExecutor(Executor):
                  clean: bool = True,
                  remove_scheduling_strategies: bool = True,
                  envs: Optional[Dict[str, str]] = None,
+                 merge_bohrium_job_group: bool = False,
                  ) -> None:
         self.host = host
         self.queue_name = queue_name
@@ -123,6 +126,7 @@ class DispatcherExecutor(Executor):
         self.clean = clean
         self.remove_scheduling_strategies = remove_scheduling_strategies
         self.envs = envs
+        self.merge_bohrium_job_group = merge_bohrium_job_group
 
         conf = {}
         if json_file is not None:
@@ -228,6 +232,72 @@ class DispatcherExecutor(Executor):
         }
         if task_dict is not None:
             update_dict(self.task_dict, task_dict)
+
+    def modify_step(self, step):
+        if not self.merge_bohrium_job_group:
+            return
+        assert self.machine_dict["context_type"] == "Bohrium"
+        assert getattr(step.template, "slices", None) is not None
+        if step.prepare_step is None:
+            init_template = InitArtifactForSlices(
+                template=step.template,
+                image=step.util_image,
+                command=step.util_command,
+                image_pull_policy=step.util_image_pull_policy,
+                key=step.key)
+            step.prepare_step = step.__class__(
+                name="%s-init-artifact" % step.name,
+                template=init_template)
+            step.prepare_step.inputs.parameters["dflow_group_key"] = \
+                InputParameter(
+                    value=re.sub("{{=?item.*}}", "group", str(step.key)))
+        init_template = step.prepare_step.template
+        init_template.outputs.parameters["bohr_job_group_id"] = \
+            OutputParameter(
+                value_from_path="%s/outputs/parameters/"
+                "bohr_job_group_id" % init_template.tmp_root)
+        step.prepare_step.outputs.parameters["bohr_job_group_id"] = \
+            deepcopy(init_template.outputs.parameters[
+                "bohr_job_group_id"])
+        script = "import json, os\n"
+        if step.key is not None:
+            group_name = "{{{{workflow.name}}}}-"\
+                "{{{{inputs.parameters.dflow_group_key}}}}"
+        else:
+            group_name = "{{{{pod.name}}}}"
+        from . import bohrium
+        add_url = "%s/brm/v1/job_group/add" % bohrium.config["bohrium_url"]
+        data = '{{"name": "%s", "projectId": %s}}' % (
+            group_name, self.machine_dict["remote_profile"]["program_id"])
+        headers = "-H 'Content-type: application/json'"
+        if self.bohrium_ticket is not None:
+            headers += " -H 'Brm-Ticket: %s'" % self.bohrium_ticket
+            cmd = "curl -X POST %s -d '%s' %s" % (headers, data, add_url)
+            script += """ret = os.popen('''%s''').read()\n""" % cmd
+        else:
+            login_data = '{{"username": "%s", "password": "%s"}}' % (
+                self.machine_dict["remote_profile"]["email"],
+                self.machine_dict["remote_profile"]["password"])
+            login_url = "%s/account/login" % bohrium.config["bohrium_url"]
+            cmd = "curl -X POST -d '%s' %s" % (login_data, login_url)
+            script += """ret = os.popen('''%s''').read()\n""" % cmd
+            script += "print(ret)\n"
+            script += "token = json.loads(ret)['data']['token']\n"
+            headers += " -H 'Authorization: Bearer %s'"
+            cmd = "curl -X POST %s -d '%s' %s" % (headers, data, add_url)
+            script += """ret = os.popen('''%s''' %% token).read()\n""" % cmd
+        script += "print(ret)\n"
+        script += "group_id = json.loads(ret)['data']['groupId']\n"
+        script += "os.makedirs('{tmp_root}/outputs/parameters', "\
+            "exist_ok=True)\n"
+        script += "with open('{tmp_root}/outputs/parameters/"\
+            "bohr_job_group_id', 'w') as f:\n"
+        script += "    f.write(str(group_id))\n"
+        init_template.post_script = script
+        init_template.render_script()
+        step.inputs.parameters["bohr_job_group_id"] = InputParameter(
+            value=step.prepare_step.outputs.parameters[
+                "bohr_job_group_id"])
 
     def render(self, template):
         if not isinstance(template, ScriptOPTemplate):
@@ -348,8 +418,18 @@ class DispatcherExecutor(Executor):
             new_template.script += "dlog.setLevel(logging.DEBUG)\n"
         new_template.script += "from dpdispatcher import Machine, Resources,"\
             " Task, Submission\n"
+        machine_json = json.dumps(machine_dict)
+        if self.merge_bohrium_job_group:
+            new_template.inputs.parameters["bohr_job_group_id"] = \
+                InputParameter()
+            machine_dict["remote_profile"]["input_data"]["bohr_job_group_id"]\
+                = "{{inputs.parameters.bohr_job_group_id}}"
+            machine_json = json.dumps(machine_dict)
+            machine_json = machine_json.replace(
+                "\"{{inputs.parameters.bohr_job_group_id}}\"",
+                "{{inputs.parameters.bohr_job_group_id}}")
         new_template.script += "machine = Machine.load_from_dict(json.loads("\
-            "r'%s'))\n" % json.dumps(machine_dict)
+            "r'%s'))\n" % machine_json
         for name, art in template.inputs.artifacts.items():
             if machine_dict["context_type"] == "Bohrium" and \
                     art.save_as_parameter:
