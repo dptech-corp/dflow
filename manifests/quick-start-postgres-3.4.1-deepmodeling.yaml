@@ -1882,7 +1882,7 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.name
-        image: registry.dp.tech/deepmodeling/workflow-controller:3.4.1-202405221942
+        image: registry.dp.tech/deepmodeling/workflow-controller:3.4.1-202405311738
         livenessProbe:
           failureThreshold: 3
           httpGet:
