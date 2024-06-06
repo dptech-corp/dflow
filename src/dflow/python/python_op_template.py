@@ -59,6 +59,7 @@ class Slices:
             shuffle: bool = False,
             random_seed: int = 0,
             pool_size: Optional[int] = None,
+            pool_timeout: Optional[int] = None,
             register_first_only: bool = False,
             create_dir: bool = False,
     ) -> None:
@@ -81,6 +82,7 @@ class Slices:
         self.shuffle = shuffle
         self.random_seed = random_seed
         self.pool_size = pool_size
+        self.pool_timeout = pool_timeout
         self.register_first_only = register_first_only
         self.create_dir = create_dir
 
@@ -518,7 +520,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "    from dflow.python.utils import try_to_execute\n"
             script += "    from functools import partial\n"
             script += "    try_to_execute = partial(try_to_execute, "\
-                "op_obj=op_obj, output_sign=output_sign, cwd=os.getcwd())\n"
+                "op_obj=op_obj, output_sign=output_sign, cwd=os.getcwd(), "\
+                "timeout=%s)\n" % self.slices.pool_timeout
             script += "    from typing import List\n"
             script += "    from pathlib import Path\n"
             for name in self.slices.input_artifact:
