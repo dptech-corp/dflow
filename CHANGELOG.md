@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.76](https://github.com/deepmodeling/dflow/compare/v1.8.75...v1.8.76) (2024-06-06)
+
+
+### Bug Fixes
+
+* add merge_bohrium_job_group to dispatcher executor ([90d8f99](https://github.com/deepmodeling/dflow/commit/90d8f9969c405280baa61d780618eb0271e37b60))
+
 ## [1.8.75](https://github.com/deepmodeling/dflow/compare/v1.8.74...v1.8.75) (2024-06-05)
 
 
