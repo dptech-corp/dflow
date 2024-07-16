@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.78](https://github.com/deepmodeling/dflow/compare/v1.8.77...v1.8.78) (2024-07-16)
+
+
+### Bug Fixes
+
+* add DFLOW_TEMPDIR ([efaa966](https://github.com/deepmodeling/dflow/commit/efaa966e49b6e2fef1204172e48b8e2f8c931e23))
+
 ## [1.8.77](https://github.com/deepmodeling/dflow/compare/v1.8.76...v1.8.77) (2024-06-06)
 
 
