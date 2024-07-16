@@ -1,5 +1,6 @@
 import os
 import json
+import tempfile
 
 
 def boolize(s):
@@ -157,3 +158,7 @@ def set_s3_config(
         extra_prefixes: extra prefixes ignored by auto-prefixing
     """
     s3_config.update(kwargs)
+
+
+if os.environ.get("DFLOW_TEMPDIR"):
+    tempfile.tempdir = os.environ.get("DFLOW_TEMPDIR")
