@@ -56,10 +56,11 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
         if self.sliced_input_artifact:
             if self.key is not None:
                 self.inputs.parameters["dflow_key"] = InputParameter()
-                self.outputs.parameters["dflow_global"] = OutputParameter(
-                    value="{{pod.name}}",
-                    global_name="{{inputs.parameters.dflow_key}}",
-                )
+                if config["save_keys_in_global_outputs"]:
+                    self.outputs.parameters["dflow_global"] = OutputParameter(
+                        value="{{pod.name}}",
+                        global_name="{{inputs.parameters.dflow_key}}",
+                    )
             if group_size is not None:
                 for name in self.sliced_input_artifact:
                     self.inputs.artifacts[name] = InputArtifact(
