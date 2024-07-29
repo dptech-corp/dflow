@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.79](https://github.com/deepmodeling/dflow/compare/v1.8.78...v1.8.79) (2024-07-29)
+
+
+### Bug Fixes
+
+* override inferred dependencies if specified explicitly for task ([d312dfe](https://github.com/deepmodeling/dflow/commit/d312dfef33b6067e02c1bdebd48444e4a1c5a427))
+* render item for super OP ([d312dfe](https://github.com/deepmodeling/dflow/commit/d312dfef33b6067e02c1bdebd48444e4a1c5a427))
+
 ## [1.8.78](https://github.com/deepmodeling/dflow/compare/v1.8.77...v1.8.78) (2024-07-16)
 
 
