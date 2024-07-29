@@ -1862,7 +1862,7 @@ class Step:
                 f.write(self.name)
             self.record_input_parameters(stepdir, steps.inputs.parameters)
             self.record_input_artifacts(stepdir, self.inputs.artifacts,
-                                        None, scope, True)
+                                        item, scope, True)
 
         for name, art in self.inputs.artifacts.items():
             art_path = os.path.join(stepdir, "inputs/artifacts/%s" % name)

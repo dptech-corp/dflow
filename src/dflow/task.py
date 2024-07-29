@@ -45,10 +45,11 @@ class Task(Step):
             dependencies: Optional[List[Union["Task", str]]] = None,
             **kwargs,
     ) -> None:
-        if dependencies is None:
-            dependencies = []
-        self.dependencies = dependencies
+        self.dependencies = []
         super().__init__(name=name, template=template, **kwargs)
+        # override inferred dependencies if specified explicitly
+        if dependencies is not None:
+            self.dependencies = dependencies
         if self.prepare_step is not None:
             self.dependencies.append(self.prepare_step)
         if self.check_step is not None:
