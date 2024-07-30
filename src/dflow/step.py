@@ -1712,10 +1712,7 @@ class Step:
                         sub_path = render_item(sub_path, item)
                     force_link(os.path.join(art.source.local_path, sub_path),
                                art_path)
-                elif isinstance(
-                        art.source,
-                        InputArtifact) and art.optional and not hasattr(
-                            art.source, 'local_path'):
+                elif art.optional and not hasattr(art.source, 'local_path'):
                     continue
                 else:
                     force_link(art.source.local_path, art_path)
@@ -1757,6 +1754,8 @@ class Step:
     def record_output_artifacts(self, stepdir, artifacts):
         os.makedirs(os.path.join(stepdir, "outputs/artifacts"), exist_ok=True)
         for name, art in artifacts.items():
+            if art.optional and not hasattr(art, "local_path"):
+                continue
             art_path = os.path.join(stepdir, "outputs/artifacts/%s" % name)
             force_link(art.local_path, art_path)
             if art.global_name is not None:
@@ -2473,6 +2472,9 @@ def download_artifact_debug(artifact, path):
 
 def download_with_lock(download, path):
     if os.path.exists(path):
+        # wait for the download to complete
+        while os.path.exists(path + ".lock"):
+            time.sleep(1)
         return
     else:
         os.makedirs(os.path.dirname(path), exist_ok=True)
