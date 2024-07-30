@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.8.80](https://github.com/deepmodeling/dflow/compare/v1.8.79...v1.8.80) (2024-07-30)
+
+
+### Bug Fixes
+
+* debug: optional artifact from output artifact ([925aee9](https://github.com/deepmodeling/dflow/commit/925aee946c6ee4feacbbcf839fd5e5916a652b62))
+* debug: optional output artifact ([925aee9](https://github.com/deepmodeling/dflow/commit/925aee946c6ee4feacbbcf839fd5e5916a652b62))
+* debug: wait for the download to complete ([925aee9](https://github.com/deepmodeling/dflow/commit/925aee946c6ee4feacbbcf839fd5e5916a652b62))
+
 ## [1.8.79](https://github.com/deepmodeling/dflow/compare/v1.8.78...v1.8.79) (2024-07-29)
 
 
