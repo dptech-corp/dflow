@@ -261,7 +261,7 @@ class DAG(OPTemplate):
             future = next(concurrent.futures.as_completed(futures))
             j = futures.pop(future)
             try:
-                t = future.result()
+                phase, pars, arts = future.result()
             except Exception:
                 import traceback
                 traceback.print_exc()
@@ -269,15 +269,13 @@ class DAG(OPTemplate):
                 if not self.tasks[j].continue_on_failed:
                     raise RuntimeError("Task %s failed" % self.tasks[j])
             else:
-                for name, par in t.outputs.parameters.items():
-                    if hasattr(par, "value"):
-                        self.tasks[j].outputs.parameters[
-                            name].value = par.value
-                for name, art in t.outputs.artifacts.items():
-                    if hasattr(art, "local_path"):
-                        self.tasks[j].outputs.artifacts[
-                            name].local_path = art.local_path
-                self.tasks[j].phase = t.phase
+                for name, value in pars.items():
+                    self.tasks[j].outputs.parameters[
+                        name].value = value
+                for name, path in arts.items():
+                    self.tasks[j].outputs.artifacts[
+                        name].local_path = path
+                self.tasks[j].phase = phase
                 logging.info("Outputs of %s collected" % self.tasks[j])
             self.running.remove(self.tasks[j])
             self.finished.append(self.tasks[j])
