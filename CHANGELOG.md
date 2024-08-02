@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.82](https://github.com/deepmodeling/dflow/compare/v1.8.81...v1.8.82) (2024-08-02)
+
+
+### Bug Fixes
+
+* subprocesses only return phase, output parameter values and output artifact paths ([778c948](https://github.com/deepmodeling/dflow/commit/778c94846af43eb8ab00ef57d60a5782f8b5cd87))
+
 ## [1.8.81](https://github.com/deepmodeling/dflow/compare/v1.8.80...v1.8.81) (2024-08-02)
 
 
