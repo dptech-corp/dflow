@@ -271,7 +271,7 @@ class Steps(OPTemplate):
                     for future in concurrent.futures.as_completed(futures):
                         j = futures.index(future)
                         try:
-                            ps = future.result()
+                            phase, pars, arts = future.result()
                         except Exception:
                             import traceback
                             traceback.print_exc()
@@ -279,14 +279,12 @@ class Steps(OPTemplate):
                             if not step[j].continue_on_failed:
                                 raise RuntimeError("Step %s failed" % step[j])
                         else:
-                            for name, par in ps.outputs.parameters.items():
-                                if hasattr(par, "value"):
-                                    step[j].outputs.parameters[
-                                        name].value = par.value
-                            for name, art in ps.outputs.artifacts.items():
-                                if hasattr(art, "local_path"):
-                                    step[j].outputs.artifacts[
-                                        name].local_path = art.local_path
+                            for name, value in pars.items():
+                                step[j].outputs.parameters[
+                                    name].value = value
+                            for name, path in arts.items():
+                                step[j].outputs.artifacts[
+                                    name].local_path = path
                             logging.info("Outputs of %s collected" % step[j])
             else:
                 step.run(self, context)

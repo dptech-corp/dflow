@@ -1588,7 +1588,7 @@ class Step:
                 for future in concurrent.futures.as_completed(futures):
                     j = futures.index(future)
                     try:
-                        ps = future.result()
+                        phase, pars, arts = future.result()
                     except Exception:
                         import traceback
                         traceback.print_exc()
@@ -1601,14 +1601,12 @@ class Step:
                             else:
                                 failed.append(self.parallel_steps[j])
                     else:
-                        for name, par in ps.outputs.parameters.items():
-                            if hasattr(par, "value"):
-                                self.parallel_steps[j].outputs.parameters[
-                                    name].value = par.value
-                        for name, art in ps.outputs.artifacts.items():
-                            if hasattr(art, "local_path"):
-                                self.parallel_steps[j].outputs.artifacts[
-                                    name].local_path = art.local_path
+                        for name, value in pars.items():
+                            self.parallel_steps[j].outputs.parameters[
+                                name].value = value
+                        for name, path in arts.items():
+                            self.parallel_steps[j].outputs.artifacts[
+                                name].local_path = path
                         logging.info("Outputs of %s collected" %
                                      self.parallel_steps[j])
                 if len(failed) > 0:
@@ -1650,7 +1648,11 @@ class Step:
         self.run(scope, context)
         logging.info("Step %s finishes in process %s" % (
             self.name, os.getpid()))
-        return self
+        pars = {name: par.value for name, par in
+                self.outputs.parameters.items() if hasattr(par, "value")}
+        arts = {name: art.local_path for name, art in
+                self.outputs.artifacts.items() if hasattr(art, "local_path")}
+        return self.phase, pars, arts
 
     def record_input_parameters(self, stepdir, parameters):
         os.makedirs(os.path.join(stepdir, "inputs/parameters"), exist_ok=True)
@@ -2125,7 +2127,11 @@ class Step:
         self.exec(scope, parameters, item, context)
         logging.info("Step %s with item %s finishes in process %s" % (
             self.name, item, os.getpid()))
-        return self
+        pars = {name: par.value for name, par in
+                self.outputs.parameters.items() if hasattr(par, "value")}
+        arts = {name: art.local_path for name, art in
+                self.outputs.artifacts.items() if hasattr(art, "local_path")}
+        return self.phase, pars, arts
 
 
 def render_item(expr, item):
