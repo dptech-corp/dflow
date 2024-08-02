@@ -1,7 +1,6 @@
 import logging
 import os
 import sys
-from copy import deepcopy
 from typing import Dict, List, Optional, Union
 
 from .common import (input_artifact_pattern, input_parameter_pattern,
@@ -270,7 +269,14 @@ class DAG(OPTemplate):
                 if not self.tasks[j].continue_on_failed:
                     raise RuntimeError("Task %s failed" % self.tasks[j])
             else:
-                self.tasks[j].outputs = deepcopy(t.outputs)
+                for name, par in t.outputs.parameters.items():
+                    if hasattr(par, "value"):
+                        self.tasks[j].outputs.parameters[
+                            name].value = par.value
+                for name, art in t.outputs.artifacts.items():
+                    if hasattr(art, "local_path"):
+                        self.tasks[j].outputs.artifacts[
+                            name].local_path = art.local_path
                 self.tasks[j].phase = t.phase
                 logging.info("Outputs of %s collected" % self.tasks[j])
             self.running.remove(self.tasks[j])

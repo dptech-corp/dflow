@@ -1601,7 +1601,14 @@ class Step:
                             else:
                                 failed.append(self.parallel_steps[j])
                     else:
-                        self.parallel_steps[j].outputs = deepcopy(ps.outputs)
+                        for name, par in ps.outputs.parameters.items():
+                            if hasattr(par, "value"):
+                                self.parallel_steps[j].outputs.parameters[
+                                    name].value = par.value
+                        for name, art in ps.outputs.artifacts.items():
+                            if hasattr(art, "local_path"):
+                                self.parallel_steps[j].outputs.artifacts[
+                                    name].local_path = art.local_path
                         logging.info("Outputs of %s collected" %
                                      self.parallel_steps[j])
                 if len(failed) > 0:
