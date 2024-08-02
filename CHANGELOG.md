@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.81](https://github.com/deepmodeling/dflow/compare/v1.8.80...v1.8.81) (2024-08-02)
+
+
+### Bug Fixes
+
+* do not deepcopy outputs of subprocesses ([7d0816a](https://github.com/deepmodeling/dflow/commit/7d0816a1e294b9673ec4f128f63fcc41edc5c7ae))
+
 ## [1.8.80](https://github.com/deepmodeling/dflow/compare/v1.8.79...v1.8.80) (2024-07-30)
 
 
