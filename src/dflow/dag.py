@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from copy import deepcopy
 from typing import Dict, List, Optional, Union
 
 from .common import (input_artifact_pattern, input_parameter_pattern,
@@ -211,6 +212,7 @@ class DAG(OPTemplate):
 
     def resolve(self, pool, futures):
         import concurrent.futures
+        self_copy = deepcopy(self)
         for task in self.waiting.copy():
             ready = True
             for dep in task.dependencies:
@@ -228,7 +230,7 @@ class DAG(OPTemplate):
                 i = self.tasks.index(task)
                 try:
                     future = pool.submit(
-                        task.run_with_config, self, self.context, config,
+                        task.run_with_config, self_copy, self.context, config,
                         s3_config, self.cwd)
                 except concurrent.futures.process.BrokenProcessPool as e:
                     # retrieve exception of subprocess before exit

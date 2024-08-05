@@ -1565,12 +1565,13 @@ class Step:
             max_workers = min(max_workers, len(item_list)) or 1
             with ProcessPoolExecutor(max_workers) as pool:
                 futures = []
+                scope_copy = deepcopy(scope)
                 for i, item in enumerate(item_list):
                     ps = self.parallel_steps[i]
                     ps.phase = "Pending"
                     try:
                         future = pool.submit(
-                            ps.exec_with_config, scope, parameters, item,
+                            ps.exec_with_config, scope_copy, parameters, item,
                             config, s3_config, cwd, context)
                     except concurrent.futures.process.BrokenProcessPool as e:
                         # retrieve exception of subprocess before exit
@@ -1585,7 +1586,6 @@ class Step:
                         time.sleep(config["debug_batch_interval"])
 
                 failed = []
-                results = {}
                 for future in concurrent.futures.as_completed(futures):
                     j = futures.index(future)
                     try:
@@ -1593,7 +1593,7 @@ class Step:
                     except Exception:
                         import traceback
                         traceback.print_exc()
-                        results[j] = ("Failed", pars, arts)
+                        self.parallel_steps[j].phase = "Failed"
                         if not self.continue_on_failed:
                             self.phase = "Failed"
                             if config["debug_failfast"]:
@@ -1602,21 +1602,14 @@ class Step:
                             else:
                                 failed.append(self.parallel_steps[j])
                     else:
-                        results[j] = (phase, pars, arts)
+                        for name, value in pars.items():
+                            self.parallel_steps[j].outputs.parameters[
+                                name].value = value
+                        for name, path in arts.items():
+                            self.parallel_steps[j].outputs.artifacts[
+                                name].local_path = path
                         logging.info("Outputs of %s collected" %
                                      self.parallel_steps[j])
-
-                # modify self after all processes have finished to avoid
-                # competition
-                for j in results:
-                    phase, pars, arts = results[j]
-                    self.parallel_steps[j].phase = phase
-                    for name, value in pars.items():
-                        self.parallel_steps[j].outputs.parameters[
-                            name].value = value
-                    for name, path in arts.items():
-                        self.parallel_steps[j].outputs.artifacts[
-                            name].local_path = path
                 if len(failed) > 0:
                     raise RuntimeError("Step %s failed" % failed)
 
