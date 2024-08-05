@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.84](https://github.com/deepmodeling/dflow/compare/v1.8.83...v1.8.84) (2024-08-05)
+
+
+### Bug Fixes
+
+* copy scope before submit ([1fb7293](https://github.com/deepmodeling/dflow/commit/1fb7293e4d301dca00b97b5d3c93808adf1a1d59))
+
 ## [1.8.83](https://github.com/deepmodeling/dflow/compare/v1.8.82...v1.8.83) (2024-08-05)
 
 
