@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.83](https://github.com/deepmodeling/dflow/compare/v1.8.82...v1.8.83) (2024-08-05)
+
+
+### Bug Fixes
+
+* modify self after all processes have finished to avoid competition ([f542d3f](https://github.com/deepmodeling/dflow/commit/f542d3fef982f1ddfc9a6a392d5dfc1b7f452439))
+
 ## [1.8.82](https://github.com/deepmodeling/dflow/compare/v1.8.81...v1.8.82) (2024-08-02)
 
 
