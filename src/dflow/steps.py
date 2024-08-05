@@ -268,6 +268,7 @@ class Steps(OPTemplate):
                                 "batch" % config["debug_batch_interval"])
                             time.sleep(config["debug_batch_interval"])
 
+                    results = {}
                     for future in concurrent.futures.as_completed(futures):
                         j = futures.index(future)
                         try:
@@ -275,17 +276,22 @@ class Steps(OPTemplate):
                         except Exception:
                             import traceback
                             traceback.print_exc()
-                            step[j].phase = "Failed"
+                            results[j] = ("Failed", pars, arts)
                             if not step[j].continue_on_failed:
                                 raise RuntimeError("Step %s failed" % step[j])
                         else:
-                            for name, value in pars.items():
-                                step[j].outputs.parameters[
-                                    name].value = value
-                            for name, path in arts.items():
-                                step[j].outputs.artifacts[
-                                    name].local_path = path
+                            results[j] = (phase, pars, arts)
                             logging.info("Outputs of %s collected" % step[j])
+
+                    # modify self after all processes have finished to avoid
+                    # competition
+                    for j in results:
+                        phase, pars, arts = results[j]
+                        step[j].phase = phase
+                        for name, value in pars.items():
+                            step[j].outputs.parameters[name].value = value
+                        for name, path in arts.items():
+                            step[j].outputs.artifacts[name].local_path = path
             else:
                 step.run(self, context)
 
