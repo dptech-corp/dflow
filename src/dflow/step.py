@@ -237,8 +237,10 @@ def argo_enumerate(
     if config["mode"] == "debug":
         values = "".join([", '%s': %s[i]" % (k, to_expr(v))
                           for k, v in kwargs.items()])
-        return Expression("[{'order': i%s} for i in range(len(%s))]" % (
+        expr = Expression("[{'order': i%s} for i in range(len(%s))]" % (
             values, to_expr(list(kwargs.values())[0])))
+        expr.kwargs = kwargs
+        return expr
     return ArgoEnumerate(**kwargs)
 
 
@@ -1029,7 +1031,8 @@ class Step:
         if isinstance(self.with_param, ArgoEnumerate):
             self.with_param = argo_enumerate(**self.with_param.kwargs, **param)
         else:
-            self.with_param = argo_enumerate(**param)
+            self.with_param = argo_enumerate(
+                **getattr(self.with_param, "kwargs", {}), **param)
         slices.slices = "{{item.order}}"
         slices.sub_path = False
         slices.input_artifact = []
