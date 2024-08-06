@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.85](https://github.com/deepmodeling/dflow/compare/v1.8.84...v1.8.85) (2024-08-06)
+
+
+### Bug Fixes
+
+* handle sub_path slices of artifact list for debug mode ([0d9e1a0](https://github.com/deepmodeling/dflow/commit/0d9e1a0ba3790e930d5cead16acd2b24f1720af2))
+* unpicklable function OP in debug mode ([0d9e1a0](https://github.com/deepmodeling/dflow/commit/0d9e1a0ba3790e930d5cead16acd2b24f1720af2))
+
 ## [1.8.84](https://github.com/deepmodeling/dflow/compare/v1.8.83...v1.8.84) (2024-08-05)
 
 
