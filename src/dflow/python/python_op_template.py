@@ -362,6 +362,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
         self.init_progress = "%s/%s" % (op_class.progress_current,
                                         op_class.progress_total)
         self.memoize_key = memoize_key
+        if hasattr(op_class, "func") and config["mode"] == "debug":
+            op_class = PicklableFunctionOP(op_class)
+            op = op_class
 
         self.op_class = op_class
         self.input_sign = input_sign
@@ -821,3 +824,15 @@ class TransientError(Exception):
 
 class FatalError(Exception):
     pass
+
+
+class PicklableFunctionOP:
+    def __init__(self, op_class):
+        self.__module__ = op_class.__module__
+        self.__name__ = op_class.__name__
+        if hasattr(op_class, "_source"):
+            self._source = op_class._source
+            self.__module__ = "__main__"
+        elif self.__module__ in ["__main__", "__mp_main__"]:
+            self._source = get_source_code(op_class.func)
+        self.func = True
