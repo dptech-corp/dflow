@@ -504,7 +504,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                   " handle_input_parameter\n"
         script += "from dflow.python.utils import handle_output_artifact," \
                   " handle_output_parameter, handle_lineage\n"
-        script += f"from {mod} import {class_name}\n\n"
+        if mod not in ["__main__", "__mp_main__"]:
+            script += f"from {mod} import {class_name}\n\n"
         if hasattr(op_class, "func"):
             script += "op_obj = %s\n" % class_name
         elif op is None:
