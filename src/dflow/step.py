@@ -874,6 +874,7 @@ class Step:
             self.template = self.template.deepcopy()
 
             def add_success_tag(templ):
+                from .dag import DAG
                 from .steps import Steps
                 if isinstance(templ, ScriptOPTemplate):
                     templ.outputs.parameters["dflow_success_tag"] = \
@@ -889,21 +890,10 @@ class Step:
                     elif isinstance(templ, PythonScriptOPTemplate):
                         templ.script += "\nwith open('/tmp/outputs"\
                             "/success_tag', 'w') as f:\n    f.write('1')\n"
-                elif isinstance(templ, Steps):
-                    last_step = templ.steps[-1]
-                    last_templ = last_step.template
-                    add_success_tag(last_templ)
-                    last_step.outputs.parameters["dflow_success_tag"] = \
-                        deepcopy(
-                            last_templ.outputs.parameters["dflow_success_tag"])
+                elif isinstance(templ, (Steps, DAG)):
                     templ.outputs.parameters["dflow_success_tag"] = \
                         OutputParameter(
-                            value_from_parameter=last_step.outputs.parameters[
-                                "dflow_success_tag"], default="0")
-                else:
-                    raise RuntimeError(
-                        "Unsupported type of OPTemplate for "
-                        "continue_on_num_success or continue_on_success_ratio")
+                            value_from_parameter="nonexist", default="1")
 
             add_success_tag(self.template)
             self.outputs.parameters["dflow_success_tag"] = deepcopy(
@@ -1619,15 +1609,12 @@ class Step:
             for name, par in self.outputs.parameters.items():
                 par.value = []
                 for ps in self.parallel_steps:
-                    if not hasattr(ps.outputs.parameters[name], "value") and \
-                            hasattr(ps.outputs.parameters[name], "default"):
-                        value = ps.outputs.parameters[name].default
-                    else:
+                    if hasattr(ps.outputs.parameters[name], "value"):
                         value = ps.outputs.parameters[name].value
-                    if isinstance(value, str):
-                        par.value.append(value)
-                    else:
-                        par.value.append(jsonpickle.dumps(value))
+                        if isinstance(value, str):
+                            par.value.append(value)
+                        else:
+                            par.value.append(jsonpickle.dumps(value))
             for name, art in self.outputs.artifacts.items():
                 for save in self.template.outputs.artifacts[name].save:
                     if isinstance(save, S3Artifact):
@@ -2016,6 +2003,11 @@ class Step:
                         pass
                 else:
                     raise ValueError("Unsupported copy method for debug mode.")
+
+        # set default output parameters
+        for name, par in self.outputs.parameters.items():
+            if hasattr(par, "default"):
+                par.value = par.default
 
         script_path = os.path.join(stepdir, "script")
         if self.phase == "Pending":

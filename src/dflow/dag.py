@@ -269,6 +269,10 @@ class DAG(OPTemplate):
                 traceback.print_exc()
                 self.tasks[j].phase = "Failed"
                 if not self.tasks[j].continue_on_failed:
+                    if sys.version_info.minor >= 9:
+                        pool.shutdown(wait=False)
+                    else:
+                        pool.shutdown(wait=True)
                     raise RuntimeError("Task %s failed" % self.tasks[j])
             else:
                 for name, value in pars.items():
