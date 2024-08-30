@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.8.86](https://github.com/deepmodeling/dflow/compare/v1.8.85...v1.8.86) (2024-08-30)
+
+
+### Bug Fixes
+
+* multiprocessing in debug mode ([fe6fdd2](https://github.com/deepmodeling/dflow/commit/fe6fdd21089baf1684f87ec20a4e948dc4e2086b))
+* process pool hang when a task in DAG fails ([c779c5c](https://github.com/deepmodeling/dflow/commit/c779c5cf1446ac28d5d8f317c9a954c5fd970f54))
+* support continue_on_success_ratio and continue_on_num_success for DAG ([c779c5c](https://github.com/deepmodeling/dflow/commit/c779c5cf1446ac28d5d8f317c9a954c5fd970f54))
+
 ## [1.8.85](https://github.com/deepmodeling/dflow/compare/v1.8.84...v1.8.85) (2024-08-06)
 
 
