@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.87](https://github.com/deepmodeling/dflow/compare/v1.8.86...v1.8.87) (2024-09-02)
+
+
+### Bug Fixes
+
+* add HDF5Datasets type Artifact ([28e855a](https://github.com/deepmodeling/dflow/commit/28e855a52f49700bc2bce522d6303d99390d3d4a))
+
 ## [1.8.86](https://github.com/deepmodeling/dflow/compare/v1.8.85...v1.8.86) (2024-08-30)
 
 
