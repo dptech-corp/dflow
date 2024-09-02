@@ -19,8 +19,8 @@ from ..context_syntax import GLOBAL_CONTEXT
 from ..io import (InputArtifact, InputParameter, OutputArtifact,
                   OutputParameter, type_to_str)
 from ..utils import dict2list, get_key, randstr, s3_config
-from .vendor.typeguard import check_type
 from .opio import OPIO, Artifact, BigParameter, OPIOSign, Parameter
+from .vendor.typeguard import check_type
 
 iwd = os.getcwd()
 
@@ -190,6 +190,8 @@ class OP(ABC):
                     ss = Set[Union[str, None]]
                 elif ss == Set[Path]:
                     ss = Set[Union[Path, None]]
+                else:
+                    continue
             if isinstance(ss, Parameter):
                 ss = ss.type
             # skip type checking if the variable is None
