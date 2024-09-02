@@ -224,6 +224,40 @@ can be a list</p></li>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="dflow.python.opio.HDF5Dataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.python.opio.</span></span><span class="sig-name descname"><span class="pre">HDF5Dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.opio.HDF5Dataset" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.python.opio.HDF5Dataset.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.opio.HDF5Dataset.get_data" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dflow.python.opio.HDF5Dataset.recover">
+<span class="sig-name descname"><span class="pre">recover</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.opio.HDF5Dataset.recover" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.python.opio.HDF5Datasets">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.python.opio.</span></span><span class="sig-name descname"><span class="pre">HDF5Datasets</span></span><a class="headerlink" href="#dflow.python.opio.HDF5Datasets" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.python.opio.NestedDictPath">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.python.opio.</span></span><span class="sig-name descname"><span class="pre">NestedDictPath</span></span><a class="headerlink" href="#dflow.python.opio.NestedDictPath" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NestedDict</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.python.opio.NestedDictStr">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.python.opio.</span></span><span class="sig-name descname"><span class="pre">NestedDictStr</span></span><a class="headerlink" href="#dflow.python.opio.NestedDictStr" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NestedDict</span></code></p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="dflow.python.opio.OPIO">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.python.opio.</span></span><span class="sig-name descname"><span class="pre">OPIO</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.opio.OPIO" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MutableMapping</span></code></p>
@@ -263,10 +297,10 @@ A signature of OPIO includes the key and its typing</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="dflow.python.opio.nested_dict">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.python.opio.</span></span><span class="sig-name descname"><span class="pre">nested_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dflow.python.opio.nested_dict" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dflow.python.opio.t">
+<span class="sig-prename descclassname"><span class="pre">dflow.python.opio.</span></span><span class="sig-name descname"><span class="pre">t</span></span><a class="headerlink" href="#dflow.python.opio.t" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#dflow.python.opio.NestedDictPath" title="dflow.python.opio.NestedDictPath"><code class="xref py py-class docutils literal notranslate"><span class="pre">NestedDictPath</span></code></a></p>
 </dd></dl>
 
 </section>
@@ -561,6 +595,12 @@ can be a list</p></li>
 <dt class="sig sig-object py" id="dflow.python.FatalError">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.python.</span></span><span class="sig-name descname"><span class="pre">FatalError</span></span><a class="headerlink" href="#dflow.python.FatalError" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="dflow.python.HDF5Datasets">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dflow.python.</span></span><span class="sig-name descname"><span class="pre">HDF5Datasets</span></span><a class="headerlink" href="#dflow.python.HDF5Datasets" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 </dd></dl>
 
 <dl class="py class">
@@ -903,6 +943,14 @@ artifacts</p></li>
 <li><a class="reference internal" href="#dflow.python.opio.BigParameter.to_dict"><code class="docutils literal notranslate"><span class="pre">BigParameter.to_dict()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#dflow.python.opio.HDF5Dataset"><code class="docutils literal notranslate"><span class="pre">HDF5Dataset</span></code></a><ul>
+<li><a class="reference internal" href="#dflow.python.opio.HDF5Dataset.get_data"><code class="docutils literal notranslate"><span class="pre">HDF5Dataset.get_data()</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.opio.HDF5Dataset.recover"><code class="docutils literal notranslate"><span class="pre">HDF5Dataset.recover()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dflow.python.opio.HDF5Datasets"><code class="docutils literal notranslate"><span class="pre">HDF5Datasets</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.opio.NestedDictPath"><code class="docutils literal notranslate"><span class="pre">NestedDictPath</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.opio.NestedDictStr"><code class="docutils literal notranslate"><span class="pre">NestedDictStr</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.opio.OPIO"><code class="docutils literal notranslate"><span class="pre">OPIO</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.opio.OPIOSign"><code class="docutils literal notranslate"><span class="pre">OPIOSign</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.opio.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a><ul>
@@ -910,7 +958,7 @@ artifacts</p></li>
 <li><a class="reference internal" href="#dflow.python.opio.Parameter.to_dict"><code class="docutils literal notranslate"><span class="pre">Parameter.to_dict()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#dflow.python.opio.nested_dict"><code class="docutils literal notranslate"><span class="pre">nested_dict</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.opio.t"><code class="docutils literal notranslate"><span class="pre">t</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-dflow.python.python_op_template">dflow.python.python_op_template module</a><ul>
@@ -966,6 +1014,7 @@ artifacts</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#dflow.python.FatalError"><code class="docutils literal notranslate"><span class="pre">FatalError</span></code></a></li>
+<li><a class="reference internal" href="#dflow.python.HDF5Datasets"><code class="docutils literal notranslate"><span class="pre">HDF5Datasets</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.OP"><code class="docutils literal notranslate"><span class="pre">OP</span></code></a><ul>
 <li><a class="reference internal" href="#dflow.python.OP.convert_to_graph"><code class="docutils literal notranslate"><span class="pre">OP.convert_to_graph()</span></code></a></li>
 <li><a class="reference internal" href="#dflow.python.OP.exec_sign_check"><code class="docutils literal notranslate"><span class="pre">OP.exec_sign_check()</span></code></a></li>
