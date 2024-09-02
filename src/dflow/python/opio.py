@@ -1,4 +1,5 @@
 import json
+import tarfile
 from collections.abc import MutableMapping
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Union
@@ -8,27 +9,72 @@ from ..config import config
 from ..io import PVC, type_to_str
 
 
-class nested_dict:
-    def __init__(self, type):
-        self.type = type
+class NestedDict:
+    pass
 
-    def __repr__(self):
-        return "dflow.python.NestedDict[%s]" % type_to_str(self.type)
 
-    def __eq__(self, other):
-        if not isinstance(other, nested_dict):
-            return False
-        return self.type == other.type
+class NestedDictStr(NestedDict):
+    pass
+
+
+class NestedDictPath(NestedDict):
+    pass
+
+
+class HDF5Dataset:
+    def __init__(self, dataset):
+        self.dataset = dataset
+
+    def get_data(self):
+        data = self.dataset[()]
+        if self.dataset.attrs.get("dtype") == "utf-8":
+            data = data.decode("utf-8")
+        elif self.dataset.attrs.get("dtype") == "binary":
+            data = data.tobytes()
+        return data
+
+    def recover(self):
+        if self.dataset.attrs["type"] == "file":
+            path = Path(self.dataset.attrs["path"])
+            if path.is_absolute():
+                path = path.relative_to(path.root)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            data = self.get_data()
+            if isinstance(data, str):
+                path.write_text(data)
+            elif isinstance(data, bytes):
+                path.write_bytes(data)
+            return path
+        elif self.dataset.attrs["type"] == "dir":
+            path = Path(self.dataset.attrs["path"])
+            if path.is_absolute():
+                path = path.relative_to(path.root)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            tgz_path = path.parent / (path.name + ".tgz")
+            tgz_path.write_bytes(self.get_data())
+            tf = tarfile.open(tgz_path, "r:gz")
+            tf.extractall(".")
+            tf.close()
+            return path
+        else:
+            return self.get_data()
+
+
+class HDF5Datasets:
+    pass
 
 
 NestedDict = {
-    str: nested_dict(str),
-    Path: nested_dict(Path),
+    str: NestedDictStr,
+    Path: NestedDictPath,
 }
 
 ArtifactAllowedTypes = [str, Path, Set[str], Set[Path], List[str], List[Path],
                         Dict[str, str], Dict[str, Path], NestedDict[str],
                         NestedDict[Path]]
+for t in ArtifactAllowedTypes.copy():
+    ArtifactAllowedTypes.append(Union[t, HDF5Datasets])
+ArtifactAllowedTypes.append(HDF5Datasets)
 
 
 @CustomHandler.handles

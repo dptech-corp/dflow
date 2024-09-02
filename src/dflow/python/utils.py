@@ -1,17 +1,19 @@
 import os
 import shutil
 import signal
+import tarfile
 import traceback
 import uuid
 from pathlib import Path
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Union
 
 from ..common import jsonpickle
 from ..config import config
 from ..utils import (artifact_classes, assemble_path_object,
                      catalog_of_local_artifact, convert_dflow_list, copy_file,
                      expand, flatten, randstr, remove_empty_dir_tag)
-from .opio import Artifact, BigParameter, NestedDict, Parameter
+from .opio import (Artifact, BigParameter, HDF5Dataset, HDF5Datasets,
+                   NestedDict, Parameter)
 
 
 def get_slices(path_object, slices):
@@ -78,7 +80,35 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
 
     path_object = get_slices(path_object, slices)
 
-    if sign.type in [str, Path]:
+    sign_type = sign.type
+    if getattr(sign_type, "__origin__", None) == Union:
+        args = sign_type.__args__
+        if HDF5Datasets in args:
+            if isinstance(path_object, list) and all([isinstance(
+                    p, str) and p.endswith(".h5") for p in path_object]):
+                sign_type = HDF5Datasets
+            elif args[0] == HDF5Datasets:
+                sign_type = args[1]
+            elif args[1] == HDF5Datasets:
+                sign_type = args[0]
+
+    if sign_type == HDF5Datasets:
+        import h5py
+        assert isinstance(path_object, list)
+        res = None
+        for path in path_object:
+            f = h5py.File(path, "r")
+            datasets = {k: HDF5Dataset(f[k]) for k in f.keys()}
+            datasets = expand(datasets)
+            if isinstance(datasets, list):
+                if res is None:
+                    res = []
+                res += datasets
+            elif isinstance(datasets, dict):
+                if res is None:
+                    res = {}
+                res.update(datasets)
+    if sign_type in [str, Path]:
         if path_object is None or isinstance(path_object, str):
             res = path_object
         elif isinstance(path_object, list) and len(path_object) == 1 and (
@@ -87,8 +117,8 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
             res = path_object[0]
         else:
             res = art_path
-        res = path_or_none(res) if sign.type == Path else res
-    elif sign.type in [List[str], List[Path], Set[str], Set[Path]]:
+        res = path_or_none(res) if sign_type == Path else res
+    elif sign_type in [List[str], List[Path], Set[str], Set[Path]]:
         if path_object is None:
             return None
         elif isinstance(path_object, str):
@@ -99,17 +129,17 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
         else:
             res = list(flatten(path_object).values())
 
-        if sign.type == List[str]:
+        if sign_type == List[str]:
             pass
-        elif sign.type == List[Path]:
+        elif sign_type == List[Path]:
             res = path_or_none(res)
-        elif sign.type == Set[str]:
+        elif sign_type == Set[str]:
             res = set(res)
         else:
             res = set(path_or_none(res))
-    elif sign.type in [Dict[str, str], NestedDict[str]]:
+    elif sign_type in [Dict[str, str], NestedDict[str]]:
         res = path_object
-    elif sign.type in [Dict[str, Path], NestedDict[Path]]:
+    elif sign_type in [Dict[str, Path], NestedDict[Path]]:
         res = path_or_none(path_object)
 
     if res is None:
@@ -169,6 +199,41 @@ def slice_to_dir(slice):
 def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp",
                            create_dir=False):
     path_list = []
+    if sign.type == HDF5Datasets:
+        import h5py
+        os.makedirs(data_root + '/outputs/artifacts/' + name, exist_ok=True)
+        h5_name = "%s.h5" % uuid.uuid4()
+        h5_path = '%s/outputs/artifacts/%s/%s' % (data_root, name, h5_name)
+        with h5py.File(h5_path, "w") as f:
+            for s, v in flatten(value).items():
+                if isinstance(v, Path):
+                    if v.is_file():
+                        try:
+                            data = v.read_text(encoding="utf-8")
+                            dtype = "utf-8"
+                        except Exception:
+                            import numpy as np
+                            data = np.void(v.read_bytes())
+                            dtype = "binary"
+                        d = f.create_dataset(s, data=data)
+                        d.attrs["type"] = "file"
+                        d.attrs["path"] = str(v)
+                        d.attrs["dtype"] = dtype
+                    elif v.is_dir():
+                        tgz_path = Path("%s.tgz" % v)
+                        tf = tarfile.open(tgz_path, "w:gz", dereference=True)
+                        tf.add(v)
+                        tf.close()
+                        import numpy as np
+                        d = f.create_dataset(s, data=np.void(
+                            tgz_path.read_bytes()))
+                        d.attrs["type"] = "dir"
+                        d.attrs["path"] = str(v)
+                        d.attrs["dtype"] = "binary"
+                else:
+                    d = f.create_dataset(s, data=v)
+                    d.attrs["type"] = "data"
+        path_list.append({"dflow_list_item": h5_name, "order": slices or 0})
     if sign.type in [str, Path]:
         os.makedirs(data_root + '/outputs/artifacts/' + name, exist_ok=True)
         if slices is None:
