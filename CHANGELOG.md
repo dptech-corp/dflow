@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.88](https://github.com/deepmodeling/dflow/compare/v1.8.87...v1.8.88) (2024-09-03)
+
+
+### Bug Fixes
+
+* decode string for HDF5Dataset ([f0945d2](https://github.com/deepmodeling/dflow/commit/f0945d222bfee3e84b7c290dbe42c141aa2a01bb))
+* redefine NestedDict ([f0945d2](https://github.com/deepmodeling/dflow/commit/f0945d222bfee3e84b7c290dbe42c141aa2a01bb))
+
 ## [1.8.87](https://github.com/deepmodeling/dflow/compare/v1.8.86...v1.8.87) (2024-09-02)
 
 
