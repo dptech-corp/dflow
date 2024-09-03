@@ -9,15 +9,15 @@ from ..config import config
 from ..io import PVC, type_to_str
 
 
-class NestedDict:
+class NestedDictBase:
     pass
 
 
-class NestedDictStr(NestedDict):
+class NestedDictStr(NestedDictBase):
     pass
 
 
-class NestedDictPath(NestedDict):
+class NestedDictPath(NestedDictBase):
     pass
 
 
