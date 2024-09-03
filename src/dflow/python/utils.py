@@ -233,6 +233,8 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp",
                 else:
                     d = f.create_dataset(s, data=v)
                     d.attrs["type"] = "data"
+                    if isinstance(v, str):
+                        d.attrs["dtype"] = "utf-8"
         path_list.append({"dflow_list_item": h5_name, "order": slices or 0})
     if sign.type in [str, Path]:
         os.makedirs(data_root + '/outputs/artifacts/' + name, exist_ok=True)
