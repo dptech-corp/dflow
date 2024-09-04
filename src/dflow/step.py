@@ -484,7 +484,7 @@ class Step:
                 auto_loop_artifacts:
             self.template = self.template.deepcopy()
             sequence_format = self.with_sequence.format \
-                if self.with_sequence is not None else "%d"
+                if self.with_sequence is not None else None
             init_template = InitArtifactForSlices(
                 self.template, self.util_image, self.util_command,
                 self.util_image_pull_policy, self.key, sliced_output_artifact,
@@ -598,6 +598,13 @@ class Step:
                         elif v is not None:
                             self.prepare_step.set_artifacts({name: v})
                             self.inputs.artifacts[name].sp = "{{item.%s}}" % name
+                        if self.with_sequence is not None:
+                            for par in self.inputs.parameters.values():
+                                if hasattr(par, "value") and isinstance(
+                                        par.value, str):
+                                    par.value = par.value.replace(
+                                        "{{item}}", "{{item.order}}")
+                            self.with_sequence = None
                         self.with_param = self.prepare_step.outputs.parameters[
                             "dflow_slices_path"]
 

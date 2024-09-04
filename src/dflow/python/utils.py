@@ -78,14 +78,15 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
         path_object = assemble_path_object(art_path)
         path_object = get_slices(path_object, prefix)
 
-    path_object = get_slices(path_object, slices)
-
     sign_type = sign.type
     if getattr(sign_type, "__origin__", None) == Union:
         args = sign_type.__args__
         if HDF5Datasets in args:
-            if isinstance(path_object, list) and all([isinstance(
-                    p, str) and p.endswith(".h5") for p in path_object]):
+            if isinstance(path_object, list) and len(path_object) > 0 and all([
+                isinstance(p, str) and p.endswith(".h5")
+                    for p in path_object]):
+                sign_type = HDF5Datasets
+            elif art_path.endswith(".h5"):
                 sign_type = HDF5Datasets
             elif args[0] == HDF5Datasets:
                 sign_type = args[1]
@@ -94,6 +95,8 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
 
     if sign_type == HDF5Datasets:
         import h5py
+        if os.path.isfile(art_path):
+            path_object = [art_path]
         assert isinstance(path_object, list)
         res = None
         for path in path_object:
@@ -108,6 +111,10 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
                 if res is None:
                     res = {}
                 res.update(datasets)
+        res = get_slices(res, slices)
+    else:
+        path_object = get_slices(path_object, slices)
+
     if sign_type in [str, Path]:
         if path_object is None or isinstance(path_object, str):
             res = path_object
@@ -146,7 +153,7 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
         return None
 
     _cls = res.__class__
-    res = artifact_classes[_cls](res)
+    res = artifact_classes.get(_cls, lambda x: x)(res)
     res.art_root = root
     return res
 
@@ -230,6 +237,9 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp",
                         d.attrs["type"] = "dir"
                         d.attrs["path"] = str(v)
                         d.attrs["dtype"] = "binary"
+                elif isinstance(v, HDF5Dataset):
+                    d = f.create_dataset(s, data=v.dataset[()])
+                    d.attrs.update(v.dataset.attrs)
                 else:
                     d = f.create_dataset(s, data=v)
                     d.attrs["type"] = "data"

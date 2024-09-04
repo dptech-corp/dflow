@@ -10,7 +10,7 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
     def __init__(self, template, image, command, image_pull_policy, key,
                  sliced_output_artifact=None, sliced_input_artifact=None,
                  sum_var=None, concat_var=None, auto_loop_artifacts=None,
-                 group_size=None, format="%d", post_script="",
+                 group_size=None, format=None, post_script="",
                  tmp_root="/tmp"):
         name = template.name
         super().__init__(name="%s-init-artifact" % name, image=image,
@@ -171,7 +171,7 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
                     script += "        continue\n"
                     script += "    group_dir = r'%s/outputs/artifacts/%s/"\
                         "group_' + ('%s' %% i)\n" % (
-                            self.tmp_root, name, self.format)
+                            self.tmp_root, name, self.format or "%d")
                     script += "    os.makedirs(group_dir, exist_ok=True)\n"
                     if self.template.slices.shuffle:
                         script += "    path_list = [path_list_%s[j] for j in "\
@@ -206,7 +206,10 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
             else:
                 script += "slices_path = []\n"
                 script += "for i in range(len(path_list_%s)):\n" % required[0]
-                script += "    item = {'order': i}\n"
+                if self.format:
+                    script += "    item = {'order': '%s' %% i}\n" % self.format
+                else:
+                    script += "    item = {'order': i}\n"
                 for i, name in enumerate(self.sliced_input_artifact):
                     script += "    item['%s'] = path_list_%s[i]"\
                         "['dflow_list_item'] if path_list_%s else None\n" % (
