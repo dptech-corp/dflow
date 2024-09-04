@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.90](https://github.com/deepmodeling/dflow/compare/v1.8.89...v1.8.90) (2024-09-04)
+
+
+### Bug Fixes
+
+* HDF5Datasets with pool_size ([357918e](https://github.com/deepmodeling/dflow/commit/357918ed214379a7723b3e64531883ba525a4889))
+* with_param=range with group_size ([357918e](https://github.com/deepmodeling/dflow/commit/357918ed214379a7723b3e64531883ba525a4889))
+
 ## [1.8.89](https://github.com/deepmodeling/dflow/compare/v1.8.88...v1.8.89) (2024-09-04)
 
 
