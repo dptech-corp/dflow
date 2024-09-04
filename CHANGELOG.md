@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.89](https://github.com/deepmodeling/dflow/compare/v1.8.88...v1.8.89) (2024-09-04)
+
+
+### Bug Fixes
+
+* slices of HDF5Datasets ([b12a8e7](https://github.com/deepmodeling/dflow/commit/b12a8e70f1399a0228320aec404775fa1d3df9e6))
+* sub_path slices with with_sequence ([b12a8e7](https://github.com/deepmodeling/dflow/commit/b12a8e70f1399a0228320aec404775fa1d3df9e6))
+
 ## [1.8.88](https://github.com/deepmodeling/dflow/compare/v1.8.87...v1.8.88) (2024-09-03)
 
 
