@@ -722,9 +722,9 @@ class Step:
                     nslices = argo_len(self.with_param)
                 old_slices = self.template.slices.slices
                 self.template.slices.slices = \
-                    "[json.loads(r'''{{inputs.parameters.dflow_with_param}}"\
-                    "''')[%s] for i in range({{item}}*%s, min(({{item}}+1)*%s"\
-                    ", {{inputs.parameters.dflow_nslices}}))]" % (
+                    "[jsonpickle.loads(r'''{{inputs.parameters.dflow_with_par"\
+                    "am}}''')[%s] for i in range({{item}}*%s, min(({{item}}+1"\
+                    ")*%s, {{inputs.parameters.dflow_nslices}}))]" % (
                         old_slices.replace("{{item}}", "shuffled[i]"
                                            if self.template.slices.shuffle
                                            else "i"), group_size, group_size)

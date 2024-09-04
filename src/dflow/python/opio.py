@@ -25,6 +25,9 @@ class HDF5Dataset:
     def __init__(self, dataset):
         self.dataset = dataset
 
+    def __deepcopy__(self, memo=None):
+        return self
+
     def get_data(self):
         data = self.dataset[()]
         if self.dataset.attrs.get("dtype") == "utf-8":
