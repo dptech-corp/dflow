@@ -101,7 +101,7 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
         res = None
         for path in path_object:
             f = h5py.File(path, "r")
-            datasets = {k: HDF5Dataset(f[k]) for k in f.keys()}
+            datasets = {k: HDF5Dataset(f, k) for k in f.keys()}
             datasets = expand(datasets)
             if isinstance(datasets, list):
                 if res is None:

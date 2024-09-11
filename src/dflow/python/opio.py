@@ -22,8 +22,13 @@ class NestedDictPath(NestedDictBase):
 
 
 class HDF5Dataset:
-    def __init__(self, dataset):
-        self.dataset = dataset
+    def __init__(self, file, key):
+        self.file = file
+        self.key = key
+
+    @property
+    def dataset(self):
+        return self.file[self.key]
 
     def __deepcopy__(self, memo=None):
         return self
