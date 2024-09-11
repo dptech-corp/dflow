@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.91](https://github.com/deepmodeling/dflow/compare/v1.8.90...v1.8.91) (2024-09-11)
+
+
+### Bug Fixes
+
+* optimize memory usage in HDF5Dataset ([3fa4046](https://github.com/deepmodeling/dflow/commit/3fa4046b0fbd95f469702535c4ab3b1329b7aff1))
+
 ## [1.8.90](https://github.com/deepmodeling/dflow/compare/v1.8.89...v1.8.90) (2024-09-04)
 
 
