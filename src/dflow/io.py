@@ -4,14 +4,15 @@ from collections import UserDict
 from copy import copy, deepcopy
 from typing import Any, Dict, List, Optional, Union
 
-from .common import (CustomArtifact, LocalArtifact, S3Artifact, jsonpickle,
-                     param_errmsg, param_regex)
+from .common import (CustomArtifact, HTTPArtifact, LocalArtifact, S3Artifact,
+                     jsonpickle, param_errmsg, param_regex)
 from .config import config
 from .utils import randstr, s3_config, upload_s3
 
 try:
     from argo.workflows.client import (V1alpha1ArchiveStrategy, V1alpha1Inputs,
-                                       V1alpha1Outputs, V1alpha1RawArtifact)
+                                       V1alpha1HTTPArtifact, V1alpha1Outputs,
+                                       V1alpha1RawArtifact)
 
     from .client import V1alpha1Artifact, V1alpha1Parameter, V1alpha1ValueFrom
 except Exception:
@@ -762,6 +763,13 @@ class InputArtifact(ArgoVar):
                                         oss=self.source.oss(),
                                         sub_path=self.sp, mode=self.mode,
                                         archive=archive)
+        elif isinstance(self.source, HTTPArtifact):
+            return V1alpha1Artifact(name=self.name, path=self.path,
+                                    optional=self.optional,
+                                    http=V1alpha1HTTPArtifact(
+                                        url=self.source.url),
+                                    sub_path=self.sp, mode=self.mode,
+                                    archive=archive)
         elif isinstance(self.source, str):
             return V1alpha1Artifact(name=self.name, path=self.path,
                                     optional=self.optional,
