@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.92](https://github.com/deepmodeling/dflow/compare/v1.8.91...v1.8.92) (2024-09-14)
+
+
+### Bug Fixes
+
+* support HTTPArtifact as input artifact ([f76a60e](https://github.com/deepmodeling/dflow/commit/f76a60ea8b0c49e272e8e281c7d31cb65dd84767))
+
 ## [1.8.91](https://github.com/deepmodeling/dflow/compare/v1.8.90...v1.8.91) (2024-09-11)
 
 
