@@ -4,8 +4,7 @@ import os
 from .argo_objects import ArgoStep, ArgoWorkflow
 from .code_gen import gen_code
 from .common import (CustomArtifact, HTTPArtifact, LineageClient,
-                     LocalArtifact, S3Artifact, import_func)
-from .common import jsonpickle
+                     LocalArtifact, S3Artifact, import_func, jsonpickle)
 from .config import config, s3_config, set_config, set_s3_config
 from .context import Context
 from .dag import DAG

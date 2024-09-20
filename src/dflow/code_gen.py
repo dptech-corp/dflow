@@ -2,11 +2,10 @@ import inspect
 import json
 
 from .common import (input_artifact_pattern, input_parameter_pattern,
-                     step_output_artifact_pattern,
+                     jsonpickle, step_output_artifact_pattern,
                      step_output_parameter_pattern,
                      task_output_artifact_pattern,
                      task_output_parameter_pattern)
-from .common import jsonpickle
 from .config import config
 from .dag import DAG
 from .io import InputArtifact, InputParameter, OutputArtifact, OutputParameter

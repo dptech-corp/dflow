@@ -1,14 +1,14 @@
 from copy import deepcopy
-from typing import Union, List, Optional, Any
+from typing import Any, List, Optional, Union
 
 from dflow.executor import Executor
 from dflow.op_template import ScriptOPTemplate
 from dflow.utils import randstr
 
 try:
-    from argo.workflows.client import (V1Volume, V1VolumeMount,
-                                       V1alpha1UserContainer,
-                                       V1EmptyDirVolumeSource)
+    from argo.workflows.client import (V1alpha1UserContainer,
+                                       V1EmptyDirVolumeSource, V1Volume,
+                                       V1VolumeMount)
 except ImportError:
     pass
 

@@ -1,7 +1,7 @@
 import os
 import re
 from copy import deepcopy
-from typing import Optional, Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 from .config import config
 from .executor import (Executor, RemoteExecutor, render_script_with_tmp_root,

@@ -10,9 +10,9 @@ from .config import config
 from .utils import randstr, s3_config, upload_s3
 
 try:
-    from argo.workflows.client import (V1alpha1ArchiveStrategy, V1alpha1Inputs,
-                                       V1alpha1HTTPArtifact, V1alpha1Outputs,
-                                       V1alpha1RawArtifact)
+    from argo.workflows.client import (V1alpha1ArchiveStrategy,
+                                       V1alpha1HTTPArtifact, V1alpha1Inputs,
+                                       V1alpha1Outputs, V1alpha1RawArtifact)
 
     from .client import V1alpha1Artifact, V1alpha1Parameter, V1alpha1ValueFrom
 except Exception:

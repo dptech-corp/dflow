@@ -50,10 +50,9 @@ def login(username=None, phone=None, password=None, bohrium_url=None):
         password = config["password"]
     if bohrium_url is None:
         bohrium_url = config["bohrium_url"]
-    if config["authorization"] is None:
-        config["authorization"] = _login(
-            bohrium_url + "/account/login", username, phone, password)
-        update_headers()
+    config["authorization"] = _login(
+        bohrium_url + "/account/login", username, phone, password)
+    update_headers()
     return config["authorization"]
 
 
@@ -290,7 +289,7 @@ class TiefblueClient(StorageClient):
     def __setstate__(self, d):
         self.__dict__.update(d)
 
-    def get_token(self):
+    def get_token(self, retry=1):
         import requests
         url = self.bohrium_url + "/brm/v1/storage/token"
         headers = {
@@ -309,6 +308,10 @@ class TiefblueClient(StorageClient):
             headers["Authorization"] = "Bearer " + self.authorization
         rsp = requests.get(url, headers=headers, params=params)
         if not rsp.text:
+            if retry > 0:
+                self.authorization = None
+                self.get_token(retry=retry-1)
+                return
             raise RuntimeError("Bohrium unauthorized")
         res = json.loads(rsp.text)
         _raise_error(res, "get storage token")
