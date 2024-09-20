@@ -1,10 +1,10 @@
 import abc
 import json
 import os
+import re
 from abc import ABC
 from copy import deepcopy
 from getpass import getpass
-import re
 from typing import Dict, List, Optional, Union
 
 from ..common import CustomArtifact, S3Artifact
