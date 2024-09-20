@@ -79,8 +79,8 @@ class InitArtifactForSlices(PythonScriptOPTemplate):
                         optional=True, sub_path=config["catalog_dir_name"])
                     self.outputs.parameters["dflow_slices_path"] = \
                         OutputParameter(
-                            value_from_path="%s/outputs/parameters/dflow_"\
-                                "slices_path" % self.tmp_root, type=dict)
+                            value_from_path="%s/outputs/parameters/dflow_"
+                            "slices_path" % self.tmp_root, type=dict)
 
         if self.sum_var is not None:
             name = self.sum_var.name

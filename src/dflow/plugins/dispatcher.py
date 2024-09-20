@@ -522,7 +522,7 @@ class DispatcherExecutor(Executor):
                 new_template.script += "    new_task_dict['backward_files']"\
                     ".append('./%s_' + str(i))\n" % path
             new_template.script += "    new_task_dict['backward_files']"\
-                ".append('log')\n" # work around no Bohrium result file
+                ".append('log')\n"  # work around no Bohrium result file
             new_template.script += "    with open('script' + str(i), 'w')"\
                 " as f:\n"
             new_template.script += "        f.write(new_script)\n"

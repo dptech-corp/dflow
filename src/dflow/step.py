@@ -587,8 +587,9 @@ class Step:
                         self.with_param = argo_range(ngroups)
                 else:
                     for name in sliced_input_artifact:
-                        self.inputs.parameters["dflow_%s_sub_path" %
-                                            name].value = "{{item.%s}}" % name
+                        self.inputs.parameters[
+                            "dflow_%s_sub_path" % name].value = \
+                                "{{item.%s}}" % name
                         v = self.inputs.artifacts[name].source
                         if isinstance(v, S3Artifact):
                             self.prepare_step.set_artifacts({
@@ -597,7 +598,8 @@ class Step:
                                 v.sub_path("{{item.%s}}" % name)
                         elif v is not None:
                             self.prepare_step.set_artifacts({name: v})
-                            self.inputs.artifacts[name].sp = "{{item.%s}}" % name
+                            self.inputs.artifacts[name].sp = "{{item.%s}}" % \
+                                name
                         if self.with_sequence is not None:
                             for par in self.inputs.parameters.values():
                                 if hasattr(par, "value") and isinstance(
