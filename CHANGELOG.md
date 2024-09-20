@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.93](https://github.com/deepmodeling/dflow/compare/v1.8.92...v1.8.93) (2024-09-20)
+
+
+### Bug Fixes
+
+* bohrium authorization expires ([21389f8](https://github.com/deepmodeling/dflow/commit/21389f8cd4fbdd0bdda1912b8679bacedadc56a3))
+* flake8 ([e0768f8](https://github.com/deepmodeling/dflow/commit/e0768f8d288e674a6ba39bc7079072dd88653855))
+
 ## [1.8.92](https://github.com/deepmodeling/dflow/compare/v1.8.91...v1.8.92) (2024-09-14)
 
 
