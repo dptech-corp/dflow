@@ -87,6 +87,7 @@ def _login(login_url=None, username=None, phone=None, password=None):
     rsp = requests.post(login_url, headers={
                         "Content-type": "application/json"}, json=data)
     res = json.loads(rsp.text)
+    print(res)
     _raise_error(res, "login")
     return res["data"]["token"]
 
@@ -314,6 +315,7 @@ class TiefblueClient(StorageClient):
                 return
             raise RuntimeError("Bohrium unauthorized")
         res = json.loads(rsp.text)
+        print(res)
         _raise_error(res, "get storage token")
         self.token = res["data"]["token"]
         self.prefix = res["data"]["path"]
@@ -326,6 +328,8 @@ class TiefblueClient(StorageClient):
         except Exception:
             raise RuntimeError("Please install lbg utility by "
                                "`pip install -U lbg`")
+        self.authorization = None
+        self.get_token()
         client = tiefblue.Client(base_url=self.tiefblue_url, token=self.token)
         try:
             client.upload_from_file(
