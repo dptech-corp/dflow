@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.94](https://github.com/deepmodeling/dflow/compare/v1.8.93...v1.8.94) (2024-10-17)
+
+
+### Bug Fixes
+
+* HDF5Datasets with grouped slices ([1bfae67](https://github.com/deepmodeling/dflow/commit/1bfae67ab6533c9dddf8066a40919c56bb7c53b5))
+* None in HDF5Datasets ([1bfae67](https://github.com/deepmodeling/dflow/commit/1bfae67ab6533c9dddf8066a40919c56bb7c53b5))
+
 ## [1.8.93](https://github.com/deepmodeling/dflow/compare/v1.8.92...v1.8.93) (2024-09-20)
 
 
