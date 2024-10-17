@@ -34,6 +34,8 @@ class HDF5Dataset:
         return self
 
     def get_data(self):
+        if self.dataset.attrs.get("type") == "null":
+            return None
         data = self.dataset[()]
         if self.dataset.attrs.get("dtype") == "utf-8":
             data = data.decode("utf-8")
