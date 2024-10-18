@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.95](https://github.com/deepmodeling/dflow/compare/v1.8.94...v1.8.95) (2024-10-18)
+
+
+### Bug Fixes
+
+* pass None for HDF5Datasets ([1310554](https://github.com/deepmodeling/dflow/commit/1310554ead008acee1754112ef6032c9a062dfd9))
+
 ## [1.8.94](https://github.com/deepmodeling/dflow/compare/v1.8.93...v1.8.94) (2024-10-17)
 
 
