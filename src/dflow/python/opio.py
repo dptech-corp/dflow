@@ -33,8 +33,11 @@ class HDF5Dataset:
     def __deepcopy__(self, memo=None):
         return self
 
+    def is_none(self):
+        return self.dataset.attrs.get("type") == "null"
+
     def get_data(self):
-        if self.dataset.attrs.get("type") == "null":
+        if self.is_none():
             return None
         data = self.dataset[()]
         if self.dataset.attrs.get("dtype") == "utf-8":
