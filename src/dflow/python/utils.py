@@ -101,7 +101,10 @@ def handle_input_artifact(name, sign, slices=None, data_root="/tmp",
         res = []
         for path in path_object:
             f = h5py.File(path, "r")
-            datasets = {k: HDF5Dataset(f, k) for k in f.keys()}
+            datasets = {}
+            for k in f.keys():
+                d = HDF5Dataset(f, k)
+                datasets[k] = None if d.is_none() else d
             if set(datasets.keys()) == {str(i) for i in range(len(datasets))} \
                     and isinstance(res, list):
                 # concat when all datasets are lists
