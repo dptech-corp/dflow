@@ -15,7 +15,7 @@ from .dag import DAG
 from .executor import Executor
 from .op_template import (ContainerOPTemplate, OPTemplate, ScriptOPTemplate,
                           get_k8s_client)
-from .step import Step
+from .step import Step, upload_python_packages
 from .steps import Steps
 from .task import Task
 from .utils import copy_s3, get_key, linktree, randstr, set_key
@@ -112,6 +112,7 @@ class Workflow:
                 str, DockerSecret, List[Union[str, DockerSecret]]]] = None,
             artifact_repo_key: Optional[str] = None,
             parameters: Optional[Dict[str, Any]] = None,
+            on_exit: Optional[OPTemplate] = None,
     ) -> None:
         self.host = host if host is not None else config["host"]
         self.token = token if token is not None else config["token"]
@@ -166,6 +167,7 @@ class Workflow:
         parse_repo(self.artifact_repo_key, self.namespace,
                    k8s_api_server=self.k8s_api_server, token=self.token,
                    k8s_config_file=self.k8s_config_file)
+        self.on_exit = on_exit
 
     def get_k8s_core_v1_api(self):
         if self.k8s_client is None:
@@ -607,6 +609,14 @@ class Workflow:
             workflow_urn = config["lineage"].register_workflow(self.name)
             self.parameters["dflow_workflow_urn"] = workflow_urn
 
+        if self.on_exit is not None:
+            if hasattr(self.on_exit, "python_packages") and \
+                    self.on_exit.python_packages:
+                artifact = upload_python_packages(self.on_exit.python_packages)
+                self.on_exit.inputs.artifacts[
+                    "dflow_python_packages"].source = artifact
+            self.handle_template(self.on_exit)
+
         self.deduplicate_templates()
         return V1alpha1Workflow(
             metadata=metadata,
@@ -624,7 +634,8 @@ class Workflow:
                 pod_gc=V1alpha1PodGC(strategy=self.pod_gc_strategy),
                 image_pull_secrets=self.image_pull_secrets,
                 artifact_repository_ref=None if self.artifact_repo_key is None
-                else V1alpha1ArtifactRepositoryRef(key=self.artifact_repo_key)
+                else V1alpha1ArtifactRepositoryRef(key=self.artifact_repo_key),
+                on_exit=self.on_exit.name if self.on_exit is not None else None
             ),
             status={"outputs": {"parameters": list(global_parameters.values()),
                                 "artifacts": list(global_artifacts.values())}})

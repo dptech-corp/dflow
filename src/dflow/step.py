@@ -280,6 +280,17 @@ def argo_concat(
     return ArgoConcat(param)
 
 
+def upload_python_packages(python_packages):
+    hit = list(filter(lambda x: x[0] == python_packages,
+                      uploaded_python_packages))
+    if len(hit) > 0:
+        return hit[0][1]
+    else:
+        artifact = upload_artifact(python_packages)
+        uploaded_python_packages.append((python_packages, artifact))
+        return artifact
+
+
 class Step:
     """
     Step
@@ -400,15 +411,8 @@ class Step:
 
         if hasattr(self.template, "python_packages") and \
                 self.template.python_packages:
-            hit = list(filter(lambda x: x[0] == self.template.python_packages,
-                              uploaded_python_packages))
-            if len(hit) > 0:
-                self.set_artifacts({"dflow_python_packages": hit[0][1]})
-            else:
-                artifact = upload_artifact(self.template.python_packages)
-                self.set_artifacts({"dflow_python_packages": artifact})
-                uploaded_python_packages.append(
-                    (self.template.python_packages, artifact))
+            artifact = upload_python_packages(self.template.python_packages)
+            self.set_artifacts({"dflow_python_packages": artifact})
 
         if self.key is not None:
             self.template.inputs.parameters["dflow_key"] = InputParameter(
