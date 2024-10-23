@@ -175,6 +175,7 @@ class DAG(OPTemplate):
         for task in self.tasks:
             argo_tasks.append(task.convert_to_argo(context))
             templates.append(task.template)
+            templates += [hook.template for hook in task.hooks.values()]
 
         self.handle_key(memoize_prefix, memoize_configmap)
         argo_template = \

@@ -660,10 +660,18 @@ class Workflow:
                                     for ps in step:
                                         if ps.template == n1:
                                             ps.template = n2
+                                        if ps.hooks:
+                                            for hook in ps.hooks.values():
+                                                if hook.template == n1:
+                                                    hook.template = n2
                             elif parent.dag:
                                 for task in parent.dag.tasks:
                                     if task.template == n1:
                                         task.template = n2
+                                    if task.hooks:
+                                        for hook in task.hooks.values():
+                                            if hook.template == n1:
+                                                hook.template = n2
                             self.parents[n2] = self.parents.get(n2, []) + [
                                 parent]
                             modified_name.add(parent.name)

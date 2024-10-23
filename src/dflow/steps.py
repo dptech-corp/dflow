@@ -122,6 +122,7 @@ class Steps(OPTemplate):
                 argo_parallel_steps.append(ps.convert_to_argo(context))
                 # template may change after conversion
                 templates.append(ps.template)
+                templates += [hook.template for hook in ps.hooks.values()]
             argo_steps.append(argo_parallel_steps)
 
         self.handle_key(memoize_prefix, memoize_configmap)

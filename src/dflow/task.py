@@ -56,6 +56,10 @@ class Task(Step):
             self.check_step.dependencies = [
                 "%s.Succeeded || %s.Failed || %s.Errored" % (self, self, self)]
 
+    @property
+    def expr(self):
+        return "tasks['%s']" % self.id
+
     @classmethod
     def from_dict(cls, d, templates):
         task = super().from_dict(d, templates)
