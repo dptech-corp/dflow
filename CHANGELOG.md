@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.96](https://github.com/deepmodeling/dflow/compare/v1.8.95...v1.8.96) (2024-10-23)
+
+
+### Bug Fixes
+
+* add lifecycle hooks to step/task ([9030946](https://github.com/deepmodeling/dflow/commit/9030946e0f0edcffe5e806197bba4d3afa74b6e3))
+* add onExit hook ([acbd12d](https://github.com/deepmodeling/dflow/commit/acbd12d23e083d739290a57d04b241b522b9e063))
+
 ## [1.8.95](https://github.com/deepmodeling/dflow/compare/v1.8.94...v1.8.95) (2024-10-18)
 
 
