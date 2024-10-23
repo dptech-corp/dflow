@@ -46,10 +46,12 @@
 <li class="toctree-l3"><a class="reference internal" href="dflow.client.html">dflow.client package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="dflow.client.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.client.html#dflow-client-v1alpha1-artifact-module">dflow.client.v1alpha1_artifact module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.client.html#dflow-client-v1alpha1-lifecycle-hook-module">dflow.client.v1alpha1_lifecycle_hook module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.client.html#dflow-client-v1alpha1-parameter-module">dflow.client.v1alpha1_parameter module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.client.html#dflow-client-v1alpha1-retry-strategy-module">dflow.client.v1alpha1_retry_strategy module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.client.html#dflow-client-v1alpha1-sequence-module">dflow.client.v1alpha1_sequence module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.client.html#dflow-client-v1alpha1-value-from-module">dflow.client.v1alpha1_value_from module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.client.html#dflow-client-v1alpha1-workflow-step-module">dflow.client.v1alpha1_workflow_step module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.client.html#module-contents">Module contents</a></li>
 </ul>
 </li>
@@ -405,6 +407,10 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.step.ArgoSum"><code class="docutils literal notranslate"><span class="pre">ArgoSum</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.step.HookStep"><code class="docutils literal notranslate"><span class="pre">HookStep</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.step.HookStep.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">HookStep.convert_to_argo()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.step.Step"><code class="docutils literal notranslate"><span class="pre">Step</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.step.Step.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Step.convert_to_argo()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.step.Step.convert_to_graph"><code class="docutils literal notranslate"><span class="pre">Step.convert_to_graph()</span></code></a></li>
@@ -412,6 +418,7 @@
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.step.Step.exec_pod"><code class="docutils literal notranslate"><span class="pre">Step.exec_pod()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.step.Step.exec_steps"><code class="docutils literal notranslate"><span class="pre">Step.exec_steps()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.step.Step.exec_with_config"><code class="docutils literal notranslate"><span class="pre">Step.exec_with_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.step.Step.expr"><code class="docutils literal notranslate"><span class="pre">Step.expr</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.step.Step.from_dict"><code class="docutils literal notranslate"><span class="pre">Step.from_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.step.Step.from_graph"><code class="docutils literal notranslate"><span class="pre">Step.from_graph()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.step.Step.handle_sub_path_slices_of_artifact_list"><code class="docutils literal notranslate"><span class="pre">Step.handle_sub_path_slices_of_artifact_list()</span></code></a></li>
@@ -466,6 +473,7 @@
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.task.Task"><code class="docutils literal notranslate"><span class="pre">Task</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.task.Task.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Task.convert_to_argo()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.task.Task.convert_to_graph"><code class="docutils literal notranslate"><span class="pre">Task.convert_to_graph()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.task.Task.expr"><code class="docutils literal notranslate"><span class="pre">Task.expr</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.task.Task.from_dict"><code class="docutils literal notranslate"><span class="pre">Task.from_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.task.Task.set_artifacts"><code class="docutils literal notranslate"><span class="pre">Task.set_artifacts()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.task.Task.set_parameters"><code class="docutils literal notranslate"><span class="pre">Task.set_parameters()</span></code></a></li>
@@ -657,6 +665,10 @@
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.HTTPArtifact.download"><code class="docutils literal notranslate"><span class="pre">HTTPArtifact.download()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.HookStep"><code class="docutils literal notranslate"><span class="pre">HookStep</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.HookStep.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">HookStep.convert_to_argo()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.IfExpression"><code class="docutils literal notranslate"><span class="pre">IfExpression</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.InputArtifact"><code class="docutils literal notranslate"><span class="pre">InputArtifact</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.InputArtifact.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">InputArtifact.convert_to_argo()</span></code></a></li>
@@ -787,6 +799,7 @@
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Step.exec_pod"><code class="docutils literal notranslate"><span class="pre">Step.exec_pod()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Step.exec_steps"><code class="docutils literal notranslate"><span class="pre">Step.exec_steps()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Step.exec_with_config"><code class="docutils literal notranslate"><span class="pre">Step.exec_with_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Step.expr"><code class="docutils literal notranslate"><span class="pre">Step.expr</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Step.from_dict"><code class="docutils literal notranslate"><span class="pre">Step.from_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Step.from_graph"><code class="docutils literal notranslate"><span class="pre">Step.from_graph()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Step.handle_sub_path_slices_of_artifact_list"><code class="docutils literal notranslate"><span class="pre">Step.handle_sub_path_slices_of_artifact_list()</span></code></a></li>
@@ -818,6 +831,7 @@
 <li class="toctree-l3"><a class="reference internal" href="dflow.html#dflow.Task"><code class="docutils literal notranslate"><span class="pre">Task</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Task.convert_to_argo"><code class="docutils literal notranslate"><span class="pre">Task.convert_to_argo()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Task.convert_to_graph"><code class="docutils literal notranslate"><span class="pre">Task.convert_to_graph()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Task.expr"><code class="docutils literal notranslate"><span class="pre">Task.expr</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Task.from_dict"><code class="docutils literal notranslate"><span class="pre">Task.from_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Task.set_artifacts"><code class="docutils literal notranslate"><span class="pre">Task.set_artifacts()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="dflow.html#dflow.Task.set_parameters"><code class="docutils literal notranslate"><span class="pre">Task.set_parameters()</span></code></a></li>

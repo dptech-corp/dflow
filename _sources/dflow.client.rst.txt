@@ -12,6 +12,14 @@ dflow.client.v1alpha1\_artifact module
    :undoc-members:
    :show-inheritance:
 
+dflow.client.v1alpha1\_lifecycle\_hook module
+---------------------------------------------
+
+.. automodule:: dflow.client.v1alpha1_lifecycle_hook
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dflow.client.v1alpha1\_parameter module
 ---------------------------------------
 
@@ -40,6 +48,14 @@ dflow.client.v1alpha1\_value\_from module
 -----------------------------------------
 
 .. automodule:: dflow.client.v1alpha1_value_from
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dflow.client.v1alpha1\_workflow\_step module
+--------------------------------------------
+
+.. automodule:: dflow.client.v1alpha1_workflow_step
    :members:
    :undoc-members:
    :show-inheritance:
