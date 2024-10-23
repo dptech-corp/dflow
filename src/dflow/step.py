@@ -30,10 +30,10 @@ from .utils import (ProcessPoolExecutor, catalog_of_artifact, copy_file,
 
 try:
     from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
-                                       V1alpha1ResourceTemplate,
-                                       V1alpha1WorkflowStep, V1VolumeMount)
+                                       V1alpha1ResourceTemplate, V1VolumeMount)
 
-    from .client import V1alpha1Sequence
+    from .client import (V1alpha1Sequence, V1alpha1LifecycleHook,
+                         V1alpha1WorkflowStep)
 except Exception:
     V1alpha1Sequence = object
 
@@ -343,12 +343,31 @@ class Step:
             util_command: Union[str, List[str]] = None,
             parallelism: Optional[int] = None,
             slices: Optional[Slices] = None,
+            success_hook: Optional["HookStep"] = None,
+            running_hook: Optional["HookStep"] = None,
+            failure_hook: Optional["HookStep"] = None,
     ) -> None:
         assert field_regex.match(name), "Invalid step name '%s': %s" % (
             name, field_errmsg)
         self.name = name
         self.id = self.name
         self.template = template
+        self.hooks = {}
+        if success_hook is not None:
+            assert isinstance(success_hook, HookStep)
+            success_hook = deepcopy(success_hook)
+            success_hook.expression = "%s.status == 'Succeeded'" % self.expr
+            self.hooks["success"] = success_hook
+        if running_hook is not None:
+            assert isinstance(running_hook, HookStep)
+            running_hook = deepcopy(running_hook)
+            running_hook.expression = "%s.status == 'Running'" % self.expr
+            self.hooks["running"] = running_hook
+        if failure_hook is not None:
+            assert isinstance(failure_hook, HookStep)
+            failure_hook = deepcopy(failure_hook)
+            failure_hook.expression = "%s.status == 'Failed'" % self.expr
+            self.hooks["failure"] = failure_hook
         self._with_param = with_param
         self.with_param = with_param
         if isinstance(self.with_param, str) and self.with_param.startswith(
@@ -1015,6 +1034,10 @@ class Step:
     def __repr__(self):
         return self.id
 
+    @property
+    def expr(self):
+        return "steps['%s']" % self.id
+
     def handle_sub_path_slices_of_artifact_list(self, slices, artifacts):
         n = len(artifacts[slices.input_artifact[0]])
         param = {}
@@ -1380,7 +1403,11 @@ class Step:
             with_sequence=None if self.with_sequence is None else
             self.with_sequence.convert_to_argo(),
             continue_on=V1alpha1ContinueOn(failed=self.continue_on_failed,
-                                           error=self.continue_on_error)
+                                           error=self.continue_on_error),
+            hooks={
+                name: hook.convert_to_argo(context)
+                for name, hook in self.hooks.items()
+            },
         )
 
     def convert_to_graph(self):
@@ -2141,6 +2168,28 @@ class Step:
         arts = {name: art.local_path for name, art in
                 self.outputs.artifacts.items() if hasattr(art, "local_path")}
         return self.phase, pars, arts
+
+
+class HookStep(Step):
+    def __init__(
+        self,
+        template: OPTemplate,
+        expression: Optional[str] = None,
+        **kwargs,
+    ):
+        super().__init__(name=randstr(), template=template, **kwargs)
+        self.expression = expression
+
+    def convert_to_argo(self, context=None):
+        self.prepare_argo_arguments(context)
+        return V1alpha1LifecycleHook(
+            arguments=V1alpha1Arguments(
+                parameters=self.argo_parameters,
+                artifacts=self.argo_artifacts
+            ),
+            expression=self.expression,
+            template=self.template.name,
+        )
 
 
 def render_item(expr, item):
