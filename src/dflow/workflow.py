@@ -999,6 +999,7 @@ class Workflow:
             phase: Union[str, List[str]] = None,
             id: Union[str, List[str]] = None,
             type: Union[str, List[str]] = None,
+            sort_by_generation: bool = False,
     ) -> List[ArgoStep]:
         """
         Query the existing steps of the workflow from Argo
@@ -1016,6 +1017,8 @@ class Workflow:
             phase: filter by phase of step
             id: filter by id of step
             type: filter by type of step
+            sort_by_generation: sort results by the number of generation from
+                the root node
         Returns:
             a list of steps
         """
@@ -1100,8 +1103,9 @@ class Workflow:
             step_list.sort(key=lambda x: x["startedAt"])
             return step_list
 
-        return self.query().get_step(name=name, key=key, phase=phase, id=id,
-                                     type=type)
+        return self.query().get_step(
+            name=name, key=key, phase=phase, id=id, type=type,
+            sort_by_generation=sort_by_generation)
 
     def query_keys_of_steps(
             self,

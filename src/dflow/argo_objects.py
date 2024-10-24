@@ -359,6 +359,7 @@ class ArgoWorkflow(ArgoObjectDict):
             phase: Union[str, List[str]] = None,
             id: Union[str, List[str]] = None,
             type: Union[str, List[str]] = None,
+            sort_by_generation: bool = False,
     ) -> List[ArgoStep]:
         if name is not None and not isinstance(name, list):
             name = [name]
@@ -395,8 +396,22 @@ class ArgoWorkflow(ArgoObjectDict):
                     continue
                 step = ArgoStep(step, self.metadata.name)
                 step_list.append(step)
-        step_list.sort(key=lambda x: x["startedAt"])
+        if sort_by_generation:
+            self.generation = {}
+            self.record_generation(self.id, 0)
+            step_list.sort(key=lambda x: self.generation.get(
+                x["id"], len(self.status.nodes)))
+        else:
+            step_list.sort(key=lambda x: x["startedAt"])
         return step_list
+
+    def record_generation(self, node_id, generation):
+        self.generation[node_id] = generation
+        if "children" in self.status.nodes[node_id]:
+            for child in self.status.nodes[node_id]["children"]:
+                if child in self.generation:
+                    continue
+                self.record_generation(child, generation+1)
 
     def get_duration(self) -> datetime.timedelta:
         return get_duration(self.status)
