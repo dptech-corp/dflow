@@ -5,8 +5,8 @@ from .op_template import OPTemplate
 from .step import Step
 
 try:
-    from argo.workflows.client import (V1alpha1Arguments, V1alpha1ContinueOn,
-                                       V1alpha1DAGTask)
+    from argo.workflows.client import V1alpha1Arguments, V1alpha1ContinueOn
+    from .client import V1alpha1DAGTask
 except Exception:
     pass
 
@@ -123,6 +123,10 @@ class Task(Step):
             continue_on=continue_on,
             with_sequence=self.with_sequence,
             depends=" && ".join(depends),
+            hooks={
+                name: hook.convert_to_argo(context)
+                for name, hook in self.hooks.items()
+            },
         )
 
     def convert_to_graph(self):

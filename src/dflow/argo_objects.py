@@ -6,7 +6,7 @@ import tempfile
 import time
 from collections import UserDict, UserList
 from copy import deepcopy
-from typing import Any, List, Union
+from typing import Any, List, Optional, Union
 
 from .common import jsonpickle
 from .config import config, s3_config
@@ -359,6 +359,8 @@ class ArgoWorkflow(ArgoObjectDict):
             phase: Union[str, List[str]] = None,
             id: Union[str, List[str]] = None,
             type: Union[str, List[str]] = None,
+            parent_id: Optional[str] = None,
+            sort_by_generation: bool = False,
     ) -> List[ArgoStep]:
         if name is not None and not isinstance(name, list):
             name = [name]
@@ -372,7 +374,11 @@ class ArgoWorkflow(ArgoObjectDict):
             type = [type]
         step_list = []
         if hasattr(self.status, "nodes"):
-            for step in self.status.nodes.values():
+            if parent_id is not None:
+                nodes = self.get_sub_nodes(parent_id)
+            else:
+                nodes = self.status.nodes.values()
+            for step in nodes:
                 if step["startedAt"] is None:
                     continue
                 if name is not None and not match(step["displayName"], name):
@@ -395,8 +401,46 @@ class ArgoWorkflow(ArgoObjectDict):
                     continue
                 step = ArgoStep(step, self.metadata.name)
                 step_list.append(step)
-        step_list.sort(key=lambda x: x["startedAt"])
+        else:
+            return []
+        if sort_by_generation:
+            self.generation = {}
+            self.record_generation(self.id, 0)
+            step_list.sort(key=lambda x: self.generation.get(
+                x["id"], len(self.status.nodes)))
+        else:
+            step_list.sort(key=lambda x: x["startedAt"])
         return step_list
+
+    def get_sub_nodes(self, node_id):
+        assert node_id in self.status.nodes
+        node = self.status.nodes[node_id]
+        if node["type"] not in ["Steps", "DAG"]:
+            return [node]
+        if node.get("memoizationStatus", {}).get("hit", False):
+            return [node]
+        sub_nodes = []
+        outbound_nodes = node.get("outboundNodes", [])
+        children = node.get("children", [])
+        # order by generation (BFS)
+        current_generation = children
+        while len(current_generation) > 0:
+            for id in current_generation:
+                sub_nodes.append(self.status.nodes[id])
+            next_generation = []
+            for id in current_generation:
+                if id not in outbound_nodes:
+                    next_generation += self.status.nodes[id].get(
+                        "children", [])
+            current_generation = next_generation
+        return sub_nodes
+
+    def record_generation(self, node_id, generation):
+        self.generation[node_id] = generation
+        for child in self.status.nodes[node_id].get("children", []):
+            if child in self.generation:
+                continue
+            self.record_generation(child, generation+1)
 
     def get_duration(self) -> datetime.timedelta:
         return get_duration(self.status)

@@ -45,6 +45,7 @@ class Slices:
         register_first_only: only register first slice when lineage used
         create_dir: create a separate dir for each slice for saving output
             artifacts
+        raise_for_group: raise exception finally if any task in the group fails
     """
 
     def __init__(
@@ -62,6 +63,7 @@ class Slices:
             pool_timeout: Optional[int] = None,
             register_first_only: bool = False,
             create_dir: bool = False,
+            raise_for_group: bool = False,
     ) -> None:
         self.input_parameter = input_parameter if input_parameter is not \
             None else []
@@ -715,7 +717,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     "\n" % self.tmp_root
                 script += "        f.write(str(len([e for e in error_list if "\
                     "e is None])))\n"
-            if not self.success_tag or config["raise_for_group"]:
+            if not self.success_tag or config["raise_for_group"] or \
+                    self.slices.raise_for_group:
                 script += "    try:\n"
                 script += "        for error in error_list:\n"
                 script += "            if error is not None:\n"
