@@ -12,6 +12,14 @@ dflow.client.v1alpha1\_artifact module
    :undoc-members:
    :show-inheritance:
 
+dflow.client.v1alpha1\_dag\_task module
+---------------------------------------
+
+.. automodule:: dflow.client.v1alpha1_dag_task
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dflow.client.v1alpha1\_lifecycle\_hook module
 ---------------------------------------------
 
