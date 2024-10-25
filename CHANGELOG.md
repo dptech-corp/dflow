@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [1.8.97](https://github.com/deepmodeling/dflow/compare/v1.8.96...v1.8.97) (2024-10-25)
+
+
+### Bug Fixes
+
+* add raise_for_group to Slices ([a3e7ee1](https://github.com/deepmodeling/dflow/commit/a3e7ee11413eb9c0bebed7d59ce84efe52b7b196))
+* add sort_by_generation to query_step ([a3e7ee1](https://github.com/deepmodeling/dflow/commit/a3e7ee11413eb9c0bebed7d59ce84efe52b7b196))
+* hooks of task ([67b5876](https://github.com/deepmodeling/dflow/commit/67b58766845dd8d98443e89a5b0a56558c21291d))
+* support get sub steps of a specific step ([7446003](https://github.com/deepmodeling/dflow/commit/74460034816a7a2ba3c7af44ce9581cda8c923f2))
+
 ## [1.8.96](https://github.com/deepmodeling/dflow/compare/v1.8.95...v1.8.96) (2024-10-23)
 
 
