@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.98](https://github.com/deepmodeling/dflow/compare/v1.8.97...v1.8.98) (2024-10-31)
+
+
+### Bug Fixes
+
+* support specify hooks after defining step ([3c016b7](https://github.com/deepmodeling/dflow/commit/3c016b7d42d1c547cce20888959339ae4d019735))
+
 ## [1.8.97](https://github.com/deepmodeling/dflow/compare/v1.8.96...v1.8.97) (2024-10-25)
 
 
