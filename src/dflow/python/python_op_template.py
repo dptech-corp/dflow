@@ -87,6 +87,7 @@ class Slices:
         self.pool_timeout = pool_timeout
         self.register_first_only = register_first_only
         self.create_dir = create_dir
+        self.raise_for_group = raise_for_group
 
     def evalable_repr(self, imports):
         kwargs = {}
