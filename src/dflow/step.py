@@ -353,21 +353,9 @@ class Step:
         self.id = self.name
         self.template = template
         self.hooks = {}
-        if success_hook is not None:
-            assert isinstance(success_hook, HookStep)
-            success_hook = deepcopy(success_hook)
-            success_hook.expression = "%s.status == 'Succeeded'" % self.expr
-            self.hooks["success"] = success_hook
-        if running_hook is not None:
-            assert isinstance(running_hook, HookStep)
-            running_hook = deepcopy(running_hook)
-            running_hook.expression = "%s.status == 'Running'" % self.expr
-            self.hooks["running"] = running_hook
-        if failure_hook is not None:
-            assert isinstance(failure_hook, HookStep)
-            failure_hook = deepcopy(failure_hook)
-            failure_hook.expression = "%s.status == 'Failed'" % self.expr
-            self.hooks["failure"] = failure_hook
+        self.success_hook = success_hook
+        self.running_hook = running_hook
+        self.failure_hook = failure_hook
         self._with_param = with_param
         self.with_param = with_param
         if isinstance(self.with_param, str) and self.with_param.startswith(
@@ -1388,6 +1376,22 @@ class Step:
                 failure_condition=self.use_resource.failure_condition,
                 manifest=self.use_resource.get_manifest(self.template.command,
                                                         self.template.script))
+
+        if self.success_hook is not None:
+            assert isinstance(self.success_hook, HookStep)
+            success_hook = deepcopy(self.success_hook)
+            success_hook.expression = "%s.status == 'Succeeded'" % self.expr
+            self.hooks["success"] = success_hook
+        if self.running_hook is not None:
+            assert isinstance(self.running_hook, HookStep)
+            running_hook = deepcopy(self.running_hook)
+            running_hook.expression = "%s.status == 'Running'" % self.expr
+            self.hooks["running"] = running_hook
+        if self.failure_hook is not None:
+            assert isinstance(self.failure_hook, HookStep)
+            failure_hook = deepcopy(self.failure_hook)
+            failure_hook.expression = "%s.status == 'Failed'" % self.expr
+            self.hooks["failure"] = failure_hook
 
     def convert_to_argo(self, context=None):
         logging.debug("handle step %s" % self.name)
