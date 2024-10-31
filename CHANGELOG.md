@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.99](https://github.com/deepmodeling/dflow/compare/v1.8.98...v1.8.99) (2024-10-31)
+
+
+### Bug Fixes
+
+* 'Slices' object has no attribute 'raise_for_group' ([d887fce](https://github.com/deepmodeling/dflow/commit/d887fce6f3bb6a95344bdfe9c6bae67a6c8b0224))
+
 ## [1.8.98](https://github.com/deepmodeling/dflow/compare/v1.8.97...v1.8.98) (2024-10-31)
 
 
