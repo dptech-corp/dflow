@@ -1,5 +1,45 @@
 # CHANGELOG
 
+## [1.8.98](https://github.com/deepmodeling/dflow/compare/v1.8.97...v1.8.98) (2024-10-31)
+
+
+### Bug Fixes
+
+* support specify hooks after defining step ([3c016b7](https://github.com/deepmodeling/dflow/commit/3c016b7d42d1c547cce20888959339ae4d019735))
+
+## [1.8.97](https://github.com/deepmodeling/dflow/compare/v1.8.96...v1.8.97) (2024-10-25)
+
+
+### Bug Fixes
+
+* add raise_for_group to Slices ([a3e7ee1](https://github.com/deepmodeling/dflow/commit/a3e7ee11413eb9c0bebed7d59ce84efe52b7b196))
+* add sort_by_generation to query_step ([a3e7ee1](https://github.com/deepmodeling/dflow/commit/a3e7ee11413eb9c0bebed7d59ce84efe52b7b196))
+* hooks of task ([67b5876](https://github.com/deepmodeling/dflow/commit/67b58766845dd8d98443e89a5b0a56558c21291d))
+* support get sub steps of a specific step ([7446003](https://github.com/deepmodeling/dflow/commit/74460034816a7a2ba3c7af44ce9581cda8c923f2))
+
+## [1.8.96](https://github.com/deepmodeling/dflow/compare/v1.8.95...v1.8.96) (2024-10-23)
+
+
+### Bug Fixes
+
+* add lifecycle hooks to step/task ([9030946](https://github.com/deepmodeling/dflow/commit/9030946e0f0edcffe5e806197bba4d3afa74b6e3))
+* add onExit hook ([acbd12d](https://github.com/deepmodeling/dflow/commit/acbd12d23e083d739290a57d04b241b522b9e063))
+
+## [1.8.95](https://github.com/deepmodeling/dflow/compare/v1.8.94...v1.8.95) (2024-10-18)
+
+
+### Bug Fixes
+
+* pass None for HDF5Datasets ([1310554](https://github.com/deepmodeling/dflow/commit/1310554ead008acee1754112ef6032c9a062dfd9))
+
+## [1.8.94](https://github.com/deepmodeling/dflow/compare/v1.8.93...v1.8.94) (2024-10-17)
+
+
+### Bug Fixes
+
+* HDF5Datasets with grouped slices ([1bfae67](https://github.com/deepmodeling/dflow/commit/1bfae67ab6533c9dddf8066a40919c56bb7c53b5))
+* None in HDF5Datasets ([1bfae67](https://github.com/deepmodeling/dflow/commit/1bfae67ab6533c9dddf8066a40919c56bb7c53b5))
+
 ## [1.8.93](https://github.com/deepmodeling/dflow/compare/v1.8.92...v1.8.93) (2024-09-20)
 
 

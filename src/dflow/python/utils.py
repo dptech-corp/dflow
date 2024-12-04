@@ -210,7 +210,9 @@ def slice_to_dir(slice):
 
 
 def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp",
-                           create_dir=False):
+                           create_dir=False, symlink=False):
+    if os.path.isdir(data_root + '/outputs/artifacts/' + name):
+        shutil.rmtree(data_root + '/outputs/artifacts/' + name)
     path_list = []
     if sign.type == HDF5Datasets:
         import h5py
@@ -268,7 +270,7 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp",
             slices = 0
         path_list.append(copy_results_and_return_path_item(
             value, name, slices, data_root,
-            slice_to_dir(slices) if create_dir else None))
+            slice_to_dir(slices) if create_dir else None, symlink=symlink))
     elif sign.type in [List[str], List[Path], Set[str], Set[Path]]:
         os.makedirs(data_root + '/outputs/artifacts/' + name, exist_ok=True)
         if slices is not None:
@@ -276,7 +278,8 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp",
                 for path in value:
                     path_list.append(copy_results_and_return_path_item(
                         path, name, slices, data_root,
-                        slice_to_dir(slices) if create_dir else None))
+                        slice_to_dir(slices) if create_dir else None,
+                        symlink=symlink))
             else:
                 assert len(slices) == len(value)
                 for path, s in zip(value, slices):
@@ -285,25 +288,26 @@ def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp",
                             path_list.append(
                                 copy_results_and_return_path_item(
                                     p, name, s, data_root, slice_to_dir(
-                                        s) if create_dir else None))
+                                        s) if create_dir else None,
+                                    symlink=symlink))
                     else:
                         path_list.append(copy_results_and_return_path_item(
                             path, name, s, data_root, slice_to_dir(
-                                s) if create_dir else None))
+                                s) if create_dir else None, symlink=symlink))
         else:
             for s, path in enumerate(value):
                 path_list.append(copy_results_and_return_path_item(
-                    path, name, s, data_root))
+                    path, name, s, data_root, symlink=symlink))
     elif sign.type in [Dict[str, str], Dict[str, Path]]:
         os.makedirs(data_root + '/outputs/artifacts/' + name, exist_ok=True)
         for s, path in value.items():
             path_list.append(copy_results_and_return_path_item(
-                path, name, s, data_root))
+                path, name, s, data_root, symlink=symlink))
     elif sign.type in [NestedDict[str], NestedDict[Path]]:
         os.makedirs(data_root + '/outputs/artifacts/' + name, exist_ok=True)
         for s, path in flatten(value).items():
             path_list.append(copy_results_and_return_path_item(
-                path, name, s, data_root))
+                path, name, s, data_root, symlink=symlink))
 
     os.makedirs(data_root + "/outputs/artifacts/%s/%s" % (name, config[
         "catalog_dir_name"]), exist_ok=True)
@@ -343,15 +347,16 @@ def handle_output_parameter(name, value, sign, slices=None, data_root="/tmp"):
 
 
 def copy_results_and_return_path_item(path, name, order, data_root="/tmp",
-                                      slice_dir=None):
-    if path and os.path.exists(str(path)):
+                                      slice_dir=None, symlink=False):
+    if (path and os.path.exists(str(path))) or symlink:
         return {"dflow_list_item": copy_results(
-                    path, name, data_root, slice_dir), "order": order}
+                    path, name, data_root, slice_dir, symlink), "order": order}
     else:
         return {"dflow_list_item": None, "order": order}
 
 
-def copy_results(source, name, data_root="/tmp", slice_dir=None):
+def copy_results(source, name, data_root="/tmp", slice_dir=None,
+                 symlink=False):
     source = str(source)
     # if refer to input artifact
     if source.find(data_root + "/inputs/artifacts/") == 0:
@@ -364,7 +369,12 @@ def copy_results(source, name, data_root="/tmp", slice_dir=None):
         if slice_dir is not None:
             rel_path = "%s/%s" % (slice_dir, rel_path)
         target = data_root + "/outputs/artifacts/%s/%s" % (name, rel_path)
-        copy_file(source, target, shutil.copy)
+        if symlink:
+            os.makedirs(os.path.abspath(os.path.dirname(target)),
+                        exist_ok=True)
+            os.symlink(source, target)
+        else:
+            copy_file(source, target, shutil.copy)
         if rel_path[:1] == "/":
             rel_path = rel_path[1:]
         return rel_path
@@ -378,7 +388,12 @@ def copy_results(source, name, data_root="/tmp", slice_dir=None):
         if slice_dir is not None:
             rel_path = "%s/%s" % (slice_dir, rel_path)
         target = data_root + "/outputs/artifacts/%s/%s" % (name, rel_path)
-        copy_file(source, target)
+        if symlink:
+            os.makedirs(os.path.abspath(os.path.dirname(target)),
+                        exist_ok=True)
+            os.symlink(source, target)
+        else:
+            copy_file(source, target)
         return rel_path
 
 
@@ -456,7 +471,10 @@ def try_to_execute(input, slice_dir, op_obj, output_sign, cwd, timeout=None):
     except Exception as e:
         traceback.print_exc()
         os.chdir(cwd)
-        return None, e
+        if op_obj.outputs:
+            return op_obj.outputs, e
+        else:
+            return None, e
     finally:
         if timeout is not None:
             signal.alarm(0)

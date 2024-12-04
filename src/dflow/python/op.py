@@ -20,6 +20,7 @@ from ..io import (InputArtifact, InputParameter, OutputArtifact,
                   OutputParameter, type_to_str)
 from ..utils import dict2list, get_key, randstr, s3_config
 from .opio import OPIO, Artifact, BigParameter, OPIOSign, Parameter
+from .utils import handle_output_artifact, handle_output_parameter
 from .vendor.typeguard import check_type
 
 iwd = os.getcwd()
@@ -48,6 +49,10 @@ class OP(ABC):
     progress_current = 0
     key = None
     workflow_name = None
+    outputs = {}
+    slices = {}
+    tmp_root = "/tmp"
+    create_slice_dir = False
 
     def __init__(
             self,
@@ -399,6 +404,26 @@ class OP(ABC):
             mod = import_module(graph["module"])
             op = getattr(mod, graph["name"])
         return op
+
+    def set_output(self, name, value):
+        self.outputs[name] = value
+        self.handle_outputs({name: value}, symlink=True)
+
+    def handle_outputs(self, outputs, symlink=False):
+        os.makedirs("%s/outputs/parameters" % self.tmp_root, exist_ok=True)
+        os.makedirs("%s/outputs/artifacts" % self.tmp_root, exist_ok=True)
+        output_sign = self.get_output_sign()
+        for name in outputs:
+            sign = output_sign[name]
+            if isinstance(sign, Artifact):
+                slices = self.slices.get(name)
+                handle_output_artifact(
+                    name, outputs[name], sign, slices, self.tmp_root,
+                    self.create_slice_dir and slices, symlink=symlink)
+            else:
+                slices = self.slices.get(name)
+                handle_output_parameter(
+                    name, outputs[name], sign, slices, self.tmp_root)
 
 
 def type2opiosign(t):

@@ -593,6 +593,21 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                         "%s, r'%s')\n" % (name, name, name, name, slices,
                                           self.tmp_root)
 
+        script += "    op_obj.tmp_root = '%s'\n" % self.tmp_root
+        script += "    op_obj.create_slice_dir = %s\n" % (
+            self.create_slice_dir and getattr(self.slices, "pool_size", None)
+            is None)
+        for name, sign in output_sign.items():
+            if isinstance(sign, Artifact):
+                slices = self.get_slices(output_artifact_slices, name)
+                script += "    op_obj.slices['%s'] = %s\n" % (name, slices)
+
+        script += "    import signal\n"
+        script += "    def sigterm_handler(signum, frame):\n"
+        script += "        print('Got SIGTERM')\n"
+        script += "        raise RuntimeError('Got SIGTERM')\n"
+        script += "    signal.signal(signal.SIGTERM, sigterm_handler)\n"
+
         if self.slices is not None and self.slices.pool_size is not None:
             sliced_inputs = self.slices.input_artifact + \
                 self.slices.input_parameter
@@ -651,7 +666,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "        if o is not None:\n"
             script += "            output = o\n"
             for name in sliced_outputs:
-                script += "    output['%s'] = [o['%s'] if o is not None"\
+                script += "    output['%s'] = [o.get('%s') if o is not None"\
                     " else None for o in output_list]\n" % (name, name)
                 if isinstance(output_sign[name], Artifact):
                     if output_sign[name].type == str:
@@ -662,7 +677,12 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                             "]\n" % name
         else:
             script += "    try:\n"
-            script += "        output = op_obj.execute(input)\n"
+            script += "        try:\n"
+            script += "            output = op_obj.execute(input)\n"
+            script += "        except Exception as e:\n"
+            script += "            if op_obj.outputs:\n"
+            script += "                op_obj.handle_outputs(op_obj.outputs)\n"
+            script += "            raise e\n"
             script += "    except TransientError:\n"
             script += "        traceback.print_exc()\n"
             script += "        sys.exit(1)\n"
@@ -670,23 +690,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             script += "        traceback.print_exc()\n"
             script += "        sys.exit(2)\n"
 
-        script += "    os.makedirs(r'%s/outputs/parameters', exist_ok=True)\n"\
-            % self.tmp_root
-        script += "    os.makedirs(r'%s/outputs/artifacts', exist_ok=True)\n" \
-            % self.tmp_root
-        for name, sign in output_sign.items():
-            if isinstance(sign, Artifact):
-                slices = self.get_slices(output_artifact_slices, name)
-                script += "    handle_output_artifact('%s', output['%s'], "\
-                    "output_sign['%s'], %s, r'%s', %s)\n" % (
-                        name, name, name, slices, self.tmp_root,
-                        slices is not None and self.create_slice_dir and
-                        getattr(self.slices, "pool_size", None) is None)
-            else:
-                slices = self.get_slices(output_parameter_slices, name)
-                script += "    handle_output_parameter('%s', output['%s'], "\
-                    "output_sign['%s'], %s, r'%s')\n" % (name, name, name,
-                                                         slices, self.tmp_root)
+        script += "    op_obj.handle_outputs(output)\n"
+
         if config["register_tasks"]:
             if self.slices is not None and self.slices.register_first_only:
                 if "{{item}}" in self.dflow_vars:
