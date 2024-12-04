@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.100](https://github.com/deepmodeling/dflow/compare/v1.8.99...v1.8.100) (2024-12-04)
+
+
+### Bug Fixes
+
+* support set output before OP returns ([54c46f2](https://github.com/deepmodeling/dflow/commit/54c46f247ee9858db33280efd7549791514c8480))
+
 ## [1.8.99](https://github.com/deepmodeling/dflow/compare/v1.8.98...v1.8.99) (2024-10-31)
 
 
