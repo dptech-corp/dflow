@@ -58,6 +58,8 @@ class DispatcherExecutor(Executor):
         remote_root: remote root path for working
         retry_on_submission_error: max retries on submission error
         merge_sliced_step: handle multi slices in a single dispatcher job
+        terminate_grace_period: grace period in seconds after termination
+            for collecting outputs
     """
 
     def __init__(self,
@@ -89,6 +91,7 @@ class DispatcherExecutor(Executor):
                  remove_scheduling_strategies: bool = True,
                  envs: Optional[Dict[str, str]] = None,
                  merge_bohrium_job_group: bool = False,
+                 terminate_grace_period: Optional[int] = None,
                  ) -> None:
         self.host = host
         self.queue_name = queue_name
@@ -127,6 +130,7 @@ class DispatcherExecutor(Executor):
         self.remove_scheduling_strategies = remove_scheduling_strategies
         self.envs = envs
         self.merge_bohrium_job_group = merge_bohrium_job_group
+        self.terminate_grace_period = terminate_grace_period
 
         conf = {}
         if json_file is not None:
@@ -541,6 +545,10 @@ class DispatcherExecutor(Executor):
         new_template.script += "    print('Got SIGTERM, kill unfinished tasks"\
             "!')\n"
         new_template.script += "    submission.remove_unfinished_tasks()\n"
+        if self.terminate_grace_period:
+            new_template.script += "    import time\n"
+            new_template.script += "        time.sleep(%s)\n" % \
+                self.terminate_grace_period
         new_template.script += "import signal\n"
         new_template.script += "signal.signal(signal.SIGTERM, sigterm_handler"\
             ")\n"
