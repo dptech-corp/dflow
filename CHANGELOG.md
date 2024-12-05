@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.101](https://github.com/deepmodeling/dflow/compare/v1.8.100...v1.8.101) (2024-12-05)
+
+
+### Bug Fixes
+
+* set output parameter slices ([5b388ab](https://github.com/deepmodeling/dflow/commit/5b388abe294a35174abe83f0987e0d41006fc79f))
+* symlink relative path ([43cb6d7](https://github.com/deepmodeling/dflow/commit/43cb6d78b5e98af3297181733e49e952170de4b4))
+
 ## [1.8.100](https://github.com/deepmodeling/dflow/compare/v1.8.99...v1.8.100) (2024-12-04)
 
 
