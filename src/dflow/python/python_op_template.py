@@ -601,6 +601,9 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             if isinstance(sign, Artifact):
                 slices = self.get_slices(output_artifact_slices, name)
                 script += "    op_obj.slices['%s'] = %s\n" % (name, slices)
+            else:
+                slices = self.get_slices(output_parameter_slices, name)
+                script += "    op_obj.slices['%s'] = %s\n" % (name, slices)
 
         script += "    import signal\n"
         script += "    def sigterm_handler(signum, frame):\n"
