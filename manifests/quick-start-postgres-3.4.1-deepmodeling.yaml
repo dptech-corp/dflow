@@ -1690,7 +1690,7 @@ spec:
         - --auth-mode
         - client
         env: []
-        image: registry.dp.tech/deepmodeling/argocli:3.4.1-202309142010
+        image: registry.dp.tech/deepmodeling/argocli:3.4.1-202410311507
         name: argo-server
         ports:
         - containerPort: 2746
@@ -1882,7 +1882,7 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.name
-        image: registry.dp.tech/deepmodeling/workflow-controller:3.4.1-202405311738
+        image: registry.dp.tech/deepmodeling/workflow-controller:3.4.1-202410311507
         livenessProbe:
           failureThreshold: 3
           httpGet:

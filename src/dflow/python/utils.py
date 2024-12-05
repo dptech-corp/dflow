@@ -372,7 +372,7 @@ def copy_results(source, name, data_root="/tmp", slice_dir=None,
         if symlink:
             os.makedirs(os.path.abspath(os.path.dirname(target)),
                         exist_ok=True)
-            os.symlink(source, target)
+            os.symlink(os.path.abspath(source), target)
         else:
             copy_file(source, target, shutil.copy)
         if rel_path[:1] == "/":
@@ -391,7 +391,7 @@ def copy_results(source, name, data_root="/tmp", slice_dir=None,
         if symlink:
             os.makedirs(os.path.abspath(os.path.dirname(target)),
                         exist_ok=True)
-            os.symlink(source, target)
+            os.symlink(os.path.abspath(source), target)
         else:
             copy_file(source, target)
         return rel_path
