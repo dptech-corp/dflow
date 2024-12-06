@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.102](https://github.com/deepmodeling/dflow/compare/v1.8.101...v1.8.102) (2024-12-06)
+
+
+### Bug Fixes
+
+* output sign of pooled slices ([c7c615d](https://github.com/deepmodeling/dflow/commit/c7c615dd9b9e51df5a5836c599da4184b78be195))
+
 ## [1.8.101](https://github.com/deepmodeling/dflow/compare/v1.8.100...v1.8.101) (2024-12-05)
 
 
