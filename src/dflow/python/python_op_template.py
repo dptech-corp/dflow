@@ -604,6 +604,8 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             else:
                 slices = self.get_slices(output_parameter_slices, name)
                 script += "    op_obj.slices['%s'] = %s\n" % (name, slices)
+        script += "    op_obj.pool_size = %s\n" % getattr(
+            self.slices, "pool_size", None)
 
         script += "    import signal\n"
         script += "    def sigterm_handler(signum, frame):\n"
@@ -671,13 +673,6 @@ class PythonOPTemplate(PythonScriptOPTemplate):
             for name in sliced_outputs:
                 script += "    output['%s'] = [o.get('%s') if o is not None"\
                     " else None for o in output_list]\n" % (name, name)
-                if isinstance(output_sign[name], Artifact):
-                    if output_sign[name].type == str:
-                        script += "    output_sign['%s'].type = List[str]"\
-                            "\n" % name
-                    elif output_sign[name].type == Path:
-                        script += "    output_sign['%s'].type = List[Path"\
-                            "]\n" % name
         else:
             script += "    try:\n"
             script += "        try:\n"

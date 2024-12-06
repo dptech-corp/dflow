@@ -53,6 +53,7 @@ class OP(ABC):
     slices = {}
     tmp_root = "/tmp"
     create_slice_dir = False
+    pool_size = None
 
     def __init__(
             self,
@@ -417,6 +418,11 @@ class OP(ABC):
             sign = output_sign[name]
             if isinstance(sign, Artifact):
                 slices = self.slices.get(name)
+                if self.pool_size and slices is not None:
+                    if sign.type == str:
+                        sign.type = List[str]
+                    elif sign.type == Path:
+                        sign.type = List[Path]
                 handle_output_artifact(
                     name, outputs[name], sign, slices, self.tmp_root,
                     self.create_slice_dir and slices, symlink=symlink)
