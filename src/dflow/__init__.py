@@ -12,8 +12,8 @@ from .executor import ContainerExecutor, Executor, RemoteExecutor
 from .io import (AutonamedDict, IfExpression, InputArtifact, InputParameter,
                  Inputs, OutputArtifact, OutputParameter, Outputs,
                  if_expression)
-from .op_template import (OPTemplate, PythonScriptOPTemplate, Secret,
-                          ShellOPTemplate)
+from .op_template import (HTTPOPTemplate, OPTemplate, PythonScriptOPTemplate,
+                          Secret, ShellOPTemplate)
 from .resource import Resource
 from .slurm import SlurmJob, SlurmJobTemplate, SlurmRemoteExecutor
 from .step import (HookStep, Step, argo_concat, argo_enumerate, argo_len,
@@ -45,7 +45,7 @@ __all__ = ["S3Artifact", "DAG", "Executor", "RemoteExecutor", "AutonamedDict",
            "query_archived_workflows", "ContainerExecutor", "ArgoStep",
            "ArgoWorkflow", "argo_enumerate", "path_object_of_artifact",
            "CustomArtifact", "gen_code", "jsonpickle", "HTTPArtifact",
-           "HookStep"]
+           "HookStep", "HTTPOPTemplate"]
 
 
 if os.environ.get("DFLOW_LINEAGE"):

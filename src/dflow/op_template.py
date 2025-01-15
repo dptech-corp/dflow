@@ -13,7 +13,7 @@ try:
                                        V1alpha1Memoize, V1alpha1Metadata,
                                        V1alpha1ResourceTemplate,
                                        V1alpha1ScriptTemplate,
-                                       V1alpha1Template, V1alpha1UserContainer,
+                                       V1alpha1UserContainer,
                                        V1ConfigMapKeySelector, V1EnvVar,
                                        V1EnvVarSource, V1ResourceRequirements,
                                        V1SecretKeySelector, V1Toleration,
@@ -22,7 +22,7 @@ try:
 
     import kubernetes
 
-    from .client.v1alpha1_retry_strategy import V1alpha1RetryStrategy
+    from .client import (V1alpha1RetryStrategy, V1alpha1Template)
 except Exception:
     V1Affinity = object
     V1alpha1ResourceTemplate = object
@@ -194,6 +194,60 @@ class OPTemplate:
         new_template.name += "-" + randstr()
         new_template.modified = True
         return new_template
+
+
+class HTTPOPTemplate(OPTemplate):
+    def __init__(
+            self,
+            url: str,
+            name: Optional[str] = None,
+            inputs: Optional[Inputs] = None,
+            outputs: Optional[Outputs] = None,
+            memoize_key: Optional[str] = None,
+            annotations: Dict[str, str] = None,
+            labels: Dict[str, str] = None,
+            method: str = "get",
+            headers: Dict[str, str] = None,
+            timeout: Optional[int] = None,
+            success_condition: Optional[str] = None,
+            body: Union[str, bytes] = None,
+            insecure_skip_verify: bool = False,
+    ) -> None:
+        super().__init__(name=name, inputs=inputs, outputs=outputs,
+                         memoize_key=memoize_key, annotations=annotations,
+                         labels=labels)
+        self.url = url
+        self.method = method
+        if headers is None:
+            headers = {}
+        self.headers = headers
+        self.timeout = timeout
+        self.success_condition = success_condition
+        self.body = body
+        self.insecure_skip_verify = insecure_skip_verify
+
+    def convert_to_argo(self, memoize_prefix=None, memoize_configmap="dflow"):
+        self.handle_key(memoize_prefix, memoize_configmap)
+        return V1alpha1Template(
+            name=self.name,
+            metadata=V1alpha1Metadata(
+                annotations=self.annotations),
+            inputs=self.inputs.convert_to_argo(),
+            outputs=self.outputs.convert_to_argo(),
+            memoize=self.memoize,
+            http=dict(
+                method=self.method,
+                url=self.url,
+                headers=[{"name": k, "value": v}
+                         for k, v in self.headers.items()],
+                timeoutSeconds=self.timeout,
+                successCondition=self.success_condition,
+                body=self.body if isinstance(self.body, str) else None,
+                bodyFrom={"bytes": self.body} if isinstance(self.body, bytes)
+                else None,
+                insecureSkipVerify=self.insecure_skip_verify,
+            )
+        )
 
 
 class ScriptOPTemplate(OPTemplate):
