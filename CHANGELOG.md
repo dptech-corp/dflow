@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.103](https://github.com/deepmodeling/dflow/compare/v1.8.102...v1.8.103) (2025-01-15)
+
+
+### Bug Fixes
+
+* add HTTPOPTemplate ([a20dbd4](https://github.com/deepmodeling/dflow/commit/a20dbd4242c03eeae36fca136afcc3f1586588d3))
+* sort import ([93370fc](https://github.com/deepmodeling/dflow/commit/93370fc978fd57df89bc524f8d81ec568dba9cd6))
+
 ## [1.8.102](https://github.com/deepmodeling/dflow/compare/v1.8.101...v1.8.102) (2024-12-06)
 
 
