@@ -52,6 +52,14 @@ dflow.client.v1alpha1\_sequence module
    :undoc-members:
    :show-inheritance:
 
+dflow.client.v1alpha1\_template module
+--------------------------------------
+
+.. automodule:: dflow.client.v1alpha1_template
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dflow.client.v1alpha1\_value\_from module
 -----------------------------------------
 
