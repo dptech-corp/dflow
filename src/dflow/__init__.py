@@ -12,7 +12,7 @@ from .executor import ContainerExecutor, Executor, RemoteExecutor
 from .io import (AutonamedDict, IfExpression, InputArtifact, InputParameter,
                  Inputs, OutputArtifact, OutputParameter, Outputs,
                  if_expression)
-from .op_template import (OPTemplate, HTTPOPTemplate, PythonScriptOPTemplate,
+from .op_template import (HTTPOPTemplate, OPTemplate, PythonScriptOPTemplate,
                           Secret, ShellOPTemplate)
 from .resource import Resource
 from .slurm import SlurmJob, SlurmJobTemplate, SlurmRemoteExecutor
