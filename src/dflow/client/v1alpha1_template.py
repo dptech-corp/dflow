@@ -164,7 +164,7 @@ class V1alpha1Template(object):
         if arguments is not None:
             self.arguments = arguments
         if automount_service_account_token is not None:
-            self.automount_service_account_token = automount_service_account_token
+            self.automount_service_account_token = automount_service_account_token  # noqa: E501
         if container is not None:
             self.container = container
         if daemon is not None:
