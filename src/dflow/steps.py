@@ -233,8 +233,9 @@ class Steps(OPTemplate):
                         artifacts[match.group(2)]
         return obj
 
-    def run(self, workflow_id=None, context=None):
+    def run(self, workflow_id=None, context=None, stepdir=None):
         self.workflow_id = workflow_id
+        self.stepdir = stepdir
         for step in self:
             if isinstance(step, list):
                 import concurrent.futures

@@ -242,8 +242,9 @@ class DAG(OPTemplate):
                 self.waiting.remove(task)
                 self.running.append(task)
 
-    def run(self, workflow_id=None, context=None):
+    def run(self, workflow_id=None, context=None, stepdir=None):
         self.workflow_id = workflow_id
+        self.stepdir = stepdir
         self.context = context
         import concurrent.futures
         self.cwd = os.getcwd()

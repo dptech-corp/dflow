@@ -334,7 +334,7 @@ class Workflow:
                     f.write(str(os.getpid()))
                 entrypoint = deepcopy(self.entrypoint)
                 entrypoint.orig_template = self.entrypoint
-                entrypoint.run(self.id, self.context)
+                entrypoint.run(self.id, self.context, wfdir)
                 with open(os.path.join(wfdir, "status"), "w") as f:
                     f.write("Succeeded")
             except Exception:
@@ -1054,6 +1054,10 @@ class Workflow:
                     _phase = "Pending"
                 if phase is not None and phase != _phase:
                     continue
+                children = []
+                if os.path.exists(os.path.join(stepdir, "children")):
+                    with open(os.path.join(stepdir, "children"), "r") as f:
+                        children = f.read().split()
                 step = {
                     "workflow": self.id,
                     "displayName": _name,
@@ -1070,6 +1074,7 @@ class Workflow:
                         "parameters": [],
                         "artifacts": [],
                     },
+                    "children": children,
                 }
                 for io in ["inputs", "outputs"]:
                     if os.path.exists(os.path.join(stepdir, io, "parameters")):

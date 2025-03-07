@@ -403,7 +403,7 @@ class ArgoWorkflow(ArgoObjectDict):
                 step_list.append(step)
         else:
             return []
-        if sort_by_generation:
+        if sort_by_generation and config["mode"] != "debug":
             self.generation = {}
             self.record_generation(self.id, 0)
             step_list.sort(key=lambda x: self.generation.get(
