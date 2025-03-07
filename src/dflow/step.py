@@ -1853,6 +1853,18 @@ class Step:
         else:
             self.exec_pod(scope, parameters, item)
 
+    def add_children(self, scope, step_id):
+        if scope.stepdir is not None:
+            if os.path.isfile(os.path.join(scope.stepdir, "children")):
+                with open(os.path.join(scope.stepdir, "children"), "r") as f:
+                    children = f.read().split()
+            else:
+                children = []
+            if step_id not in children:
+                children.append(step_id)
+                with open(os.path.join(scope.stepdir, "children"), "w") as f:
+                    f.write("\n".join(children))
+
     def exec_steps(self, scope, parameters, item=None, context=None):
         if hasattr(self.template, "orig_template"):
             steps = deepcopy(self.template.orig_template)
@@ -1891,6 +1903,7 @@ class Step:
                     os.makedirs(stepdir)
                     break
 
+        self.add_children(scope, step_id)
         if self.phase == "Pending":
             from .dag import DAG
             from .steps import Steps
@@ -1916,7 +1929,7 @@ class Step:
         with open(os.path.join(stepdir, "phase"), "w") as f:
             f.write("Running")
         try:
-            steps.run(scope.workflow_id, context)
+            steps.run(scope.workflow_id, context, stepdir)
         except Exception:
             self.phase = "Failed"
             with open(os.path.join(stepdir, "phase"), "w") as f:
@@ -2000,6 +2013,7 @@ class Step:
                     os.makedirs(stepdir)
                     break
 
+        self.add_children(scope, step_id)
         self.stepdir = stepdir
         if self.phase == "Pending":
             with open(os.path.join(stepdir, "type"), "w") as f:
