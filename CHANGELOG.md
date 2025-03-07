@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.104](https://github.com/deepmodeling/dflow/compare/v1.8.103...v1.8.104) (2025-03-07)
+
+
+### Bug Fixes
+
+* format ([575b80f](https://github.com/deepmodeling/dflow/commit/575b80fd150f2d84db5ab8ef3f70728334498e58))
+* get sub nodes in debug mode ([efacb58](https://github.com/deepmodeling/dflow/commit/efacb58c71f8a7c3468bef1849d46f278de69e5a))
+
 ## [1.8.103](https://github.com/deepmodeling/dflow/compare/v1.8.102...v1.8.103) (2025-01-15)
 
 
