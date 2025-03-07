@@ -19,157 +19,157 @@ dflow.argo\_objects module
 
 .. automodule:: dflow.argo_objects
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.code\_gen module
 ----------------------
 
 .. automodule:: dflow.code_gen
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.common module
 -------------------
 
 .. automodule:: dflow.common
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.config module
 -------------------
 
 .. automodule:: dflow.config
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.context module
 --------------------
 
 .. automodule:: dflow.context
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.context\_syntax module
 ----------------------------
 
 .. automodule:: dflow.context_syntax
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.dag module
 ----------------
 
 .. automodule:: dflow.dag
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.executor module
 ---------------------
 
 .. automodule:: dflow.executor
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.io module
 ---------------
 
 .. automodule:: dflow.io
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.main module
 -----------------
 
 .. automodule:: dflow.main
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.op\_template module
 -------------------------
 
 .. automodule:: dflow.op_template
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.resource module
 ---------------------
 
 .. automodule:: dflow.resource
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.slurm module
 ------------------
 
 .. automodule:: dflow.slurm
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.step module
 -----------------
 
 .. automodule:: dflow.step
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.steps module
 ------------------
 
 .. automodule:: dflow.steps
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.task module
 -----------------
 
 .. automodule:: dflow.task
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.util\_ops module
 ----------------------
 
 .. automodule:: dflow.util_ops
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.utils module
 ------------------
 
 .. automodule:: dflow.utils
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.workflow module
 ---------------------
 
 .. automodule:: dflow.workflow
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: dflow
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

@@ -9,77 +9,77 @@ dflow.client.v1alpha1\_artifact module
 
 .. automodule:: dflow.client.v1alpha1_artifact
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.client.v1alpha1\_dag\_task module
 ---------------------------------------
 
 .. automodule:: dflow.client.v1alpha1_dag_task
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.client.v1alpha1\_lifecycle\_hook module
 ---------------------------------------------
 
 .. automodule:: dflow.client.v1alpha1_lifecycle_hook
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.client.v1alpha1\_parameter module
 ---------------------------------------
 
 .. automodule:: dflow.client.v1alpha1_parameter
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.client.v1alpha1\_retry\_strategy module
 ---------------------------------------------
 
 .. automodule:: dflow.client.v1alpha1_retry_strategy
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.client.v1alpha1\_sequence module
 --------------------------------------
 
 .. automodule:: dflow.client.v1alpha1_sequence
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.client.v1alpha1\_template module
 --------------------------------------
 
 .. automodule:: dflow.client.v1alpha1_template
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.client.v1alpha1\_value\_from module
 -----------------------------------------
 
 .. automodule:: dflow.client.v1alpha1_value_from
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.client.v1alpha1\_workflow\_step module
 --------------------------------------------
 
 .. automodule:: dflow.client.v1alpha1_workflow_step
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: dflow.client
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

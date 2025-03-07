@@ -9,69 +9,69 @@ dflow.plugins.bohrium module
 
 .. automodule:: dflow.plugins.bohrium
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.plugins.datasets module
 -----------------------------
 
 .. automodule:: dflow.plugins.datasets
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.plugins.dispatcher module
 -------------------------------
 
 .. automodule:: dflow.plugins.dispatcher
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.plugins.launching module
 ------------------------------
 
 .. automodule:: dflow.plugins.launching
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.plugins.lebesgue module
 -----------------------------
 
 .. automodule:: dflow.plugins.lebesgue
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.plugins.metadata module
 -----------------------------
 
 .. automodule:: dflow.plugins.metadata
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.plugins.oss module
 ------------------------
 
 .. automodule:: dflow.plugins.oss
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 dflow.plugins.ray module
 ------------------------
 
 .. automodule:: dflow.plugins.ray
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: dflow.plugins
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
