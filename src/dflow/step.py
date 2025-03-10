@@ -1739,7 +1739,7 @@ class Step:
                 if path.endswith(".tgz"):
                     download_with_lock(
                         lambda: untar(art.source.download(
-                            path=os.path.dirname(path))), path)
+                            path=os.path.dirname(path))), path[:-4])
                     path = path[:-4]
                 else:
                     download_with_lock(
