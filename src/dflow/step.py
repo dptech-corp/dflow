@@ -1736,9 +1736,15 @@ class Step:
                 path = os.path.abspath(os.path.join(
                     stepdir, "..", config["debug_artifact_dir"],
                     art.source.url.split("?")[0]))
-                download_with_lock(
-                    lambda: art.source.download(
-                        path=os.path.dirname(path)), path)
+                if path.endswith(".tgz"):
+                    download_with_lock(
+                        lambda: untar(art.source.download(
+                            path=os.path.dirname(path))), path)
+                    path = path[:-4]
+                else:
+                    download_with_lock(
+                        lambda: art.source.download(
+                            path=os.path.dirname(path)), path)
                 art.source.local_path = path
             if isinstance(
                 art.source, (InputArtifact, OutputArtifact, LocalArtifact,
@@ -2534,26 +2540,29 @@ def add_slices(templ: OPTemplate, slices: Slices, layer=0):
                 templ.outputs.artifacts[name].from_expression._else)
 
 
+def untar(tf_path):
+    tf = tarfile.open(tf_path, "r:gz")
+    path = tf_path[:-4]
+    tf.extractall(path)
+    tf.close()
+    os.remove(tf_path)
+
+    # if the tarball contains only one file or directory,
+    # return its path
+    ld = os.listdir(path)
+    if len(ld) == 1:
+        os.rename(os.path.join(path, ld[0]), path + ".tmp")
+        os.rmdir(path)
+        os.rename(path + ".tmp", path)
+    return path
+
+
 def download_artifact_debug(artifact, path):
     key = get_key(artifact)
 
     if key[-4:] == ".tgz":
         download_s3(key=key, path=path)
-        tf_path = os.path.join(path, os.path.basename(key))
-        tf = tarfile.open(tf_path, "r:gz")
-        path = tf_path[:-4]
-        tf.extractall(path)
-        tf.close()
-        os.remove(tf_path)
-
-        # if the tarball contains only one file or directory,
-        # return its path
-        ld = os.listdir(path)
-        if len(ld) == 1:
-            os.rename(os.path.join(path, ld[0]), path + ".tmp")
-            os.rmdir(path)
-            os.rename(path + ".tmp", path)
-        return path
+        return untar(os.path.join(path, os.path.basename(key)))
     else:
         download_s3(key=key, path=path, keep_dir=True)
         return os.path.join(path, os.path.basename(key))
