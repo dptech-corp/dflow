@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.105](https://github.com/deepmodeling/dflow/compare/v1.8.104...v1.8.105) (2025-03-10)
+
+
+### Bug Fixes
+
+* lock path ([b79fc20](https://github.com/deepmodeling/dflow/commit/b79fc20bdb90e87221ad875a8d2c6eee8405e516))
+* untar HTTP artifact in debug mode ([f10782b](https://github.com/deepmodeling/dflow/commit/f10782b3882f66086629c318ad27ae5493c8861c))
+
 ## [1.8.104](https://github.com/deepmodeling/dflow/compare/v1.8.103...v1.8.104) (2025-03-07)
 
 
