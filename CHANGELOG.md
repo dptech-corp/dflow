@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.106](https://github.com/deepmodeling/dflow/compare/v1.8.105...v1.8.106) (2025-03-18)
+
+
+### Bug Fixes
+
+* bugs in reuse in debug mode ([fb44395](https://github.com/deepmodeling/dflow/commit/fb44395a68a7b15df71b28aabcf2e0c661bfe22e))
+
 ## [1.8.105](https://github.com/deepmodeling/dflow/compare/v1.8.104...v1.8.105) (2025-03-10)
 
 
