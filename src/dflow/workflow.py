@@ -13,6 +13,7 @@ from .context import Context
 from .context_syntax import GLOBAL_CONTEXT
 from .dag import DAG
 from .executor import Executor
+from .io import type_to_str
 from .op_template import (ContainerOPTemplate, OPTemplate, ScriptOPTemplate,
                           get_k8s_client)
 from .step import Step, upload_python_packages
@@ -258,6 +259,10 @@ class Workflow:
                         continue
                     stepdir = os.path.join(wfdir, step.key)
                     os.makedirs(stepdir, exist_ok=True)
+                    with open(os.path.join(stepdir, "name"), "w") as f:
+                        f.write(step.displayName)
+                    with open(os.path.join(stepdir, "type"), "w") as f:
+                        f.write(step.type)
                     with open(os.path.join(stepdir, "phase"), "w") as f:
                         f.write(step.phase)
                     for io in ["inputs", "outputs"]:
@@ -278,7 +283,8 @@ class Workflow:
                                 with open(os.path.join(
                                         stepdir, io, "parameters/.dflow",
                                         name), "w") as f:
-                                    f.write(par.type)
+                                    f.write(jsonpickle.dumps({
+                                        "type": type_to_str(par.type)}))
 
                         os.makedirs(os.path.join(stepdir, io, "artifacts"),
                                     exist_ok=True)
