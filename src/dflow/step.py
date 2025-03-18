@@ -1896,6 +1896,7 @@ class Step:
                                                 self.outputs.parameters)
                     self.load_output_artifacts(stepdir,
                                                self.outputs.artifacts)
+                    self.add_children(scope, step_id)
                     return
                 logging.warning("step (key: %s) restarting" % step_id)
             else:
@@ -2006,6 +2007,7 @@ class Step:
                     self.load_output_artifacts(stepdir,
                                                self.outputs.artifacts)
                     os.chdir(cwd)
+                    self.add_children(scope, step_id)
                     return
                 logging.warning("step (key: %s) restarting" % step_id)
             else:
