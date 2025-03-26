@@ -1765,7 +1765,8 @@ class Step:
                 elif art.optional and not hasattr(art.source, 'local_path'):
                     continue
                 else:
-                    force_link(art.source.local_path, art_path)
+                    force_link(os.path.realpath(art.source.local_path),
+                               art_path)
             elif isinstance(art.source, str):
                 with open(art_path, "w") as f:
                     f.write(art.source)
