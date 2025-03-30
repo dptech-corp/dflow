@@ -42,6 +42,7 @@ setup(
         "requests",
         "tqdm",
         "psutil",
+        "filelock",
     ],
     entry_points={
         'console_scripts': ['dflow=dflow.main:main'],

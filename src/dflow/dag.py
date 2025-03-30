@@ -232,7 +232,7 @@ class DAG(OPTemplate):
                 try:
                     future = pool.submit(
                         task.run_with_config, self_copy, self.context, config,
-                        s3_config, self.cwd)
+                        s3_config, self.cwd, str(i))
                 except concurrent.futures.process.BrokenProcessPool as e:
                     # retrieve exception of subprocess before exit
                     for future in concurrent.futures.as_completed(futures):

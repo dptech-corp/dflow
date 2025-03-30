@@ -236,7 +236,7 @@ class Steps(OPTemplate):
     def run(self, workflow_id=None, context=None, stepdir=None):
         self.workflow_id = workflow_id
         self.stepdir = stepdir
-        for step in self:
+        for ii, step in enumerate(self):
             if isinstance(step, list):
                 import concurrent.futures
                 cwd = os.getcwd()
@@ -254,7 +254,7 @@ class Steps(OPTemplate):
                         try:
                             future = pool.submit(
                                 ps.run_with_config, self_copy, context, config,
-                                s3_config, cwd)
+                                s3_config, cwd, "%s-%s" % (ii, i))
                         except concurrent.futures.process.BrokenProcessPool \
                                 as e:
                             # retrieve exception of subprocess before exit
@@ -289,7 +289,7 @@ class Steps(OPTemplate):
                                     name].local_path = path
                             logging.info("Outputs of %s collected" % step[j])
             else:
-                step.run(self, context)
+                step.run(self, context, "%s-0" % ii)
 
     def add_slices(self, slices, layer=0):
         add_slices(self, slices, layer=layer)
