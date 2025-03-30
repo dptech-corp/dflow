@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.107](https://github.com/deepmodeling/dflow/compare/v1.8.106...v1.8.107) (2025-03-30)
+
+
+### Bug Fixes
+
+* save children structure in debug mode ([58c1ecc](https://github.com/deepmodeling/dflow/commit/58c1eccc3cf70eaeddf6691efaa7f7a31fc9d261))
+* support restart of any workflow in debug mode ([58c1ecc](https://github.com/deepmodeling/dflow/commit/58c1eccc3cf70eaeddf6691efaa7f7a31fc9d261))
+
 ## [1.8.106](https://github.com/deepmodeling/dflow/compare/v1.8.105...v1.8.106) (2025-03-18)
 
 
