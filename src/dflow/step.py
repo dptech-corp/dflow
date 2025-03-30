@@ -1465,7 +1465,7 @@ class Step:
                 graph["with_sequence"])
         return cls(**graph)
 
-    def run(self, scope, context=None):
+    def run(self, scope, context=None, order=None):
         self.phase = "Pending"
         self.render_by_executor(context)
 
@@ -1609,7 +1609,8 @@ class Step:
                     try:
                         future = pool.submit(
                             ps.exec_with_config, scope_copy, parameters, item,
-                            config, s3_config, cwd, context)
+                            config, s3_config, cwd, context,
+                            "%s-%s" % (order, i))
                     except concurrent.futures.process.BrokenProcessPool as e:
                         # retrieve exception of subprocess before exit
                         for future in concurrent.futures.as_completed(futures):
@@ -1669,18 +1670,18 @@ class Step:
             self.phase = "Succeeded"
         else:
             try:
-                self.exec(scope, parameters, context)
+                self.exec(scope, parameters, None, context, order)
             except Exception:
                 self.phase = "Failed"
                 if not self.continue_on_failed:
                     raise RuntimeError("Step %s failed" % self)
 
-    def run_with_config(self, scope, context, conf, s3_conf, cwd):
+    def run_with_config(self, scope, context, conf, s3_conf, cwd, order):
         logging.info("Step %s starts in process %s" % (self.name, os.getpid()))
         config.update(conf)
         s3_config.update(s3_conf)
         os.chdir(cwd)
-        self.run(scope, context)
+        self.run(scope, context, order)
         logging.info("Step %s finishes in process %s" % (
             self.name, os.getpid()))
         pars = {name: par.value for name, par in
@@ -1840,7 +1841,7 @@ class Step:
                                     "outputs/artifacts/%s" % name)
             art.local_path = art_path
 
-    def exec(self, scope, parameters, item=None, context=None):
+    def exec(self, scope, parameters, item=None, context=None, order=None):
         # render item
         if item is not None:
             for par in parameters.values():
@@ -1855,23 +1856,35 @@ class Step:
         from .dag import DAG
         from .steps import Steps
         if isinstance(self.template, (DAG, Steps)):
-            self.exec_steps(scope, parameters, item, context)
+            self.exec_steps(scope, parameters, item, context, order)
         else:
-            self.exec_pod(scope, parameters, item)
+            self.exec_pod(scope, parameters, item, order)
 
-    def add_children(self, scope, step_id):
+    def add_children(self, scope, step_id, order):
+        if scope.stepdir is not None:
+            children_file = os.path.join(scope.stepdir, "children")
+            from filelock import FileLock
+            with FileLock(children_file + ".lock"):
+                if os.path.isfile(children_file):
+                    with open(children_file, "r") as f:
+                        children = json.load(f)
+                else:
+                    children = {}
+                if order not in children:
+                    children[order] = step_id
+                    with open(children_file, "w") as f:
+                        json.dump(children, f)
+
+    def get_children(self, scope, order):
         if scope.stepdir is not None:
             if os.path.isfile(os.path.join(scope.stepdir, "children")):
                 with open(os.path.join(scope.stepdir, "children"), "r") as f:
-                    children = f.read().split()
-            else:
-                children = []
-            if step_id not in children:
-                children.append(step_id)
-                with open(os.path.join(scope.stepdir, "children"), "w") as f:
-                    f.write("\n".join(children))
+                    children = json.load(f)
+                    return children.get(order)
+        return None
 
-    def exec_steps(self, scope, parameters, item=None, context=None):
+    def exec_steps(self, scope, parameters, item=None, context=None,
+                   order=None):
         if hasattr(self.template, "orig_template"):
             steps = deepcopy(self.template.orig_template)
             steps.orig_template = self.template.orig_template
@@ -1886,31 +1899,31 @@ class Step:
         if "dflow_key" in steps.inputs.parameters and \
                 steps.inputs.parameters["dflow_key"].value:
             step_id = steps.inputs.parameters["dflow_key"].value
-            stepdir = os.path.abspath(step_id)
-            if os.path.exists(stepdir):
-                with open(os.path.join(stepdir, "phase"), "r") as f:
-                    self.phase = f.read()
-                if self.phase == "Succeeded":
-                    logging.warning("step (key: %s) skipped" % step_id)
-                    self.load_output_parameters(stepdir,
-                                                self.outputs.parameters)
-                    self.load_output_artifacts(stepdir,
-                                               self.outputs.artifacts)
-                    self.add_children(scope, step_id)
-                    return
-                logging.warning("step (key: %s) restarting" % step_id)
-            else:
-                os.makedirs(stepdir)
         else:
-            while True:
-                step_id = "%s-%s-%s" % (scope.workflow_id, self.name,
-                                        randstr())
-                stepdir = os.path.abspath(step_id)
-                if not os.path.exists(stepdir):
-                    os.makedirs(stepdir)
-                    break
+            step_id = self.get_children(scope, order)
+            if step_id is None:
+                while True:
+                    step_id = "%s-%s-%s" % (scope.workflow_id, self.name,
+                                            randstr())
+                    stepdir = os.path.abspath(step_id)
+                    if not os.path.exists(stepdir):
+                        break
 
-        self.add_children(scope, step_id)
+        stepdir = os.path.abspath(step_id)
+        if os.path.exists(stepdir):
+            with open(os.path.join(stepdir, "phase"), "r") as f:
+                self.phase = f.read()
+            if self.phase == "Succeeded":
+                logging.warning("step (key: %s) skipped" % step_id)
+                self.load_output_parameters(stepdir, self.outputs.parameters)
+                self.load_output_artifacts(stepdir, self.outputs.artifacts)
+                self.add_children(scope, step_id, order)
+                return
+            logging.warning("step (key: %s) restarting" % step_id)
+        else:
+            os.makedirs(stepdir)
+
+        self.add_children(scope, step_id, order)
         if self.phase == "Pending":
             from .dag import DAG
             from .steps import Steps
@@ -1980,7 +1993,7 @@ class Step:
         with open(os.path.join(stepdir, "phase"), "w") as f:
             f.write("Succeeded")
 
-    def exec_pod(self, scope, parameters, item=None):
+    def exec_pod(self, scope, parameters, item=None, order=None):
         """
         directory structure:
         step-xxxxx
@@ -1996,32 +2009,32 @@ class Step:
         cwd = os.getcwd()
         if "dflow_key" in parameters:
             step_id = parameters["dflow_key"].value
-            stepdir = os.path.abspath(step_id)
-            if os.path.exists(stepdir):
-                with open(os.path.join(stepdir, "phase"), "r") as f:
-                    self.phase = f.read()
-                if self.phase == "Succeeded":
-                    logging.warning("step (key: %s) skipped" % step_id)
-                    self.load_output_parameters(stepdir,
-                                                self.outputs.parameters)
-                    self.load_output_artifacts(stepdir,
-                                               self.outputs.artifacts)
-                    os.chdir(cwd)
-                    self.add_children(scope, step_id)
-                    return
-                logging.warning("step (key: %s) restarting" % step_id)
-            else:
-                os.makedirs(stepdir)
         else:
-            while True:
-                step_id = "%s-%s-%s" % (scope.workflow_id, self.name,
-                                        randstr())
-                stepdir = os.path.abspath(step_id)
-                if not os.path.exists(stepdir):
-                    os.makedirs(stepdir)
-                    break
+            step_id = self.get_children(scope, order)
+            if step_id is None:
+                while True:
+                    step_id = "%s-%s-%s" % (scope.workflow_id, self.name,
+                                            randstr())
+                    stepdir = os.path.abspath(step_id)
+                    if not os.path.exists(stepdir):
+                        break
 
-        self.add_children(scope, step_id)
+        stepdir = os.path.abspath(step_id)
+        if os.path.exists(stepdir):
+            with open(os.path.join(stepdir, "phase"), "r") as f:
+                self.phase = f.read()
+            if self.phase == "Succeeded":
+                logging.warning("step (key: %s) skipped" % step_id)
+                self.load_output_parameters(stepdir, self.outputs.parameters)
+                self.load_output_artifacts(stepdir, self.outputs.artifacts)
+                self.add_children(scope, step_id, order)
+                os.chdir(cwd)
+                return
+            logging.warning("step (key: %s) restarting" % step_id)
+        else:
+            os.makedirs(stepdir)
+
+        self.add_children(scope, step_id, order)
         self.stepdir = stepdir
         if self.phase == "Pending":
             with open(os.path.join(stepdir, "type"), "w") as f:
@@ -2180,13 +2193,13 @@ class Step:
             f.write("Succeeded")
 
     def exec_with_config(self, scope, parameters, item, conf, s3_conf, cwd,
-                         context=None):
+                         context=None, order=None):
         logging.info("Step %s with item %s starts in process %s" % (
             self.name, item, os.getpid()))
         config.update(conf)
         s3_config.update(s3_conf)
         os.chdir(cwd)
-        self.exec(scope, parameters, item, context)
+        self.exec(scope, parameters, item, context, order)
         logging.info("Step %s with item %s finishes in process %s" % (
             self.name, item, os.getpid()))
         pars = {name: par.value for name, par in
@@ -2571,23 +2584,9 @@ def download_artifact_debug(artifact, path):
 
 
 def download_with_lock(download, path):
-    if os.path.exists(path):
-        # wait for the download to complete
-        while os.path.exists(path + ".lock"):
-            time.sleep(1)
-        return
-    else:
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path + ".lock", "w") as f:
-            os.lockf(f.fileno(), os.F_LOCK, 0)
-            try:
-                if os.path.exists(path):
-                    pass
-                else:
-                    download()
-            finally:
-                os.lockf(f.fileno(), os.F_ULOCK, 0)
-        try:
-            os.remove(path + ".lock")
-        except FileNotFoundError:
+    from filelock import FileLock
+    with FileLock(path + ".lock"):
+        if os.path.exists(path):
             pass
+        else:
+            download()

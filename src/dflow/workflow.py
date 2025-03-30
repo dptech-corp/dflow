@@ -1063,7 +1063,7 @@ class Workflow:
                 children = []
                 if os.path.exists(os.path.join(stepdir, "children")):
                     with open(os.path.join(stepdir, "children"), "r") as f:
-                        children = f.read().split()
+                        children = list(json.load(f).values())
                 step = {
                     "workflow": self.id,
                     "displayName": _name,
