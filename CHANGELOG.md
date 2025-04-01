@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.109](https://github.com/deepmodeling/dflow/compare/v1.8.108...v1.8.109) (2025-04-01)
+
+
+### Bug Fixes
+
+* flush stdout and stderr in run_command ([73cc6b1](https://github.com/deepmodeling/dflow/commit/73cc6b16930d593dee2e60cc335cd47e1de999bf))
+
 ## [1.8.108](https://github.com/deepmodeling/dflow/compare/v1.8.107...v1.8.108) (2025-04-01)
 
 
