@@ -652,6 +652,8 @@ def run_command(
     interactive: bool = True,
     shell: bool = False,
     print_oe: bool = False,
+    stdout=None,
+    stderr=None,
     **kwargs,
 ) -> Tuple[int, str, str]:
     """
@@ -692,6 +694,10 @@ def run_command(
     err: str
         stderr content of the executed command
     """
+    if print_oe:
+        stdout = sys.stdout
+        stderr = sys.stderr
+
     if isinstance(cmd, str):
         if shell:
             cmd = [cmd]
@@ -715,7 +721,7 @@ def run_command(
         shell=shell,
         **kwargs,
     ) as sub:
-        if print_oe:
+        if stdout is not None or stderr is not None:
             if input is not None:
                 sub.stdin.write(bytes(input, encoding=sys.stdout.encoding))
                 sub.stdin.close()
@@ -736,10 +742,12 @@ def run_command(
                             stderr_eof = True
                         continue
                     if key.fileobj is sub.stdout:
-                        sys.stdout.write(line)
+                        if stdout is not None:
+                            stdout.write(line)
                         out += line
                     else:
-                        sys.stderr.write(line)
+                        if stderr is not None:
+                            stderr.write(line)
                         err += line
             sub.wait()
         else:
