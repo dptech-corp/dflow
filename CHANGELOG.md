@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.108](https://github.com/deepmodeling/dflow/compare/v1.8.107...v1.8.108) (2025-04-01)
+
+
+### Bug Fixes
+
+* support redirect stdout/stderr for run_command ([5251eb1](https://github.com/deepmodeling/dflow/commit/5251eb142a46fb4a270540fa814a45b3a6fc407b))
+
 ## [1.8.107](https://github.com/deepmodeling/dflow/compare/v1.8.106...v1.8.107) (2025-03-30)
 
 
