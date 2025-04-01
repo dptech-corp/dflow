@@ -744,10 +744,12 @@ def run_command(
                     if key.fileobj is sub.stdout:
                         if stdout is not None:
                             stdout.write(line)
+                            stdout.flush()
                         out += line
                     else:
                         if stderr is not None:
                             stderr.write(line)
+                            stderr.flush()
                         err += line
             sub.wait()
         else:
