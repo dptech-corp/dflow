@@ -81,6 +81,8 @@ config = {
                                              "symlink"),
     "raise_for_group": boolize(os.environ.get("DFLOW_RAISE_FOR_GROUP", False)),
     "dispatcher_debug": boolize(os.environ.get("DISPATCHER_DEBUG", False)),
+    "dereference_symlink": boolize(os.environ.get("DFLOW_DEREFERENCE_SYMLINK",
+                                                  False)),
 }
 
 
