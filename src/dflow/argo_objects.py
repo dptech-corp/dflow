@@ -422,6 +422,9 @@ class ArgoWorkflow(ArgoObjectDict):
         sub_nodes = []
         outbound_nodes = node.get("outboundNodes", [])
         children = node.get("children", [])
+        if config["mode"] == "debug" and node["phase"] == "Succeeded" and \
+                len(children) == 0:
+            return [node]
         # order by generation (BFS)
         current_generation = children
         while len(current_generation) > 0:
