@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.110](https://github.com/deepmodeling/dflow/compare/v1.8.109...v1.8.110) (2025-04-14)
+
+
+### Bug Fixes
+
+* add dereference_symlink ([2043e65](https://github.com/deepmodeling/dflow/commit/2043e654e5c8b247ed9674b424435ec8ee40c660))
+
 ## [1.8.109](https://github.com/deepmodeling/dflow/compare/v1.8.108...v1.8.109) (2025-04-01)
 
 
