@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.111](https://github.com/deepmodeling/dflow/compare/v1.8.110...v1.8.111) (2025-04-14)
+
+
+### Bug Fixes
+
+* subnodes of reused steps/dag ([5d8f119](https://github.com/deepmodeling/dflow/commit/5d8f1192372064735719ef6d3af348263a6ac821))
+
 ## [1.8.110](https://github.com/deepmodeling/dflow/compare/v1.8.109...v1.8.110) (2025-04-14)
 
 
