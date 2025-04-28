@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.112](https://github.com/deepmodeling/dflow/compare/v1.8.111...v1.8.112) (2025-04-28)
+
+
+### Bug Fixes
+
+* get_sub_nodes and sort_by_generation in debug mode ([221550c](https://github.com/deepmodeling/dflow/commit/221550c7b28712c281975ca6c48db38e11f69b75))
+
 ## [1.8.111](https://github.com/deepmodeling/dflow/compare/v1.8.110...v1.8.111) (2025-04-14)
 
 
