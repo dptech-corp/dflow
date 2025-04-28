@@ -374,10 +374,17 @@ class ArgoWorkflow(ArgoObjectDict):
             type = [type]
         step_list = []
         if hasattr(self.status, "nodes"):
-            if parent_id is not None:
+            if parent_id is not None and config["mode"] == "debug":
+                nodes = self.get_sub_nodes_debug(parent_id)
+            elif parent_id is not None and config["mode"] != "debug":
                 nodes = self.get_sub_nodes(parent_id)
+            elif sort_by_generation and config["mode"] == "debug":
+                nodes = self.get_sub_nodes_debug(self.id)
+            elif sort_by_generation and config["mode"] != "debug":
+                nodes = self.get_sub_nodes(self.id)
             else:
                 nodes = self.status.nodes.values()
+                nodes.sort(key=lambda x: x["startedAt"])
             for step in nodes:
                 if step["startedAt"] is None:
                     continue
@@ -403,14 +410,29 @@ class ArgoWorkflow(ArgoObjectDict):
                 step_list.append(step)
         else:
             return []
-        if sort_by_generation and config["mode"] != "debug":
-            self.generation = {}
-            self.record_generation(self.id, 0)
-            step_list.sort(key=lambda x: self.generation.get(
-                x["id"], len(self.status.nodes)))
-        else:
-            step_list.sort(key=lambda x: x["startedAt"])
         return step_list
+
+    def get_hierarchy(self, node_id, hierarchy=(0,)):
+        assert node_id in self.status.nodes
+        node = self.status.nodes[node_id]
+        sub_nodes = {node_id: hierarchy}
+        children = node.get("children", {})
+        for order, child_id in children.items():
+            if node["type"] == "Steps":
+                sub_nodes.update(self.get_hierarchy(
+                    child_id, (*hierarchy, int(order.split("-")[0]))))
+            else:
+                sub_nodes.update(self.get_hierarchy(
+                    child_id, (*hierarchy, 0)))
+        return sub_nodes
+
+    def get_sub_nodes_debug(self, node_id):
+        hierarchy = self.get_hierarchy(node_id)
+        if len(hierarchy) == 1:
+            return [self.status.nodes[node_id]]
+        hierarchy.pop(node_id)
+        ids = sorted(hierarchy.keys(), key=lambda x: hierarchy[x])
+        return [self.status.nodes[id] for id in ids]
 
     def get_sub_nodes(self, node_id):
         assert node_id in self.status.nodes
@@ -422,9 +444,6 @@ class ArgoWorkflow(ArgoObjectDict):
         sub_nodes = []
         outbound_nodes = node.get("outboundNodes", [])
         children = node.get("children", [])
-        if config["mode"] == "debug" and node["phase"] == "Succeeded" and \
-                len(children) == 0:
-            return [node]
         # order by generation (BFS)
         current_generation = children
         while len(current_generation) > 0:
@@ -437,13 +456,6 @@ class ArgoWorkflow(ArgoObjectDict):
                         "children", [])
             current_generation = next_generation
         return sub_nodes
-
-    def record_generation(self, node_id, generation):
-        self.generation[node_id] = generation
-        for child in self.status.nodes[node_id].get("children", []):
-            if child in self.generation:
-                continue
-            self.record_generation(child, generation+1)
 
     def get_duration(self) -> datetime.timedelta:
         return get_duration(self.status)

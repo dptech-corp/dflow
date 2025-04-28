@@ -338,6 +338,8 @@ class Workflow:
             try:
                 with open(os.path.join(wfdir, "pid"), "w") as f:
                     f.write(str(os.getpid()))
+                with open(os.path.join(wfdir, "type"), "w") as f:
+                    f.write(str(self.entrypoint.__class__.__name__))
                 entrypoint = deepcopy(self.entrypoint)
                 entrypoint.orig_template = self.entrypoint
                 entrypoint.run(self.id, self.context, wfdir)
@@ -935,6 +937,29 @@ class Workflow:
                     step.outputs.parameters.values())
                 step.outputs.artifacts = list(step.outputs.artifacts.values())
                 nodes[step.id] = step.recover()
+            wfdir = os.path.join(config["debug_workdir"], self.id)
+            _type = "Steps"
+            if os.path.exists(os.path.join(wfdir, "type")):
+                with open(os.path.join(wfdir, "type"), "r") as f:
+                    _type = f.read()
+            phase = "Pending"
+            if os.path.exists(os.path.join(wfdir, "status")):
+                with open(os.path.join(wfdir, "status"), "r") as f:
+                    phase = f.read()
+            children = {}
+            if os.path.exists(os.path.join(wfdir, "children")):
+                with open(os.path.join(wfdir, "children"), "r") as f:
+                    children = json.load(f)
+            nodes[self.id] = {
+                "workflow": self.id,
+                "displayName": self.id,
+                "key": self.id,
+                "id": self.id,
+                "startedAt": os.path.getmtime(wfdir),
+                "phase": phase,
+                "type": _type,
+                "children": children,
+            }
             outputs = self.query_global_outputs()
             if outputs is not None:
                 outputs.parameters = list(outputs.parameters.values())
@@ -1060,10 +1085,10 @@ class Workflow:
                     _phase = "Pending"
                 if phase is not None and phase != _phase:
                     continue
-                children = []
+                children = {}
                 if os.path.exists(os.path.join(stepdir, "children")):
                     with open(os.path.join(stepdir, "children"), "r") as f:
-                        children = list(json.load(f).values())
+                        children = json.load(f)
                 step = {
                     "workflow": self.id,
                     "displayName": _name,
