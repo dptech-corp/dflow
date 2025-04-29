@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.113](https://github.com/deepmodeling/dflow/compare/v1.8.112...v1.8.113) (2025-04-29)
+
+
+### Bug Fixes
+
+* compatible for higher version of sprig ([757f782](https://github.com/deepmodeling/dflow/commit/757f782072683f270402ee9086736638236ce9fa))
+
 ## [1.8.112](https://github.com/deepmodeling/dflow/compare/v1.8.111...v1.8.112) (2025-04-28)
 
 
