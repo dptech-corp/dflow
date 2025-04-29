@@ -722,8 +722,8 @@ class Step:
                 self.template.set_slices(self.template.slices)
                 self.with_param = argo_range(if_expression(
                     "%s %% %s > 0" % (nslices, group_size),
-                    "%s/%s + 1" % (nslices, group_size),
-                    "%s/%s" % (nslices, group_size)))
+                    "sprig.int(%s/%s) + 1" % (nslices, group_size),
+                    "sprig.int(%s/%s)" % (nslices, group_size)))
             elif self.with_param is not None:
                 self.template.inputs.parameters["dflow_with_param"] = \
                     InputParameter()
@@ -745,8 +745,8 @@ class Step:
                 self.template.set_slices(self.template.slices)
                 self.with_param = argo_range(if_expression(
                     "%s %% %s > 0" % (nslices, group_size),
-                    "%s/%s + 1" % (nslices, group_size),
-                    "%s/%s" % (nslices, group_size)))
+                    "sprig.int(%s/%s) + 1" % (nslices, group_size),
+                    "sprig.int(%s/%s)" % (nslices, group_size)))
             if self.with_sequence is not None:
                 self.template.inputs.parameters["dflow_sequence_start"] = \
                     InputParameter()
@@ -799,8 +799,9 @@ class Step:
                 self.with_sequence = argo_sequence(
                     count=if_expression(
                         "%s %% %s > 0" % (nslices, group_size),
-                        "%s/%s + 1" % (nslices, group_size),
-                        "%s/%s" % (nslices, group_size)), format=format)
+                        "sprig.int(%s/%s) + 1" % (nslices, group_size),
+                        "sprig.int(%s/%s)" % (nslices, group_size)),
+                    format=format)
 
             self.inputs.parameters["dflow_nslices"] = InputParameter(
                 value=nslices)
