@@ -383,8 +383,8 @@ class ArgoWorkflow(ArgoObjectDict):
             elif sort_by_generation and config["mode"] != "debug":
                 nodes = self.get_sub_nodes(self.id)
             else:
-                nodes = self.status.nodes.values()
-                nodes.sort(key=lambda x: x["startedAt"])
+                nodes = list(self.status.nodes.values())
+                nodes.sort(key=lambda x: x.get("startedAt", ""))
             for step in nodes:
                 if step["startedAt"] is None:
                     continue

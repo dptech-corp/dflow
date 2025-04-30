@@ -878,6 +878,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: argo
+secrets:
+- name: argo.service-account-token
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -1495,6 +1497,14 @@ stringData:
   gitlab.com: |-
     type: gitlab
     secret: "shh!"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  annotations:
+    kubernetes.io/service-account.name: argo
+  name: argo.service-account-token
+type: kubernetes.io/service-account-token
 ---
 apiVersion: v1
 kind: Secret
