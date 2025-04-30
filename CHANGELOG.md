@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.114](https://github.com/deepmodeling/dflow/compare/v1.8.113...v1.8.114) (2025-04-30)
+
+
+### Bug Fixes
+
+* 'ValuesView' object has no attribute 'sort' ([31023b3](https://github.com/deepmodeling/dflow/commit/31023b3a9816cdcc2e4c745be04786a8e5c5fc63))
+* no secret of service account for new versions of k8s ([31023b3](https://github.com/deepmodeling/dflow/commit/31023b3a9816cdcc2e4c745be04786a8e5c5fc63))
+
 ## [1.8.113](https://github.com/deepmodeling/dflow/compare/v1.8.112...v1.8.113) (2025-04-29)
 
 
