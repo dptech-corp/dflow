@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.115](https://github.com/deepmodeling/dflow/compare/v1.8.114...v1.8.115) (2025-05-06)
+
+
+### Bug Fixes
+
+* remove rmtree in handle_output_artifact ([d17244c](https://github.com/deepmodeling/dflow/commit/d17244c0b20d94caea6dfb06ea34e24bd0e7c46b))
+
 ## [1.8.114](https://github.com/deepmodeling/dflow/compare/v1.8.113...v1.8.114) (2025-04-30)
 
 
