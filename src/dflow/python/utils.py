@@ -211,8 +211,6 @@ def slice_to_dir(slice):
 
 def handle_output_artifact(name, value, sign, slices=None, data_root="/tmp",
                            create_dir=False, symlink=False):
-    if os.path.isdir(data_root + '/outputs/artifacts/' + name):
-        shutil.rmtree(data_root + '/outputs/artifacts/' + name)
     path_list = []
     if sign.type == HDF5Datasets:
         import h5py
