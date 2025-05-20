@@ -11,7 +11,7 @@ from copy import deepcopy
 from functools import partial
 from importlib import import_module
 from pathlib import Path
-from typing import Dict, List, Set, Union
+from typing import Any, Dict, List, Set, Union
 
 from ..argo_objects import ArgoObjectDict
 from ..config import config
@@ -209,11 +209,7 @@ class OP(ABC):
         if func is None:
             return partial(cls.function, **kwargs)
 
-        signature = func.__annotations__
-        return_type = signature.get('return', None)
-        input_sign = OPIOSign(
-            {k: v for k, v in signature.items() if k != 'return'})
-        output_sign, ret2opio, opio2ret = type2opiosign(return_type)
+        input_sign, output_sign, ret2opio, opio2ret = get_sign_from_func(func)
 
         class subclass(cls):
             task_kwargs = {}
@@ -272,11 +268,7 @@ class OP(ABC):
         if func is None:
             return partial(cls.superfunction, **kwargs)
 
-        signature = func.__annotations__
-        return_type = signature.get('return', None)
-        input_sign = OPIOSign(
-            {k: v for k, v in signature.items() if k != 'return'})
-        output_sign, ret2opio, opio2ret = type2opiosign(return_type)
+        input_sign, output_sign, ret2opio, opio2ret = get_sign_from_func(func)
 
         from ..dag import DAG
         from ..task import Task
@@ -430,6 +422,29 @@ class OP(ABC):
                 slices = self.slices.get(name)
                 handle_output_parameter(
                     name, outputs[name], sign, slices, self.tmp_root)
+
+
+def get_sign_from_func(func):
+    signature = inspect.signature(func)
+    input_sign = OPIOSign()
+    for parameter in signature.parameters.values():
+        _type = parameter.annotation
+        if _type is inspect._empty:
+            _type = Any
+        if parameter.default is not inspect._empty:
+            if isinstance(_type, Artifact):
+                if parameter.default is None:
+                    _type.optional = True
+            elif isinstance(_type, (Parameter, BigParameter)):
+                _type.default = parameter.default
+            else:
+                _type = Parameter(_type, default=parameter.default)
+        input_sign[parameter.name] = _type
+    return_type = signature.return_annotation
+    if return_type is inspect._empty:
+        return_type = None
+    output_sign, ret2opio, opio2ret = type2opiosign(return_type)
+    return input_sign, output_sign, ret2opio, opio2ret
 
 
 def type2opiosign(t):
