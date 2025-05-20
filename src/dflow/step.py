@@ -66,7 +66,7 @@ def argo_range(
     Each argument can be Argo parameter
     """
     if config["mode"] == "debug":
-        return Expression("list(range(%s))" % ", ".join(
+        return expression("list(range(%s))" % ", ".join(
             map(lambda x: "int(%s)" % to_expr(x), args)))
     start = 0
     step = 1
@@ -198,7 +198,7 @@ def argo_len(
         param: the Argo parameter which is a list
     """
     if config["mode"] == "debug":
-        return Expression("len(%s)" % to_expr(param))
+        return expression("len(%s)" % to_expr(param))
     return ArgoLen(param)
 
 
@@ -237,7 +237,7 @@ def argo_enumerate(
     if config["mode"] == "debug":
         values = "".join([", '%s': %s[i]" % (k, to_expr(v))
                           for k, v in kwargs.items()])
-        expr = Expression("[{'order': i%s} for i in range(len(%s))]" % (
+        expr = expression("[{'order': i%s} for i in range(len(%s))]" % (
             values, to_expr(list(kwargs.values())[0])))
         expr.kwargs = kwargs
         return expr
@@ -1476,7 +1476,7 @@ class Step:
             elif isinstance(self.when, (InputParameter, OutputParameter)):
                 value = get_var(self.when, scope).value
             elif isinstance(self.when, ArgoVar):
-                value = Expression(self.when.expr).eval(scope)
+                value = expression(self.when.expr).eval(scope)
             elif isinstance(self.when, str):
                 value = eval_expr(render_expr(self.when, scope))
             if not value:
@@ -1517,7 +1517,7 @@ class Step:
             elif isinstance(value, (InputParameter, OutputParameter)):
                 par.value = get_var(value, scope).value
             elif isinstance(value, ArgoVar):
-                par.value = Expression(value.expr).eval(scope)
+                par.value = expression(value.expr).eval(scope)
             elif isinstance(value, str):
                 par.value = render_expr(value, scope)
             else:
@@ -1542,8 +1542,7 @@ class Step:
                                               OutputParameter)):
                 item_list = self.with_param.value
             elif isinstance(self.with_param, ArgoVar):
-                item_list = Expression(replace_argo_func(
-                    self.with_param.expr)).eval(scope)
+                item_list = expression(self.with_param.expr).eval(scope)
                 if isinstance(item_list, str):
                     item_list = eval(item_list)
             elif isinstance(self.with_param, str):
@@ -1560,7 +1559,7 @@ class Step:
                     elif isinstance(start, (InputParameter, OutputParameter)):
                         start = start.value
                     elif isinstance(start, ArgoVar):
-                        start = int(Expression(start.expr).eval(scope))
+                        start = int(expression(start.expr).eval(scope))
                 if self.with_sequence.count is not None:
                     count = self.with_sequence.count
                     if isinstance(count, Expression):
@@ -1568,7 +1567,7 @@ class Step:
                     elif isinstance(count, (InputParameter, OutputParameter)):
                         count = count.value
                     elif isinstance(count, ArgoVar):
-                        count = int(Expression(count.expr).eval(scope))
+                        count = int(expression(count.expr).eval(scope))
                     sequence = list(range(start, start + count))
                 if self.with_sequence.end is not None:
                     end = self.with_sequence.end
@@ -1577,7 +1576,7 @@ class Step:
                     elif isinstance(end, (InputParameter, OutputParameter)):
                         end = end.value
                     elif isinstance(end, ArgoVar):
-                        end = int(Expression(end.expr).eval(scope))
+                        end = int(expression(end.expr).eval(scope))
                     if end >= start:
                         sequence = list(range(start, end + 1))
                     else:
@@ -1973,8 +1972,8 @@ class Step:
                         raise e
             elif par1.value_from_expression is not None:
                 if isinstance(par1.value_from_expression, str):
-                    expr = replace_argo_func(par1.value_from_expression)
-                    par1.value_from_expression = Expression(expr)
+                    par1.value_from_expression = expression(
+                        par1.value_from_expression)
                 par.value = par1.value_from_expression.eval(steps)
 
         for name, art in self.outputs.artifacts.items():
@@ -1988,8 +1987,7 @@ class Step:
                     art.local_path = get_var(art1._from, steps).local_path
             elif art1.from_expression is not None:
                 if isinstance(art1.from_expression, str):
-                    expr = replace_argo_func(art1.from_expression)
-                    art1.from_expression = Expression(expr)
+                    art1.from_expression = expression(art1.from_expression)
                 art.local_path = art1.from_expression.eval(steps)
 
         self.record_output_parameters(stepdir, self.outputs.parameters)
@@ -2262,7 +2260,7 @@ def render_expr(expr, scope):
     while i >= 0:
         j = expr.find("}}", i+2)
         if expr[i:i+3] == "{{=":
-            value = Expression(replace_argo_func(expr[i+3:j])).eval(scope)
+            value = expression(expr[i+3:j]).eval(scope)
             value = value if isinstance(value, str) else \
                 jsonpickle.dumps(value)
             expr = expr[:i] + value.strip() + expr[j+2:]
@@ -2390,6 +2388,10 @@ def backup(path):
         shutil.move(path, bk)
 
 
+def expression(expr):
+    return Expression(replace_argo_func(expr))
+
+
 def replace_argo_func(expr):
     i = expr.find("toJson(map(sprig.untilStep(0, ")
     j = expr.find(", 1), { {'order': #")
@@ -2412,6 +2414,7 @@ def replace_argo_func(expr):
     expr = expr.replace("jsonpath",
                         "(lambda x, y: eval(x) if isinstance(x, str) else x)")
     expr = expr.replace("string", "str")
+    expr = expr.replace("sprig.int", "int")
     return expr
 
 

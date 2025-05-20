@@ -214,9 +214,9 @@ class ArgoVar:
     def __getitem__(self, i):
         if config["mode"] == "debug":
             if isinstance(i, str):
-                return Expression("%s['%s']" % (self.expr, i))
+                return ArgoVar("%s['%s']" % (self.expr, i))
             elif isinstance(i, int):
-                return Expression("%s[%s]" % (self.expr, i))
+                return ArgoVar("%s[%s]" % (self.expr, i))
         if isinstance(i, str):
             item = "jsonpath(%s, '$')['%s']" % (self.expr, i)
         else:
