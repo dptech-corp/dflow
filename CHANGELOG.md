@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.116](https://github.com/deepmodeling/dflow/compare/v1.8.115...v1.8.116) (2025-05-20)
+
+
+### Bug Fixes
+
+* replace argo function in debug mode ([7f77787](https://github.com/deepmodeling/dflow/commit/7f77787a7c97e06e71609520c46bfcc1eb5dcc3c))
+* support default annotation of OP function ([7f77787](https://github.com/deepmodeling/dflow/commit/7f77787a7c97e06e71609520c46bfcc1eb5dcc3c))
+
 ## [1.8.115](https://github.com/deepmodeling/dflow/compare/v1.8.114...v1.8.115) (2025-05-06)
 
 
