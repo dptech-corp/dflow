@@ -501,7 +501,7 @@ class PythonOPTemplate(PythonScriptOPTemplate):
                     script += "%s = cloudpickle.loads(%s)\n" % \
                         (class_name, cloudpickle.dumps(op_class))
 
-        script += "import os, sys, traceback\n"
+        script += "\nimport os, sys, traceback\n"
         script += "from dflow.python import OPIO, TransientError, FatalError\n"
         script += "from dflow.python.utils import handle_input_artifact," \
                   " handle_input_parameter\n"
