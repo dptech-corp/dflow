@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.118](https://github.com/deepmodeling/dflow/compare/v1.8.117...v1.8.118) (2025-05-23)
+
+
+### Bug Fixes
+
+* argo expression in debug mode ([8d691d4](https://github.com/deepmodeling/dflow/commit/8d691d4b1f620512495aafa8aaa5ef9dc7b1fb5a))
+
 ## [1.8.117](https://github.com/deepmodeling/dflow/compare/v1.8.116...v1.8.117) (2025-05-23)
 
 
