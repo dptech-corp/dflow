@@ -313,7 +313,7 @@ class ArgoVar:
         return ArgoVar("asFloat(%s) / %s" % (self.expr, other))
 
 
-class IfExpression(ArgoVar, Expression):
+class IfExpression(ArgoVar):
     def __init__(
             self,
             _if: Union[str, ArgoVar],
@@ -332,12 +332,8 @@ class IfExpression(ArgoVar, Expression):
     def __getattr__(self, key):
         # generate attribute expr dynamically because it may change
         if key == "expr":
-            if config["mode"] == "debug":
-                return "(%s if %s else %s)" % (
-                    to_expr(self._then), self._if, to_expr(self._else))
-            else:
-                return "(%s ? %s : %s)" % (
-                    self._if, to_expr(self._then), to_expr(self._else))
+            return "(%s ? %s : %s)" % (
+                self._if, to_expr(self._then), to_expr(self._else))
         return super().__getattr__(key)
 
 
