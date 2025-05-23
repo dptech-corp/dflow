@@ -18,7 +18,7 @@ from .context_syntax import GLOBAL_CONTEXT
 from .executor import Executor
 from .io import (PVC, ArgoVar, Expression, InputArtifact, InputParameter,
                  InputParameters, OutputArtifact, OutputParameter,
-                 if_expression, to_expr, type_to_str)
+                 if_expression, type_to_str)
 from .op_template import (OPTemplate, PythonScriptOPTemplate, ScriptOPTemplate,
                           ShellOPTemplate)
 from .python import Slices
@@ -65,9 +65,6 @@ def argo_range(
         Python
     Each argument can be Argo parameter
     """
-    if config["mode"] == "debug":
-        return expression("list(range(%s))" % ", ".join(
-            map(lambda x: "int(%s)" % to_expr(x), args)))
     start = 0
     step = 1
     if len(args) == 1:
@@ -197,8 +194,6 @@ def argo_len(
     Args:
         param: the Argo parameter which is a list
     """
-    if config["mode"] == "debug":
-        return expression("len(%s)" % to_expr(param))
     return ArgoLen(param)
 
 
@@ -234,13 +229,6 @@ def argo_enumerate(
     elif len(args) > 1:
         for i, arg in enumerate(args):
             kwargs["value" + str(i)] = arg
-    if config["mode"] == "debug":
-        values = "".join([", '%s': %s[i]" % (k, to_expr(v))
-                          for k, v in kwargs.items()])
-        expr = expression("[{'order': i%s} for i in range(len(%s))]" % (
-            values, to_expr(list(kwargs.values())[0])))
-        expr.kwargs = kwargs
-        return expr
     return ArgoEnumerate(**kwargs)
 
 
@@ -1471,9 +1459,7 @@ class Step:
         self.render_by_executor(context)
 
         if self.when is not None:
-            if isinstance(self.when, Expression):
-                value = self.when.eval(scope)
-            elif isinstance(self.when, (InputParameter, OutputParameter)):
+            if isinstance(self.when, (InputParameter, OutputParameter)):
                 value = get_var(self.when, scope).value
             elif isinstance(self.when, ArgoVar):
                 value = expression(self.when.expr).eval(scope)
@@ -1495,26 +1481,24 @@ class Step:
             def handle_expr(val, scope):
                 if isinstance(val, dict):
                     for k, v in val.items():
-                        if isinstance(v, Expression):
-                            val[k] = v.eval(scope)
+                        if isinstance(v, ArgoVar):
+                            val[k] = expression(v.expr).eval(scope)
                         else:
                             handle_expr(v, scope)
                 elif isinstance(val, list):
                     for i, v in enumerate(val):
-                        if isinstance(v, Expression):
-                            val[i] = v.eval(scope)
+                        if isinstance(v, ArgoVar):
+                            val[i] = expression(v.expr).eval(scope)
                         else:
                             handle_expr(v, scope)
                 elif hasattr(val, "__dict__"):
                     for k, v in val.__dict__.items():
-                        if isinstance(v, Expression):
-                            val.__dict__[k] = v.eval(scope)
+                        if isinstance(v, ArgoVar):
+                            val.__dict__[k] = expression(v.expr).eval(scope)
                         else:
                             handle_expr(v, scope)
 
-            if isinstance(value, Expression):
-                par.value = value.eval(scope)
-            elif isinstance(value, (InputParameter, OutputParameter)):
+            if isinstance(value, (InputParameter, OutputParameter)):
                 par.value = get_var(value, scope).value
             elif isinstance(value, ArgoVar):
                 par.value = expression(value.expr).eval(scope)
@@ -1536,10 +1520,8 @@ class Step:
                 art.source = get_var(art.source, scope)
 
         if self.with_param is not None or self.with_sequence is not None:
-            if isinstance(self.with_param, Expression):
-                item_list = self.with_param.eval(scope)
-            elif isinstance(self.with_param, (InputParameter,
-                                              OutputParameter)):
+            if isinstance(self.with_param, (InputParameter,
+                                            OutputParameter)):
                 item_list = self.with_param.value
             elif isinstance(self.with_param, ArgoVar):
                 item_list = expression(self.with_param.expr).eval(scope)
@@ -1554,26 +1536,20 @@ class Step:
                 start = 0
                 if self.with_sequence.start is not None:
                     start = self.with_sequence.start
-                    if isinstance(start, Expression):
-                        start = int(start.eval(scope))
-                    elif isinstance(start, (InputParameter, OutputParameter)):
+                    if isinstance(start, (InputParameter, OutputParameter)):
                         start = start.value
                     elif isinstance(start, ArgoVar):
                         start = int(expression(start.expr).eval(scope))
                 if self.with_sequence.count is not None:
                     count = self.with_sequence.count
-                    if isinstance(count, Expression):
-                        count = int(count.eval(scope))
-                    elif isinstance(count, (InputParameter, OutputParameter)):
+                    if isinstance(count, (InputParameter, OutputParameter)):
                         count = count.value
                     elif isinstance(count, ArgoVar):
                         count = int(expression(count.expr).eval(scope))
                     sequence = list(range(start, start + count))
                 if self.with_sequence.end is not None:
                     end = self.with_sequence.end
-                    if isinstance(end, Expression):
-                        end = int(end.eval(scope))
-                    elif isinstance(end, (InputParameter, OutputParameter)):
+                    if isinstance(end, (InputParameter, OutputParameter)):
                         end = end.value
                     elif isinstance(end, ArgoVar):
                         end = int(expression(end.expr).eval(scope))
@@ -1971,7 +1947,10 @@ class Step:
                     else:
                         raise e
             elif par1.value_from_expression is not None:
-                if isinstance(par1.value_from_expression, str):
+                if isinstance(par1.value_from_expression, ArgoVar):
+                    par1.value_from_expression = expression(
+                        par1.value_from_expression.expr)
+                elif isinstance(par1.value_from_expression, str):
                     par1.value_from_expression = expression(
                         par1.value_from_expression)
                 par.value = par1.value_from_expression.eval(steps)
@@ -1986,7 +1965,10 @@ class Step:
                 else:
                     art.local_path = get_var(art1._from, steps).local_path
             elif art1.from_expression is not None:
-                if isinstance(art1.from_expression, str):
+                if isinstance(art1.from_expression, ArgoVar):
+                    art1.from_expression = expression(
+                        art1.from_expression.expr)
+                elif isinstance(art1.from_expression, str):
                     art1.from_expression = expression(art1.from_expression)
                 art.local_path = art1.from_expression.eval(steps)
 
