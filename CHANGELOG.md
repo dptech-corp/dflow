@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.119](https://github.com/deepmodeling/dflow/compare/v1.8.118...v1.8.119) (2025-06-04)
+
+
+### Bug Fixes
+
+* **argo_objects.py:** prevent recursion explosion in get_sub_nodes traversal ([16b5e42](https://github.com/deepmodeling/dflow/commit/16b5e42b40327a70d46bdeb537b740612b1dfb7b))
+
 ## [1.8.118](https://github.com/deepmodeling/dflow/compare/v1.8.117...v1.8.118) (2025-05-23)
 
 
