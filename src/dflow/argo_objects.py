@@ -454,7 +454,7 @@ class ArgoWorkflow(ArgoObjectDict):
                 if id not in outbound_nodes:
                     next_generation += self.status.nodes[id].get(
                         "children", [])
-            current_generation = next_generation
+            current_generation = list(set(next_generation))
         return sub_nodes
 
     def get_duration(self) -> datetime.timedelta:
