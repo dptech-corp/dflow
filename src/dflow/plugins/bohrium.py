@@ -28,6 +28,10 @@ config = {
     "ticket": os.environ.get("BOHRIUM_TICKET", None),
     "upload_progress": boolize(os.environ.get("BOHRIUM_UPLOAD_PROGRESS",
                                               False)),
+    "access_key": os.environ.get("BOHRIUM_ACCESS_KEY"),
+    "openapi_url": os.environ.get("BOHRIUM_OPENAPI_URL",
+                                  "https://openapi.dp.tech"),
+    "app_key": os.environ.get("BOHRIUM_APP_KEY"),
 }
 
 
@@ -243,6 +247,9 @@ class TiefblueClient(StorageClient):
             userSharePath: Optional[str] = None,
             tiefblue_url: Optional[str] = None,
             ticket: Optional[str] = None,
+            access_key: Optional[str] = None,
+            openapi_url: Optional[str] = None,
+            app_key: Optional[str] = None,
     ) -> None:
         # only set s3_config["storage_client"] once
         if isinstance(s3_config["storage_client"], self.__class__):
@@ -267,6 +274,11 @@ class TiefblueClient(StorageClient):
         self.prefix = prefix
         self.sharePath = sharePath
         self.userSharePath = userSharePath
+        self.access_key = access_key if access_key is not None else \
+            config["access_key"]
+        self.openapi_url = openapi_url if openapi_url is not None else \
+            config["openapi_url"]
+        self.app_key = app_key if app_key is not None else config["app_key"]
         if self.token is None:
             self.get_token()
         s3_config["repo_type"] = "oss"
@@ -298,7 +310,11 @@ class TiefblueClient(StorageClient):
         params = {
             "projectId": self.project_id,
         }
-        if self.ticket is not None:
+        if self.access_key is not None:
+            url = self.openapi_url + "/openapi/v1/storage/token"
+            headers = {"x-app-key": self.app_key}
+            params["accessKey"] = self.access_key
+        elif self.ticket is not None:
             headers["Brm-Ticket"] = config["ticket"]
             update_headers()
         else:

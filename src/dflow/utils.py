@@ -261,7 +261,7 @@ def upload_artifact(
             f.write(jsonpickle.dumps({"path_list": path_list}))
 
         if config["mode"] == "debug" and not config["debug_s3"]:
-            path = upload_s3(tmpdir, debug_func=shutil.move)
+            path = upload_s3(tmpdir, debug_func=shutil.move, **kwargs)
             # To prevent exception in destruction
             os.makedirs(tmpdir, exist_ok=True)
             return LocalArtifact(local_path=path)
@@ -291,7 +291,7 @@ def upload_artifact(
     return S3Artifact(key=key, path_list=path_list, urn=urn)
 
 
-def copy_artifact(src, dst, sort=False) -> S3Artifact:
+def copy_artifact(src, dst, sort=False, **kwargs) -> S3Artifact:
     """
     Copy an artifact to another on server side
 
@@ -305,8 +305,8 @@ def copy_artifact(src, dst, sort=False) -> S3Artifact:
 
     ignore_catalog = False
     if sort:
-        src_catalog = catalog_of_artifact(src)
-        dst_catalog = catalog_of_artifact(dst)
+        src_catalog = catalog_of_artifact(src, **kwargs)
+        dst_catalog = catalog_of_artifact(dst, **kwargs)
         if src_catalog and dst_catalog:
             offset = max(dst_catalog,
                          key=lambda item: item["order"])["order"] + 1
@@ -318,10 +318,10 @@ def copy_artifact(src, dst, sort=False) -> S3Artifact:
                 fpath = os.path.join(catalog_dir, str(uuid.uuid4()))
                 with open(fpath, "w") as f:
                     f.write(jsonpickle.dumps({"path_list": src_catalog}))
-                upload_s3(path=catalog_dir, prefix=dst_key)
+                upload_s3(path=catalog_dir, prefix=dst_key, **kwargs)
                 ignore_catalog = True
 
-    copy_s3(src_key, dst_key, ignore_catalog=ignore_catalog)
+    copy_s3(src_key, dst_key, ignore_catalog=ignore_catalog, **kwargs)
     return S3Artifact(key=dst_key)
 
 
@@ -339,9 +339,12 @@ def download_s3(
         recursive: bool = True,
         skip_exists: bool = False,
         keep_dir: bool = False,
+        storage_client=None,
         **kwargs,
 ) -> str:
-    if s3_config["storage_client"] is not None:
+    if storage_client is not None:
+        client = storage_client
+    elif s3_config["storage_client"] is not None:
         client = s3_config["storage_client"]
     else:
         client = MinioClient(**kwargs)
@@ -377,6 +380,7 @@ def upload_s3(
         key: Optional[str] = None,
         prefix: Optional[str] = None,
         debug_func=os.symlink,
+        storage_client=None,
         **kwargs,
 ) -> str:
     if config["mode"] == "debug" and not config["debug_s3"]:
@@ -388,7 +392,9 @@ def upload_s3(
         debug_func(os.path.abspath(path), target)
         return target
 
-    if s3_config["storage_client"] is not None:
+    if storage_client is not None:
+        client = storage_client
+    elif s3_config["storage_client"] is not None:
         client = s3_config["storage_client"]
     else:
         client = MinioClient(**kwargs)
@@ -428,9 +434,12 @@ def copy_s3(
         dst_key: str,
         recursive: bool = True,
         ignore_catalog: bool = False,
+        storage_client=None,
         **kwargs,
 ) -> None:
-    if s3_config["storage_client"] is not None:
+    if storage_client is not None:
+        client = storage_client
+    elif s3_config["storage_client"] is not None:
         client = s3_config["storage_client"]
     else:
         client = MinioClient(**kwargs)
@@ -456,14 +465,16 @@ def copy_s3(
         client.copy(src_key, dst_key)
 
 
-def catalog_of_artifact(art, **kwargs) -> List[dict]:
+def catalog_of_artifact(art, storage_client=None, **kwargs) -> List[dict]:
     key = get_key(art, raise_error=False)
     if not key:
         return []
     if key[-1] != "/":
         key += "/"
 
-    if s3_config["storage_client"] is not None:
+    if storage_client is not None:
+        client = storage_client
+    elif s3_config["storage_client"] is not None:
         client = s3_config["storage_client"]
     else:
         client = MinioClient(**kwargs)
