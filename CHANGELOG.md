@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.120](https://github.com/deepmodeling/dflow/compare/v1.8.119...v1.8.120) (2025-06-17)
+
+
+### Bug Fixes
+
+* support access key for TiefblueClient ([4567683](https://github.com/deepmodeling/dflow/commit/4567683672100a9a83ec0a893d63e717b8b56495))
+* support pass storage_client to upload_artifact/download_artifact ([4567683](https://github.com/deepmodeling/dflow/commit/4567683672100a9a83ec0a893d63e717b8b56495))
+
 ## [1.8.119](https://github.com/deepmodeling/dflow/compare/v1.8.118...v1.8.119) (2025-06-04)
 
 
