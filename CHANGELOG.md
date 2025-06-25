@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.121](https://github.com/deepmodeling/dflow/compare/v1.8.120...v1.8.121) (2025-06-25)
+
+
+### Bug Fixes
+
+* submit workflow using bohrium access key ([d551e89](https://github.com/deepmodeling/dflow/commit/d551e891eafe3e2bd5d001f9429c8923c44dd819))
+
 ## [1.8.120](https://github.com/deepmodeling/dflow/compare/v1.8.119...v1.8.120) (2025-06-17)
 
 
