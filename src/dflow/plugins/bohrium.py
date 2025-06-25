@@ -38,7 +38,10 @@ config = {
 def _raise_error(res, op):
     if res["code"] not in succ_code:
         if "error" in res:
-            raise RuntimeError("%s failed: %s" % (op, res["error"]["msg"]))
+            if isinstance(res["error"], str):
+                raise RuntimeError("%s failed: %s" % (op, res["error"]))
+            else:
+                raise RuntimeError("%s failed: %s" % (op, res["error"]["msg"]))
         elif "message" in res:
             raise RuntimeError("%s failed: %s" % (op, res["message"]))
         else:
@@ -311,10 +314,17 @@ class TiefblueClient(StorageClient):
             "projectId": self.project_id,
         }
         if self.access_key is not None:
-            url = self.openapi_url + "/openapi/v1/storage/token"
-            headers = {"x-app-key": self.app_key}
-            params["accessKey"] = self.access_key
-        elif self.ticket is not None:
+            rsp = requests.get(
+                self.openapi_url + "/openapi/v1/ticket/get",
+                headers={"x-app-key": self.app_key},
+                params={"accessKey": self.access_key}
+            )
+            res = json.loads(rsp.text)
+            _raise_error(res, "get ticket")
+            self.ticket = res["data"]["ticket"]
+            config["ticket"] = res["data"]["ticket"]
+
+        if self.ticket is not None:
             headers["Brm-Ticket"] = config["ticket"]
             update_headers()
         else:
