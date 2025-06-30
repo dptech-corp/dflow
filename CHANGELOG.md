@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.122](https://github.com/deepmodeling/dflow/compare/v1.8.121...v1.8.122) (2025-06-30)
+
+
+### Bug Fixes
+
+* bug of auto loop with json graph ([502f29e](https://github.com/deepmodeling/dflow/commit/502f29e8df8a7e7e7adda32076bc25dc0f0e2f2b))
+
 ## [1.8.121](https://github.com/deepmodeling/dflow/compare/v1.8.120...v1.8.121) (2025-06-25)
 
 
