@@ -463,7 +463,13 @@ class Step:
                 name = self.template.slices.input_parameter[0]
                 par = self.inputs.parameters[name]
                 if hasattr(par, "value"):
-                    if hasattr(par.value, "__len__"):
+                    if isinstance(par.value, str) and par.value.startswith(
+                            "{{") and par.value.endswith("}}"):
+                        expr = par.value[2:-2]
+                        if expr[:1] == "=":
+                            expr = expr[1:]
+                        self.with_param = argo_range(argo_len(ArgoVar(expr)))
+                    elif hasattr(par.value, "__len__"):
                         self.with_param = argo_range(len(par.value))
                     else:
                         self.with_param = argo_range(argo_len(par.value))
