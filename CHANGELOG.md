@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.123](https://github.com/deepmodeling/dflow/compare/v1.8.122...v1.8.123) (2025-07-01)
+
+
+### Bug Fixes
+
+* expression in auto loop parameter ([1bb1505](https://github.com/deepmodeling/dflow/commit/1bb15052b91d374af8c38a2da5074bba6d17a1f1))
+
 ## [1.8.122](https://github.com/deepmodeling/dflow/compare/v1.8.121...v1.8.122) (2025-06-30)
 
 
