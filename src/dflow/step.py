@@ -463,12 +463,23 @@ class Step:
                 name = self.template.slices.input_parameter[0]
                 par = self.inputs.parameters[name]
                 if hasattr(par, "value"):
-                    if isinstance(par.value, str) and par.value.startswith(
-                            "{{") and par.value.endswith("}}"):
-                        expr = par.value[2:-2]
-                        if expr[:1] == "=":
-                            expr = expr[1:]
-                        self.with_param = argo_range(argo_len(ArgoVar(expr)))
+                    if isinstance(par.value, str):
+                        parameter_pattern = re.compile(
+                            r"^{{(.*?)\.(.*?)\.(.*?)\.parameters\.(.*?)}}$")
+                        match = parameter_pattern.match(par.value)
+                        if match:
+                            expr = "%s['%s'].%s.parameters['%s']" % (
+                                match.group(1), match.group(2),
+                                match.group(3), match.group(4))
+                            self.with_param = argo_range(argo_len(ArgoVar(
+                                expr)))
+                        elif par.value.startswith("{{=") and \
+                                par.value.endswith("}}"):
+                            self.with_param = argo_range(argo_len(ArgoVar(
+                                par.value[3:-2])))
+                        else:
+                            self.with_param = argo_range(len(json.loads(
+                                par.value)))
                     elif hasattr(par.value, "__len__"):
                         self.with_param = argo_range(len(par.value))
                     else:
