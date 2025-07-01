@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.124](https://github.com/deepmodeling/dflow/compare/v1.8.123...v1.8.124) (2025-07-01)
+
+
+### Bug Fixes
+
+* sys.stdout.encoding is None ([a86f8ff](https://github.com/deepmodeling/dflow/commit/a86f8ff21bb0e17f59fd24e15216cde2a1475ada))
+
 ## [1.8.123](https://github.com/deepmodeling/dflow/compare/v1.8.122...v1.8.123) (2025-07-01)
 
 
