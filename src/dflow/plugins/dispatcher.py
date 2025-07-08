@@ -495,6 +495,8 @@ class DispatcherExecutor(Executor):
                 "\n"
             new_template.script += "    item_list = [format % i if format != "\
                 "'' else i for i in r]\n"
+            new_template.script += "forward_common_files = "\
+                "task.forward_files[1:]\n"
             new_template.script += "for i, item in enumerate(item_list):\n"
             new_template.script += "    new_task_dict = deepcopy(task."\
                 "serialize())\n"
@@ -532,12 +534,13 @@ class DispatcherExecutor(Executor):
             new_template.script += "        f.write(new_script)\n"
             new_template.script += "    new_task_dict['command'] = new_task_"\
                 "dict['command'].replace('script', 'script' + str(i))\n"
-            new_template.script += "    new_task_dict['forward_files'][0] = "\
-                "'script' + str(i)\n"
+            new_template.script += "    new_task_dict['forward_files'] = ["\
+                "'script' + str(i)]\n"
             new_template.script += "    tasks.append(Task.load_from_dict("\
                 "new_task_dict))\n"
             new_template.script += "submission = Submission(work_base='.', "\
-                "machine=machine, resources=resources, task_list=tasks)\n"
+                "machine=machine, resources=resources, task_list=tasks, "\
+                "forward_common_files=forward_common_files)\n"
         else:
             new_template.script += "submission = Submission(work_base='.', "\
                 "machine=machine, resources=resources, task_list=[task])\n"
