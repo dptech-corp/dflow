@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.125](https://github.com/deepmodeling/dflow/compare/v1.8.124...v1.8.125) (2025-07-08)
+
+
+### Bug Fixes
+
+* use forward_common_files in dispatcher executor ([6f9806a](https://github.com/deepmodeling/dflow/commit/6f9806a6dbd89e6c087e186b803c638cb8e00b67))
+
 ## [1.8.124](https://github.com/deepmodeling/dflow/compare/v1.8.123...v1.8.124) (2025-07-01)
 
 
