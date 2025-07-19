@@ -109,7 +109,17 @@ def create_job_group(job_group_name):
         "Content-type": "application/json",
     }
     url = config["bohrium_url"] + "/brm/v1/job_group/add"
-    if config["ticket"] is not None:
+    if config["access_key"] is not None:
+        rsp = requests.get(
+            config["openapi_url"] + "/openapi/v1/ticket/get",
+            headers={"x-app-key": config["app_key"]},
+            params={"accessKey": config["access_key"]}
+        )
+        res = json.loads(rsp.text)
+        _raise_error(res, "get ticket")
+        headers["Brm-Ticket"] = res["data"]["ticket"]
+        update_headers()
+    elif config["ticket"] is not None:
         headers["Brm-Ticket"] = config["ticket"]
         update_headers()
     else:
