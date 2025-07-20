@@ -210,6 +210,19 @@ class DispatcherExecutor(Executor):
                 input_data["job_name"] = "{{pod.name}}"
             if "output_log" not in input_data:
                 input_data["output_log"] = True
+        elif self.machine_dict["context_type"] == "OpenAPI":
+            from . import bohrium
+            remote_profile = self.machine_dict["remote_profile"]
+            if "access_key" not in remote_profile and bohrium.config[
+                    "access_key"] is not None:
+                remote_profile["access_key"] = bohrium.config["access_key"]
+            if "project_id" not in remote_profile and bohrium.config[
+                    "project_id"] is not None:
+                remote_profile["project_id"] = int(bohrium.config[
+                    "project_id"])
+            if "app_key" not in remote_profile and bohrium.config[
+                    "app_key"] is not None:
+                remote_profile["app_key"] = bohrium.config["app_key"]
 
         # set env to prevent dispatcher from considering different tasks as one
         self.resources_dict = {
@@ -413,6 +426,10 @@ class DispatcherExecutor(Executor):
                     "input_data"]:
                 machine_dict["remote_profile"]["input_data"][
                     "image_name"] = template.image
+        elif machine_dict["context_type"] == "OpenAPI":
+            if "image_address" not in machine_dict["remote_profile"]:
+                machine_dict["remote_profile"]["image_address"] = \
+                    template.image
 
         machine_dict["local_root"] = self.work_root
         new_template.script += "import json, shlex\n"
