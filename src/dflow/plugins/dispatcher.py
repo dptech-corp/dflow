@@ -223,6 +223,12 @@ class DispatcherExecutor(Executor):
             if "app_key" not in remote_profile and bohrium.config[
                     "app_key"] is not None:
                 remote_profile["app_key"] = bohrium.config["app_key"]
+            if "platform" not in remote_profile:
+                remote_profile["platform"] = "ali"
+            if "machine_type" not in remote_profile:
+                remote_profile["machine_type"] = "c4_m8_cpu"
+            if "job_name" not in remote_profile:
+                remote_profile["job_name"] = "{{pod.name}}"
 
         # set env to prevent dispatcher from considering different tasks as one
         self.resources_dict = {
