@@ -85,7 +85,8 @@ class Expression:
         try:
             res = eval(self.expr, variables)
         except Exception:
-            raise RuntimeError("Failed to evaluate expression %s with variables %s" % (self.expr, variables))
+            raise RuntimeError("Failed to evaluate expression %s "
+                               "with variables %s" % (self.expr, variables))
         return res
 
 

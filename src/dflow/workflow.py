@@ -295,8 +295,9 @@ class Workflow:
                                 and not os.path.islink(os.path.join(
                                     wfdir, key)):
                                 os.symlink(
-                                    os.path.join(
-                                        os.path.abspath(step.workflow), key),
+                                    os.path.abspath(os.path.join(
+                                        config["debug_workdir"], step.workflow,
+                                        config["debug_artifact_dir"], key)),
                                     os.path.join(wfdir, key))
                         for name, art in step[io].artifacts.items():
                             if "dflow_group_key" in step.inputs.parameters:
