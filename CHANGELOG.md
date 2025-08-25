@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## [1.8.127](https://github.com/deepmodeling/dflow/compare/v1.8.126...v1.8.127) (2025-07-20)
+
+
+### Bug Fixes
+
+* handle openapi in dispatcher executor ([527ed0d](https://github.com/deepmodeling/dflow/commit/527ed0df372bce0abf863418e137a6f16ec5073f))
+* job_name for openapi ([ec2b5e4](https://github.com/deepmodeling/dflow/commit/ec2b5e47e504eee00dc51bf5ba88d22f560eeb07))
+
+## [1.8.126](https://github.com/deepmodeling/dflow/compare/v1.8.125...v1.8.126) (2025-07-19)
+
+
+### Bug Fixes
+
+* support access key for creating bohr job group ([d88eaa3](https://github.com/deepmodeling/dflow/commit/d88eaa3dbbae6eb4615fb4dbac88606a8722c486))
+
 ## [1.8.125](https://github.com/deepmodeling/dflow/compare/v1.8.124...v1.8.125) (2025-07-08)
 
 
