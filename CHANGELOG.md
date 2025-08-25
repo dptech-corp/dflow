@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [1.8.128](https://github.com/deepmodeling/dflow/compare/v1.8.127...v1.8.128) (2025-08-25)
+
+
+### Bug Fixes
+
+* format ([ff45a80](https://github.com/deepmodeling/dflow/commit/ff45a80760a38552e66f2867f25b401cc5d580cf))
+* resubmit workflow with merged output artifact in debug mode ([25e1ba7](https://github.com/deepmodeling/dflow/commit/25e1ba70ab932d0334d1e4c8a0a0fa4666b501f1))
+
 ## [1.8.127](https://github.com/deepmodeling/dflow/compare/v1.8.126...v1.8.127) (2025-07-20)
 
 
