@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.129](https://github.com/deepmodeling/dflow/compare/v1.8.128...v1.8.129) (2025-09-16)
+
+
+### Bug Fixes
+
+* add an option symlink to OP.set_output ([35a5209](https://github.com/deepmodeling/dflow/commit/35a520980017f562b5a61d4ec4bbc9961f1009ad))
+
 ## [1.8.128](https://github.com/deepmodeling/dflow/compare/v1.8.127...v1.8.128) (2025-08-25)
 
 
