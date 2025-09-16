@@ -398,9 +398,9 @@ class OP(ABC):
             op = getattr(mod, graph["name"])
         return op
 
-    def set_output(self, name, value):
+    def set_output(self, name, value, symlink=True):
         self.outputs[name] = value
-        self.handle_outputs({name: value}, symlink=True)
+        self.handle_outputs({name: value}, symlink=symlink)
 
     def handle_outputs(self, outputs, symlink=False):
         os.makedirs("%s/outputs/parameters" % self.tmp_root, exist_ok=True)
