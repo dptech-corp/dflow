@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## [1.8.134](https://github.com/deepmodeling/dflow/compare/v1.8.133...v1.8.134) (2026-10-27)
+
+
+### Bug Fixes
+
+* override output artifact when it is a dir finally after set_output ([75d68fe](https://github.com/deepmodeling/dflow/commit/75d68fee6a8e6894ac56dc3cdc1bf0b1396a06f9))
+
 ## [1.8.133](https://github.com/deepmodeling/dflow/compare/v1.8.132...v1.8.133) (2026-01-21)
 
 
