@@ -561,10 +561,11 @@ def link(src, dst):
 def copy_file(src, dst, func=try_link):
     os.makedirs(os.path.abspath(os.path.dirname(dst)), exist_ok=True)
     if os.path.isdir(src):
-        try:
-            shutil.copytree(src, dst, copy_function=func)
-        except FileExistsError:
-            pass
+        if os.path.islink(dst) or os.path.isfile(dst):
+            os.remove(dst)
+        if os.path.isdir(dst):
+            shutil.rmtree(dst)
+        shutil.copytree(src, dst, copy_function=func)
     elif os.path.isfile(src):
         func(src, dst)
     else:
